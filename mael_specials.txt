@@ -1,0 +1,12 @@
+LAct Shock_pulse 1.7 0 8 enemy act 0 0
+RAct Water_pulse 1.7 0 8 enemy act 0 0
+HAct Icicle_pulse 1.7 0 8 enemy act 0 0
+WAct Vacuum_pulse 1.7 0 8 enemy act 0 0
+LAny Thunderbolt 1.2 0 8 enemy any 0 0
+RAny Hydro_bolt 1.2 0 8 enemy any 0 0
+HAny Freeze_bolt 1.2 0 8 enemy any 0 0
+WAny Wind_bolt 1.2 0 8 enemy any 0 0
+LAll Shockwave 0.5 0 8 enemy all 0 0
+RAll Rip_wave 0.5 0 8 enemy all 0 0
+HAll Frost_wave 0.5 0 8 enemy all 0 0
+WAll Sonic_wave 0.5 0 8 enemy all 0 0
