@@ -1,6 +1,0 @@
-Nikola -3, -3, 3 Lightning plasma_bolt
-Alexandre -1, 2, 2 Lightning plasma_bolt
-undefined 1, 2, 2 Rain rain_act
-Wulf -1, -3, -1 Hail hail_act
-Viktor 1, -2, 0 Wind wind_act
-temp_char 1, -1, -2 Wind wind_any
