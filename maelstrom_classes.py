@@ -1,4 +1,9 @@
 """
+Copyright (c) 2016 Matt Crow
+Distribution of this software, in whole or in part, is ILLIGAL. 
+"""
+
+"""
 Started October 28, 2015
 28/10/2015-: Built Attack, Warrior (later renamed Character), and Team
 Week 2: Revised/improved/reordered functions
@@ -426,13 +431,13 @@ class Character:
         
         if attacker.team.switched_in:
             damage = damage * 0.75
-            
+        """    
         if debug:
             print "Physical Mult:", phys_damage
             print "Elemental Mult:", ele_damage
             print "Raw damage:", (phys_damage + ele_damage) / 2
             print "Damage before MHC:", damage
-            
+        """    
         return int(damage)
         
     def take_DMG(self, attacker, attack_used):
@@ -691,6 +696,9 @@ class Team:
         """
         Elect a leader
         """
+        if self.AI:
+            self.active = self.use[0]
+            return
         lead = choose("Who do you want to lead with?", self.use)
         
         self.active = lead
@@ -705,7 +713,7 @@ class Team:
         """
         Print the names of all team members
         """
-        print " "
+        print "show_team"
         for member in self.members_rem:
             if exclude_active:
                 if member != self.active:
@@ -769,6 +777,100 @@ class Team:
         # Default
         return "Attack"
     
+    # comment   
+    def who_switch(self):
+        """
+        Used to help the AI
+        decide who to switch in
+        """
+        can_ko = []
+        """
+        Can anyone KO?
+        """
+        for member in self.members_rem:
+            if self.enemy.active.calc_DMG(member, slam) * 0.75 >= self.enemy.active.HP_rem:
+                can_ko.append(member)
+            elif self.enemy.active.calc_DMG(member, self.active.special) * 0.75 >= self.enemy.active.HP_rem and self.energy >= 2:
+                can_ko.append(member)
+        if debug:
+            for member in can_ko:
+                print member.name
+            print "can KO"
+        """
+        If one person can KO,
+        bring them in.
+        If nobody can,
+        change nothing.
+        If someone can KO,
+        only use them.
+        """
+        if len(can_ko) == 1:
+            return can_ko[0]
+        elif len(can_ko) == 0:
+            array = self.members_rem
+        else:
+            array = can_ko
+        """
+        Check for advantages
+        """
+        at_adv = []
+        for member in array:
+            if member.element.name == self.enemy.active.element.weakness:
+                at_adv.append(member)
+        if debug:
+            for member in at_adv:
+                print member.name
+            print "are at advantage"
+        
+        # comment here
+        """
+        If someone is at advantage 
+        AND can KO,
+        use them.
+        If multiple people can KO AND are at advantage,
+        use them.
+        """
+        strong_and_ko = []
+        for member in at_adv:
+            if member in can_ko:
+                strong_and_ko.append(member)
+        
+        if len(strong_and_ko) == 1:
+            return strong_and_ko[0]
+        elif len(strong_and_ko) > 1:
+            rand = random.randint(0, len(strong_and_ko) - 1)
+            print rand
+            return strong_and_ko[rand]
+        elif len(can_ko) > 1:
+            rand = random.randint(0, len(can_ko) - 1)
+            print rand
+            return can_ko[rand]
+        elif len(at_adv) > 1:
+            rand = random.randint(0, len(at_adv) - 1)
+            print rand
+            return at_adv[rand]
+        
+        """
+        Check for disadvantages
+        """
+        not_at_dis = []
+        for member in self.members_rem:
+            if self.enemy.active.element.name != member.element.weakness:
+                not_at_dis.append(member)
+        if debug:
+            for member in not_at_dis:
+                print member.name
+            print "are not at disadvantage"
+        if len(not_at_dis) == 1:
+            return not_at_dis[0]
+        elif len(not_at_dis) > 1:
+            rand = random.randint(0, len(not_at_dis) - 1)
+            return not_at_dis[rand]
+        else:
+            rand = random.randint(0, len(self.members_rem) - 1)
+            return self.members_rem[rand]  
+              
+    
     """
     Choices are made using these functions
     """    
@@ -809,7 +911,12 @@ class Team:
             if member != self.active:
                 choices.append(member)
         
-        switch_for = choose("Who do you want to bring in?", choices)
+        if not self.AI:
+            switch_for = choose("Who do you want to bring in?", choices)
+        else:
+            if debug:
+                print "AI is deciding..."
+            switch_for = self.who_switch()
         
         self.switch(switch_for)
           
