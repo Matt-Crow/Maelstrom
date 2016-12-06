@@ -16,8 +16,9 @@ Week 2: Revised/improved/reordered functions
 18/10/2016 - 22/10/2016: General cleanup/improvement
 31/10/2016 - 6/10/2016: File work
 14/11/2016 - 20/11/2016: Area and general cleanup
+21/11/2016 - 1/12/2016: Added AI
 
-Version 0.7
+Version 0.85
 """
 
 if __name__ == "__main__":
@@ -27,26 +28,16 @@ if __name__ == "__main__":
     
 import random
 
-do_MHC = True
-debug = True
-
 characters = {}
 enemies = {}
-
-#remove eventually
-player_contracts = []
 
 """
 To do:
 
 Add abilities
 Add items
-add AI
 
 add cancel option
-
-bug: debug shows active enemy alongside team while checking boosts
-bug: extra turn if second team wins
 """
 
 def mod(num):
@@ -93,6 +84,7 @@ def choose(question, options):
             print "That isn't an option..."
 
 # need to comment this
+# work here
 class Savefile:
     def __init__(self, file):
         self.file = file
@@ -162,15 +154,16 @@ class Savefile:
         file.close()
 
 # balance chances later
+# AI for target
 class Attack:
     """
     The regular attacks all characters can use
     as well as characters' exclusive Specials
     """
-    def __init__(self, (name, damage_multiplier, chances, mhc_mults, target, side_effect)):
+    def __init__(self, name, damage_multiplier, chances, mhc_mults, target, side_effect, energy_cost = 0):
         """
         Copy-paste: 
-        (name, damage_multiplier, (miss%, crit%), (miss*, crit*), (ally_or_enemy, act_any_all), (eff, eff_LV, eff_dur))  
+        name, damage_multiplier, (miss%, crit%), (miss*, crit*), (ally_or_enemy, act_any_all), (eff, eff_LV, eff_dur)  
         """
         self.name = name
         self.mult = float(damage_multiplier)
@@ -182,7 +175,8 @@ class Attack:
         self.act_any_all = target[1]
         self.eff = side_effect[0]
         self.eff_LV = side_effect[1]
-        self.eff_dur = side_effect[2]   
+        self.eff_dur = side_effect[2]
+        self.energy_cost = energy_cost   
         
     def calc_MHC(self):
         """
@@ -226,13 +220,35 @@ class Attack:
                 targets.append(member)
                 
         elif self.act_any_all == "any":
-            hit = choose("Who do you wish to hit?", target_team.members_rem)
+            if user.team.AI:
+                highest = 0
+                best = None
+                options = []
+                if user.team.switched_in:
+                    m = 0.75
+                else:
+                    m = 1.0
+                for member in target_team.members_rem:
+                    damage = member.calc_DMG(user, self) * m
+                    if damage >= member.HP_rem:
+                        options.append(member)
+                    if damage >= highest:
+                        highest = damage
+                        best = member
+                if len(options) >= 1:
+                    hit = target_team.members_rem[random.randint(0, len(options) - 1)]
+                else:
+                    hit = best
+            else:
+                hit = choose("Who do you wish to hit?", target_team.members_rem)
             targets.append(hit)
                         
         for warrior in targets:               
             warrior.take_DMG(user, self)
             if self.eff != 0:
                 warrior.boost(self.eff, self.eff_LV, self.eff_dur)
+        
+        user.team.lose_energy(self.energy_cost)
 
 class Element:
     def __init__(self, name, weakness):
@@ -404,8 +420,15 @@ class Character:
         """
         healing = self.get_HP() * (float(percent) / 100)
         self.HP_rem = int(self.HP_rem + healing)
-        if debug:
-            print self.name, "healed", healing, "HP"
+        
+        if percent > 0:
+            msg = " restored "
+        elif percent < 0:
+            msg = " lost "
+        else:
+            return
+        
+        print self.name + msg + str(abs(int(healing))) + " HP"
             
         if self.HP_rem > self.get_HP():
             self.HP_rem = self.get_HP()
@@ -444,7 +467,7 @@ class Character:
         dmg = self.calc_DMG(attacker, attack_used)
         if do_MHC:
             dmg = dmg * attack_used.calc_MHC()
-        print self.name + " took " + str(dmg) + " damage!"
+        print attacker.name + " struck " + self.name + " for " + str(int(dmg)) + " damage using " + attack_used.name + "!"
         self.HP_rem = int(self.HP_rem - dmg)
         
     def check_if_KOed(self):
@@ -452,6 +475,9 @@ class Character:
         Am I dead yet?
         """
         return self.HP_rem <= 0
+    
+    def can_spec(self):
+        return self.team.energy >= self.special.energy_cost
     
     """
     Post-battle actions:
@@ -463,6 +489,9 @@ class Character:
         Caps at the most XP required for a battle
         (Can't level up twice after one battle)
         """
+        if self.team.AI:
+            return
+        
         self.XP = self.XP + amount
         if self.XP >= self.level * 10: 
             if self.can_level_up():
@@ -565,22 +594,21 @@ class Contract:
         else:
             return (self.poss[3], 1)
 
-# improve this BUGGED
 class Tavern:
     def __init__(self, name):
         self.name = name
     
-    def recruit(self, team):
+    def recruit(self, team, contracts):
         print "So, you wan't to hire out another warrior, eh?"
         print "Now let me see..."
-        if len(player_contracts) == 0:
+        if len(contracts) == 0:
             print "Sorry, but it looks like you don't have any contracts."
             print "Come back when you have one, and then we'll talk."
         else:
             print "Well well well, and here I thought you weren't credibly."
             print "How about you take a look at who we got here?"
             
-            con = choose("Which contract do you want to use?", player_contracts)
+            con = choose("Which contract do you want to use?", contracts)
             team.add_member(con.use())
 
 class Team:
@@ -606,7 +634,7 @@ class Team:
         Add a member to a team.
         """
         for member in self.team:
-            if new_member == member.name:
+            if new_member[0] == member.name:
                 member.stars += 1
                 print member.name + "'s stats were boosted!"
                 member.init_for_battle()
@@ -708,19 +736,6 @@ class Team:
         You're up!
         """
         self.active = member
-          
-    def show_team(self, exclude_active = False):
-        """
-        Print the names of all team members
-        """
-        print "show_team"
-        for member in self.members_rem:
-            if exclude_active:
-                if member != self.active:
-                    print "*", member.name
-            else:
-                print "*", member.name
-        print " "
     
     def initialize(self):
         """
@@ -754,9 +769,21 @@ class Team:
         First, check if our active can KO
         """
         if self.enemy.active.calc_DMG(self.active, slam) >= self.enemy.active.HP_rem:
+            if debug:
+                print self.active.name + " can KO " + self.enemy.active.name + " with Slam"
             return "Attack"
-        elif self.enemy.active.calc_DMG(self.active, self.active.special) >= self.enemy.active.HP_rem and self.energy >= 2:
+        if self.enemy.active.calc_DMG(self.active, self.active.special) >= self.enemy.active.HP_rem and self.active.can_spec():
+            if debug:
+                print self.active.name + " can KO " + self.enemy.active.name + " with " + self.active.special.name
             return "Attack"
+        # check if your active can benchhit
+        if self.active.special.act_any_all != "act":
+            for member in self.enemy.members_rem:
+                if member.calc_DMG(self.active, self.active.special) >= member.HP_rem and self.active.can_spec():
+                    if debug:
+                        print self.active.name + " can KO " + member.name + " with " + self.active.special.name
+                    return "Attack"
+                
             
         """
         Second, check if an ally can KO 
@@ -764,10 +791,10 @@ class Team:
         for member in self.members_rem:
             if self.enemy.active.calc_DMG(member, slam) * 0.75 >= self.enemy.active.HP_rem:
                 return "Switch"
-            elif self.enemy.active.calc_DMG(member, self.active.special) * 0.75 >= self.enemy.active.HP_rem and self.energy >= 2:
+            if self.enemy.active.calc_DMG(member, member.special) * 0.75 >= self.enemy.active.HP_rem and member.can_spec():
                 return "Switch"
             # Check if we are strong against them
-            elif self.active.element.name == self.enemy.active.element.weakness:
+            if self.active.element.name == self.enemy.active.element.weakness:
                 return "Attack"
         """
         Lastly, if all else fails, run for your life
@@ -790,7 +817,7 @@ class Team:
         for member in self.members_rem:
             if self.enemy.active.calc_DMG(member, slam) * 0.75 >= self.enemy.active.HP_rem:
                 can_ko.append(member)
-            elif self.enemy.active.calc_DMG(member, self.active.special) * 0.75 >= self.enemy.active.HP_rem and self.energy >= 2:
+            elif self.enemy.active.calc_DMG(member, self.active.special) * 0.75 >= self.enemy.active.HP_rem and member.can_spec():
                 can_ko.append(member)
         if debug:
             for member in can_ko:
@@ -837,15 +864,17 @@ class Team:
         
         if len(strong_and_ko) == 1:
             return strong_and_ko[0]
-        elif len(strong_and_ko) > 1:
+        if len(strong_and_ko) > 1:
             rand = random.randint(0, len(strong_and_ko) - 1)
             print rand
             return strong_and_ko[rand]
-        elif len(can_ko) > 1:
+        if len(can_ko) > 1:
             rand = random.randint(0, len(can_ko) - 1)
             print rand
             return can_ko[rand]
-        elif len(at_adv) > 1:
+        if len(at_adv) == 1:
+            return at_adv[0]
+        if len(at_adv) > 1:
             rand = random.randint(0, len(at_adv) - 1)
             print rand
             return at_adv[rand]
@@ -863,14 +892,61 @@ class Team:
             print "are not at disadvantage"
         if len(not_at_dis) == 1:
             return not_at_dis[0]
-        elif len(not_at_dis) > 1:
+        if len(not_at_dis) > 1:
             rand = random.randint(0, len(not_at_dis) - 1)
             return not_at_dis[rand]
-        else:
-            rand = random.randint(0, len(self.members_rem) - 1)
-            return self.members_rem[rand]  
-              
+        
+        rand = random.randint(0, len(self.members_rem) - 1)
+        return self.members_rem[rand]  
     
+    # work on specials
+    def what_attack(self):
+        """
+        Used to help the AI
+        choose what attack
+        to use
+        """
+        if self.switched_in:
+            sw = 0.75
+        else:
+            sw = 1.0
+        """
+        Can you get multiple KOes?
+        """
+        if self.active.can_spec() and self.active.special.act_any_all == "all":
+            koes = 0
+            for member in self.enemy.members_rem:
+                if member.calc_DMG(self.active, self.active.special) * sw >= member.HP_rem:
+                    koes += 1
+            if koes >= 2:
+                return self.active.special
+        """
+        Can you get a KO?
+        """
+        if self.enemy.active.calc_DMG(self.active, slash) * sw >= self.enemy.active.HP_rem:
+            return slash
+        if do_MHC:
+            if self.enemy.active.calc_DMG(self.active, slam) * sw >= self.enemy.active.HP_rem:
+                return slam
+        if self.active.can_spec():
+            if self.active.special.act_any_all == "any":
+                if self.enemy.active.calc_DMG(self.active, self.active.special) * sw >= self.enemy.active.HP_rem:
+                    return self.active.special
+            if self.enemy.active.calc_DMG(self.active, self.active.special) * sw >= self.enemy.active.HP_rem:
+                return self.active.special
+        """
+        If you cannot KO...
+        """
+        if self.active.can_spec():
+            return self.active.special
+         
+        # default to jab (or slash if no MHC)
+        
+        if do_MHC:
+            return jab
+        else:
+            return slash
+            
     """
     Choices are made using these functions
     """    
@@ -878,22 +954,25 @@ class Team:
         """
         How doth thee strike?
         """
-        attack_options = []
+        if not self.AI:
+            attack_options = []
         
-        # to avoid editting attacks...
-        if do_MHC:
-            for attack in attacks:
-                attack_options.append(attack)
+            # to avoid editting attacks...
+            if do_MHC:
+                for attack in attacks:
+                    attack_options.append(attack)
+            else:
+                attack_options.append(slash)
+        
+            if self.active.can_spec() and self.active.special != None:
+                attack_options.append(self.active.special) 
+        
+            choice = choose("What attack do you wish to use?", attack_options)
+        
         else:
-            attack_options.append(slash)
-        
-        if self.energy >= 2 and self.active.special != None:
-            attack_options.append(self.active.special) 
-        
-        choice = choose("What attack do you wish to use?", attack_options)
-        
-        if choice == self.active.special:
-            self.lose_energy(2)
+            if debug:
+                print "AI is choosing attack..."
+            choice = self.what_attack()
         
         choice.use(self.active)
               
@@ -937,7 +1016,7 @@ class Team:
         
         choices = ["Attack"]
         
-        if (not self.one_left()) and self.energy >= 1:
+        if (not self.one_left()) and self.energy >= 2:
             choices.append("Switch")
         
         if not self.AI:
@@ -951,7 +1030,7 @@ class Team:
         
         if attack_switch == "Switch":
             self.choose_switchin()
-            self.lose_energy(1)
+            self.lose_energy(2)
             self.switched_in = True
         self.choose_attack()
         
@@ -975,7 +1054,7 @@ class Team:
         
         if self.is_up():
             self.switched_in = False
-            self.gain_energy()
+            self.gain_energy(2)
             
             for member in self.members_rem:
                 member.update_boosts()
@@ -1068,9 +1147,8 @@ class Battle:
         print " "
         print self.name
         print self.description
-        for team in self.teams:
-            for member in team.use:
-                print "* " + member.name + " LV " + str(member.level) + " " + member.element.name
+        for member in self.teams[0].use:
+            print "* " + member.name + " LV " + str(member.level) + " " + member.element.name
     
     def load_team(self, team):
         """
@@ -1133,8 +1211,8 @@ class Battle:
             num = random.randrange(0, len(self.forecast) - 1)
             self.weather = self.forecast[num]
         except:
-            if debug:
-                print "Only one weather option"
+            if self.forecast == None:
+                self.forecast = Weather(None, 0, "The land is seized by an undying calm...")
             self.weather = self.forecast
         
         self.weather.disp_msg()
@@ -1161,7 +1239,8 @@ class Battle:
                 if team.is_up():
                     self.weather.do_effect(team.members_rem)
                     team.do_turn()
-                    
+                if not team.is_up():
+                    break      
         self.check_winner()
         self.end()
 # needs improve    
@@ -1186,14 +1265,17 @@ class Area:
         level_to_play = choose("Which level do you want to play?", self.levels)
         level_to_play.load_team(player_team)
         level_to_play.play()
+        self.display_data(player_team)
 
 no_MHC = (0, -1)
 no_MHC_mult = (1, 1)
 no_eff = (0, 0, 0)
 act_ene = ("enemy", "act")
         
-slash = Attack(("slash", 1.0, (20, 20), (0.75, 1.25), act_ene, no_eff))
-jab = Attack(("jab", 0.85, (15, 40), (0.8, 1.88), act_ene, no_eff))
-slam = Attack(("slam", 1.3, (30, 10), (0.69, 1.2), act_ene, no_eff))
+slash = Attack("slash", 1.0, (20, 20), (0.75, 1.25), act_ene, no_eff)
+jab = Attack("jab", 0.85, (15, 40), (0.8, 1.88), act_ene, no_eff)
+slam = Attack("slam", 1.3, (30, 10), (0.69, 1.2), act_ene, no_eff)
 
 attacks = (slash, jab, slam)
+
+from maelstrom import do_MHC, debug 
