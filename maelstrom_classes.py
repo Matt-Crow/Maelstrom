@@ -83,6 +83,15 @@ def choose(question, options):
         else:
             print "That isn't an option..."
 
+def load():
+    should_load = choose("Do you want to load from a save file?", ("Yes", "No"))
+    
+    if should_load == "Yes":
+        file = Savefile("player_data.txt")
+        return file.upload_team()
+    
+    return Team("Test team", (("Alexandre", 1), ("Rene", 1), ("Ian", 1), ("Viktor", 1)), False, False)
+
 # need to comment this
 # work here
 class Savefile:
@@ -464,11 +473,13 @@ class Character:
         return int(damage)
         
     def take_DMG(self, attacker, attack_used):
+        print " "
         dmg = self.calc_DMG(attacker, attack_used)
         if do_MHC:
             dmg = dmg * attack_used.calc_MHC()
         print attacker.name + " struck " + self.name + " for " + str(int(dmg)) + " damage using " + attack_used.name + "!"
         self.HP_rem = int(self.HP_rem - dmg)
+        cont = raw_input("Press enter/return to continue")
         
     def check_if_KOed(self):
         """
@@ -477,6 +488,8 @@ class Character:
         return self.HP_rem <= 0
     
     def can_spec(self):
+        print self.team.energy
+        print self.special.energy_cost
         return self.team.energy >= self.special.energy_cost
     
     """
@@ -707,10 +720,14 @@ class Team:
         Increase your energy.
         Default is 1.
         """
+        
         self.energy = self.energy + amount
         
         if self.energy > 7:
             self.energy = 7
+            
+        for member in self.members_rem:
+            print member.name
         
     def lose_energy(self, amount):
         """
@@ -1054,6 +1071,7 @@ class Team:
         
         if self.is_up():
             self.switched_in = False
+            
             self.gain_energy(2)
             
             for member in self.members_rem:
