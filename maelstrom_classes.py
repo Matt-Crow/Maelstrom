@@ -488,8 +488,9 @@ class Character:
         return self.HP_rem <= 0
     
     def can_spec(self):
-        print self.team.energy
-        print self.special.energy_cost
+        if debug:
+            print "Current energy: " + str(self.team.energy)
+            print "Special energy cost: " + str(self.special.energy_cost)
         return self.team.energy >= self.special.energy_cost
     
     """
@@ -720,14 +721,10 @@ class Team:
         Increase your energy.
         Default is 1.
         """
-        
         self.energy = self.energy + amount
         
         if self.energy > 7:
             self.energy = 7
-            
-        for member in self.members_rem:
-            print member.name
         
     def lose_energy(self, amount):
         """
@@ -800,8 +797,7 @@ class Team:
                     if debug:
                         print self.active.name + " can KO " + member.name + " with " + self.active.special.name
                     return "Attack"
-                
-            
+        
         """
         Second, check if an ally can KO 
         """
@@ -813,10 +809,11 @@ class Team:
             # Check if we are strong against them
             if self.active.element.name == self.enemy.active.element.weakness:
                 return "Attack"
+        
         """
         Lastly, if all else fails, run for your life
         """
-        if self.active.element.weakness == self.enemy.active.element.name:
+        if self.active.element.weakness == self.enemy.active.element.name and not self.one_left() and self.energy >= 2:
             return "Switch"
         # Default
         return "Attack"

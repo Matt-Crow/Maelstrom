@@ -1,9 +1,8 @@
-# rain entity not working
 from maelstrom_classes import *
 import random
 
 do_MHC = True
-debug = True
+debug = False
 
 weathers = (
     Weather("Lightning", 40.0, "Flashes of light can be seen in the distance..."),
@@ -80,7 +79,6 @@ enemies["Wind Entity"] = ((-3, 3, -3), wind, WAct)
 
 if __name__ == "__main__":
     #player = load()
-    # bug has something to do with this
     player = Team("Player team", (("Alexandre", 1)), True, False)
     
     """    
