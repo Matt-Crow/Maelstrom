@@ -1,6 +1,5 @@
 """
-Copyright (c) 2016 Matt Crow
-Distribution of this software, in whole or in part, is ILLIGAL. 
+Copyright (c) 2016 Matt Crow 
 """
 
 """
@@ -297,31 +296,47 @@ class Character:
         """
         Calculate a character's stats
         """
-        TOTAL = (self.level + 5) * (40 + self.stars * 0.2)
         
-        DEFRAT = 0.7 + self.base_stats[0] * 0.025
-        OFFRAT = 1.0 - DEFRAT
-        DEF = DEFRAT * TOTAL
-        OFF = OFFRAT * TOTAL
+        def_mult = 1.0 + self.base_stats[0] * 0.025
+        off_mult = 1.0 - self.base_stats[0] * 0.025
+        if debug:
+            print "def_mult: " + str(def_mult)
+            print "off_mult: " + str(off_mult)
         
-        HPRAT = 0.71
-        self.max_HP = HPRAT * DEF
-        DEF -= self.max_HP
+        base_HP = def_mult * 100
         
         RESRAT = 0.5 + self.base_stats[1] * 0.05
         ARMRAT = 1.0 - RESRAT
         
-        self.res = RESRAT * DEF
-        self.arm = ARMRAT * DEF
+        if debug:
+            print "RESRAT: " + str(RESRAT)
+            print "ARMRAT: " + str(ARMRAT)
         
-        DMGRAT = 0.33
-        self.dmg = DMGRAT * OFF
-        OFF -= self.dmg
+        # default is 0.5, so 20 base
+        base_res = RESRAT * def_mult * 40
+        base_arm = ARMRAT * def_mult * 40
+        
+        # offensive stats
+        
+        base_dmg = off_mult * 20
         
         CONRAT = 0.5 + self.base_stats[2] * 0.05
         STRRAT = 1.0 - CONRAT
-        self.con = CONRAT * OFF
-        self.str = STRRAT * OFF
+        
+        if debug:
+            print "CONRAT: " + str(CONRAT)
+            print "STRRAT: " + str(STRRAT)
+            
+        # once again, default is 0.5
+        base_con = CONRAT * off_mult * 40
+        base_str = STRRAT * off_mult * 40
+        
+        self.max_HP = base_HP * (1 + self.level * 0.1)
+        self.dmg = base_dmg * (1 + self.level * 0.2) 
+        self.arm = base_arm * (1 + self.level * 0.2) 
+        self.res = base_res * (1 + self.level * 0.2) 
+        self.str = base_str * (1 + self.level * 0.2) 
+        self.con = base_con * (1 + self.level * 0.2) 
     
     def reset_HP(self):
         """
