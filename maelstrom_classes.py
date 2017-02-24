@@ -52,8 +52,8 @@ def choose(question, options):
     if len(options) == 1:
         return options[0]
     
-    print " "
-    print question
+    print(" ")
+    print(question)
     
     num = 1
     for option in options:
@@ -62,7 +62,7 @@ def choose(question, options):
         except:
             name = option
         
-        print str(num) + ": " + name    
+        print(str(num) + ": " + name)  
         num += 1
     
     answered = False
@@ -80,7 +80,7 @@ def choose(question, options):
             elif choice == str(options.index(option) + 1):
                 return option
         else:
-            print "That isn't an option..."
+            print("That isn't an option...")
 
 def load():
     should_load = choose("Do you want to load from a save file?", ("Yes", "No"))
@@ -142,11 +142,11 @@ class Savefile:
         for member in team.team:
             change[member.name] = [str(member.level), str(member.level_set), str(member.XP), str(member.stars)]
         if debug:
-            print "Before:", self.dict_file
+            print("Before:", self.dict_file)
         
         self.dict_file[team.name] = change
         if debug:
-            print "After:", self.dict_file
+            print("After:", self.dict_file)
         
         file = open("player_data.txt", "w")
         for team_name, value in self.dict_file.items():
@@ -665,7 +665,7 @@ class Team:
         for member in self.team:
             if new_member[0] == member.name:
                 member.stars += 1
-                print member.name + "'s stats were boosted!"
+                print(member.name + "'s stats were boosted!")
                 member.init_for_battle()
                 member.display_data()
                 return False
@@ -783,12 +783,12 @@ class Team:
         """
         Show info for a team
         """
-        print " "
-        print self.name
+        print(" ")
+        print(self.name)
         for member in self.team:
-            print " "
+            print(" ")
             member.display_data()
-        print " "
+        print(" ")
     
     """
     AI stuff
@@ -799,18 +799,18 @@ class Team:
         """
         if self.enemy.active.calc_DMG(self.active, slam) >= self.enemy.active.HP_rem:
             if debug:
-                print self.active.name + " can KO " + self.enemy.active.name + " with Slam"
+                print(self.active.name + " can KO " + self.enemy.active.name + " with Slam")
             return "Attack"
         if self.enemy.active.calc_DMG(self.active, self.active.special) >= self.enemy.active.HP_rem and self.active.can_spec():
             if debug:
-                print self.active.name + " can KO " + self.enemy.active.name + " with " + self.active.special.name
+                print(self.active.name + " can KO " + self.enemy.active.name + " with " + self.active.special.name)
             return "Attack"
         # check if your active can benchhit
         if self.active.special.act_any_all != "act":
             for member in self.enemy.members_rem:
                 if member.calc_DMG(self.active, self.active.special) >= member.HP_rem and self.active.can_spec():
                     if debug:
-                        print self.active.name + " can KO " + member.name + " with " + self.active.special.name
+                        print(self.active.name + " can KO " + member.name + " with " + self.active.special.name)
                     return "Attack"
         
         """
@@ -850,8 +850,8 @@ class Team:
                 can_ko.append(member)
         if debug:
             for member in can_ko:
-                print member.name
-            print "can KO"
+                print(member.name)
+            print("can KO")
         """
         If one person can KO,
         bring them in.
@@ -875,8 +875,8 @@ class Team:
                 at_adv.append(member)
         if debug:
             for member in at_adv:
-                print member.name
-            print "are at advantage"
+                print(member.name)
+            print("are at advantage")
         
         # comment here
         """
@@ -895,17 +895,17 @@ class Team:
             return strong_and_ko[0]
         if len(strong_and_ko) > 1:
             rand = random.randint(0, len(strong_and_ko) - 1)
-            print rand
+            print(rand)
             return strong_and_ko[rand]
         if len(can_ko) > 1:
             rand = random.randint(0, len(can_ko) - 1)
-            print rand
+            print(rand)
             return can_ko[rand]
         if len(at_adv) == 1:
             return at_adv[0]
         if len(at_adv) > 1:
             rand = random.randint(0, len(at_adv) - 1)
-            print rand
+            print(rand)
             return at_adv[rand]
         
         """
@@ -917,8 +917,8 @@ class Team:
                 not_at_dis.append(member)
         if debug:
             for member in not_at_dis:
-                print member.name
-            print "are not at disadvantage"
+                print(member.name)
+            print("are not at disadvantage")
         if len(not_at_dis) == 1:
             return not_at_dis[0]
         if len(not_at_dis) > 1:
@@ -1000,7 +1000,7 @@ class Team:
         
         else:
             if debug:
-                print "AI is choosing attack..."
+                print("AI is choosing attack...")
             choice = self.what_attack()
         
         choice.use(self.active)
@@ -1023,25 +1023,25 @@ class Team:
             switch_for = choose("Who do you want to bring in?", choices)
         else:
             if debug:
-                print "AI is deciding..."
+                print("AI is deciding...")
             switch_for = self.who_switch()
         
         self.switch(switch_for)
           
-        print self.active.name, "up!"
+        print(self.active.name + " up!")
                                         
     def choose_action(self):
         """
         What to do, what to do...
         """
-        print self.name
-        print " "
+        print(self.name)
+        print(" ")
         for member in self.members_rem:
-            print member.name + " " + str(member.HP_rem) + "/" + str(member.get_HP()) + " " + member.element.name
+            print(member.name + " " + str(member.HP_rem) + "/" + str(member.get_HP()) + " " + member.element.name)
             
-        print "Currently active: " + self.active.name
-        print "Energy: " + str(self.energy)
-        print "Active enemy: " + self.enemy.active.name + " " + str(self.enemy.active.HP_rem) + "/" + str(self.enemy.active.get_HP()) + " " + self.enemy.active.element.name
+        print("Currently active: " + self.active.name)
+        print("Energy: " + str(self.energy))
+        print("Active enemy: " + self.enemy.active.name + " " + str(self.enemy.active.HP_rem) + "/" + str(self.enemy.active.get_HP()) + " " + self.enemy.active.element.name)
         
         choices = ["Attack"]
         
@@ -1054,7 +1054,7 @@ class Team:
             if len(choices) == 1:
                 pass
             if debug:
-                print "AI is deciding..."
+                print("AI is deciding...")
             attack_switch = self.should_switch()
         
         if attack_switch == "Switch":
@@ -1067,15 +1067,15 @@ class Team:
         """
         This is where stuff happens
         """
-        print ""
-        print ""
-        print ""
+        print("")
+        print("")
+        print("")
         new_members_rem = []
         for member in self.members_rem:
             if not member.check_if_KOed():
                 new_members_rem.append(member)
             else:
-                print member.name, "is out of the game!"
+                print(member.name + " is out of the game!")
         self.members_rem = new_members_rem
         
         if self.active.check_if_KOed() and self.is_up():
@@ -1136,7 +1136,7 @@ class Weather:
         Print a message showing
         the weather condition
         """
-        print self.msg
+        print(self.msg)
 
 class Story:
     def __init__(self, story):
@@ -1150,7 +1150,7 @@ class Story:
         
     def print_story(self):
         for script in self.story:
-            print script
+            print(script)
             go = raw_input("Press enter/return to continue")
 
 class Battle:
@@ -1174,11 +1174,11 @@ class Battle:
         self.forecast = weather_list
     
     def display_data(self):
-        print " "
-        print self.name
-        print self.description
+        print(" ")
+        print(self.name)
+        print(self.description)
         for member in self.teams[0].use:
-            print "* " + member.name + " LV " + str(member.level) + " " + member.element.name
+            print("* " + member.name + " LV " + str(member.level) + " " + member.element.name)
     
     def load_team(self, team):
         """
@@ -1188,7 +1188,7 @@ class Battle:
         self.teams.append(team)
         
         if len(team.team) > self.team_size:
-            print "Select which " + str(self.team_size) + " members you wish to use"
+            print("Select which " + str(self.team_size) + " members you wish to use")
             num = self.team_size
             team.use = []
             roster = []
@@ -1215,7 +1215,7 @@ class Battle:
         for team in self.teams:
             if team.is_up():
                 winner = team
-        print winner.name, "won!"
+        print(winner.name + " won!")
     
     def begin(self):
         """
@@ -1227,10 +1227,10 @@ class Battle:
         for team in self.teams:
             team.initialize()
             team.enemy = team.find_enemy(self.teams)
-            print " "
-            print " "
-            print " "
-            print team.name
+            print(" ")
+            print(" ")
+            print(" ")
+            print(team.name)
             
             for member in team.team:
                 if member not in team.use:
@@ -1255,7 +1255,7 @@ class Battle:
             for member in team.use:
                 xp = team.enemy.xp_given()
                 member.gain_XP(xp)
-        print " "
+        print(" ")
         self.final_act.print_story()
                     
     def play(self):
@@ -1288,8 +1288,8 @@ class Area:
                 self.levels.append(level)
     # improve this            
     def display_data(self, player_team):
-        print self.name
-        print self.description
+        print(self.name)
+        print(self.description)
         for level in self.levels:
             level.display_data()
         level_to_play = choose("Which level do you want to play?", self.levels)
