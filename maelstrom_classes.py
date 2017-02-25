@@ -21,8 +21,8 @@ Version 0.85
 """
 
 if __name__ == "__main__":
-    print "Oops! You're running from the wrong file!"
-    print "Try running Maelstrom.py instead!"
+    print("Oops! You're running from the wrong file!")
+    print("Try running Maelstrom.py instead!")
     exit()
     
 import random
@@ -192,16 +192,16 @@ class Attack:
         """
         rand = random.randint(1, 100)
         if debug:
-            print "rand in calc_MHC: ", rand
-            print "Crit:", 100 - self.crit
-            print "Miss:", self.miss
+            print("rand in calc_MHC: ", rand)
+            print("Crit:", 100 - self.crit)
+            print("Miss:", self.miss)
             
         if rand <= self.miss:
-            print "A glancing blow!"
+            print("A glancing blow!")
             return self.miss_mult
             
         elif rand >= 100 - self.crit:
-            print "A critical hit!"
+            print("A critical hit!")
             return self.crit_mult
             
         else: 
@@ -300,8 +300,8 @@ class Character:
         def_mult = 1.0 + self.base_stats[0] * 0.025
         off_mult = 1.0 - self.base_stats[0] * 0.025
         if debug:
-            print "def_mult: " + str(def_mult)
-            print "off_mult: " + str(off_mult)
+            print("def_mult: " + str(def_mult))
+            print("off_mult: " + str(off_mult))
         
         base_HP = def_mult * 100
         
@@ -309,8 +309,8 @@ class Character:
         ARMRAT = 1.0 - RESRAT
         
         if debug:
-            print "RESRAT: " + str(RESRAT)
-            print "ARMRAT: " + str(ARMRAT)
+            print("RESRAT: " + str(RESRAT))
+            print("ARMRAT: " + str(ARMRAT))
         
         # default is 0.5, so 20 base
         base_res = RESRAT * def_mult * 40
@@ -324,8 +324,8 @@ class Character:
         STRRAT = 1.0 - CONRAT
         
         if debug:
-            print "CONRAT: " + str(CONRAT)
-            print "STRRAT: " + str(STRRAT)
+            print("CONRAT: " + str(CONRAT))
+            print("STRRAT: " + str(STRRAT))
             
         # once again, default is 0.5
         base_con = CONRAT * off_mult * 40
@@ -388,21 +388,21 @@ class Character:
         Print info on a character
         """
         self.calc_stats()
-        print "----------"
-        print "Lv.", self.level, self.name
-        print self.element.name
-        print " " 
-        print "HP: " + str(int(self.max_HP))
-        print "DMG:" + str(int(self.dmg))
-        print "STR:" + str(int(self.str))
-        print "ARM:" + str(int(self.arm))
-        print "CON:" + str(int(self.con))
-        print "RES:" + str(int(self.res))
-        print " "
+        print("----------")
+        print("Lv. " + str(self.level) + " " + self.name)
+        print(self.element.name)
+        print(" ")
+        print("HP: " + str(int(self.max_HP)))
+        print("DMG:" + str(int(self.dmg)))
+        print("STR:" + str(int(self.str)))
+        print("ARM:" + str(int(self.arm)))
+        print("CON:" + str(int(self.con)))
+        print("RES:" + str(int(self.res)))
+        print(" ")
         if self.special != "None":
-            print self.special.name
-        print self.XP, "/", self.level * 10
-        print "----------"
+            print(self.special.name)
+        print(str(self.XP) + "/" + str(self.level * 10))
+        print("----------")
 
     """
     Battle functions:
@@ -434,7 +434,7 @@ class Character:
                 new_boosts.append(boost)
         self.boosts = new_boosts
         if debug:
-            print self.name, "'s boosts:", self.boosts
+            print(self.name + "'s boosts: " + self.boosts)
         
     def heal(self, percent):
         """
@@ -452,7 +452,7 @@ class Character:
         else:
             return
         
-        print self.name + msg + str(abs(int(healing))) + " HP"
+        print(self.name + msg + str(abs(int(healing))) + " HP")
             
         if self.HP_rem > self.get_HP():
             self.HP_rem = self.get_HP()
@@ -480,19 +480,19 @@ class Character:
             damage = damage * 0.75
         """    
         if debug:
-            print "Physical Mult:", phys_damage
-            print "Elemental Mult:", ele_damage
-            print "Raw damage:", (phys_damage + ele_damage) / 2
-            print "Damage before MHC:", damage
+            print("Physical Mult: " + str(phys_damage))
+            print("Elemental Mult: " + str(ele_damage))
+            print("Raw damage: " + str((phys_damage + ele_damage) / 2))
+            print("Damage before MHC: " + str(damage))
         """    
         return int(damage)
         
     def take_DMG(self, attacker, attack_used):
-        print " "
+        print(" ")
         dmg = self.calc_DMG(attacker, attack_used)
         if do_MHC:
             dmg = dmg * attack_used.calc_MHC()
-        print attacker.name + " struck " + self.name + " for " + str(int(dmg)) + " damage using " + attack_used.name + "!"
+        print(attacker.name + " struck " + self.name + " for " + str(int(dmg)) + " damage using " + attack_used.name + "!")
         self.HP_rem = int(self.HP_rem - dmg)
         cont = raw_input("Press enter/return to continue")
         
@@ -504,8 +504,8 @@ class Character:
     
     def can_spec(self):
         if debug:
-            print "Current energy: " + str(self.team.energy)
-            print "Special energy cost: " + str(self.special.energy_cost)
+            print("Current energy: " + str(self.team.energy))
+            print("Special energy cost: " + str(self.special.energy_cost))
         return self.team.energy >= self.special.energy_cost
     
     """
@@ -524,10 +524,10 @@ class Character:
         self.XP = self.XP + amount
         if self.XP >= self.level * 10: 
             if self.can_level_up():
-                print self.name, "leveled up!"
+                print(self.name + " leveled up!")
                 self.level_up()
             else:
-                print self.name, "is being held back... perhaps a special item will help?"
+                print(self.name + " is being held back... perhaps a special item will help?")
     
     def level_up(self):
         """
@@ -563,7 +563,7 @@ class Contract:
         self.poss = []
         if comes_with == None:
             if debug:
-                print "No set characters in contract."
+                print("No set characters in contract.")
         elif type(comes_with) == type("This is a string"):
             self.poss.append(comes_with)
         else:
@@ -589,7 +589,7 @@ class Contract:
         RETURNS THE ANSWER
         DOES NOT CHANGE THE PLAYER'S TEAM
         """
-        print "*Recruiting*"
+        print("*Recruiting*")
         char = []
         for member in self.poss:
             char.append(Character(member, 1))
@@ -611,7 +611,7 @@ class Contract:
                     "DMG" : int(member.dmg),
                     "Element" : member.element.name
                 }
-                print hints[hint]
+                print(hints[hint])
                     
         new = choose("Who do you want to hire?", ("?", "??", "???", "????"))
         if new == "?":
@@ -628,14 +628,14 @@ class Tavern:
         self.name = name
     
     def recruit(self, team, contracts):
-        print "So, you wan't to hire out another warrior, eh?"
-        print "Now let me see..."
+        print("So, you wan't to hire out another warrior, eh?")
+        print("Now let me see...")
         if len(contracts) == 0:
-            print "Sorry, but it looks like you don't have any contracts."
-            print "Come back when you have one, and then we'll talk."
+            print("Sorry, but it looks like you don't have any contracts.")
+            print("Come back when you have one, and then we'll talk.")
         else:
-            print "Well well well, and here I thought you weren't credibly."
-            print "How about you take a look at who we got here?"
+            print("Well well well, and here I thought you weren't credibly.")
+            print("How about you take a look at who we got here?")
             
             con = choose("Which contract do you want to use?", contracts)
             team.add_member(con.use())
@@ -670,7 +670,7 @@ class Team:
                 member.display_data()
                 return False
         self.team.append(Character(new_member[0], new_member[1]))
-        print new_member[0] + " joined " + self.name + "!"
+        print(new_member[0] + " joined " + self.name + "!")
         self.team[-1].init_for_battle()
         self.team[-1].display_data()
         
