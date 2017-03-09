@@ -2,7 +2,7 @@ from maelstrom_classes import *
 import random
 
 do_MHC = True
-debug = False
+debug = True
 
 weathers = (
     Weather("Lightning", 40.0, "Flashes of light can be seen in the distance..."),
@@ -30,28 +30,26 @@ rain = Element("Rain", "Lightning")
 stone = Element ("Stone", None)
 
 # use these in specials
-no_MHC = (0, -1)
-no_MHC_mult = (1, 1)
 no_eff = (0, 0, 0)
 act_ene = ("enemy", "act")
 
-boom = Attack("BOOM!", 9999, no_MHC, no_MHC_mult, ("enemy", "all"), no_eff, 7)
+boom = Attack("BOOM!", 9999, ("enemy", "all"), no_eff, 7)
 
-LAct = Attack("Shock Pulse", 1.75, no_MHC, no_MHC_mult, act_ene, no_eff, 5)
-RAct = Attack("Water Pulse", 1.75, no_MHC, no_MHC_mult, act_ene, no_eff, 5)
-HAct = Attack("Icicle Pulse", 1.75, no_MHC, no_MHC_mult, act_ene, no_eff, 5)
-WAct = Attack("Vacuum Pulse", 1.75, no_MHC, no_MHC_mult, act_ene, no_eff, 5)
-SAct = Attack("Rock Slide", 1.75, no_MHC, no_MHC_mult, act_ene, no_eff, 5)
+LAct = Attack("Shock Pulse", 1.75, act_ene, no_eff, 5)
+RAct = Attack("Water Pulse", 1.75, act_ene, no_eff, 5)
+HAct = Attack("Icicle Pulse", 1.75, act_ene, no_eff, 5)
+WAct = Attack("Vacuum Pulse", 1.75, act_ene, no_eff, 5)
+SAct = Attack("Rock Slide", 1.75, act_ene, no_eff, 5)
 
-LAll = Attack("Shock Wave", 0.67, no_MHC, no_MHC_mult, ("enemy", "all"), no_eff, 5)
-RAll = Attack("Tidal Wave", 0.67, no_MHC, no_MHC_mult, ("enemy", "all"), no_eff, 5)
-HAll = Attack("Avalanche", 0.67, no_MHC, no_MHC_mult, ("enemy", "all"), no_eff, 5)
-WAll = Attack("Tempest", 0.67, no_MHC, no_MHC_mult, ("enemy", "all"), no_eff, 5)
+LAll = Attack("Shock Wave", 0.67, ("enemy", "all"), no_eff, 5)
+RAll = Attack("Tidal Wave", 0.67, ("enemy", "all"), no_eff, 5)
+HAll = Attack("Avalanche", 0.67, ("enemy", "all"), no_eff, 5)
+WAll = Attack("Tempest", 0.67, ("enemy", "all"), no_eff, 5)
 
-LAny = Attack("Thunderbolt", 1.25, no_MHC, no_MHC_mult, ("enemy", "any"), no_eff, 5)
-RAny = Attack("Water bolt", 1.25, no_MHC, no_MHC_mult, ("enemy", "any"), no_eff, 5)
-HAny = Attack("Frost bolt", 1.25, no_MHC, no_MHC_mult, ("enemy", "any"), no_eff, 5)
-WAny = Attack("Wind bolt", 1.25, no_MHC, no_MHC_mult, ("enemy", "any"), no_eff, 5)
+LAny = Attack("Thunderbolt", 1.25, ("enemy", "any"), no_eff, 5)
+RAny = Attack("Water bolt", 1.25, ("enemy", "any"), no_eff, 5)
+HAny = Attack("Frost bolt", 1.25, ("enemy", "any"), no_eff, 5)
+WAny = Attack("Wind bolt", 1.25, ("enemy", "any"), no_eff, 5)
 
 characters["TEST"] = ((0, 0, 0), stone, SAct)
 characters["Alexandre"] = ((0, 1, 1), lightning, LAct)

@@ -17,6 +17,8 @@ Week 2: Revised/improved/reordered functions
 14/11/2016 - 20/11/2016: Area and general cleanup
 21/11/2016 - 1/12/2016: Added AI
 
+6/3/2017 Started Weapon (WIP)
+
 Version 0.85
 """
 
@@ -168,44 +170,19 @@ class Attack:
     The regular attacks all characters can use
     as well as characters' exclusive Specials
     """
-    def __init__(self, name, damage_multiplier, chances, mhc_mults, target, side_effect, energy_cost = 0):
+    def __init__(self, name, damage_multiplier, target, side_effect, energy_cost = 0):
         """
         Copy-paste: 
-        name, damage_multiplier, (miss%, crit%), (miss*, crit*), (ally_or_enemy, act_any_all), (eff, eff_LV, eff_dur)  
+        name, damage_multiplier, (ally_or_enemy, act_any_all), (eff, eff_LV, eff_dur)  
         """
         self.name = name
         self.mult = float(damage_multiplier)
-        self.miss = chances[0]
-        self.crit = chances[1]
-        self.miss_mult = mhc_mults[0]
-        self.crit_mult = mhc_mults[1]
         self.ally_or_enemy = target[0]
         self.act_any_all = target[1]
         self.eff = side_effect[0]
         self.eff_LV = side_effect[1]
         self.eff_dur = side_effect[2]
         self.energy_cost = energy_cost   
-        
-    def calc_MHC(self):
-        """
-        Used to calculate hit type
-        """
-        rand = random.randint(1, 100)
-        if debug:
-            print("rand in calc_MHC: ", rand)
-            print("Crit:", 100 - self.crit)
-            print("Miss:", self.miss)
-            
-        if rand <= self.miss:
-            print("A glancing blow!")
-            return self.miss_mult
-            
-        elif rand >= 100 - self.crit:
-            print("A critical hit!")
-            return self.crit_mult
-            
-        else: 
-            return 1.0
     
     def use(self, user):
         """
@@ -258,6 +235,37 @@ class Attack:
         
         user.team.lose_energy(self.energy_cost)
 
+class Weapon:
+    """
+    WIP
+    """
+    def __init__(self):
+        self.miss = 5
+        self.crit = 5
+        self.miss_mult = 0.8
+        self.crit_mult = 1.25
+        
+    def calc_MHC(self):
+        """
+        Used to calculate hit type
+        """
+        rand = random.randint(1, 100)
+        if debug:
+            print("rand in calc_MHC: " + str(rand))
+            print("Crit: " + str(100 - self.crit))
+            print("Miss: " + str(self.miss))
+            
+        if rand <= self.miss:
+            print("A glancing blow!")
+            return self.miss_mult
+            
+        elif rand >= 100 - self.crit:
+            print("A critical hit!")
+            return self.crit_mult
+            
+        else: 
+            return 1.0
+
 class Element:
     def __init__(self, name, weakness):
         self.name = name
@@ -291,6 +299,10 @@ class Character:
         self.XP = 0
         self.level_set = 1
         self.stars = 0
+        
+        self.weapon = Weapon()
+        if debug:
+            print("Weapon in Character.__init__")
        
     def calc_stats(self):
         """
@@ -434,7 +446,9 @@ class Character:
                 new_boosts.append(boost)
         self.boosts = new_boosts
         if debug:
-            print(self.name + "'s boosts: " + self.boosts)
+            print(self.name + "'s boosts:")
+            for boost in self.boosts:
+                print(boost)
         
     def heal(self, percent):
         """
@@ -491,7 +505,7 @@ class Character:
         print(" ")
         dmg = self.calc_DMG(attacker, attack_used)
         if do_MHC:
-            dmg = dmg * attack_used.calc_MHC()
+            dmg = dmg * self.weapon.calc_MHC()
         print(attacker.name + " struck " + self.name + " for " + str(int(dmg)) + " damage using " + attack_used.name + "!")
         self.HP_rem = int(self.HP_rem - dmg)
         cont = raw_input("Press enter/return to continue")
@@ -1297,14 +1311,12 @@ class Area:
         level_to_play.play()
         self.display_data(player_team)
 
-no_MHC = (0, -1)
-no_MHC_mult = (1, 1)
 no_eff = (0, 0, 0)
 act_ene = ("enemy", "act")
         
-slash = Attack("slash", 1.0, (20, 20), (0.75, 1.25), act_ene, no_eff)
-jab = Attack("jab", 0.85, (15, 40), (0.8, 1.88), act_ene, no_eff)
-slam = Attack("slam", 1.3, (30, 10), (0.69, 1.2), act_ene, no_eff)
+slash = Attack("slash", 1.0, act_ene, no_eff)
+jab = Attack("jab", 0.85, act_ene, no_eff)
+slam = Attack("slam", 1.3, act_ene, no_eff)
 
 attacks = (slash, jab, slam)
 
