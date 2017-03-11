@@ -90,11 +90,16 @@ if __name__ == "__main__":
     r1 = Battle("Origin Beaches", "Start here", ("Encounter! Rain Entity", "Quick! Knock its hit points down to zero and escape!"), ("Congradulations!", "Perhaps an ally will help you in your quest."), 1, weathers[9])
     r1.load_team(Team("Rain", (("Rain Entity", 1)), True, True))
     rain_village = Area("The Rain Village", "Where peace and tranquility hang over like a fine mist", (r1))
-    rain_village.display_data(player)
+    #rain_village.display_data(player)
     
     h1 = Battle("Forest Clearing", "A fresh coating of snow covers all the trees", None, None, 1, weathers[6])
     h1.load_team(Team(" ", (("Hail Entity", 1)), True, True))
     hail_village = Area("The Hail Village", "?", (h1))
     #hail_village.display_data(player)
-    
+    test_weapon = Weapon("test", 0, 0, 0, 0)
+    crazy_crits = Weapon("SPAM THEM CRITS", -3, 3, -3, 3)   
+    missy = Weapon("LAME", 3, -3, 3, -3)
+    test_weapon.display_data()
+    crazy_crits.display_data()
+    missy.display_data()
     #m.update(player_team)

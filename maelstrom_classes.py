@@ -239,12 +239,22 @@ class Weapon:
     """
     WIP
     """
-    def __init__(self):
-        self.miss = 5
-        self.crit = 5
-        self.miss_mult = 0.8
-        self.crit_mult = 1.25
-        
+    def __init__(self, name, miss, crit, miss_m, crit_m):
+        self.name = name
+        # -3 to 3
+        self.miss = 20 + miss * 5
+        self.crit = 20 + crit * 5
+        self.miss_mult = 0.8 - miss_m * 0.05
+        self.crit_mult = 1.25 + crit_m * 0.05
+    
+    def display_data(self):
+        print(self.name + " data:")
+        print("Miss chance: " + str(self.miss) + "%")
+        print("Crit chance: " + str(self.crit) + "%")
+        print("Miss multiplier: " + str(self.miss_mult) + "%")
+        print("Crit multiplier: " + str(self.crit_mult) + "%")
+        print(" ")
+    
     def calc_MHC(self):
         """
         Used to calculate hit type
@@ -300,9 +310,7 @@ class Character:
         self.level_set = 1
         self.stars = 0
         
-        self.weapon = Weapon()
-        if debug:
-            print("Weapon in Character.__init__")
+        self.weapon = Weapon("Default", 0, 0, 0, 0)
        
     def calc_stats(self):
         """
@@ -1320,4 +1328,4 @@ slam = Attack("slam", 1.3, act_ene, no_eff)
 
 attacks = (slash, jab, slam)
 
-from maelstrom import do_MHC, debug 
+from maelstrom import do_MHC, debug
