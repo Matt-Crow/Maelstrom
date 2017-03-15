@@ -49,6 +49,15 @@ def mod(num):
         num = 1
     return num
 
+def set_in_bounds(num, min, max):
+  if num < min:
+    return min
+  elif num > max:
+    return max
+  else:
+    return num
+
+
 def choose(question, options):
     
     if len(options) == 1:
@@ -241,17 +250,12 @@ class Weapon:
     """
     def __init__(self, name, miss, crit, miss_m, crit_m):
         self.name = name
-        # -3 to 3
         stats = [miss, crit, miss_m, crit_m]
         stat_num = 0  
         while stat_num < len(stats):
           stat = stats[stat_num]
           print(stat)
-          if stat > 3:
-            print("too high")
-            stats[stat_num] = 3
-          elif stat < -3:
-            stats[stat_num] = -3
+          stats[stat_num] = set_in_bounds(stats[stat_num], -3, 3)
           stat_num += 1
         self.miss = 20 + stats[0] * 5
         self.crit = 20 + stats[1] * 5
