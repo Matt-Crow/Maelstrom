@@ -242,10 +242,21 @@ class Weapon:
     def __init__(self, name, miss, crit, miss_m, crit_m):
         self.name = name
         # -3 to 3
-        self.miss = 20 + miss * 5
-        self.crit = 20 + crit * 5
-        self.miss_mult = 0.8 - miss_m * 0.05
-        self.crit_mult = 1.25 + crit_m * 0.05
+        stats = [miss, crit, miss_m, crit_m]
+        stat_num = 0  
+        while stat_num < len(stats):
+          stat = stats[stat_num]
+          print(stat)
+          if stat > 3:
+            print("too high")
+            stats[stat_num] = 3
+          elif stat < -3:
+            stats[stat_num] = -3
+          stat_num += 1
+        self.miss = 20 + stats[0] * 5
+        self.crit = 20 + stats[1] * 5
+        self.miss_mult = 0.8 - stats[2] * 0.05
+        self.crit_mult = 1.25 + stats[3] * 0.05
     
     def display_data(self):
         print(self.name + " data:")
