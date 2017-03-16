@@ -57,7 +57,6 @@ def set_in_bounds(num, min, max):
   else:
     return num
 
-
 def choose(question, options):
     
     if len(options) == 1:
@@ -241,6 +240,9 @@ class Attack:
             warrior.take_DMG(user, self)
             if self.eff != 0:
                 warrior.boost(self.eff, self.eff_LV, self.eff_dur)
+            #work on this
+            if self.energy_cost == 0:
+              warrior.check_if_burned(user)
         
         user.team.lose_energy(self.energy_cost)
 
@@ -394,6 +396,7 @@ class Character:
         self.calc_stats()
         self.reset_HP()
         self.reset_boosts()
+        self.burn = [0, 0]
 
     """
     Data obtaining functions:
@@ -532,7 +535,23 @@ class Character:
         print(attacker.name + " struck " + self.name + " for " + str(int(dmg)) + " damage using " + attack_used.name + "!")
         self.HP_rem = int(self.HP_rem - dmg)
         cont = raw_input("Press enter/return to continue")
-        
+    
+    def direct_DMG(self, amount):
+      self.HP_rem -= int(amount)
+
+    def check_if_burned(self, attacker):
+      #adjust later
+      r = random.randint(1, 255)
+      if r <= attacker.get_con():
+        self.burn = [attacker.get_con() / 5, 3]
+
+    def update_burn(self):
+      if self.burn[1] == 0:
+        return False
+      self.direct_DMG(self.burn[0])
+      self.burn[1] -= 1
+      print(self.name + " took " + str(int(self.burn[0])) + " damage from his/her Elemental Burn!")
+    
     def check_if_KOed(self):
         """
         Am I dead yet?
@@ -1109,6 +1128,7 @@ class Team:
         print("")
         new_members_rem = []
         for member in self.members_rem:
+            member.update_burn()
             if not member.check_if_KOed():
                 new_members_rem.append(member)
             else:
