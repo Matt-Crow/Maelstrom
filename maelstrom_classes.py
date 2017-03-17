@@ -17,7 +17,7 @@ Week 2: Revised/improved/reordered functions
 14/11/2016 - 20/11/2016: Area and general cleanup
 21/11/2016 - 1/12/2016: Added AI
 
-6/3/2017 Started Weapon (WIP)
+6/3/2017 Started major combat revamp
 
 Version 0.85
 """
@@ -91,6 +91,26 @@ def choose(question, options):
                 return option
         else:
             print("That isn't an option...")
+
+# output
+def op(write):
+  list = []
+  if type(write) != type([0, 0, 0, 0]):
+    list.append(write)
+  b = " "
+  print(b)
+  print(b)
+  for item in list:
+    print(item)
+  print(b)
+  print(b)
+
+# debug print
+def db(write):
+  if not debug:
+    return
+  print("<*DEBUG*>")
+  print(write)
 
 def load():
     should_load = choose("Do you want to load from a save file?", ("Yes", "No"))
@@ -406,6 +426,9 @@ class Character:
     def get_HP(self):
         return int(self.max_HP)
     
+    def hp_perc(self):
+      return float(self.HP_rem) / float(self.get_HP())
+
     def get_dmg(self):
         return mod(self.dmg)
     
@@ -509,23 +532,18 @@ class Character:
             return 1.0
     
     def calc_DMG(self, attacker, attack_used):
-        
-        phys_damage = attacker.get_str() / self.get_arm()
-        
-        ele_damage = (attacker.get_con() * self.check_effectiveness(attacker)) / self.get_res()
-        
-        damage = (phys_damage + ele_damage) / 2 * attack_used.mult * attacker.get_dmg()
-        
-        if attacker.team.switched_in:
-            damage = damage * 0.75
-        """    
-        if debug:
-            print("Physical Mult: " + str(phys_damage))
-            print("Elemental Mult: " + str(ele_damage))
-            print("Raw damage: " + str((phys_damage + ele_damage) / 2))
-            print("Damage before MHC: " + str(damage))
-        """    
-        return int(damage)
+      damage = attacker.get_str() * attack_used.mult
+      db(str(self.hp_perc() * 100) + "% HP: " + str((255 - self.get_arm()) / 2.55))
+      if self.hp_perc() >= (255 - self.get_arm()) / 255:
+        op(self.name + "'s armor protects them for damage!")
+        db(1 - self.arm / 255)
+        damage *= 1 - self.arm / 255
+      if attacker.team.switched_in:
+        damage = damage * 0.75
+      if debug:
+        print("Damage before MHC: " + str(damage))
+          
+      return int(damage)
         
     def take_DMG(self, attacker, attack_used):
         print(" ")
@@ -541,7 +559,7 @@ class Character:
 
     def check_if_burned(self, attacker):
       #adjust later
-      r = random.randint(1, 255)
+      r = random.randint(1, int(12.5 * self.level))
       if r <= attacker.get_con():
         self.burn = [attacker.get_con() / 5, 3]
 
