@@ -356,41 +356,26 @@ class Character:
         
         def_mult = 1.0 + self.base_stats[0] * 0.025
         off_mult = 1.0 - self.base_stats[0] * 0.025
-        if debug:
-            print("def_mult: " + str(def_mult))
-            print("off_mult: " + str(off_mult))
         
         base_HP = def_mult * 100
         
         RESRAT = 0.5 + self.base_stats[1] * 0.05
-        ARMRAT = 1.0 - RESRAT
-        
-        if debug:
-            print("RESRAT: " + str(RESRAT))
-            print("ARMRAT: " + str(ARMRAT))
+        HPRAT = 1.0 - RESRAT
         
         # default is 0.5, so 20 base
         base_res = RESRAT * def_mult * 40
-        base_arm = ARMRAT * def_mult * 40
+        base_hp = HPRAT * def_mult * 40
         
         # offensive stats
         
-        base_dmg = off_mult * 20
-        
         CONRAT = 0.5 + self.base_stats[2] * 0.05
         STRRAT = 1.0 - CONRAT
-        
-        if debug:
-            print("CONRAT: " + str(CONRAT))
-            print("STRRAT: " + str(STRRAT))
             
         # once again, default is 0.5
         base_con = CONRAT * off_mult * 40
         base_str = STRRAT * off_mult * 40
         
         self.max_HP = base_HP * (1 + self.level * 0.1)
-        self.dmg = base_dmg * (1 + self.level * 0.2) 
-        self.arm = base_arm * (1 + self.level * 0.2) 
         self.res = base_res * (1 + self.level * 0.2) 
         self.str = base_str * (1 + self.level * 0.2) 
         self.con = base_con * (1 + self.level * 0.2) 
@@ -428,12 +413,6 @@ class Character:
     
     def hp_perc(self):
       return float(self.HP_rem) / float(self.get_HP())
-
-    def get_dmg(self):
-        return mod(self.dmg)
-    
-    def get_arm(self):
-        return mod(self.arm * self.get_boost("ARM"))
         
     def get_str(self):
         return mod(self.str * self.get_boost("STR"))
@@ -454,9 +433,7 @@ class Character:
         print(self.element.name)
         print(" ")
         print("HP: " + str(int(self.max_HP)))
-        print("DMG:" + str(int(self.dmg)))
         print("STR:" + str(int(self.str)))
-        print("ARM:" + str(int(self.arm)))
         print("CON:" + str(int(self.con)))
         print("RES:" + str(int(self.res)))
         print(" ")
@@ -533,11 +510,11 @@ class Character:
     
     def calc_DMG(self, attacker, attack_used):
       damage = attacker.get_str() * attack_used.mult
-      db(str(self.hp_perc() * 100) + "% HP: " + str((255 - self.get_arm()) / 2.55))
-      if self.hp_perc() >= (255 - self.get_arm()) / 255:
+      db(str(self.hp_perc() * 100) + "% HP: " + str((255 - self.get_res()) / 2.55))
+      if self.hp_perc() >= (255 - self.get_res()) / 255:
         op(self.name + "'s armor protects them for damage!")
-        db(1 - self.arm / 255)
-        damage *= 1 - self.arm / 255
+        db(1 - self.get_res() / 255)
+        damage *= 1 - self.get_res() / 255
       if attacker.team.switched_in:
         damage = damage * 0.75
       if debug:
@@ -1189,7 +1166,7 @@ class Weather:
         Apply stat changes 
         to a team
         """
-        
+        """
         if self.type == "Lightning":
             for person in affected:
                 person.boost("CON", self.intensity/100, 1)
@@ -1205,7 +1182,7 @@ class Weather:
         if self.type == "Rain":
             for person in affected:
                 person.heal(self.intensity)
-                
+       """         
     def disp_msg(self):
         """
         Print a message showing
