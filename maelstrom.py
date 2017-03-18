@@ -96,10 +96,5 @@ if __name__ == "__main__":
     h1.load_team(Team(" ", (("Hail Entity", 1)), True, True))
     hail_village = Area("The Hail Village", "?", (h1))
     #hail_village.display_data(player)
-    test_weapon = Weapon("test", 0, 0, 0, 0)
-    crazy_crits = Weapon("SPAM THEM CRITS", -3, 3, -3, 3)   
-    missy = Weapon("LAME", 3, -3, 3, -3)
-    test_weapon.display_data()
-    crazy_crits.display_data()
-    missy.display_data()
+    
     #m.update(player_team)

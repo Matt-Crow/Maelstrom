@@ -106,7 +106,7 @@ def op(write):
   print(b)
 
 # debug print
-def db(write):
+def dp(write):
   if not debug:
     return
   print("<*DEBUG*>")
@@ -276,7 +276,6 @@ class Weapon:
         stat_num = 0  
         while stat_num < len(stats):
           stat = stats[stat_num]
-          print(stat)
           stats[stat_num] = set_in_bounds(stats[stat_num], -3, 3)
           stat_num += 1
         self.miss = 20 + stats[0] * 5
@@ -346,7 +345,7 @@ class Character:
         self.XP = 0
         self.level_set = 1
         self.stars = 0
-        
+        self.boosts = []
         self.weapon = Weapon("Default", 0, 0, 0, 0)
        
     def calc_stats(self):
@@ -375,16 +374,18 @@ class Character:
         base_con = CONRAT * off_mult * 40
         base_str = STRRAT * off_mult * 40
         
-        self.max_HP = base_HP * (1 + self.level * 0.1)
-        self.res = base_res * (1 + self.level * 0.2) 
-        self.str = base_str * (1 + self.level * 0.2) 
-        self.con = base_con * (1 + self.level * 0.2) 
+        self.stats = dict()
+        
+        self.stats["HP"] = base_HP * (1 + self.level * 0.1)
+        self.stats["RES"] = base_res * (1 + self.level * 0.2) 
+        self.stats["STR"] = base_str * (1 + self.level * 0.2) 
+        self.stats["CON"] = base_con * (1 + self.level * 0.2) 
     
     def reset_HP(self):
         """
         Restore HP back to full
         """
-        self.HP_rem = self.get_HP()
+        self.HP_rem = self.get_stat("HP")
     
     def reset_boosts(self):
         """
@@ -407,32 +408,27 @@ class Character:
     Data obtaining functions:
         Used to get data about a character
     """
-        
-    def get_HP(self):
-        return int(self.max_HP)
     
     def hp_perc(self):
-      return float(self.HP_rem) / float(self.get_HP())
-        
-    def get_str(self):
-        return mod(self.str * self.get_boost("STR"))
-        
-    def get_con(self):
-        return mod(self.con * self.get_boost("CON"))
+      return float(self.HP_rem) / float(self.get_stat("HP"))
     
-    def get_res(self):
-        return mod(self.res * self.get_boost("RES"))
+    def get_stat(self, stat):
+      if stat not in self.stats.keys():
+        return 0
+        dp("Stat key not found")
+      return int(self.stats[stat] * self.get_boost(stat))
     
     def display_data(self):
         """
         Print info on a character
+        """
         """
         self.calc_stats()
         print("----------")
         print("Lv. " + str(self.level) + " " + self.name)
         print(self.element.name)
         print(" ")
-        print("HP: " + str(int(self.max_HP)))
+        print("HP: " + str(int(self.stats["max_HP"])))
         print("STR:" + str(int(self.str)))
         print("CON:" + str(int(self.con)))
         print("RES:" + str(int(self.res)))
@@ -441,6 +437,7 @@ class Character:
             print(self.special.name)
         print(str(self.XP) + "/" + str(self.level * 10))
         print("----------")
+        """
 
     """
     Battle functions:
@@ -508,27 +505,38 @@ class Character:
         else:
             return 1.0
     
+    def armor_threshhold(self):
+      return self.hp_perc() >= (255.0 - self.get_stat("RES")) / 255.0
+    
     def calc_DMG(self, attacker, attack_used):
-      damage = attacker.get_str() * attack_used.mult
-      db(str(self.hp_perc() * 100) + "% HP: " + str((255 - self.get_res()) / 2.55))
-      if self.hp_perc() >= (255 - self.get_res()) / 255:
-        op(self.name + "'s armor protects them for damage!")
-        db(1 - self.get_res() / 255)
-        damage *= 1 - self.get_res() / 255
+      damage = attacker.get_stat("STR") * attack_used.mult
+      threshhold = (255.0 - self.get_stat("RES")) / 255.0
+      reduction = 1.0 - float(self.get_stat("RES")) / 255
+      
+      dp([str(self.hp_perc() * 100) + "% HP: ", str(threshhold * 100) + " threshhold"])
+      if self.armor_threshhold():
+        damage *= reduction
+      
       if attacker.team.switched_in:
         damage = damage * 0.75
-      if debug:
-        print("Damage before MHC: " + str(damage))
+      
+      dp("Damage before MHC: " + str(damage))
           
       return int(damage)
-        
+    
     def take_DMG(self, attacker, attack_used):
         print(" ")
         dmg = self.calc_DMG(attacker, attack_used)
+        
+        if self.armor_threshhold():
+          op(self.name + "'s armor protects them for damage!")
+        
         if do_MHC:
             dmg = dmg * self.weapon.calc_MHC()
-        print(attacker.name + " struck " + self.name + " for " + str(int(dmg)) + " damage using " + attack_used.name + "!")
+        op(attacker.name + " struck " + self.name + " for " + str(int(dmg)) + " damage using " + attack_used.name + "!")
+        
         self.HP_rem = int(self.HP_rem - dmg)
+        
         cont = raw_input("Press enter/return to continue")
     
     def direct_DMG(self, amount):
@@ -537,8 +545,8 @@ class Character:
     def check_if_burned(self, attacker):
       #adjust later
       r = random.randint(1, int(12.5 * self.level))
-      if r <= attacker.get_con():
-        self.burn = [attacker.get_con() / 5, 3]
+      if r <= attacker.get_stat("CON"):
+        self.burn = [attacker.get_stat("CON") / 5, 3]
 
     def update_burn(self):
       if self.burn[1] == 0:
@@ -1088,11 +1096,11 @@ class Team:
         print(self.name)
         print(" ")
         for member in self.members_rem:
-            print(member.name + " " + str(member.HP_rem) + "/" + str(member.get_HP()) + " " + member.element.name)
+            print(member.name + " " + str(member.HP_rem) + "/" + str(member.get_stat("HP")) + " " + member.element.name)
             
         print("Currently active: " + self.active.name)
         print("Energy: " + str(self.energy))
-        print("Active enemy: " + self.enemy.active.name + " " + str(self.enemy.active.HP_rem) + "/" + str(self.enemy.active.get_HP()) + " " + self.enemy.active.element.name)
+        print("Active enemy: " + self.enemy.active.name + " " + str(self.enemy.active.HP_rem) + "/" + str(self.enemy.active.get_stat("HP")) + " " + self.enemy.active.element.name)
         
         choices = ["Attack"]
         
@@ -1347,7 +1355,7 @@ class Area:
         level_to_play = choose("Which level do you want to play?", self.levels)
         level_to_play.load_team(player_team)
         level_to_play.play()
-        self.display_data(player_team)
+        #self.display_data(player_team)
 
 no_eff = (0, 0, 0)
 act_ene = ("enemy", "act")
