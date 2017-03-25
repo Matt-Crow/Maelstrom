@@ -97,6 +97,8 @@ def op(write):
   list = []
   if type(write) != type([0, 0, 0, 0]):
     list.append(write)
+  else:
+    list = write
   b = " "
   print(b)
   print(b)
@@ -109,8 +111,16 @@ def op(write):
 def dp(write):
   if not debug:
     return
+  list = []
+  if type(write) != type([0, 0, 0, 0]):
+    list.append(write)
+  else:
+    list = write
+  print " "
   print("<*DEBUG*>")
-  print(write)
+  for item in list:
+    print item
+  print " "
 
 def load():
     should_load = choose("Do you want to load from a save file?", ("Yes", "No"))
@@ -394,7 +404,7 @@ class Character:
         as a list
         """
         self.boosts = []
-    
+        
     def init_for_battle(self):
         """
         Prepare for battle!
@@ -413,9 +423,9 @@ class Character:
       return float(self.HP_rem) / float(self.get_stat("HP"))
     
     def get_stat(self, stat):
-      if stat not in self.stats.keys():
+      if stat not in self.stats:
         return 0
-        dp("Stat key not found")
+        dp("Stat not found: " + stat)
       return int(self.stats[stat] * self.get_boost(stat))
     
     def display_data(self):
