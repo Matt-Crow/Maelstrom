@@ -222,6 +222,10 @@ class Attack:
         self.eff_dur = side_effect[2]
         self.energy_cost = energy_cost   
     
+    def can_use(self, user):
+      dp(["Current energy: " + str(user.energy), "Special energy cost: " + str(self.energy_cost)])
+      return user.energy >= self.energy_cost
+        
     def use(self, user):
         """
         Use your attack
@@ -347,7 +351,7 @@ class Character:
         elif name in enemies:
             data = enemies[name]
         else:
-            data = (0, 0, 0)
+            data = ((0, 0, 0), stone, None)
         self.base_stats = data[0]
         self.element = data[1]
         self.special = data[2]
@@ -357,6 +361,9 @@ class Character:
         self.stars = 0
         self.boosts = []
         self.weapon = Weapon("Default", 0, 0, 0, 0)
+        self.attacks = [slash, jab, slam]
+        if data[2] != None:
+        	self.attacks.append(data[2])
        
     def calc_stats(self):
         """
@@ -570,12 +577,6 @@ class Character:
         Am I dead yet?
         """
         return self.HP_rem <= 0
-    
-    def can_spec(self):
-        if debug:
-            print("Current energy: " + str(self.team.energy))
-            print("Special energy cost: " + str(self.special.energy_cost))
-        return self.team.energy >= self.special.energy_cost
     
     """
     Post-battle actions:
@@ -867,13 +868,11 @@ class Team:
         First, check if our active can KO
         """
         if self.enemy.active.calc_DMG(self.active, slam) >= self.enemy.active.HP_rem:
-            if debug:
-                print(self.active.name + " can KO " + self.enemy.active.name + " with Slam")
-            return "Attack"
+          dp(self.active.name + " can KO " + self.enemy.active.name + " with Slam")
+          return "Attack"
         if self.enemy.active.calc_DMG(self.active, self.active.special) >= self.enemy.active.HP_rem and self.active.can_spec():
-            if debug:
-                print(self.active.name + " can KO " + self.enemy.active.name + " with " + self.active.special.name)
-            return "Attack"
+          dp(self.active.name + " can KO " + self.enemy.active.name + " with " + self.active.special.name)
+          return "Attack"
         # check if your active can benchhit
         if self.active.special.act_any_all != "act":
             for member in self.enemy.members_rem:
@@ -1008,8 +1007,11 @@ class Team:
             sw = 0.75
         else:
             sw = 1.0
+        
         """
         Can you get multiple KOes?
+        """
+        
         """
         if self.active.can_spec() and self.active.special.act_any_all == "all":
             koes = 0
@@ -1019,25 +1021,29 @@ class Team:
             if koes >= 2:
                 return self.active.special
         """
+        """
         Can you get a KO?
         """
-        if self.enemy.active.calc_DMG(self.active, slash) * sw >= self.enemy.active.HP_rem:
-            return slash
-        if do_MHC:
-            if self.enemy.active.calc_DMG(self.active, slam) * sw >= self.enemy.active.HP_rem:
-                return slam
-        if self.active.can_spec():
-            if self.active.special.act_any_all == "any":
-                if self.enemy.active.calc_DMG(self.active, self.active.special) * sw >= self.enemy.active.HP_rem:
-                    return self.active.special
-            if self.enemy.active.calc_DMG(self.active, self.active.special) * sw >= self.enemy.active.HP_rem:
-                return self.active.special
+        can_ko = []
+        
+        for attack in self.active.attacks:
+          if not attack.can_use(self):
+            continue
+          if self.enemy.active.calc_DMG(self.active, attack) * sw >= self.enemy.active.HP_rem:
+            can_ko.append(attack)
+       
         """
         If you cannot KO...
         """
-        if self.active.can_spec():
-            return self.active.special
-         
+        highest_damage = 0
+        best_choice = slash
+        
+        for attack in self.active.attacks:
+          if not attack.can_use(self):
+            continue
+          if self.enemy.active.calc_DMG(self.active, attack) * sw >= highest_damage:
+            best_choice = attack
+        
         # default to jab (or slash if no MHC)
         
         if do_MHC:
@@ -1054,16 +1060,9 @@ class Team:
         """
         if not self.AI:
             attack_options = []
-        
-            # to avoid editting attacks...
-            if do_MHC:
-                for attack in attacks:
-                    attack_options.append(attack)
-            else:
-                attack_options.append(slash)
-        
-            if self.active.can_spec() and self.active.special != None:
-                attack_options.append(self.active.special) 
+            for attack in self.active.attacks:
+              if attack.can_use(self):
+                attack_options.append(attack)
         
             choice = choose("What attack do you wish to use?", attack_options)
         
