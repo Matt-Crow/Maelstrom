@@ -1244,11 +1244,11 @@ class Battle:
         self.forecast = weather_list
     
     def display_data(self):
-        print(" ")
-        print(self.name)
-        print(self.description)
+        msg = [self.name, self.description]
+        
         for member in self.teams[0].use:
-            print("* " + member.name + " LV " + str(member.level) + " " + member.element.name)
+            msg.append("	* " + member.name + " LV " + str(member.level) + " " + member.element.name)
+        op(msg)
     
     def load_team(self, team):
         """
@@ -1258,7 +1258,7 @@ class Battle:
         self.teams.append(team)
         
         if len(team.team) > self.team_size:
-            print("Select which " + str(self.team_size) + " members you wish to use")
+            op("Select which " + str(self.team_size) + " members you wish to use:")
             num = self.team_size
             team.use = []
             roster = []
@@ -1285,7 +1285,7 @@ class Battle:
         for team in self.teams:
             if team.is_up():
                 winner = team
-        print(winner.name + " won!")
+        op(winner.name + " won!")
     
     def begin(self):
         """
@@ -1297,24 +1297,20 @@ class Battle:
         for team in self.teams:
             team.initialize()
             team.enemy = team.find_enemy(self.teams)
-            print(" ")
-            print(" ")
-            print(" ")
-            print(team.name)
+            op(team.name)
             
+            # change this
             for member in team.team:
                 if member not in team.use:
                     team.knock_out(member)
                 else:
                     member.display_data()
-        try:
-            num = random.randrange(0, len(self.forecast) - 1)
-            self.weather = self.forecast[num]
-        except:
-            if self.forecast == None:
-                self.forecast = Weather(None, 0, "The land is seized by an undying calm...")
-            self.weather = self.forecast
         
+        if self.forecast == None:
+        	self.weather = Weather(None, 0, "The land is seized by an undying calm...")
+        else:
+        	num = random.randrange(0, len(self.forecast) - 1)
+        	self.weather = self.forecast[num]
         self.weather.disp_msg()
     
     def end(self):
@@ -1325,7 +1321,6 @@ class Battle:
             for member in team.use:
                 xp = team.enemy.xp_given()
                 member.gain_XP(xp)
-        print(" ")
         self.final_act.print_story()
                     
     def play(self):
@@ -1343,7 +1338,7 @@ class Battle:
                     break      
         self.check_winner()
         self.end()
-# needs improve    
+    
 class Area:
     """
     """
@@ -1356,15 +1351,15 @@ class Area:
         else:
             for level in levels:
                 self.levels.append(level)
-    # improve this            
+            
     def display_data(self, player_team):
-        print(self.name)
-        print(self.description)
+        op([self.name, self.description])
         for level in self.levels:
             level.display_data()
         level_to_play = choose("Which level do you want to play?", self.levels)
         level_to_play.load_team(player_team)
         level_to_play.play()
+        # unhash this to make it never end
         #self.display_data(player_team)
 
 no_eff = (0, 0, 0)

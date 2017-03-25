@@ -86,9 +86,10 @@ if __name__ == "__main__":
     cc = Contract("Alexandre")
     t.recruit(player, (c, cc))
     """
-    
-    r1 = Battle("Origin Beaches", "Start here", ("Encounter! Rain Entity", "Quick! Knock its hit points down to zero and escape!"), ("Congradulations!", "Perhaps an ally will help you in your quest."), 1, weathers[9])
+    r1 = Battle("Origin Beaches", "All heroes have to start somewhere", ("Encounter! Rain Entity", "Quick! Knock its hit points down to zero and escape!"), ("Congradulations!", "The Entity dissipates into a cloud of smoke"), 1, None)
     r1.load_team(Team("Rain", (("Rain Entity", 1)), True, True))
+    r2 = Battle("The Gravel Trail", "A rough path leads up from the beaches...", ("The gravel crunches beneath your feet as you walk", "Suddenly it starts to drizzle lightly", "TIP: While it is raining, all characters will regain a little HP each turn"), ("Congradulations!", "Perhaps an ally will help you in your quest."), 1, weathers[9])
+    r2.load_team(Team("Rain", (("Rain Entity", 1)), True, True))
     rain_village = Area("The Rain Village", "Where peace and tranquility hang over like a fine mist", (r1))
     rain_village.display_data(player)
     
