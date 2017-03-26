@@ -223,8 +223,7 @@ class Attack:
         self.energy_cost = energy_cost   
     
     def can_use(self, user):
-      dp(["Current energy: " + str(user.energy), "Special energy cost: " + str(self.energy_cost)])
-      return user.energy >= self.energy_cost
+      return user.team.energy >= self.energy_cost
         
     def use(self, user):
         """
@@ -511,6 +510,86 @@ class Character:
         if self.HP_rem > self.get_HP():
             self.HP_rem = self.get_HP()
     
+    def best_attack(self):
+      best = None
+      highest_dmg = 0
+      tb = ["----------"]
+      for attack in self.attacks:
+        if not attack.can_use(self):
+          continue
+        dmg = self.team.enemy.active.calc_DMG(self, attack)
+        if dmg > highest_dmg:
+          best = attack
+          highest_dmg = dmg
+        tb.append("Damge with " + attack.name + ": " + str(dmg))
+      tb.append("----------")
+      dp(tb)
+      return best
+    
+    # work on specials
+    def what_attack(self):
+        """
+        Used to help the AI
+        choose what attack
+        to use
+        """
+        if self.team.switched_in:
+            sw = 0.75
+        else:
+            sw = 1.0
+        
+        """
+        Can you get multiple KOes?
+        """
+        
+        """
+        if self.active.can_spec() and self.active.special.act_any_all == "all":
+            koes = 0
+            for member in self.enemy.members_rem:
+                if member.calc_DMG(self.active, self.active.special) * sw >= member.HP_rem:
+                    koes += 1
+            if koes >= 2:
+                return self.active.special
+        """
+        """
+        Can you get a KO?
+        """
+        can_ko = []
+        
+        for attack in self.attacks:
+          if not attack.can_use(self):
+            continue
+          if self.team.enemy.active.calc_DMG(self, attack) * sw >= self.team.enemy.active.HP_rem:
+            can_ko.append(attack)
+       
+        if len(can_ko) == 1:
+          return can_ko[0]
+        if len(can_ko) != 0:
+          return self.best_attack()
+        
+        """
+        If you cannot KO...
+        """
+        return self.best_attack()
+        
+    def choose_attack(self):
+        """
+        How doth thee strike?
+        """
+        if not self.team.AI:
+            attack_options = []
+            for attack in self.attacks:
+              if attack.can_use(self):
+                attack_options.append(attack)
+        
+            choice = choose("What attack do you wish to use?", attack_options)
+        
+        else:
+            dp("AI is choosing attack...")
+            choice = self.what_attack()
+        
+        choice.use(self)
+    
     def check_effectiveness(self, attacker):
         """
         Used to calculate elemental damage taken
@@ -523,29 +602,29 @@ class Character:
             return 1.0
     
     def armor_threshhold(self):
-      return self.hp_perc() >= (255.0 - self.get_stat("RES")) / 255.0
+      return (255.0 - self.get_stat("RES")) / 255.0
+      
+    def in_threshhold(self):
+      return self.hp_perc() >= self.armor_threshhold()
+    
+    def reduction(self):
+      return 1.0 - float(self.get_stat("RES")) / 255
     
     def calc_DMG(self, attacker, attack_used):
       damage = attacker.get_stat("STR") * attack_used.mult
-      threshhold = (255.0 - self.get_stat("RES")) / 255.0
-      reduction = 1.0 - float(self.get_stat("RES")) / 255
       
-      dp([str(self.hp_perc() * 100) + "% HP: ", str(threshhold * 100) + " threshhold"])
-      if self.armor_threshhold():
-        damage *= reduction
+      if self.in_threshhold():
+        damage *= self.reduction()
       
       if attacker.team.switched_in:
         damage = damage * 0.75
-      
-      dp("Damage before MHC: " + str(damage))
           
       return int(damage)
     
     def take_DMG(self, attacker, attack_used):
-        print(" ")
         dmg = self.calc_DMG(attacker, attack_used)
-        
-        if self.armor_threshhold():
+        dp([str(self.hp_perc() * 100) + "% HP: ", str(self.armor_threshhold() * 100) + " threshhold"])
+        if self.in_threshhold():
           op(self.name + "'s armor protects them for damage!")
         
         if do_MHC:
@@ -996,82 +1075,9 @@ class Team:
         rand = random.randint(0, len(self.members_rem) - 1)
         return self.members_rem[rand]  
     
-    # work on specials
-    def what_attack(self):
-        """
-        Used to help the AI
-        choose what attack
-        to use
-        """
-        if self.switched_in:
-            sw = 0.75
-        else:
-            sw = 1.0
-        
-        """
-        Can you get multiple KOes?
-        """
-        
-        """
-        if self.active.can_spec() and self.active.special.act_any_all == "all":
-            koes = 0
-            for member in self.enemy.members_rem:
-                if member.calc_DMG(self.active, self.active.special) * sw >= member.HP_rem:
-                    koes += 1
-            if koes >= 2:
-                return self.active.special
-        """
-        """
-        Can you get a KO?
-        """
-        can_ko = []
-        
-        for attack in self.active.attacks:
-          if not attack.can_use(self):
-            continue
-          if self.enemy.active.calc_DMG(self.active, attack) * sw >= self.enemy.active.HP_rem:
-            can_ko.append(attack)
-       
-        """
-        If you cannot KO...
-        """
-        highest_damage = 0
-        best_choice = slash
-        
-        for attack in self.active.attacks:
-          if not attack.can_use(self):
-            continue
-          if self.enemy.active.calc_DMG(self.active, attack) * sw >= highest_damage:
-            best_choice = attack
-        
-        # default to jab (or slash if no MHC)
-        
-        if do_MHC:
-            return jab
-        else:
-            return slash
-            
     """
     Choices are made using these functions
-    """    
-    def choose_attack(self):
-        """
-        How doth thee strike?
-        """
-        if not self.AI:
-            attack_options = []
-            for attack in self.active.attacks:
-              if attack.can_use(self):
-                attack_options.append(attack)
-        
-            choice = choose("What attack do you wish to use?", attack_options)
-        
-        else:
-            if debug:
-                print("AI is choosing attack...")
-            choice = self.what_attack()
-        
-        choice.use(self.active)
+    """
               
     def choose_switchin(self):
         """
@@ -1102,14 +1108,15 @@ class Team:
         """
         What to do, what to do...
         """
-        print(self.name)
-        print(" ")
+        pr = [self.name]
         for member in self.members_rem:
-            print(member.name + " " + str(member.HP_rem) + "/" + str(member.get_stat("HP")) + " " + member.element.name)
+            pr.append("* " + member.name + " " + str(member.HP_rem) + "/" + str(member.get_stat("HP")) + " " + member.element.name)
             
-        print("Currently active: " + self.active.name)
-        print("Energy: " + str(self.energy))
-        print("Active enemy: " + self.enemy.active.name + " " + str(self.enemy.active.HP_rem) + "/" + str(self.enemy.active.get_stat("HP")) + " " + self.enemy.active.element.name)
+        pr.append("Currently active: " + self.active.name)
+        pr.append("Energy: " + str(self.energy))
+        pr.append("Active enemy: " + self.enemy.active.name + " " + str(self.enemy.active.HP_rem) + "/" + str(self.enemy.active.get_stat("HP")) + " " + self.enemy.active.element.name)
+        
+        op(pr)
         
         choices = ["Attack"]
         
@@ -1129,7 +1136,7 @@ class Team:
             self.choose_switchin()
             self.lose_energy(2)
             self.switched_in = True
-        self.choose_attack()
+        self.active.choose_attack()
         
     def do_turn(self):
         """
