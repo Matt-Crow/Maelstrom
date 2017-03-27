@@ -17,9 +17,9 @@ Week 2: Revised/improved/reordered functions
 14/11/2016 - 20/11/2016: Area and general cleanup
 21/11/2016 - 1/12/2016: Added AI
 
-6/3/2017 Started major combat revamp
+6/3/2017 Started major revamp
 
-Version 0.85
+Version 0.9
 """
 
 if __name__ == "__main__":
@@ -943,42 +943,40 @@ class Team:
     AI stuff
     """
     def should_switch(self):
-        """
-        First, check if our active can KO
-        """
-        if self.enemy.active.calc_DMG(self.active, slam) >= self.enemy.active.HP_rem:
-          dp(self.active.name + " can KO " + self.enemy.active.name + " with Slam")
-          return "Attack"
-        if self.enemy.active.calc_DMG(self.active, self.active.special) >= self.enemy.active.HP_rem and self.active.can_spec():
-          dp(self.active.name + " can KO " + self.enemy.active.name + " with " + self.active.special.name)
-          return "Attack"
-        # check if your active can benchhit
-        if self.active.special.act_any_all != "act":
-            for member in self.enemy.members_rem:
-                if member.calc_DMG(self.active, self.active.special) >= member.HP_rem and self.active.can_spec():
-                    if debug:
-                        print(self.active.name + " can KO " + member.name + " with " + self.active.special.name)
-                    return "Attack"
-        
-        """
-        Second, check if an ally can KO 
-        """
-        for member in self.members_rem:
-            if self.enemy.active.calc_DMG(member, slam) * 0.75 >= self.enemy.active.HP_rem:
-                return "Switch"
-            if self.enemy.active.calc_DMG(member, member.special) * 0.75 >= self.enemy.active.HP_rem and member.can_spec():
-                return "Switch"
-            # Check if we are strong against them
-            if self.active.element.name == self.enemy.active.element.weakness:
-                return "Attack"
-        
-        """
-        Lastly, if all else fails, run for your life
-        """
-        if self.active.element.weakness == self.enemy.active.element.name and not self.one_left() and self.energy >= 2:
-            return "Switch"
-        # Default
+      if self.energy < 2:
+        return False
+      """
+      First, check if our active can KO
+      """
+      if self.enemy.active.calc_DMG(self.active, self.active.best_attack()) >= self.enemy.active.HP_rem:
         return "Attack"
+      """
+      # check if your active can benchhit
+      if self.active.special.act_any_all != "act":
+        for member in self.enemy.members_rem:
+          if member.calc_DMG(self.active, self.active.special) >= member.HP_rem and self.active.can_spec():
+            if debug:
+              print(self.active.name + " can KO " + member.name + " with " + self.active.special.name)
+            return "Attack"
+      """  
+      """
+      Second, check if an ally can KO 
+      """
+      for member in self.members_rem:
+        if self.enemy.active.calc_DMG(member, member.best_attack()) * 0.75 >= self.enemy.active.HP_rem:
+          return "Switch"
+      
+      # Check if we are strong against them
+      if self.active.element.name == self.enemy.active.element.weakness:
+        return "Attack"
+        
+      """
+      Lastly, if all else fails, run for your life
+      """
+      if self.active.element.weakness == self.enemy.active.element.name and not self.one_left() and self.energy >= 2:
+        return "Switch"
+      # Default
+      return "Attack"
     
     # comment   
     def who_switch(self):
@@ -1346,27 +1344,25 @@ class Battle:
         self.end()
     
 class Area:
-    """
-    """
-    def __init__(self, name, description, levels):
-        self.name = name
-        self.description = description
-        self.levels = []
-        if type(levels) != type(("x", "y")):
-            self.levels.append(levels)
-        else:
-            for level in levels:
-                self.levels.append(level)
+  def __init__(self, name, description, levels):
+    self.name = name
+    self.description = description
+    self.levels = []
+    if type(levels) != type(("x", "y")):
+      self.levels.append(levels)
+    else:
+      for level in levels:
+        self.levels.append(level)
             
-    def display_data(self, player_team):
-        op([self.name, self.description])
-        for level in self.levels:
-            level.display_data()
-        level_to_play = choose("Which level do you want to play?", self.levels)
-        level_to_play.load_team(player_team)
-        level_to_play.play()
-        # unhash this to make it never end
-        #self.display_data(player_team)
+  def display_data(self, player_team):
+    op([self.name, self.description])
+    for level in self.levels:
+      level.display_data()
+    level_to_play = choose("Which level do you want to play?", self.levels)
+    level_to_play.load_team(player_team)
+    level_to_play.play()
+    # unhash this to make it never end
+    #self.display_data(player_team)
 
 no_eff = (0, 0, 0)
 act_ene = ("enemy", "act")
