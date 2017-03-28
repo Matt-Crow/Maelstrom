@@ -495,20 +495,20 @@ class Character:
         Converts an INTEGER
         to a percentage.
         """
-        healing = self.get_HP() * (float(percent) / 100)
+        healing = self.get_stat("HP") * (float(percent) / 100)
         self.HP_rem = int(self.HP_rem + healing)
         
-        if percent > 0:
-            msg = " restored "
-        elif percent < 0:
-            msg = " lost "
-        else:
-            return
-        
-        print(self.name + msg + str(abs(int(healing))) + " HP")
+        op(self.name + " healed " + str(int(healing)) + " HP!")
             
-        if self.HP_rem > self.get_HP():
-            self.HP_rem = self.get_HP()
+        if self.HP_rem > self.get_stat("HP"):
+            self.HP_rem = self.get_stat("HP")
+    
+    def harm(self, percent):
+      harming = self.get_stat("HP") * (float(percent) / 100)
+      self.HP_rem = int(self.HP_rem - healing)
+      op(self.name + " took " + str(int(healing)) + " damage!")   
+      if self.HP_rem > self.get_stat("HP"):
+        self.HP_rem = self.get_stat("HP")
     
     def best_attack(self):
       best = None
@@ -989,14 +989,13 @@ class Team:
         Can anyone KO?
         """
         for member in self.members_rem:
-            if self.enemy.active.calc_DMG(member, slam) * 0.75 >= self.enemy.active.HP_rem:
+            if self.enemy.active.calc_DMG(member, member.best_attack()) * 0.75 >= self.enemy.active.HP_rem:
                 can_ko.append(member)
-            elif self.enemy.active.calc_DMG(member, self.active.special) * 0.75 >= self.enemy.active.HP_rem and member.can_spec():
-                can_ko.append(member)
-        if debug:
-            for member in can_ko:
-                print(member.name)
-            print("can KO")
+        dbp = []
+        for member in can_ko:
+            dbp.append(member.name)
+        dbp("can KO")
+        dp(dbp)
         """
         If one person can KO,
         bring them in.
@@ -1018,10 +1017,11 @@ class Team:
         for member in array:
             if member.element.name == self.enemy.active.element.weakness:
                 at_adv.append(member)
-        if debug:
-            for member in at_adv:
-                print(member.name)
-            print("are at advantage")
+        dbp = []
+        for member in at_adv:
+            dbp.append(member.name)
+        dbp.append("are at advantage")
+        dp(dbp)
         
         # comment here
         """
@@ -1060,10 +1060,12 @@ class Team:
         for member in self.members_rem:
             if self.enemy.active.element.name != member.element.weakness:
                 not_at_dis.append(member)
-        if debug:
-            for member in not_at_dis:
-                print(member.name)
-            print("are not at disadvantage")
+        dbp = []
+        for member in not_at_dis:
+            dbp.append(member.name)
+            dbp.append("are not at disadvantage")
+        db(dbp)
+            
         if len(not_at_dis) == 1:
             return not_at_dis[0]
         if len(not_at_dis) > 1:
@@ -1196,15 +1198,14 @@ class Weather:
         if self.type == "Wind":
             for person in affected:
                 person.boost("STR", self.intensity/100, 1)
-            
+        """    
         if self.type == "Hail":
             for person in affected:
-                person.heal(-self.intensity)
+                person.take_dmg(self.intensity)
         
         if self.type == "Rain":
             for person in affected:
-                person.heal(self.intensity)
-       """         
+                person.heal(self.intensity)         
     def disp_msg(self):
         """
         Print a message showing
@@ -1251,7 +1252,7 @@ class Battle:
         msg = [self.name, self.description]
         
         for member in self.teams[0].use:
-            msg.append("	* " + member.name + " LV " + str(member.level) + " " + member.element.name)
+            msg.append("* " + member.name + " LV " + str(member.level) + " " + member.element.name)
         op(msg)
     
     def load_team(self, team):
@@ -1312,6 +1313,8 @@ class Battle:
         
         if self.forecast == None:
         	self.weather = Weather(None, 0, "The land is seized by an undying calm...")
+        elif type(self.forecast) != type([0, 0, 0]):
+            self.weather = self.forecast
         else:
         	num = random.randrange(0, len(self.forecast) - 1)
         	self.weather = self.forecast[num]
