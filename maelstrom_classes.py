@@ -18,6 +18,7 @@ Week 2: Revised/improved/reordered functions
 21/11/2016 - 1/12/2016: Added AI
 
 6/3/2017 Started major revamp
+29/3/2017 Energy is now per character as opposed to team
 
 Version 0.9
 """
@@ -132,7 +133,7 @@ def load():
     return Team("Test team", (("Alexandre", 1), ("Rene", 1), ("Ian", 1), ("Viktor", 1)), False, False)
 
 # need to comment this
-# work here
+# this will need to be redone
 class Savefile:
     def __init__(self, file):
         self.file = file
@@ -223,7 +224,7 @@ class Attack:
         self.energy_cost = energy_cost   
     
     def can_use(self, user):
-      return user.team.energy >= self.energy_cost
+      return user.energy >= self.energy_cost
         
     def use(self, user):
         """
@@ -277,7 +278,7 @@ class Attack:
             if self.energy_cost == 0:
               warrior.check_if_burned(user)
         
-        user.team.lose_energy(self.energy_cost)
+        user.lose_energy(self.energy_cost)
 
 class Weapon:
     """
@@ -418,6 +419,7 @@ class Character:
         self.calc_stats()
         self.reset_HP()
         self.reset_boosts()
+        self.energy = 0
         self.burn = [0, 0]
 
     """
@@ -509,6 +511,25 @@ class Character:
       op(self.name + " took " + str(int(healing)) + " damage!")   
       if self.HP_rem > self.get_stat("HP"):
         self.HP_rem = self.get_stat("HP")
+    
+    # change cap
+    def gain_energy(self, amount):
+        """
+        Increase your energy.
+        Default is 1.
+        """
+        self.energy = self.energy + amount
+        
+        if self.energy > 7:
+            self.energy = 7
+        
+    def lose_energy(self, amount):
+        """
+        Decrease your energy
+        """
+        self.energy = self.energy - amount
+        if self.energy < 0:
+            self.energy = 0
     
     def best_attack(self):
       best = None
@@ -873,30 +894,6 @@ class Team:
         from members_rem
         """
         self.members_rem.remove(member)
-    
-    def init_energy(self):
-        """
-        Set your energy to 0.
-        """
-        self.energy = 0
-    
-    def gain_energy(self, amount = 1):
-        """
-        Increase your energy.
-        Default is 1.
-        """
-        self.energy = self.energy + amount
-        
-        if self.energy > 7:
-            self.energy = 7
-        
-    def lose_energy(self, amount):
-        """
-        Decrease your energy
-        """
-        self.energy = self.energy - amount
-        if self.energy < 0:
-            self.energy = 0
         
     def init_active(self):
         """
@@ -919,7 +916,6 @@ class Team:
         """
         Ready the troops!
         """
-        self.init_energy()
         self.apply_team()
         self.members_rem = []
         for member in self.team:
@@ -943,8 +939,6 @@ class Team:
     AI stuff
     """
     def should_switch(self):
-      if self.energy < 2:
-        return False
       """
       First, check if our active can KO
       """
@@ -973,7 +967,7 @@ class Team:
       """
       Lastly, if all else fails, run for your life
       """
-      if self.active.element.weakness == self.enemy.active.element.name and not self.one_left() and self.energy >= 2:
+      if self.active.element.weakness == self.enemy.active.element.name and not self.one_left():
         return "Switch"
       # Default
       return "Attack"
@@ -1113,14 +1107,14 @@ class Team:
             pr.append("* " + member.name + " " + str(member.HP_rem) + "/" + str(member.get_stat("HP")) + " " + member.element.name)
             
         pr.append("Currently active: " + self.active.name)
-        pr.append("Energy: " + str(self.energy))
+        pr.append(self.active.name + "'s Energy: " + str(self.active.energy))
         pr.append("Active enemy: " + self.enemy.active.name + " " + str(self.enemy.active.HP_rem) + "/" + str(self.enemy.active.get_stat("HP")) + " " + self.enemy.active.element.name)
         
         op(pr)
         
         choices = ["Attack"]
         
-        if (not self.one_left()) and self.energy >= 2:
+        if not self.one_left():
             choices.append("Switch")
         
         if not self.AI:
@@ -1134,38 +1128,31 @@ class Team:
         
         if attack_switch == "Switch":
             self.choose_switchin()
-            self.lose_energy(2)
             self.switched_in = True
         self.active.choose_attack()
         
     def do_turn(self):
-        """
-        This is where stuff happens
-        """
-        print("")
-        print("")
-        print("")
-        new_members_rem = []
+      """
+      This is where stuff happens
+      """
+      new_members_rem = []
+      for member in self.members_rem:
+        member.update_burn()
+        if not member.check_if_KOed():
+          new_members_rem.append(member)
+        else:
+          op(member.name + " is out of the game!")
+      self.members_rem = new_members_rem
+      
+      if self.active.check_if_KOed() and self.is_up():
+        self.choose_switchin()
+        
+      if self.is_up():
+        self.switched_in = False
+        self.active.gain_energy(2)
         for member in self.members_rem:
-            member.update_burn()
-            if not member.check_if_KOed():
-                new_members_rem.append(member)
-            else:
-                print(member.name + " is out of the game!")
-        self.members_rem = new_members_rem
-        
-        if self.active.check_if_KOed() and self.is_up():
-            self.choose_switchin()
-        
-        if self.is_up():
-            self.switched_in = False
-            
-            self.gain_energy(2)
-            
-            for member in self.members_rem:
-                member.update_boosts()
-                
-            self.choose_action()
+          member.update_boosts()
+        self.choose_action()
 
 class Weather:
     """
@@ -1190,11 +1177,11 @@ class Weather:
         Apply stat changes 
         to a team
         """
-        """
+        
         if self.type == "Lightning":
             for person in affected:
-                person.boost("CON", self.intensity/100, 1)
-            
+                person.gain_energy(int(self.intensity/20))
+        """    
         if self.type == "Wind":
             for person in affected:
                 person.boost("STR", self.intensity/100, 1)
