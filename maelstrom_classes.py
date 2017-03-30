@@ -360,7 +360,6 @@ class Character:
     self.XP = 0
     self.level_set = 1
     self.stars = 0
-    self.boosts = []
     self.weapon = Weapon("Default", 0, 0, 0, 0)
     self.attacks = [slash, jab, slam]
     if data[2] != None:
@@ -464,33 +463,37 @@ class Character:
   """
   
   def boost(self, stat, amount, duration):
-        """
-        Increase or lower stats in battle
-        """
-        
-        self.boosts.append([stat, amount, duration])
+    """
+    Increase or lower stats in battle
+    """
+    self.boosts[stat].append({"potency": amount, "duration": duration})
   
   def get_boost(self, stat):
-        """
-        Returns stat boost
-        """
-        ret = 1
-        for boost in self.boosts:
-            if boost[0] == stat:
-                ret += boost[1]
-        return ret
+    """
+    Returns stat boost
+    """
+    ret = 1
+    try:
+      for boost in self.boosts[stat]:
+        ret += boost["potency"]
+    except:
+      pass
+    return ret
   
   def update_boosts(self):
-        new_boosts = []
-        for boost in self.boosts:
-            if boost[2] != 0:
-                boost[2] -= 1
-                new_boosts.append(boost)
-        self.boosts = new_boosts
-        if debug:
-            print(self.name + "'s boosts:")
-            for boost in self.boosts:
-                print(boost)
+    new_boosts = dict()
+    for stat in self.boosts.keys():
+      new_boosts[stat] = []
+      for boost in self.boosts[stat]:
+        if boost["duration"] != 0:
+          new_boosts[stat].append({"potency": boost["potency"], "duration": boost["duration"] - 1})
+    self.boosts = new_boosts
+    dbp = []
+    dbp.append(self.name + "'s boosts:")
+    for boost in self.boosts.keys():
+    	dbp.append(boost + ": ")
+    	#work here
+    dp(dbp)
   
   def heal(self, percent):
         """
