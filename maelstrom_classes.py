@@ -289,7 +289,6 @@ class Weapon:
         stats = [miss, crit, miss_m, crit_m]
         stat_num = 0  
         while stat_num < len(stats):
-          stat = stats[stat_num]
           stats[stat_num] = set_in_bounds(stats[stat_num], -3, 3)
           stat_num += 1
         self.miss = 20 + stats[0] * 5
@@ -331,112 +330,114 @@ class Element:
         self.name = name
         self.weakness = weakness
 
+# extend to Hero and Enemy
 class Character:
+  """
+  A Class containing all the info for a character
+  """
+  
+  """
+  Initializers:
+  Used to 'build' the characters
+  DONE
+  """
+  
+  def __init__(self, name, level):
     """
-    A Class containing all the info for a character
+    base stats: (def ratio, res ratio, con ratio)
     """
-        
+    self.name = name
+    if name in characters:
+      data = characters[name]
+    elif name in enemies:
+      data = enemies[name]
+    else:
+      data = ((0, 0, 0), stone, None)
+    self.base_stats = data[0]
+    self.element = data[1]
+    self.special = data[2]
+    self.level = level
+    self.XP = 0
+    self.level_set = 1
+    self.stars = 0
+    self.boosts = []
+    self.weapon = Weapon("Default", 0, 0, 0, 0)
+    self.attacks = [slash, jab, slam]
+    if data[2] != None:
+      self.attacks.append(data[2])
+  
+  def calc_stats(self):
     """
-    Initializers:
-        Used to 'build' the characters
+    Calculate a character's stats
     """
-
-    def __init__(self, name, level):
-        """
-        base stats: (def ratio, res ratio, con ratio)
-        """
-        self.name = name
-        if name in characters:
-            data = characters[name]
-        elif name in enemies:
-            data = enemies[name]
-        else:
-            data = ((0, 0, 0), stone, None)
-        self.base_stats = data[0]
-        self.element = data[1]
-        self.special = data[2]
-        self.level = level
-        self.XP = 0
-        self.level_set = 1
-        self.stars = 0
-        self.boosts = []
-        self.weapon = Weapon("Default", 0, 0, 0, 0)
-        self.attacks = [slash, jab, slam]
-        if data[2] != None:
-        	self.attacks.append(data[2])
-       
-    def calc_stats(self):
-        """
-        Calculate a character's stats
-        """
-        
-        def_mult = 1.0 + self.base_stats[0] * 0.025
-        off_mult = 1.0 - self.base_stats[0] * 0.025
-        
-        base_HP = def_mult * 100
-        
-        RESRAT = 0.5 + self.base_stats[1] * 0.05
-        HPRAT = 1.0 - RESRAT
-        
-        # default is 0.5, so 20 base
-        base_res = RESRAT * def_mult * 40
-        base_hp = HPRAT * def_mult * 40
-        
-        # offensive stats
-        
-        CONRAT = 0.5 + self.base_stats[2] * 0.05
-        STRRAT = 1.0 - CONRAT
-            
-        # once again, default is 0.5
-        base_con = CONRAT * off_mult * 40
-        base_str = STRRAT * off_mult * 40
-        
-        self.stats = dict()
-        
-        self.stats["HP"] = base_HP * (1 + self.level * 0.1)
-        self.stats["RES"] = base_res * (1 + self.level * 0.2) 
-        self.stats["STR"] = base_str * (1 + self.level * 0.2) 
-        self.stats["CON"] = base_con * (1 + self.level * 0.2) 
+    s = []
+    for stat in self.base_stats:
+      s.append(stat)
+    stat_num = 0
+    while stat_num < len(s):
+      s[stat_num] = set_in_bounds(s[stat_num], -5, 5)
+      stat_num += 1
     
-    def reset_HP(self):
-        """
-        Restore HP back to full
-        """
-        self.HP_rem = self.get_stat("HP")
+    def_mult = 1.0 + s[0] * 0.15
+    off_mult = 1.0 - s[0] * 0.15
     
-    def reset_boosts(self):
-        """
-        Set your 
-        boosts 
-        as a list
-        """
-        self.boosts = []
+    base_HP = def_mult * 100
+    
+    RESRAT = 0.5 + s[1] * 0.05
+    HPRAT = 1.0 - RESRAT
+    
+    # default is 0.5, so 20 base
+    base_res = RESRAT * def_mult * 40
+    base_hp = HPRAT * def_mult * 40
+    
+    # offensive stats
+    CONRAT = 0.5 + s[2] * 0.05
+    STRRAT = 1.0 - CONRAT
+     
+    # once again, default is 0.5
+    base_con = CONRAT * off_mult * 40
+    base_str = STRRAT * off_mult * 40
+    
+    self.stats = dict()
         
-    def init_for_battle(self):
-        """
-        Prepare for battle!
-        """
-        self.calc_stats()
-        self.reset_HP()
-        self.reset_boosts()
-        self.energy = 0
-        self.burn = [0, 0]
-
+    self.stats["HP"] = base_HP * (1 + self.level * 0.1)
+    self.stats["RES"] = base_res * (1 + self.level * 0.2) 
+    self.stats["STR"] = base_str * (1 + self.level * 0.2) 
+    self.stats["CON"] = base_con * (1 + self.level * 0.2) 
+  
+  def reset_boosts(self):
     """
-    Data obtaining functions:
-        Used to get data about a character
+    Set your 
+    boosts 
+    as a dict
     """
-    
-    def hp_perc(self):
+    self.boosts = {"CON": [], "STR": [], "RES": []}
+  
+  def init_for_battle(self):
+    """
+    Prepare for battle!
+    """
+    self.calc_stats()
+    self.HP_rem = self.get_stat("HP")
+    self.reset_boosts()
+    self.energy = 0
+    self.burn = [0, 0]
+  
+  """
+  Data obtaining functions:
+  Used to get data about a character
+  """
+  
+  def hp_perc(self):
       return float(self.HP_rem) / float(self.get_stat("HP"))
-    
-    def get_stat(self, stat):
+  
+  def get_stat(self, stat):
       if stat not in self.stats:
         return 0
         dp("Stat not found: " + stat)
       return int(self.stats[stat] * self.get_boost(stat))
-    
-    def display_data(self):
+  
+  def display_data(self):
         """
         Print info on a character
         """
@@ -456,20 +457,20 @@ class Character:
         print(str(self.XP) + "/" + str(self.level * 10))
         print("----------")
         """
-
-    """
-    Battle functions:
-        Used during battle
-    """
-   
-    def boost(self, stat, amount, duration):
+  
+  """
+  Battle functions:
+  Used during battle
+  """
+  
+  def boost(self, stat, amount, duration):
         """
         Increase or lower stats in battle
         """
         
         self.boosts.append([stat, amount, duration])
-    
-    def get_boost(self, stat):
+  
+  def get_boost(self, stat):
         """
         Returns stat boost
         """
@@ -478,8 +479,8 @@ class Character:
             if boost[0] == stat:
                 ret += boost[1]
         return ret
-        
-    def update_boosts(self):
+  
+  def update_boosts(self):
         new_boosts = []
         for boost in self.boosts:
             if boost[2] != 0:
@@ -490,8 +491,8 @@ class Character:
             print(self.name + "'s boosts:")
             for boost in self.boosts:
                 print(boost)
-        
-    def heal(self, percent):
+  
+  def heal(self, percent):
         """
         Restores HP.
         Converts an INTEGER
@@ -504,16 +505,16 @@ class Character:
             
         if self.HP_rem > self.get_stat("HP"):
             self.HP_rem = self.get_stat("HP")
-    
-    def harm(self, percent):
+  
+  def harm(self, percent):
       harming = self.get_stat("HP") * (float(percent) / 100)
       self.HP_rem = int(self.HP_rem - healing)
       op(self.name + " took " + str(int(healing)) + " damage!")   
       if self.HP_rem > self.get_stat("HP"):
         self.HP_rem = self.get_stat("HP")
-    
-    # change cap
-    def gain_energy(self, amount):
+  
+  # change cap
+  def gain_energy(self, amount):
         """
         Increase your energy.
         Default is 1.
@@ -522,16 +523,16 @@ class Character:
         
         if self.energy > 7:
             self.energy = 7
-        
-    def lose_energy(self, amount):
+  
+  def lose_energy(self, amount):
         """
         Decrease your energy
         """
         self.energy = self.energy - amount
         if self.energy < 0:
             self.energy = 0
-    
-    def best_attack(self):
+  
+  def best_attack(self):
       best = None
       highest_dmg = 0
       tb = ["----------"]
@@ -546,9 +547,9 @@ class Character:
       tb.append("----------")
       dp(tb)
       return best
-    
-    # work on specials
-    def what_attack(self):
+  
+  # work on specials
+  def what_attack(self):
         """
         Used to help the AI
         choose what attack
@@ -592,8 +593,8 @@ class Character:
         If you cannot KO...
         """
         return self.best_attack()
-        
-    def choose_attack(self):
+  
+  def choose_attack(self):
         """
         How doth thee strike?
         """
@@ -610,8 +611,8 @@ class Character:
             choice = self.what_attack()
         
         choice.use(self)
-    
-    def check_effectiveness(self, attacker):
+  
+  def check_effectiveness(self, attacker):
         """
         Used to calculate elemental damage taken
         """
@@ -621,17 +622,17 @@ class Character:
             return 0.67
         else:
             return 1.0
-    
-    def armor_threshhold(self):
+  
+  def armor_threshhold(self):
       return (255.0 - self.get_stat("RES")) / 255.0
-      
-    def in_threshhold(self):
+  
+  def in_threshhold(self):
       return self.hp_perc() >= self.armor_threshhold()
-    
-    def reduction(self):
+  
+  def reduction(self):
       return 1.0 - float(self.get_stat("RES")) / 255
-    
-    def calc_DMG(self, attacker, attack_used):
+  
+  def calc_DMG(self, attacker, attack_used):
       damage = attacker.get_stat("STR") * attack_used.mult
       
       if self.in_threshhold():
@@ -641,8 +642,8 @@ class Character:
         damage = damage * 0.75
           
       return int(damage)
-    
-    def take_DMG(self, attacker, attack_used):
+  
+  def take_DMG(self, attacker, attack_used):
         dmg = self.calc_DMG(attacker, attack_used)
         dp([str(self.hp_perc() * 100) + "% HP: ", str(self.armor_threshhold() * 100) + " threshhold"])
         if self.in_threshhold():
@@ -655,34 +656,34 @@ class Character:
         self.HP_rem = int(self.HP_rem - dmg)
         
         cont = raw_input("Press enter/return to continue")
-    
-    def direct_DMG(self, amount):
+  
+  def direct_DMG(self, amount):
       self.HP_rem -= int(amount)
-
-    def check_if_burned(self, attacker):
+  
+  def check_if_burned(self, attacker):
       #adjust later
       r = random.randint(1, int(12.5 * self.level))
       if r <= attacker.get_stat("CON"):
         self.burn = [attacker.get_stat("CON") / 5, 3]
-
-    def update_burn(self):
+  
+  def update_burn(self):
       if self.burn[1] == 0:
         return False
       self.direct_DMG(self.burn[0])
       self.burn[1] -= 1
       print(self.name + " took " + str(int(self.burn[0])) + " damage from his/her Elemental Burn!")
-    
-    def check_if_KOed(self):
+  
+  def check_if_KOed(self):
         """
         Am I dead yet?
         """
         return self.HP_rem <= 0
-    
-    """
-    Post-battle actions:
-        Occur after battle
-    """        
-    def gain_XP(self, amount):
+  
+  """
+  Post-battle actions:
+  Occur after battle
+  """        
+  def gain_XP(self, amount):
         """
         Give experience.
         Caps at the most XP required for a battle
@@ -698,24 +699,24 @@ class Character:
                 self.level_up()
             else:
                 print(self.name + " is being held back... perhaps a special item will help?")
-    
-    def level_up(self):
+  
+  def level_up(self):
         """
         Increases level
         """
         self.XP = 0
         self.level += 1
         self.calc_stats()
-        self.reset_HP()
+        self.HP_rem = self.get_stat("HP")
         self.display_data()
-    
-    def can_level_up(self):
+  
+  def can_level_up(self):
         """
         Make sure you are not blocked by your current level cap
         """
         return self.level < self.level_set * 5
-        
-    def plus_level_set(self):
+  
+  def plus_level_set(self):
         """
         Increases your 
         level cap by 5
