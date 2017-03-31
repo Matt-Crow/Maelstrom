@@ -425,37 +425,33 @@ class Character:
   """
   Data obtaining functions:
   Used to get data about a character
+  DONE
   """
   
   def hp_perc(self):
-      return float(self.HP_rem) / float(self.get_stat("HP"))
+    return float(self.HP_rem) / float(self.get_stat("HP"))
   
   def get_stat(self, stat):
-      if stat not in self.stats:
-        return 0
-        dp("Stat not found: " + stat)
-      return int(self.stats[stat] * self.get_boost(stat))
+    if stat not in self.stats:
+      return 0
+      dp("Stat not found: " + stat)
+    return int(self.stats[stat] * self.get_boost(stat))
   
   def display_data(self):
-        """
-        Print info on a character
-        """
-        """
-        self.calc_stats()
-        print("----------")
-        print("Lv. " + str(self.level) + " " + self.name)
-        print(self.element.name)
-        print(" ")
-        print("HP: " + str(int(self.stats["max_HP"])))
-        print("STR:" + str(int(self.str)))
-        print("CON:" + str(int(self.con)))
-        print("RES:" + str(int(self.res)))
-        print(" ")
-        if self.special != "None":
-            print(self.special.name)
-        print(str(self.XP) + "/" + str(self.level * 10))
-        print("----------")
-        """
+    """
+    Print info on a character
+    """
+    self.calc_stats()
+    pr = ["Lv. " + str(self.level) + " " + self.name]
+    pr.append(self.element.name)
+    pr.append("HP: " + str(int(self.stats["HP"])))
+    pr.append("STR:" + str(int(self.stats["STR"])))
+    pr.append("CON:" + str(int(self.stats["CON"])))
+    pr.append("RES:" + str(int(self.stats["RES"])))
+    for attack in self.attacks:
+      pr.append("-" + attack.name)
+    pr.append(str(self.XP) + "/" + str(self.level * 10))
+    op(pr)
   
   """
   Battle functions:
@@ -490,9 +486,12 @@ class Character:
     self.boosts = new_boosts
     dbp = []
     dbp.append(self.name + "'s boosts:")
-    for boost in self.boosts.keys():
-    	dbp.append(boost + ": ")
-    	#work here
+    for boost_type in self.boosts.keys():
+      dbp.append(boost_type + ": ")
+      for boost in self.boosts[boost_type]:
+      	dbp.append("-------------")
+        dbp.append("-Duration: " + str(boost["duration"]))
+        dbp.append("-Potency: " + str(boost["potency"]))
     dp(dbp)
   
   def heal(self, percent):
@@ -1185,11 +1184,11 @@ class Weather:
         if self.type == "Lightning":
             for person in affected:
                 person.gain_energy(int(self.intensity/20))
-        """    
+            
         if self.type == "Wind":
             for person in affected:
-                person.boost("STR", self.intensity/100, 1)
-        """    
+                person.boost("STR", self.intensity/100, 3)
+    	
         if self.type == "Hail":
             for person in affected:
                 person.take_dmg(self.intensity)
