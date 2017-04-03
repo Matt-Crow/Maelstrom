@@ -456,6 +456,7 @@ class Character:
   """
   Battle functions:
   Used during battle
+  DONE
   """
   
   def boost(self, stat, amount, duration):
@@ -495,45 +496,47 @@ class Character:
     dp(dbp)
   
   def heal(self, percent):
-        """
-        Restores HP.
-        Converts an INTEGER
-        to a percentage.
-        """
-        healing = self.get_stat("HP") * (float(percent) / 100)
-        self.HP_rem = int(self.HP_rem + healing)
+    """
+    Restores HP.
+    Converts an INTEGER
+    to a percentage.
+    """
+    healing = self.get_stat("HP") * (float(percent) / 100)
+    self.HP_rem = int(self.HP_rem + healing)
+    
+    op(self.name + " healed " + str(int(healing)) + " HP!")
         
-        op(self.name + " healed " + str(int(healing)) + " HP!")
-            
-        if self.HP_rem > self.get_stat("HP"):
-            self.HP_rem = self.get_stat("HP")
+    if self.HP_rem > self.get_stat("HP"):
+      self.HP_rem = self.get_stat("HP")
   
   def harm(self, percent):
-      harming = self.get_stat("HP") * (float(percent) / 100)
-      self.HP_rem = int(self.HP_rem - healing)
-      op(self.name + " took " + str(int(healing)) + " damage!")   
-      if self.HP_rem > self.get_stat("HP"):
-        self.HP_rem = self.get_stat("HP")
+    harming = self.get_stat("HP") * (float(percent) / 100)
+    self.HP_rem = int(self.HP_rem - healing)
+    op(self.name + " took " + str(int(healing)) + " damage!")
+    
+  def direct_dmg(self, dmg):
+  	self.HP_rem -= int(dmg)
   
-  # change cap
   def gain_energy(self, amount):
-        """
-        Increase your energy.
-        Default is 1.
-        """
-        self.energy = self.energy + amount
-        
-        if self.energy > 7:
-            self.energy = 7
+    """
+    Increase your energy.
+    """
+    self.energy = self.energy + amount
+    
+    if self.energy > 20:
+      self.energy = 20
   
   def lose_energy(self, amount):
-        """
-        Decrease your energy
-        """
-        self.energy = self.energy - amount
-        if self.energy < 0:
-            self.energy = 0
+    """
+    Decrease your energy
+    """
+    self.energy = self.energy - amount
+    if self.energy < 0:
+      self.energy = 0
   
+  """
+  AI stuff
+  """
   def best_attack(self):
       best = None
       highest_dmg = 0
@@ -614,6 +617,9 @@ class Character:
         
         choice.use(self)
   
+  """
+  Damage calculation
+  """
   def check_effectiveness(self, attacker):
         """
         Used to calculate elemental damage taken
@@ -659,9 +665,6 @@ class Character:
         
         cont = raw_input("Press enter/return to continue")
   
-  def direct_DMG(self, amount):
-      self.HP_rem -= int(amount)
-  
   def check_if_burned(self, attacker):
       #adjust later
       r = random.randint(1, int(12.5 * self.level))
@@ -671,7 +674,7 @@ class Character:
   def update_burn(self):
       if self.burn[1] == 0:
         return False
-      self.direct_DMG(self.burn[0])
+      self.direct_dmg(self.burn[0])
       self.burn[1] -= 1
       print(self.name + " took " + str(int(self.burn[0])) + " damage from his/her Elemental Burn!")
   
