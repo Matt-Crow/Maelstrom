@@ -536,86 +536,85 @@ class Character:
   
   """
   AI stuff
+  DONE
   """
   def best_attack(self):
-      best = None
-      highest_dmg = 0
-      tb = ["----------"]
-      for attack in self.attacks:
-        if not attack.can_use(self):
-          continue
-        dmg = self.team.enemy.active.calc_DMG(self, attack)
-        if dmg > highest_dmg:
-          best = attack
-          highest_dmg = dmg
-        tb.append("Damge with " + attack.name + ": " + str(dmg))
-      tb.append("----------")
-      dp(tb)
-      return best
+    best = None
+    highest_dmg = 0
+    tb = ["----------"]
+    for attack in self.attacks:
+      if not attack.can_use(self):
+        continue
+      dmg = self.team.enemy.active.calc_DMG(self, attack)
+      if dmg > highest_dmg:
+        best = attack
+        highest_dmg = dmg
+      tb.append("Damge with " + attack.name + ": " + str(dmg))
+    tb.append("----------")
+    dp(tb)
+    return best
   
-  # work on specials
   def what_attack(self):
-        """
-        Used to help the AI
-        choose what attack
-        to use
-        """
-        if self.team.switched_in:
-            sw = 0.75
-        else:
-            sw = 1.0
-        
-        """
-        Can you get multiple KOes?
-        """
-        
-        """
-        if self.active.can_spec() and self.active.special.act_any_all == "all":
-            koes = 0
-            for member in self.enemy.members_rem:
-                if member.calc_DMG(self.active, self.active.special) * sw >= member.HP_rem:
-                    koes += 1
-            if koes >= 2:
-                return self.active.special
-        """
-        """
-        Can you get a KO?
-        """
-        can_ko = []
-        
-        for attack in self.attacks:
-          if not attack.can_use(self):
-            continue
-          if self.team.enemy.active.calc_DMG(self, attack) * sw >= self.team.enemy.active.HP_rem:
-            can_ko.append(attack)
-       
-        if len(can_ko) == 1:
-          return can_ko[0]
-        if len(can_ko) != 0:
-          return self.best_attack()
-        
-        """
-        If you cannot KO...
-        """
-        return self.best_attack()
+    """
+    Used to help the AI
+    choose what attack
+    to use
+    """
+    if self.team.switched_in:
+      sw = 0.75
+    else:
+      sw = 1.0
+    
+    """
+    Can you get multiple KOes?
+    """
+    
+    for attack in self.attacks:
+      if not attack.can_use(self) or not attack.act_any_all == "all":
+        continue
+      
+      koes = 0
+      for member in self.enemy.members_rem:
+        if member.calc_DMG(self.active, attack) * sw >= member.HP_rem:
+          koes += 1
+      if koes >= 2:
+        return attack
+    
+    """
+    Can you get a KO?
+    """
+    can_ko = []
+    
+    for attack in self.attacks:
+      if not attack.can_use(self):
+        continue
+      if self.team.enemy.active.calc_DMG(self, attack) * sw >= self.team.enemy.active.HP_rem:
+        can_ko.append(attack)
+      
+    if len(can_ko) == 1:
+      return can_ko[0]
+    """
+    If you cannot KO...
+    """
+    return self.best_attack()
   
   def choose_attack(self):
-        """
-        How doth thee strike?
-        """
-        if not self.team.AI:
-            attack_options = []
-            for attack in self.attacks:
-              if attack.can_use(self):
-                attack_options.append(attack)
-        
-            choice = choose("What attack do you wish to use?", attack_options)
-        
-        else:
-            dp("AI is choosing attack...")
-            choice = self.what_attack()
-        
-        choice.use(self)
+    """
+    How doth thee strike?
+    """
+    if not self.team.AI:
+      attack_options = []
+      for attack in self.attacks:
+        if attack.can_use(self):
+          attack_options.append(attack)
+      
+      choice = choose("What attack do you wish to use?", attack_options)
+      
+    else:
+      dp("AI is choosing attack...")
+      choice = self.what_attack()
+    
+    choice.use(self)
   
   """
   Damage calculation
