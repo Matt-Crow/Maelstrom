@@ -19,6 +19,7 @@ Week 2: Revised/improved/reordered functions
 
 6/3/2017 Started major revamp
 29/3/2017 Energy is now per character as opposed to team
+5/4/2017 finished going through character. Will add new features
 
 Version 0.9
 """
@@ -339,7 +340,6 @@ class Character:
   """
   Initializers:
   Used to 'build' the characters
-  DONE
   """
   
   def __init__(self, name, level):
@@ -425,7 +425,6 @@ class Character:
   """
   Data obtaining functions:
   Used to get data about a character
-  DONE
   """
   
   def hp_perc(self):
@@ -456,7 +455,6 @@ class Character:
   """
   Battle functions:
   Used during battle
-  DONE
   """
   
   def boost(self, stat, amount, duration):
@@ -536,7 +534,6 @@ class Character:
   
   """
   AI stuff
-  DONE
   """
   def best_attack(self):
     best = None
@@ -619,113 +616,96 @@ class Character:
   """
   Damage calculation
   """
-  def check_effectiveness(self, attacker):
-        """
-        Used to calculate elemental damage taken
-        """
-        if self.element.weakness == attacker.element.name:
-            return 1.5
-        elif attacker.element.weakness == self.element.name:
-            return 0.67
-        else:
-            return 1.0
   
   def armor_threshhold(self):
-      return (255.0 - self.get_stat("RES")) / 255.0
+    return (255.0 - self.get_stat("RES")) / 255.0
   
   def in_threshhold(self):
-      return self.hp_perc() >= self.armor_threshhold()
+    return self.hp_perc() >= self.armor_threshhold()
   
   def reduction(self):
-      return 1.0 - float(self.get_stat("RES")) / 255
+    return 1.0 - float(self.get_stat("RES")) / 255
   
   def calc_DMG(self, attacker, attack_used):
-      damage = attacker.get_stat("STR") * attack_used.mult
+    damage = attacker.get_stat("STR") * attack_used.mult
+    
+    if self.in_threshhold():
+      damage *= self.reduction()
+    
+    if attacker.team.switched_in:
+      damage = damage * 0.75
       
-      if self.in_threshhold():
-        damage *= self.reduction()
-      
-      if attacker.team.switched_in:
-        damage = damage * 0.75
-          
-      return int(damage)
+    return int(damage)
   
   def take_DMG(self, attacker, attack_used):
-        dmg = self.calc_DMG(attacker, attack_used)
-        dp([str(self.hp_perc() * 100) + "% HP: ", str(self.armor_threshhold() * 100) + " threshhold"])
-        if self.in_threshhold():
-          op(self.name + "'s armor protects them for damage!")
-        
-        if do_MHC:
-            dmg = dmg * self.weapon.calc_MHC()
-        op(attacker.name + " struck " + self.name + " for " + str(int(dmg)) + " damage using " + attack_used.name + "!")
-        
-        self.HP_rem = int(self.HP_rem - dmg)
-        
-        cont = raw_input("Press enter/return to continue")
+    dmg = self.calc_DMG(attacker, attack_used)
+    dp([str(self.hp_perc() * 100) + "% HP: ", str(self.armor_threshhold() * 100) + " threshhold"])
+    if self.in_threshhold():
+      op(self.name + "'s armor protects him/her for damage!")
+    
+    if do_MHC:
+      dmg = dmg * self.weapon.calc_MHC()
+    op(attacker.name + " struck " + self.name + " for " + str(int(dmg)) + " damage using " + attack_used.name + "!")
+    
+    self.direct_dmg(dmg)
+    
+    cont = raw_input("Press enter/return to continue")
   
   def check_if_burned(self, attacker):
-      #adjust later
-      r = random.randint(1, int(12.5 * self.level))
-      if r <= attacker.get_stat("CON"):
-        self.burn = [attacker.get_stat("CON") / 5, 3]
+    r = random.randint(1, 255)
+    if r <= attacker.get_stat("CON"):
+      self.burn = [attacker.get_stat("CON") / 5, 3]
   
   def update_burn(self):
-      if self.burn[1] == 0:
-        return False
-      self.direct_dmg(self.burn[0])
-      self.burn[1] -= 1
-      print(self.name + " took " + str(int(self.burn[0])) + " damage from his/her Elemental Burn!")
+    if self.burn[1] == 0:
+      return False
+    self.direct_dmg(self.burn[0])
+    self.burn[1] -= 1
+    print(self.name + " took " + str(int(self.burn[0])) + " damage from his/her Elemental Burn!")
   
   def check_if_KOed(self):
-        """
-        Am I dead yet?
-        """
-        return self.HP_rem <= 0
+    """
+    Am I dead yet?
+    """
+    return self.HP_rem <= 0
   
   """
   Post-battle actions:
   Occur after battle
   """        
   def gain_XP(self, amount):
-        """
-        Give experience.
-        Caps at the most XP required for a battle
-        (Can't level up twice after one battle)
-        """
-        if self.team.AI:
-            return
-        
-        self.XP = self.XP + amount
-        if self.XP >= self.level * 10: 
-            if self.can_level_up():
-                print(self.name + " leveled up!")
-                self.level_up()
-            else:
-                print(self.name + " is being held back... perhaps a special item will help?")
+    """
+    Give experience.
+    Caps at the most XP required for a battle
+    (Can't level up twice after one battle)
+    """
+    if self.team.AI:
+      return
+    
+    self.XP = self.XP + amount
+    if self.XP >= self.level * 10: 
+      if self.level < self.level_set * 5:
+        op(self.name + " leveled up!")
+        self.level_up()
+      else:
+        print(self.name + " is being held back... perhaps a special item will help?")
   
   def level_up(self):
-        """
-        Increases level
-        """
-        self.XP = 0
-        self.level += 1
-        self.calc_stats()
-        self.HP_rem = self.get_stat("HP")
-        self.display_data()
-  
-  def can_level_up(self):
-        """
-        Make sure you are not blocked by your current level cap
-        """
-        return self.level < self.level_set * 5
+    """
+    Increases level
+    """
+    self.XP = 0
+    self.level += 1
+    self.calc_stats()
+    self.HP_rem = self.get_stat("HP")
+    self.display_data()
   
   def plus_level_set(self):
-        """
-        Increases your 
-        level cap by 5
-        """
-        self.level_set = self.level_set + 1
+    """
+    Increases your 
+    level cap by 5
+    """
+    self.level_set = self.level_set + 1
 
 class Contract:
     def __init__(self, comes_with):
