@@ -801,127 +801,117 @@ class Team:
     together so that the program knows
     who are enemies, and who are allies.
     """
-    def __init__(self, name, members, single, AI = False):
-        self.team = []
-        self.name = name
-        self.AI = AI
-        
-        if single:
-            self.team.append(Character(members[0], members[1]))
-            return
-        
-        for new_member in members:
-            self.team.append(Character(new_member[0], new_member[1]))
-        
-    def add_member(self, new_member):
-        """
-        Add a member to a team.
-        """
-        for member in self.team:
-            if new_member[0] == member.name:
-                member.stars += 1
-                print(member.name + "'s stats were boosted!")
-                member.init_for_battle()
-                member.display_data()
-                return False
+    def __init__(self, name, members, AI = False):
+      self.team = []
+      self.name = name
+      self.AI = AI
+      
+      if type(members) != type([0, 0, 0, 0]):
+        self.team.append(Character(members[0], members[1]))
+        return
+      
+      for new_member in members:
         self.team.append(Character(new_member[0], new_member[1]))
-        print(new_member[0] + " joined " + self.name + "!")
-        self.team[-1].init_for_battle()
-        self.team[-1].display_data()
-        
-    def apply_team(self):
-        """
-        Let all members
-        know what team
-        they are on
-        """
-        for member in self.team:
-            member.team = self
+      for member in self.team:
+        member.team = self
+            
+    def add_member(self, new_member):
+      """
+      Add a member to a team.
+      """
+      for member in self.team:
+        if new_member[0] == member.name:
+          member.stars += 1
+          op(member.name + "'s stats were boosted!")
+          member.init_for_battle()
+          member.display_data()
+          return False
+      self.team.append(Character(new_member[0], new_member[1]))
+      op(new_member[0] + " joined " + self.name + "!")
+      self.team[-1].team = self
+      self.team[-1].init_for_battle()
+      self.team[-1].display_data()
     
     def find_enemy(self, teams):
-        """
-        Take a list of teams 
-        (from Battle), and
-        return the one that 
-        is not self.
-        """
-        for team in teams:
-            if team != self:
-                return team
+      """
+      Take a list of teams 
+      (from Battle), and
+      return the one that 
+      is not self.
+      """
+      for team in teams:
+        if team != self:
+          return team
     
     # balance this later
     def xp_given(self):
-        """
-        How much xp will be given
-        once this team is
-        defeated.
-        """
-        xp = 0
-        for member in self.use:
-            xp += member.level * 10
-        return xp / len(self.use)
+      """
+      How much xp will be given
+      once this team is
+      defeated.
+      """
+      xp = 0
+      for member in self.use:
+        xp += member.level * 10
+      return xp / len(self.use)
     
     def is_up(self):
-        """
-        Use to see if your team still exists
-        """
-        return len(self.members_rem) != 0
+      """
+      Use to see if your team still exists
+      """
+      return len(self.members_rem) != 0
     
     def one_left(self):
-        """
-        Detects when you have only one member left
-        """
-        return len(self.members_rem) == 1
-       
+      """
+      Detects when you have only one member left
+      """
+      return len(self.members_rem) == 1
+     
     def knock_out(self, member):
-        """
-        Delete a warrior
-        from members_rem
-        """
-        self.members_rem.remove(member)
-        
+      """
+      Delete a warrior
+      from members_rem
+      """
+      self.members_rem.remove(member)
+    
     def init_active(self):
-        """
-        Elect a leader
-        """
-        if self.AI:
-            self.active = self.use[0]
-            return
-        lead = choose("Who do you want to lead with?", self.use)
-        
-        self.active = lead
+      """
+      Elect a leader
+      """
+      if self.AI:
+        self.active = self.use[0]
+        return
+      self.active = choose("Who do you want to lead with?", self.use)
         
     def switch(self, member):
-        """
-        You're up!
-        """
-        self.active = member
+      """
+      You're up!
+      """
+      self.active = member
     
     def initialize(self):
-        """
-        Ready the troops!
-        """
-        self.apply_team()
-        self.members_rem = []
-        for member in self.team:
-            member.calc_stats()
-            member.init_for_battle()
-            self.members_rem.append(member)
-        self.init_active()
+      """
+      Ready the troops!
+      """
+      self.members_rem = []
+      for member in self.team:
+        member.calc_stats()
+        member.init_for_battle()
+        self.members_rem.append(member)
+      self.init_active()
     
     def display_data(self):
-        """
-        Show info for a team
-        """
-        print(" ")
-        print(self.name)
-        for member in self.team:
-            print(" ")
-            member.display_data()
-        print(" ")
+      """
+      Show info for a team
+      """
+      op(self.name)
+      for member in self.team:
+        member.display_data()
     
     """
     AI stuff
+    
+    HERE AND DOWN
     """
     def should_switch(self):
       """
