@@ -20,6 +20,7 @@ Week 2: Revised/improved/reordered functions
 6/3/2017 Started major revamp
 29/3/2017 Energy is now per character as opposed to team
 5/4/2017 finished going through character. Will add new features
+5/8/2017 finsihed Team
 
 Version 0.9
 """
@@ -280,6 +281,9 @@ class Attack:
               warrior.check_if_burned(user)
         
         user.lose_energy(self.energy_cost)
+        
+        if self.energy_cost == 0:
+            user.gain_energy(3)
 
 class Weapon:
     """
@@ -648,7 +652,7 @@ class Character:
     op(attacker.name + " struck " + self.name + " for " + str(int(dmg)) + " damage using " + attack_used.name + "!")
     
     self.direct_dmg(dmg)
-    
+    self.gain_energy(3)
     cont = raw_input("Press enter/return to continue")
   
   def check_if_burned(self, attacker):
@@ -796,338 +800,267 @@ class Tavern:
             team.add_member(con.use())
 
 class Team:
-    """
-    Teams are used to group characters
-    together so that the program knows
-    who are enemies, and who are allies.
-    """
-    def __init__(self, name, members, AI = False):
-      self.team = []
-      self.name = name
-      self.AI = AI
-      
-      if type(members) != type([0, 0, 0, 0]):
-        self.team.append(Character(members[0], members[1]))
-        return
-      
+  """
+  Teams are used to group characters
+  together so that the program knows
+  who are enemies, and who are allies.
+  """
+  def __init__(self, name, members, AI = False):
+    self.team = []
+    self.name = name
+    self.AI = AI
+    
+    if type(members) != type([0, 0, 0, 0]):
+      self.team.append(Character(members[0], members[1]))
+    else:
       for new_member in members:
         self.team.append(Character(new_member[0], new_member[1]))
-      for member in self.team:
-        member.team = self
-            
-    def add_member(self, new_member):
-      """
-      Add a member to a team.
-      """
-      for member in self.team:
-        if new_member[0] == member.name:
-          member.stars += 1
-          op(member.name + "'s stats were boosted!")
-          member.init_for_battle()
-          member.display_data()
-          return False
-      self.team.append(Character(new_member[0], new_member[1]))
-      op(new_member[0] + " joined " + self.name + "!")
-      self.team[-1].team = self
-      self.team[-1].init_for_battle()
-      self.team[-1].display_data()
-    
-    def find_enemy(self, teams):
-      """
-      Take a list of teams 
-      (from Battle), and
-      return the one that 
-      is not self.
-      """
-      for team in teams:
-        if team != self:
-          return team
-    
-    # balance this later
-    def xp_given(self):
-      """
-      How much xp will be given
-      once this team is
-      defeated.
-      """
-      xp = 0
-      for member in self.use:
-        xp += member.level * 10
-      return xp / len(self.use)
-    
-    def is_up(self):
-      """
-      Use to see if your team still exists
-      """
-      return len(self.members_rem) != 0
-    
-    def one_left(self):
-      """
-      Detects when you have only one member left
-      """
-      return len(self.members_rem) == 1
-     
-    def knock_out(self, member):
-      """
-      Delete a warrior
-      from members_rem
-      """
-      self.members_rem.remove(member)
-    
-    def init_active(self):
-      """
-      Elect a leader
-      """
-      if self.AI:
-        self.active = self.use[0]
-        return
-      self.active = choose("Who do you want to lead with?", self.use)
-        
-    def switch(self, member):
-      """
-      You're up!
-      """
-      self.active = member
-    
-    def initialize(self):
-      """
-      Ready the troops!
-      """
-      self.members_rem = []
-      for member in self.team:
-        member.calc_stats()
+    for member in self.team:
+      member.team = self
+      
+  def add_member(self, new_member):
+    """
+    Add a member to a team.
+    """
+    for member in self.team:
+      if new_member[0] == member.name:
+        member.stars += 1
+        op(member.name + "'s stats were boosted!")
         member.init_for_battle()
-        self.members_rem.append(member)
-      self.init_active()
-    
-    def display_data(self):
-      """
-      Show info for a team
-      """
-      op(self.name)
-      for member in self.team:
         member.display_data()
+        return False
+    self.team.append(Character(new_member[0], new_member[1]))
+    op(new_member[0] + " joined " + self.name + "!")
+    self.team[-1].team = self
+    self.team[-1].init_for_battle()
+    self.team[-1].display_data()
     
+  def find_enemy(self, teams):
     """
-    AI stuff
-    
-    HERE AND DOWN
+    Take a list of teams 
+    (from Battle), and
+    return the one that 
+    is not self.
     """
-    def should_switch(self):
-      """
-      First, check if our active can KO
-      """
-      if self.enemy.active.calc_DMG(self.active, self.active.best_attack()) >= self.enemy.active.HP_rem:
-        return "Attack"
-      """
-      # check if your active can benchhit
-      if self.active.special.act_any_all != "act":
-        for member in self.enemy.members_rem:
-          if member.calc_DMG(self.active, self.active.special) >= member.HP_rem and self.active.can_spec():
-            if debug:
-              print(self.active.name + " can KO " + member.name + " with " + self.active.special.name)
-            return "Attack"
-      """  
-      """
-      Second, check if an ally can KO 
-      """
-      for member in self.members_rem:
-        if self.enemy.active.calc_DMG(member, member.best_attack()) * 0.75 >= self.enemy.active.HP_rem:
-          return "Switch"
+    for team in teams:
+      if team != self:
+        return team
+  
+  # balance this later
+  def xp_given(self):
+    """
+    How much xp will be given
+    once this team is
+    defeated.
+    """
+    xp = 0
+    for member in self.use:
+      xp += member.level * 10
+    return xp / len(self.use)
+  
+  def is_up(self):
+    """
+    Use to see if your team still exists
+    """
+    return len(self.members_rem) != 0
+  
+  def one_left(self):
+    """
+    Detects when you have only one member left
+    """
+    return len(self.members_rem) == 1
+   
+  def knock_out(self, member):
+    """
+    Delete a warrior
+    from members_rem
+    """
+    self.members_rem.remove(member)
+  
+  def init_active(self):
+    """
+    Elect a leader
+    """
+    if self.AI:
+      self.active = self.use[0]
+      return
+    self.active = choose("Who do you want to lead with?", self.use)
       
-      # Check if we are strong against them
-      if self.active.element.name == self.enemy.active.element.weakness:
-        return "Attack"
-        
-      """
-      Lastly, if all else fails, run for your life
-      """
-      if self.active.element.weakness == self.enemy.active.element.name and not self.one_left():
-        return "Switch"
-      # Default
+  def switch(self, member):
+    """
+    You're up!
+    """
+    self.active = member
+  
+  def initialize(self):
+    """
+    Ready the troops!
+    """
+    self.members_rem = []
+    for member in self.team:
+      member.calc_stats()
+      member.init_for_battle()
+      self.members_rem.append(member)
+    self.init_active()
+  
+  def display_data(self):
+    """
+    Show info for a team
+    """
+    op(self.name)
+    for member in self.team:
+      member.display_data()
+    
+  """
+  AI stuff
+  BENCHIT NEEDS FIX
+  """
+  def should_switch(self):
+    """
+    First, check if our active can KO
+    """
+    if self.enemy.active.calc_DMG(self.active, self.active.best_attack()) >= self.enemy.active.HP_rem:
       return "Attack"
+    """
+    # check if your active can benchhit
+    if self.active.special.act_any_all != "act":
+      for member in self.enemy.members_rem:
+        if member.calc_DMG(self.active, self.active.special) >= member.HP_rem and self.active.can_spec():
+          if debug:
+            print(self.active.name + " can KO " + member.name + " with " + self.active.special.name)
+           return "Attack"
+    """
+    """
+    Second, check if an ally can KO 
+    """
+    for member in self.members_rem:
+      if self.enemy.active.calc_DMG(member, member.best_attack()) * 0.75 >= self.enemy.active.HP_rem:
+        return "Switch"
     
-    # comment   
-    def who_switch(self):
-        """
-        Used to help the AI
-        decide who to switch in
-        """
-        can_ko = []
-        """
-        Can anyone KO?
-        """
-        for member in self.members_rem:
-            if self.enemy.active.calc_DMG(member, member.best_attack()) * 0.75 >= self.enemy.active.HP_rem:
-                can_ko.append(member)
-        dbp = []
-        for member in can_ko:
-            dbp.append(member.name)
-        dbp("can KO")
-        dp(dbp)
-        """
-        If one person can KO,
-        bring them in.
-        If nobody can,
-        change nothing.
-        If someone can KO,
-        only use them.
-        """
-        if len(can_ko) == 1:
-            return can_ko[0]
-        elif len(can_ko) == 0:
-            array = self.members_rem
-        else:
-            array = can_ko
-        """
-        Check for advantages
-        """
-        at_adv = []
-        for member in array:
-            if member.element.name == self.enemy.active.element.weakness:
-                at_adv.append(member)
-        dbp = []
-        for member in at_adv:
-            dbp.append(member.name)
-        dbp.append("are at advantage")
-        dp(dbp)
-        
-        # comment here
-        """
-        If someone is at advantage 
-        AND can KO,
-        use them.
-        If multiple people can KO AND are at advantage,
-        use them.
-        """
-        strong_and_ko = []
-        for member in at_adv:
-            if member in can_ko:
-                strong_and_ko.append(member)
-        
-        if len(strong_and_ko) == 1:
-            return strong_and_ko[0]
-        if len(strong_and_ko) > 1:
-            rand = random.randint(0, len(strong_and_ko) - 1)
-            print(rand)
-            return strong_and_ko[rand]
-        if len(can_ko) > 1:
-            rand = random.randint(0, len(can_ko) - 1)
-            print(rand)
-            return can_ko[rand]
-        if len(at_adv) == 1:
-            return at_adv[0]
-        if len(at_adv) > 1:
-            rand = random.randint(0, len(at_adv) - 1)
-            print(rand)
-            return at_adv[rand]
-        
-        """
-        Check for disadvantages
-        """
-        not_at_dis = []
-        for member in self.members_rem:
-            if self.enemy.active.element.name != member.element.weakness:
-                not_at_dis.append(member)
-        dbp = []
-        for member in not_at_dis:
-            dbp.append(member.name)
-            dbp.append("are not at disadvantage")
-        db(dbp)
-            
-        if len(not_at_dis) == 1:
-            return not_at_dis[0]
-        if len(not_at_dis) > 1:
-            rand = random.randint(0, len(not_at_dis) - 1)
-            return not_at_dis[rand]
-        
-        rand = random.randint(0, len(self.members_rem) - 1)
-        return self.members_rem[rand]  
+    # Default
+    return "Attack"
+    
+  # comment   
+  def who_switch(self):
+    """
+    Used to help the AI
+    decide who to switch in
+    """
     
     """
-    Choices are made using these functions
+    Can anyone KO?
     """
-              
-    def choose_switchin(self):
-        """
-        Who will fight?
-        """
+    can_ko = []
+    for member in self.members_rem:
+      if self.enemy.active.calc_DMG(member, member.best_attack()) * 0.75 >= self.enemy.active.HP_rem:
+        can_ko.append(member)
+    dbp = []
+    for member in can_ko:
+      dbp.append(member.name)
+    
+    dbp.append("can KO")
+    dp(dbp)
+    
+    """
+    If one person can KO,
+    bring them in.
+    If nobody can,
+    change nothing.
+    If someone can KO,
+    only use them.
+    """
+    if len(can_ko) == 1:
+      return can_ko[0]
+    elif len(can_ko) == 0:
+      array = self.members_rem
+    else:
+      array = can_ko
         
-        if self.one_left():
-            self.switch(self.members_rem[0])
-            return
-        
-        choices = []
-        for member in self.members_rem:
-            if member != self.active:
-                choices.append(member)
-        
-        if not self.AI:
-            switch_for = choose("Who do you want to bring in?", choices)
-        else:
-            if debug:
-                print("AI is deciding...")
-            switch_for = self.who_switch()
-        
-        self.switch(switch_for)
-          
-        print(self.active.name + " up!")
-                                        
-    def choose_action(self):
-        """
-        What to do, what to do...
-        """
-        pr = [self.name]
-        for member in self.members_rem:
-            pr.append("* " + member.name + " " + str(member.HP_rem) + "/" + str(member.get_stat("HP")) + " " + member.element.name)
+    rand = random.randint(0, len(array) - 1)
+    return array[rand]  
+  
+  """
+  Choices are made using these functions
+  """
             
-        pr.append("Currently active: " + self.active.name)
-        pr.append(self.active.name + "'s Energy: " + str(self.active.energy))
-        pr.append("Active enemy: " + self.enemy.active.name + " " + str(self.enemy.active.HP_rem) + "/" + str(self.enemy.active.get_stat("HP")) + " " + self.enemy.active.element.name)
-        
-        op(pr)
-        
-        choices = ["Attack"]
-        
-        if not self.one_left():
-            choices.append("Switch")
-        
-        if not self.AI:
-            attack_switch = choose("What do you wish to do?", choices)
-        else:
-            if len(choices) == 1:
-                pass
-            if debug:
-                print("AI is deciding...")
-            attack_switch = self.should_switch()
-        
-        if attack_switch == "Switch":
-            self.choose_switchin()
-            self.switched_in = True
-        self.active.choose_attack()
-        
-    def do_turn(self):
-      """
-      This is where stuff happens
-      """
-      new_members_rem = []
-      for member in self.members_rem:
-        member.update_burn()
-        if not member.check_if_KOed():
-          new_members_rem.append(member)
-        else:
-          op(member.name + " is out of the game!")
-      self.members_rem = new_members_rem
+  def choose_switchin(self):
+    """
+    Who will fight?
+    """
+    
+    if self.one_left():
+      self.switch(self.members_rem[0])
+      return
+    
+    choices = []
+    for member in self.members_rem:
+      if member != self.active:
+        choices.append(member)
+    
+    if not self.AI:
+      switch_for = choose("Who do you want to bring in?", choices)
+    else:
+      dp("AI is deciding...")
+      switch_for = self.who_switch()
+    
+    self.switch(switch_for)
       
-      if self.active.check_if_KOed() and self.is_up():
-        self.choose_switchin()
+    op(self.active.name + " up!")
+                                    
+  def choose_action(self):
+    """
+    What to do, what to do...
+    """
+    pr = [self.name]
+    for member in self.members_rem:
+      pr.append("* " + member.name + " " + str(member.HP_rem) + "/" + str(member.get_stat("HP")) + " " + member.element.name)
         
-      if self.is_up():
-        self.switched_in = False
-        self.active.gain_energy(2)
-        for member in self.members_rem:
-          member.update_boosts()
-        self.choose_action()
+    pr.append("Currently active: " + self.active.name)
+    pr.append(self.active.name + "'s Energy: " + str(self.active.energy))
+    pr.append("Active enemy: " + self.enemy.active.name + " " + str(self.enemy.active.HP_rem) + "/" + str(self.enemy.active.get_stat("HP")) + " " + self.enemy.active.element.name)
+    
+    op(pr)
+    
+    choices = ["Attack"]
+    
+    if not self.one_left():
+      choices.append("Switch")
+    
+    if not self.AI:
+      attack_switch = choose("What do you wish to do?", choices)
+    else:
+      if len(choices) == 1:
+        attack_switch = "Attack"
+      else:
+        dp("AI is deciding...")
+        attack_switch = self.should_switch()
+      
+    if attack_switch == "Switch":
+      self.choose_switchin()
+      self.switched_in = True
+    self.active.choose_attack()
+        
+  def do_turn(self):
+    """
+    This is where stuff happens
+    """
+    new_members_rem = []
+    for member in self.members_rem:
+      member.update_burn()
+      if not member.check_if_KOed():
+        new_members_rem.append(member)
+      else:
+        op(member.name + " is out of the game!")
+    self.members_rem = new_members_rem
+    
+    if self.active.check_if_KOed() and self.is_up():
+      self.choose_switchin()
+    
+    if self.is_up():
+      self.switched_in = False
+      for member in self.members_rem:
+        member.update_boosts()
+      self.choose_action()
 
 class Weather:
     """
