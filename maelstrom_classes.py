@@ -4,6 +4,7 @@ Copyright (c) 2016 Matt Crow
 
 """
 Started October 28, 2015
+dd/mm/yyyy
 28/10/2015-: Built Attack, Warrior (later renamed Character), and Team
 Week 2: Revised/improved/reordered functions
 23/11/2015 - 27/11/2015: Implemented Battle
@@ -20,7 +21,8 @@ Week 2: Revised/improved/reordered functions
 6/3/2017 Started major revamp
 29/3/2017 Energy is now per character as opposed to team
 5/4/2017 finished going through character. Will add new features
-5/8/2017 finsihed Team
+8/4/2017 finsihed Team
+11/4/2017 how_many added, need to implement
 
 Version 0.9
 """
@@ -95,6 +97,13 @@ def choose(question, options):
         else:
             print("That isn't an option...")
 
+def how_many(check):
+  if check == None:
+    return "none"
+  if type(check) == type([1, 2, 3]) or type(check) == type((1, 2, 3)):
+    return "multiple"
+  return "single"
+
 # output
 def op(write):
   list = []
@@ -104,10 +113,8 @@ def op(write):
     list = write
   b = " "
   print(b)
-  print(b)
   for item in list:
     print(item)
-  print(b)
   print(b)
 
 # debug print
@@ -897,7 +904,7 @@ class Team:
     Ready the troops!
     """
     self.members_rem = []
-    for member in self.team:
+    for member in self.use:
       member.calc_stats()
       member.init_for_battle()
       self.members_rem.append(member)
@@ -1063,183 +1070,186 @@ class Team:
       self.choose_action()
 
 class Weather:
+  """
+  This is what makes Maelstrom unique!
+  Weather provides in-battle effects
+  that alter the stats of characters
+  """
+  def __init__(self, type, intensity, msg):
     """
-    This is what makes Maelstrom unique!
-    Weather provides in-battle effects
-    that alter the stats of characters
+    The type determines what sort of effect will
+    be applied to all participants in a battle.
+    The intensity is how potent the effect will be.
+    The msg is what text will show to help
+    the player determine the weather.
     """
-    def __init__(self, type, intensity, msg):
-        """
-        The type determines what sort of effect will
-        be applied to all participants in a battle.
-        The intensity is how potent the effect will be.
-        The msg is what text will show to help
-        the player determine the weather.
-        """
-        self.type = type
-        self.intensity = intensity
-        self.msg = msg
+    self.type = type
+    self.intensity = intensity
+    self.msg = msg
+      
+  def do_effect(self, affected):
+    """
+    Apply stat changes 
+    to a team
+    """
+    
+    if self.type == "Lightning":
+      for person in affected:
+        person.gain_energy(int(self.intensity/20))
         
-    def do_effect(self, affected):
-        """
-        Apply stat changes 
-        to a team
-        """
-        
-        if self.type == "Lightning":
-            for person in affected:
-                person.gain_energy(int(self.intensity/20))
-            
-        if self.type == "Wind":
-            for person in affected:
-                person.boost("STR", self.intensity/100, 3)
-    	
-        if self.type == "Hail":
-            for person in affected:
-                person.take_dmg(self.intensity)
-        
-        if self.type == "Rain":
-            for person in affected:
-                person.heal(self.intensity)         
-    def disp_msg(self):
-        """
-        Print a message showing
-        the weather condition
-        """
-        print(self.msg)
+    if self.type == "Wind":
+      for person in affected:
+        person.boost("STR", self.intensity/100, 3)
+    
+    if self.type == "Hail":
+      for person in affected:
+        person.take_dmg(self.intensity)
+    
+    if self.type == "Rain":
+      for person in affected:
+        person.heal(self.intensity)
+           
+  def disp_msg(self):
+    """
+    Print a message showing
+    the weather condition
+    """
+    op(self.msg)
 
 class Story:
-    def __init__(self, story):
-        if story == None:
-            self.story = []
-        elif type(story) != type(["This", "is a", "list"]) and type(story) != type(("Tuples", "are so", "cute!")):
-            self.story = [story]
-        else:
-            self.story = story
-        
-        
-    def print_story(self):
-        for script in self.story:
-            print(script)
-            go = raw_input("Press enter/return to continue")
+  def __init__(self, story):
+    # none
+    if story == None:
+      self.story = []
+    # multiple
+    elif type(story) != type(["This", "is a", "list"]) and type(story) != type(("Tuples", "are so", "cute!")):
+      self.story = [story]
+    # single
+    else:
+      self.story = story
+  
+  def print_story(self):
+    for script in self.story:
+      op(script)
+      go = raw_input("Press enter/return to continue")
 
 class Battle:
+  """
+  The Battle class pits 2 teams
+  against eachother, 
+  initializing them
+  and the weather.
+  """
+  def __init__(self, name, description, script, end, team_size, weather_list):
     """
-    The Battle class pits 2 teams
-    against eachother, 
-    initializing them
-    and the weather.
+    Maximum team size,
+    Weather should be improved
     """
-    def __init__(self, name, description, script, end, team_size, weather_list):
-        """
-        Maximum team size,
-        Weather should be improved
-        """
-        self.teams = []
-        self.name = name
-        self.description = description
-        self.script = Story(script)
-        self.final_act = Story(end)
-        self.team_size = team_size
-        self.forecast = weather_list
+    self.teams = []
+    self.name = name
+    self.description = description
+    self.script = Story(script)
+    self.final_act = Story(end)
+    self.team_size = team_size
+    self.forecast = weather_list
+  
+  def display_data(self):
+    msg = [self.name, self.description]
     
-    def display_data(self):
-        msg = [self.name, self.description]
+    for member in self.teams[0].use:
+      msg.append("* " + member.name + " LV " + str(member.level) + " " + member.element.name)
+    op(msg)
+  
+  def load_team(self, team):
+    """
+    Add a team 
+    to the battle
+    """
+    self.teams.append(team)
+    
+    if len(team.team) > self.team_size:
+      op("Select which " + str(self.team_size) + " members you wish to use:")
+      num = self.team_size
+      team.use = []
+      roster = []
+      for member in team.team:
+        roster.append(member)
+      
+      while num > 0:
+        add = choose("Select member to add:", roster)
         
-        for member in self.teams[0].use:
-            msg.append("* " + member.name + " LV " + str(member.level) + " " + member.element.name)
-        op(msg)
+        for member in team.team:
+          if add == member:
+            team.use.append(member)
+            roster.remove(member)
+            num = num - 1
+    else:
+      team.use = team.team
+  
+  def check_winner(self):
+    """
+    Runs when one
+    teams loses all
+    members.
+    """
+    for team in self.teams:
+      if team.is_up():
+        winner = team
+    op(winner.name + " won!")
+  
+  def begin(self):
+    """
+    Prepare both teams
+    for the match.
+    """
+    self.script.print_story()
     
-    def load_team(self, team):
-        """
-        Add a team 
-        to the battle
-        """
-        self.teams.append(team)
-        
-        if len(team.team) > self.team_size:
-            op("Select which " + str(self.team_size) + " members you wish to use:")
-            num = self.team_size
-            team.use = []
-            roster = []
-            for member in team.team:
-                roster.append(member)
-            
-            while num > 0:
-                add = choose("Select member to add:", roster)
-                
-                for member in team.team:
-                    if add == member:
-                        team.use.append(member)
-                        roster.remove(member)
-                        num = num - 1
-        else:
-            team.use = team.team
-    
-    def check_winner(self):
-        """
-        Runs when one
-        teams loses all
-        members.
-        """
-        for team in self.teams:
-            if team.is_up():
-                winner = team
-        op(winner.name + " won!")
-    
-    def begin(self):
-        """
-        Prepare both teams
-        for the match.
-        """
-        self.script.print_story()
-        
-        for team in self.teams:
-            team.initialize()
-            team.enemy = team.find_enemy(self.teams)
-            op(team.name)
-            
-            # change this
-            for member in team.team:
-                if member not in team.use:
-                    team.knock_out(member)
-                else:
-                    member.display_data()
-        
-        if self.forecast == None:
-        	self.weather = Weather(None, 0, "The land is seized by an undying calm...")
-        elif type(self.forecast) != type([0, 0, 0]):
-            self.weather = self.forecast
-        else:
-        	num = random.randrange(0, len(self.forecast) - 1)
-        	self.weather = self.forecast[num]
-        self.weather.disp_msg()
-    
-    def end(self):
-        """
-        The stuff that takes place after battle
-        """
-        for team in self.teams:
-            for member in team.use:
-                xp = team.enemy.xp_given()
-                member.gain_XP(xp)
-        self.final_act.print_story()
-                    
-    def play(self):
-        """
-        Used to start
-        the battle
-        """
-        self.begin()
-        while self.teams[0].is_up() and self.teams[1].is_up():
-            for team in self.teams:
-                if team.is_up():
-                    self.weather.do_effect(team.members_rem)
-                    team.do_turn()
-                if not team.is_up():
-                    break      
-        self.check_winner()
-        self.end()
+    for team in self.teams:
+      team.initialize()
+      team.enemy = team.find_enemy(self.teams)
+      op(team.name)
+      
+      for member in team.use:
+        member.display_data()
+      # none
+      if self.forecast == None:
+        self.weather = Weather(None, 0, "The land is seized by an undying calm...")
+      # single
+      elif type(self.forecast) != type([0, 0, 0]):
+        self.weather = self.forecast
+      # multiple
+      else:
+        num = random.randrange(0, len(self.forecast) - 1)
+        self.weather = self.forecast[num]
+      self.weather.disp_msg()
+  
+  def end(self):
+    """
+    The stuff that takes place after battle
+    """
+    for team in self.teams:
+      for member in team.use:
+        xp = team.enemy.xp_given()
+        member.gain_XP(xp)
+    self.final_act.print_story()
+                  
+  def play(self):
+    """
+    Used to start
+    the battle
+    """
+    self.begin()
+    while self.teams[0].is_up() and self.teams[1].is_up():
+      for team in self.teams:
+        if team.is_up():
+          self.weather.do_effect(team.members_rem)
+          team.do_turn()
+        # this check is needed if the 
+        #first team beats the second one
+        if not team.is_up():
+          break      
+    self.check_winner()
+    self.end()
     
 class Area:
   def __init__(self, name, description, levels):
