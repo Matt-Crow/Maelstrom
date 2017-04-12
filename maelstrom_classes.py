@@ -97,7 +97,6 @@ def choose(question, options):
 def to_list(change):
   r = []
   if type(change) == type([1, 2, 3]) or type(change) == type((1, 2, 3)):
-    r = []
     for item in change:
       r.append(item)
   else:
@@ -449,7 +448,7 @@ class Character:
     """
     self.calc_stats()
     pr = ["Lv. " + str(self.level) + " " + self.name]
-    pr.append(self.element.name)
+    pr.append(self.element)
     pr.append("HP: " + str(int(self.stats["HP"])))
     pr.append("STR:" + str(int(self.stats["STR"])))
     pr.append("CON:" + str(int(self.stats["CON"])))
@@ -772,7 +771,7 @@ class Contract:
                     "CON" : int(member.con),
                     "STR" : int(member.str),
                     "DMG" : int(member.dmg),
-                    "Element" : member.element.name
+                    "Element" : member.element
                 }
                 print(hints[hint])
                     
@@ -817,7 +816,7 @@ class Team:
     
     members = to_list(members)
     for new_member in members:
-      self.team.append(Character(new_member[0], new_member[1]))
+      self.team.append(Character(new_member["name"], new_member["level"]))
     for member in self.team:
       member.team = self
       
@@ -826,13 +825,13 @@ class Team:
     Add a member to a team.
     """
     for member in self.team:
-      if new_member[0] == member.name:
+      if new_member["name"] == member.name:
         member.stars += 1
         op(member.name + "'s stats were boosted!")
         member.init_for_battle()
         member.display_data()
         return False
-    self.team.append(Character(new_member[0], new_member[1]))
+    self.team.append(Character(new_member["naem"], new_member["level"]))
     op(new_member[0] + " joined " + self.name + "!")
     self.team[-1].team = self
     self.team[-1].init_for_battle()
@@ -984,8 +983,7 @@ class Team:
   
   """
   Choices are made using these functions
-  """
-            
+  """         
   def choose_switchin(self):
     """
     Who will fight?
@@ -1016,11 +1014,11 @@ class Team:
     """
     pr = [self.name]
     for member in self.members_rem:
-      pr.append("* " + member.name + " " + str(member.HP_rem) + "/" + str(member.get_stat("HP")) + " " + member.element.name)
+      pr.append("* " + member.name + " " + str(member.HP_rem) + "/" + str(member.get_stat("HP")) + " " + member.element)
         
     pr.append("Currently active: " + self.active.name)
     pr.append(self.active.name + "'s Energy: " + str(self.active.energy))
-    pr.append("Active enemy: " + self.enemy.active.name + " " + str(self.enemy.active.HP_rem) + "/" + str(self.enemy.active.get_stat("HP")) + " " + self.enemy.active.element.name)
+    pr.append("Active enemy: " + self.enemy.active.name + " " + str(self.enemy.active.HP_rem) + "/" + str(self.enemy.active.get_stat("HP")) + " " + self.enemy.active.element)
     
     op(pr)
     
@@ -1145,7 +1143,7 @@ class Battle:
     msg = [self.name, self.description]
     
     for member in self.teams[0].use:
-      msg.append("* " + member.name + " LV " + str(member.level) + " " + member.element.name)
+      msg.append("* " + member.name + " LV " + str(member.level) + " " + member.element)
     op(msg)
   
   def load_team(self, team):

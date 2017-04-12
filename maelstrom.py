@@ -2,7 +2,7 @@ from maelstrom_classes import *
 import random
 
 do_MHC = True
-debug = not True
+debug = True
 
 weathers = (
     Weather("Lightning", 40.0, "Flashes of light can be seen in the distance..."),
@@ -70,7 +70,7 @@ enemies["Wind Entity"] = ((-3, 3, -3), "wind", WAct)
 
 if __name__ == "__main__":
     #player = load()
-    player = Team("Player team", (("Alexandre", 1)), False)
+    player = Team("Player team", {"name": "Alexandre", "level": 1}, False)
     
     """    
     # temporary
@@ -80,16 +80,16 @@ if __name__ == "__main__":
     t.recruit(player, (c, cc))
     """
     r1 = Battle("Origin Beaches", "All heroes have to start somewhere", ("Encounter! Rain Entity", "Quick! Knock its hit points down to zero and escape!"), ("Congradulations!", "The Entity dissipates into a cloud of smoke"), 1, None)
-    r1.load_team(Team("Rain", (("Rain Entity", 1)), True))
+    r1.load_team(Team("Rain", {"name":"Rain Entity", "level": 1}, True))
     r2 = Battle("The Gravel Trail", "A rough path leads up from the beaches...", ("The gravel crunches beneath your feet as you walk", "Suddenly it starts to drizzle lightly", "TIP: While it is raining, all characters will regain a little HP each turn"), ("Congradulations!"), 1, weathers[9])
-    r2.load_team(Team("Rain", (("Rain Entity", 1)), True))
+    r2.load_team(Team("Rain", {"name": "Rain Entity", "level": 1}, True))
     r3 = Battle("The Stagnant Pools", "Alongside the path lie many puddles...", ("A puddle begins to ripple...", "...and take form!", "TIP: Higher level characters have better stats, but HP grows slowly"), ("Congradulations!", "Perhaps an ally will help you in your quest..."), 1, weathers[10])
-    r3.load_team(Team("Rain", (("Rain Entity", 2)), True))
+    r3.load_team(Team("Rain", {"name": "Rain Entity", "level": 2}, True))
     rain_village = Area("The Rain Village", "Where peace and tranquility hang over like a fine mist", (r1, r2, r3))
     rain_village.display_data(player)
     
     h1 = Battle("Forest Clearing", "A fresh coating of snow covers all the trees", None, None, 1, weathers[6])
-    h1.load_team(Team(" ", (("Hail Entity", 1)), True))
+    h1.load_team(Team(" ", {"name": "Hail Entity", "level": 1}, True))
     hail_village = Area("The Hail Village", "?", (h1))
     #hail_village.display_data(player)
     
