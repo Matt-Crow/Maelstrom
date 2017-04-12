@@ -22,13 +22,6 @@ weathers = (
     Weather("Rain", 7.5, "A deluge of water pours forth from the sky...")
     )
 
-
-lightning = Element("Lightning", "Wind")
-wind = Element("Wind", "Hail")
-hail = Element("Hail", "Rain")
-rain = Element("Rain", "Lightning")
-stone = Element ("Stone", None)
-
 # use these in specials
 no_eff = (0, 0, 0)
 act_ene = ("enemy", "act")
@@ -51,29 +44,29 @@ RAny = Attack("Water bolt", 1.25, ("enemy", "any"), no_eff, 5)
 HAny = Attack("Frost bolt", 1.25, ("enemy", "any"), no_eff, 5)
 WAny = Attack("Wind bolt", 1.25, ("enemy", "any"), no_eff, 5)
 
-characters["TEST"] = ((0, 0, 0), stone, SAct)
-characters["Alexandre"] = ((0, 1, 1), lightning, LAct)
-characters["Rene"] = ((0, -1, 1), rain, RAct)
-characters["Ian"] = ((0, -1, -1), hail, HAct)
-characters["Viktor"] = ((0, 1, -1), wind, WAct)
+characters["TEST"] = ((0, 0, 0), "stone", SAct)
+characters["Alexandre"] = ((0, 1, 1), "lightning", LAct)
+characters["Rene"] = ((0, -1, 1), "rain", RAct)
+characters["Ian"] = ((0, -1, -1), "hail", HAct)
+characters["Viktor"] = ((0, 1, -1), "wind", WAct)
 
-characters["Isaac"] = ((-1, 0, -3), lightning, LAll)
-characters["Barry"] = ((1, -1, 1), rain, RAll)
-characters["Nicole"] = ((1, 2, 2), hail, HAll)
-characters["Colin"] = ((0, -1, 0), wind, WAll)
+characters["Isaac"] = ((-1, 0, -3), "lightning", LAll)
+characters["Barry"] = ((1, -1, 1), "rain", RAll)
+characters["Nicole"] = ((1, 2, 2), "hail", HAll)
+characters["Colin"] = ((0, -1, 0), "wind", WAll)
 
-characters["Adrian"] = ((1, -2, 1), lightning, LAny)
-characters["Omar"] = ((-1, 0, -2), rain, RAny)
-characters["Richard"] = ((-1, -3, -3), hail, HAny)
-characters["Tobias"] = ((0, -2, -1), wind, WAny)
+characters["Adrian"] = ((1, -2, 1), "lightning", LAny)
+characters["Omar"] = ((-1, 0, -2), "rain", RAny)
+characters["Richard"] = ((-1, -3, -3), "hail", HAny)
+characters["Tobias"] = ((0, -2, -1), "wind", WAny)
 
-enemies["MAX"] = ((5, 0, 0), stone, SAct)
-enemies["MIN"] = ((-5, 0, 0), stone, SAct)
+enemies["MAX"] = ((5, 0, 0), "stone", SAct)
+enemies["MIN"] = ((-5, 0, 0), "stone", SAct)
 
-enemies["Lightning Entity"] = ((-3, 3, 3), lightning, LAct)
-enemies["Rain Entity"] = ((3, -3, 3), rain, RAct)
-enemies["Hail Entity"] = ((3, -3, -3), hail, HAct)
-enemies["Wind Entity"] = ((-3, 3, -3), wind, WAct)
+enemies["Lightning Entity"] = ((-3, 3, 3), "lightning", LAct)
+enemies["Rain Entity"] = ((3, -3, 3), "rain", RAct)
+enemies["Hail Entity"] = ((3, -3, -3), "hail", HAct)
+enemies["Wind Entity"] = ((-3, 3, -3), "wind", WAct)
 
 if __name__ == "__main__":
     #player = load()

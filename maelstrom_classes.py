@@ -28,9 +28,9 @@ Version 0.9
 """
 
 if __name__ == "__main__":
-    print("Oops! You're running from the wrong file!")
-    print("Try running Maelstrom.py instead!")
-    exit()
+  print("Oops! You're running from the wrong file!")
+  print("Try running Maelstrom.py instead!")
+  exit()
     
 import random
 
@@ -47,12 +47,12 @@ add cancel option
 """
 
 def mod(num):
-    """
-    A useful little guy
-    """
-    if num < 1:
-        num = 1
-    return num
+  """
+  A useful little guy
+  """
+  if num < 1:
+    num = 1
+  return num
 
 def set_in_bounds(num, min, max):
   if num < min:
@@ -63,47 +63,47 @@ def set_in_bounds(num, min, max):
     return num
 
 def choose(question, options):
+  if len(options) == 1:
+    return options[0]
+  
+  print(question)
+  
+  num = 1
+  for option in options:
+    try:
+      name = option.name  
+    except:
+      name = option
     
-    if len(options) == 1:
-        return options[0]
-    
-    print(" ")
-    print(question)
-    
-    num = 1
+    print(str(num) + ": " + name)  
+    num += 1
+  
+  answered = False
+  
+  while not answered:
+    choice = raw_input(" ")
     for option in options:
-        try:
-            name = option.name  
-        except:
-            name = option
-        
-        print(str(num) + ": " + name)  
-        num += 1
-    
-    answered = False
-    
-    while not answered:
-        choice = raw_input(" ")
-        for option in options:
-            try:
-                compare = option.name.lower()
-            except:
-                compare = option.lower()
-            
-            if choice.lower() == compare:
-                    return option
-            elif choice == str(options.index(option) + 1):
-                return option
-        else:
-            print("That isn't an option...")
+      try:
+        compare = option.name.lower()
+      except:
+        compare = option.lower()
+      
+      if choice.lower() == compare:
+        return option
+      elif choice == str(options.index(option) + 1):
+        return option
+    print("That isn't an option...")
 
-def how_many(check):
-  if check == None:
-    return "none"
-  if type(check) == type([1, 2, 3]) or type(check) == type((1, 2, 3)):
-    return "multiple"
-  return "single"
-
+def to_list(change):
+  r = []
+  if type(change) == type([1, 2, 3]) or type(change) == type((1, 2, 3)):
+    r = []
+    for item in change:
+      r.append(item)
+  else:
+    r.append(change)
+  return r
+  
 # output
 def op(write):
   list = []
@@ -133,13 +133,13 @@ def dp(write):
   print " "
 
 def load():
-    should_load = choose("Do you want to load from a save file?", ("Yes", "No"))
+  should_load = choose("Do you want to load from a save file?", ("Yes", "No"))
+  
+  if should_load == "Yes":
+    file = Savefile("player_data.txt")
+    return file.upload_team()
     
-    if should_load == "Yes":
-        file = Savefile("player_data.txt")
-        return file.upload_team()
-    
-    return Team("Test team", (("Alexandre", 1), ("Rene", 1), ("Ian", 1), ("Viktor", 1)), False, False)
+  return Team("Test team", (("Alexandre", 1), ("Rene", 1), ("Ian", 1), ("Viktor", 1)), False, False)
 
 # need to comment this
 # this will need to be redone
@@ -214,84 +214,85 @@ class Savefile:
 # balance chances later
 # AI for target
 class Attack:
+  """
+  The regular attacks all characters can use
+  as well as characters' exclusive Specials
+  """
+  def __init__(self, name, damage_multiplier, target, side_effect, energy_cost = 0):
     """
-    The regular attacks all characters can use
-    as well as characters' exclusive Specials
+    Copy-paste: 
+    name, damage_multiplier, (ally_or_enemy, act_any_all), (eff, eff_LV, eff_dur)  
     """
-    def __init__(self, name, damage_multiplier, target, side_effect, energy_cost = 0):
-        """
-        Copy-paste: 
-        name, damage_multiplier, (ally_or_enemy, act_any_all), (eff, eff_LV, eff_dur)  
-        """
-        self.name = name
-        self.mult = float(damage_multiplier)
-        self.ally_or_enemy = target[0]
-        self.act_any_all = target[1]
-        self.eff = side_effect[0]
-        self.eff_LV = side_effect[1]
-        self.eff_dur = side_effect[2]
-        self.energy_cost = energy_cost   
+    self.name = name
+    self.mult = float(damage_multiplier)
+    self.ally_or_enemy = target[0]
+    self.act_any_all = target[1]
+    self.eff = side_effect[0]
+    self.eff_LV = side_effect[1]
+    self.eff_dur = side_effect[2]
+    self.energy_cost = energy_cost   
+  
+  def can_use(self, user):
+    return user.energy >= self.energy_cost
+      
+  def use(self, user):
+    """
+    Use your attack
+    """
     
-    def can_use(self, user):
-      return user.energy >= self.energy_cost
+    if self.ally_or_enemy == "ally":
+      target_team = user.team
+    
+    elif self.ally_or_enemy == "enemy":
+      target_team = user.team.enemy
+    
+    targets = []
+    
+    if self.act_any_all == "act":
+      targets.append(target_team.active)
+    
+    elif self.act_any_all == "all":
+      for member in target_team.members_rem:
+        targets.append(member)
+    
+    elif self.act_any_all == "any":
+      if user.team.AI:
+        highest = 0
+        best = None
+        options = []
+        if user.team.switched_in:
+          m = 0.75
+        else:
+          m = 1.0
         
-    def use(self, user):
-        """
-        Use your attack
-        """
+        for member in target_team.members_rem:
+          damage = member.calc_DMG(user, self) * m
+          if damage >= member.HP_rem:
+            options.append(member)
+          if damage >= highest:
+            highest = damage
+            best = member
         
-        if self.ally_or_enemy == "ally":
-            target_team = user.team
-               
-        elif self.ally_or_enemy == "enemy":
-            target_team = user.team.enemy
-        
-        targets = []
-        
-        if self.act_any_all == "act":
-            targets.append(target_team.active)
-            
-        elif self.act_any_all == "all":
-            for member in target_team.members_rem:
-                targets.append(member)
-                
-        elif self.act_any_all == "any":
-            if user.team.AI:
-                highest = 0
-                best = None
-                options = []
-                if user.team.switched_in:
-                    m = 0.75
-                else:
-                    m = 1.0
-                for member in target_team.members_rem:
-                    damage = member.calc_DMG(user, self) * m
-                    if damage >= member.HP_rem:
-                        options.append(member)
-                    if damage >= highest:
-                        highest = damage
-                        best = member
-                if len(options) >= 1:
-                    hit = target_team.members_rem[random.randint(0, len(options) - 1)]
-                else:
-                    hit = best
-            else:
-                hit = choose("Who do you wish to hit?", target_team.members_rem)
-            targets.append(hit)
-                        
-        for warrior in targets:               
-            warrior.take_DMG(user, self)
-            if self.eff != 0:
-                warrior.boost(self.eff, self.eff_LV, self.eff_dur)
-            #work on this
-            if self.energy_cost == 0:
-              warrior.check_if_burned(user)
-        
-        user.lose_energy(self.energy_cost)
-        
-        if self.energy_cost == 0:
-            user.gain_energy(3)
+        if len(options) >= 1:
+          hit = target_team.members_rem[random.randint(0, len(options) - 1)]
+        else:
+          hit = best
+      else:
+        hit = choose("Who do you wish to hit?", target_team.members_rem)
+      targets.append(hit)
+      
+    for warrior in targets:               
+      warrior.take_DMG(user, self)
+      if self.eff != 0:
+        warrior.boost(self.eff, self.eff_LV, self.eff_dur)
+      if self.energy_cost == 0:
+        warrior.check_if_burned(user)
+    
+    user.lose_energy(self.energy_cost)
+    if self.energy_cost == 0:
+      user.gain_energy(3)
 
+# work here
 class Weapon:
     """
     WIP
@@ -337,11 +338,6 @@ class Weapon:
         else: 
             return 1.0
 
-class Element:
-    def __init__(self, name, weakness):
-        self.name = name
-        self.weakness = weakness
-
 # extend to Hero and Enemy
 class Character:
   """
@@ -363,7 +359,7 @@ class Character:
     elif name in enemies:
       data = enemies[name]
     else:
-      data = ((0, 0, 0), stone, None)
+      data = ((0, 0, 0), "stone", None)
     self.base_stats = data[0]
     self.element = data[1]
     self.special = data[2]
@@ -499,7 +495,7 @@ class Character:
     for boost_type in self.boosts.keys():
       dbp.append(boost_type + ": ")
       for boost in self.boosts[boost_type]:
-      	dbp.append("-------------")
+        dbp.append("-------------")
         dbp.append("-Duration: " + str(boost["duration"]))
         dbp.append("-Potency: " + str(boost["potency"]))
     dp(dbp)
@@ -524,7 +520,7 @@ class Character:
     op(self.name + " took " + str(int(healing)) + " damage!")
     
   def direct_dmg(self, dmg):
-  	self.HP_rem -= int(dmg)
+    self.HP_rem -= int(dmg)
   
   def gain_energy(self, amount):
     """
@@ -718,6 +714,7 @@ class Character:
     """
     self.level_set = self.level_set + 1
 
+# work here
 class Contract:
     def __init__(self, comes_with):
         """
@@ -789,6 +786,7 @@ class Contract:
         else:
             return (self.poss[3], 1)
 
+# and here
 class Tavern:
     def __init__(self, name):
         self.name = name
@@ -817,11 +815,9 @@ class Team:
     self.name = name
     self.AI = AI
     
-    if type(members) != type([0, 0, 0, 0]):
-      self.team.append(Character(members[0], members[1]))
-    else:
-      for new_member in members:
-        self.team.append(Character(new_member[0], new_member[1]))
+    members = to_list(members)
+    for new_member in members:
+      self.team.append(Character(new_member[0], new_member[1]))
     for member in self.team:
       member.team = self
       
@@ -1118,15 +1114,7 @@ class Weather:
 
 class Story:
   def __init__(self, story):
-    # none
-    if story == None:
-      self.story = []
-    # multiple
-    elif type(story) != type(["This", "is a", "list"]) and type(story) != type(("Tuples", "are so", "cute!")):
-      self.story = [story]
-    # single
-    else:
-      self.story = story
+    self.story = to_list(story)
   
   def print_story(self):
     for script in self.story:
@@ -1151,7 +1139,7 @@ class Battle:
     self.script = Story(script)
     self.final_act = Story(end)
     self.team_size = team_size
-    self.forecast = weather_list
+    self.forecast = to_list(weather_list)
   
   def display_data(self):
     msg = [self.name, self.description]
@@ -1211,13 +1199,8 @@ class Battle:
       
       for member in team.use:
         member.display_data()
-      # none
-      if self.forecast == None:
+      if self.forecast[0] == None:
         self.weather = Weather(None, 0, "The land is seized by an undying calm...")
-      # single
-      elif type(self.forecast) != type([0, 0, 0]):
-        self.weather = self.forecast
-      # multiple
       else:
         num = random.randrange(0, len(self.forecast) - 1)
         self.weather = self.forecast[num]
@@ -1255,13 +1238,8 @@ class Area:
   def __init__(self, name, description, levels):
     self.name = name
     self.description = description
-    self.levels = []
-    if type(levels) != type(("x", "y")):
-      self.levels.append(levels)
-    else:
-      for level in levels:
-        self.levels.append(level)
-            
+    self.levels = to_list(levels)
+        
   def display_data(self, player_team):
     op([self.name, self.description])
     for level in self.levels:
