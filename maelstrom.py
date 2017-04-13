@@ -5,22 +5,22 @@ do_MHC = True
 debug = True
 
 weathers = (
-    Weather("Lightning", 40.0, "Flashes of light can be seen in the distance..."),
-    Weather("Lightning", 50.0, "Thunder rings not far away..."),
-    Weather("Lightning", 60.0, "The sky rains down its fire upon the field..."),
-    
-    Weather("Wind", 40.0, "A gentle breeze whips through..."),
-    Weather("Wind", 50.0, "The strong winds blow mightily..."),
-    Weather("Wind", 60.0, "A twister rips up the land..."),
-    
-    Weather("Hail", 2.5, "A light snow was falling..."),
-    Weather("Hail", 5, "Hail clatters along the ground..."),
-    Weather("Hail", 7.5, "The field is battered by hail..."),
-    
-    Weather("Rain", 2.5, "A light rain falls..."),
-    Weather("Rain", 5, "A brisk shower is forecast..."),
-    Weather("Rain", 7.5, "A deluge of water pours forth from the sky...")
-    )
+  Weather("Lightning", 40.0, "Flashes of light can be seen in the distance..."),
+  Weather("Lightning", 50.0, "Thunder rings not far away..."),
+  Weather("Lightning", 60.0, "The sky rains down its fire upon the field..."),
+  
+  Weather("Wind", 40.0, "A gentle breeze whips through..."),
+  Weather("Wind", 50.0, "The strong winds blow mightily..."),
+  Weather("Wind", 60.0, "A twister rips up the land..."),
+  
+  Weather("Hail", 2.5, "A light snow was falling..."),
+  Weather("Hail", 5, "Hail clatters along the ground..."),
+  Weather("Hail", 7.5, "The field is battered by hail..."),
+  
+  Weather("Rain", 2.5, "A light rain falls..."),
+  Weather("Rain", 5, "A brisk shower is forecast..."),
+  Weather("Rain", 7.5, "A deluge of water pours forth from the sky...")
+  )
 
 # use these in specials
 no_eff = (0, 0, 0)
@@ -74,9 +74,9 @@ if __name__ == "__main__":
     
     # temporary
     t = Tavern("The salty spitoon")
-    c = Contract(None)
-    cc = Contract("Alexandre")
-    t.recruit(player, (c, cc))
+    t.recruit(player, Contract(None))
+    t.recruit(player, Contract(None))
+    t.recruit(player, Contract(None))
     
     r1 = Battle("Origin Beaches", "All heroes have to start somewhere", ("Encounter! Rain Entity", "Quick! Knock its hit points down to zero and escape!"), ("Congradulations!", "The Entity dissipates into a cloud of smoke"), 1, None)
     r1.load_team(Team("Rain", {"name":"Rain Entity", "level": 1}, True))
@@ -84,12 +84,13 @@ if __name__ == "__main__":
     r2.load_team(Team("Rain", {"name": "Rain Entity", "level": 1}, True))
     r3 = Battle("The Stagnant Pools", "Alongside the path lie many puddles...", ("A puddle begins to ripple...", "...and take form!", "TIP: Higher level characters have better stats, but HP grows slowly"), ("Congradulations!", "Perhaps an ally will help you in your quest..."), 1, weathers[10])
     r3.load_team(Team("Rain", {"name": "Rain Entity", "level": 2}, True))
-    rain_village = Area("The Rain Village", "Where peace and tranquility hang over like a fine mist", (r1, r2, r3))
-    #rain_village.display_data(player)
+    r4 = Battle("Deluge", "The rain begins to pour...", ("Flashes of lightning...", "...no longer distant!"), ("You are far stronger than you appear..."), 4, (weathers[0], weathers[1], weathers[2]))
+    r4.load_team(Team("Rain", ({"name": "Lightning Entity", "level": 1}, {"name": "Rain Entity", "level": 1}, {"name": "Hail Entity", "level": 1}, {"name": "Wind Entity", "level": 1}), True))
+    rain_village = Area("The Rain Village", "Where peace and tranquility hang over like a fine mist", (r1, r2, r3, r4))
+    rain_village.display_data(player)
     
     h1 = Battle("Forest Clearing", "A fresh coating of snow covers all the trees", None, None, 1, weathers[6])
     h1.load_team(Team(" ", {"name": "Hail Entity", "level": 1}, True))
     hail_village = Area("The Hail Village", "?", (h1))
     #hail_village.display_data(player)
-    
     #m.update(player_team)

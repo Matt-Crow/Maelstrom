@@ -43,8 +43,7 @@ To do:
 
 Add abilities
 Add items
-
-add cancel option
+Add locations
 """
 
 def mod(num):
@@ -211,7 +210,6 @@ class Savefile:
             file.write(new_line)
         file.close()
 
-# balance chances later
 class Attack:
   """
   The regular attacks all characters can use
@@ -776,23 +774,22 @@ class Contract:
     new = choose("Who do you want to hire?", ("?", "??", "???", "????"))
     return {"name": self.poss[len(new) - 1], "level": 1}
 
-# and here
 class Tavern:
-    def __init__(self, name):
-        self.name = name
+  def __init__(self, name):
+    self.name = name
+  
+  def recruit(self, team, contracts):
+    contracts = to_list(contracts)
+    msg = ["So, you wan't to hire out another warrior, eh?", "Now let me see..."]
+    if len(contracts) == 0:
+      msg.append("Sorry, but it looks like you don't have any contracts.")
+      msg.append("Come back when you have one, and then we'll talk.")
+    else:
+      msg.append("Well well well, and here I thought you weren't credibly.")
+      msg.append("How about you take a look at who we got here?")
     
-    def recruit(self, team, contracts):
-        print("So, you wan't to hire out another warrior, eh?")
-        print("Now let me see...")
-        if len(contracts) == 0:
-            print("Sorry, but it looks like you don't have any contracts.")
-            print("Come back when you have one, and then we'll talk.")
-        else:
-            print("Well well well, and here I thought you weren't credibly.")
-            print("How about you take a look at who we got here?")
-            
-            con = choose("Which contract do you want to use?", contracts)
-            team.add_member(con.use())
+    con = choose("Which contract do you want to use?", contracts)
+    team.add_member(con.use())
 
 class Team:
   """
@@ -1191,7 +1188,10 @@ class Battle:
       if self.forecast[0] == None:
         self.weather = Weather(None, 0, "The land is seized by an undying calm...")
       else:
-        num = random.randrange(0, len(self.forecast) - 1)
+        if len(self.forecast) == 1:
+          num = 0
+        else:
+          num = random.randrange(0, len(self.forecast) - 1)
         self.weather = self.forecast[num]
       self.weather.disp_msg()
   
