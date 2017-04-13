@@ -23,6 +23,7 @@ Week 2: Revised/improved/reordered functions
 5/4/2017 finished going through character. Will add new features
 8/4/2017 finsihed Team
 11/4/2017 how_many added, need to implement
+13/4/2017 fixed Contract
 
 Version 0.9
 """
@@ -211,7 +212,6 @@ class Savefile:
         file.close()
 
 # balance chances later
-# AI for target
 class Attack:
   """
   The regular attacks all characters can use
@@ -713,77 +713,68 @@ class Character:
     """
     self.level_set = self.level_set + 1
 
-# work here
 class Contract:
-    def __init__(self, comes_with):
-        """
-        A contract is used to hire a
-        new character, or boost an old
-        one.
-        """
-        self.name = "Contract"
-        self.poss = []
-        if comes_with == None:
-            if debug:
-                print("No set characters in contract.")
-        elif type(comes_with) == type("This is a string"):
-            self.poss.append(comes_with)
-        else:
-            for character in comes_with:
-                self.poss.append(character)
-        
-        poss = []
-        for key in characters.keys():
-            poss.append(key)
-        size = len(self.poss)
-        while size < 4:
-            num = random.randint(1, len(poss) - 1)
-            if poss[num] in self.poss:
-                continue
-            self.poss.append(poss[num])
-            size += 1
-            
-    def use(self):
-        """
-        Ask the player if they want
-        a hint, then let them choose
-        a character.
-        RETURNS THE ANSWER
-        DOES NOT CHANGE THE PLAYER'S TEAM
-        """
-        print("*Recruiting*")
-        char = []
-        for member in self.poss:
-            char.append(Character(member, 1))
-            
-        for member in char:
-            member.calc_stats()
-            
-        pick_or_hint = choose("Do you want a hint before choosing?", ("Yes", "No"))
-        if pick_or_hint == "Yes":
-            hint = choose("What do you want to see?", ("HP", "RES", "ARM", "CON", "STR", "DMG", "Element"))
-            
-            for member in char:
-                hints = {
-                    "HP" : int(member.max_HP), 
-                    "RES" : int(member.res),
-                    "ARM" : int(member.arm),
-                    "CON" : int(member.con),
-                    "STR" : int(member.str),
-                    "DMG" : int(member.dmg),
-                    "Element" : member.element
-                }
-                print(hints[hint])
+  def __init__(self, comes_with):
+    """
+    A contract is used to hire a
+    new character, or boost an old
+    one.
+    """
+    self.name = "Contract"
+    self.poss = []
+    comes_with = to_list(comes_with)
+    if comes_with[0] == None:
+      dp("No set characters in contract.")
+    else:
+      for character in comes_with:
+        self.poss.append(character)
+    
+    poss = []
+    for key in characters.keys():
+      poss.append(key)
+    size = len(self.poss)
+    while size < 4:
+      num = random.randint(1, len(poss) - 1)
+      if poss[num] in self.poss:
+        continue
+      self.poss.append(poss[num])
+      size += 1
+  
+  def use(self):
+    """
+    Ask the player if they want
+    a hint, then let them choose
+    a character.
+    RETURNS THE ANSWER
+    DOES NOT CHANGE THE PLAYER'S TEAM
+    """
+    op("*Recruiting*")
+    char = []
+    for member in self.poss:
+      char.append(Character(member, 1))
+    
+    for member in char:
+      member.calc_stats()
+    
+    pick_or_hint = choose("Do you want a hint before choosing?", ("Yes", "No"))
+    if pick_or_hint == "Yes":
+      hint = choose("What do you want to see?", ("HP", "RES", "CON", "STR", "Element"))
+      msg = []
+      marks = "?"
+      for member in char:
+        hints = {
+          "HP" : member.get_stat("HP"), 
+          "RES" : member.get_stat("RES"),
+          "CON" : member.get_stat("CON"),
+          "STR" : member.get_stat("STR"),
+          "Element" : member.element
+        }
+        msg.append(marks + ": " + str(hints[hint]))
+        marks = marks + "?"
+      op(msg)
                     
-        new = choose("Who do you want to hire?", ("?", "??", "???", "????"))
-        if new == "?":
-            return (self.poss[0], 1)
-        elif new == "??":
-            return (self.poss[1], 1)
-        elif new == "???":
-            return (self.poss[2], 1)
-        else:
-            return (self.poss[3], 1)
+    new = choose("Who do you want to hire?", ("?", "??", "???", "????"))
+    return {"name": self.poss[len(new) - 1], "level": 1}
 
 # and here
 class Tavern:
@@ -831,8 +822,8 @@ class Team:
         member.init_for_battle()
         member.display_data()
         return False
-    self.team.append(Character(new_member["naem"], new_member["level"]))
-    op(new_member[0] + " joined " + self.name + "!")
+    self.team.append(Character(new_member["name"], new_member["level"]))
+    op(new_member["name"] + " joined " + self.name + "!")
     self.team[-1].team = self
     self.team[-1].init_for_battle()
     self.team[-1].display_data()
