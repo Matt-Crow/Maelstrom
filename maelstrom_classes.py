@@ -1021,8 +1021,9 @@ class Team:
       if len(choices) == 1:
         attack_switch = "Attack"
       else:
-        dp("AI is deciding...")
+        dp("AI is deciding if it should switch...")
         attack_switch = self.should_switch()
+        dp(attack_switch)
       
     if attack_switch == "Switch":
       self.choose_switchin()
