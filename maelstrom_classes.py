@@ -138,77 +138,72 @@ def load():
     file = Savefile("player_data.txt")
     return file.upload_team()
     
-  return Team("Test team", (("Alexandre", 1), ("Rene", 1), ("Ian", 1), ("Viktor", 1)), False, False)
+  return Team("Test team", ({"name": "Alexandre", "level": 1}, {"name": "Rene", "level": 1}, {"name": "Ian", "level": 1}, {"name": "Viktor", "level": 1}), False)
 
 # need to comment this
-# this will need to be redone
 class Savefile:
-    def __init__(self, file):
-        self.file = file
+  def __init__(self, file):
+    self.file = file
+  
+  def text_to_dict(self):
+    self.dict_file = {}
+    file_read = open(self.file, "r")
+    for line in file_read:
+      if line == " ":
+        continue
+      line = line.split("|")
+      dp(["Line.split:", line])
+      for item in line:
+        if item == " ":
+          continue
+        dp(["Item:", item])
+        item = item.split()
+        dp(["Item.split:", item])
+        self.dict_file[item[0]] = [item[1], item[2], item[3], item[4]]
+    dp(["Dict file:", self.dict_file])
+  
+  def upload_team(self):
+    self.text_to_dict()
+    members = []
+    for name, data in self.dict_file.items():
+      dp(["Name:", name, "Data:", data])
+      members.append({"name": name, "level": int(data[0])})
+    dp(["Members:", members])
+    ret = Team("Player Team", members, False)
     
-    def text_to_dict(self):
-        self.dict_file = {}
-        file_read = open(self.file, "r")
-        for line in file_read:
-            if line == " ":
-                continue
-            line = line.split(":")
-            name = line[0].replace("_", " ")
-            self.dict_file[name] = {}
-            for item in line:
-                if item == line[0]:
-                    continue
-                item = item.split()
-                self.dict_file[name][item[0]] = [item[1], item[2], item[3], item[4]]
-        
-    def upload_team(self):
-        self.text_to_dict()
-        teams = []
-        
-        for team in self.dict_file.keys():
-            teams.append(team)
-        
-        choice = choose("Which team do you wish to load?", teams)
-        
-        members = []
-        for member, data in self.dict_file[choice].items():
-            members.append((member, int(data[0])))
-        # change False to check for team length
-        ret = Team(choice, members, False, False)
-        
-        for member in ret.team:
-            for name, array in self.dict_file[choice].items():
-                if member.name == name:
-                    member.level_set = int(array[1])
-                    member.XP = int(array[2])
-                    member.stars = int(array[3])
-        
-        return ret
-        
-    def update(self, team):
-        self.text_to_dict()
-        change = {}
-        for member in team.team:
-            change[member.name] = [str(member.level), str(member.level_set), str(member.XP), str(member.stars)]
-        if debug:
-            print("Before:", self.dict_file)
-        
-        self.dict_file[team.name] = change
-        if debug:
-            print("After:", self.dict_file)
-        
-        file = open("player_data.txt", "w")
-        for team_name, value in self.dict_file.items():
-            new_line = team_name.replace(" ", "_")
-            for member in value:
-                new_line = new_line + ": " + member + " "
-                new_line = new_line + self.dict_file[team_name][member][0] + " "
-                new_line = new_line + self.dict_file[team_name][member][1] + " "
-                new_line = new_line + self.dict_file[team_name][member][2] + " "
-                new_line = new_line + self.dict_file[team_name][member][3] + " "
-            new_line = new_line + "\n"
-            file.write(new_line)
-        file.close()
+    for member in ret.team:
+      for name, data in self.dict_file.items():
+        if member.name == name:
+          member.level_set = int(data[1])
+          member.XP = int(data[2])
+          member.stars = int(data[3])
+    return ret
+  
+  # work here
+  def generate(self):
+    test = Team("Test team", ({"name": "Alexandre", "level": 1}, {"name": "Rene", "level": 1}, {"name": "Ian", "level": 1}, {"name": "Viktor", "level": 1}), False)
+    self.update(test)
+  
+  def update(self, team):
+    self.text_to_dict()
+    dp(["Before:", self.dict_file])
+    
+    change = {}
+    for member in team.team:
+      change[member.name] = [str(member.level), str(member.level_set), str(member.XP), str(member.stars)]
+    self.dict_file = change
+    dp(["After:", self.dict_file])
+    
+    file = open("player_data.txt", "w")
+    new = " "
+    for member, data in change.items():
+      new = new + member + " "
+      new = new + data[0] + " "
+      new = new + data[1] + " "
+      new = new + data[2] + " "
+      new = new + data[3] + " | "
+    file.write(new)
+    file.close()
 
 class Attack:
   """
