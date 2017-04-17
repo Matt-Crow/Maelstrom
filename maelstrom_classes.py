@@ -284,51 +284,46 @@ class Attack:
     if self.energy_cost == 0:
       user.gain_energy(3)
 
-# work here
 class Weapon:
-    """
-    WIP
-    """
-    def __init__(self, name, miss, crit, miss_m, crit_m):
-        self.name = name
-        stats = [miss, crit, miss_m, crit_m]
-        stat_num = 0  
-        while stat_num < len(stats):
-          stats[stat_num] = set_in_bounds(stats[stat_num], -3, 3)
-          stat_num += 1
-        self.miss = 20 + stats[0] * 5
-        self.crit = 20 + stats[1] * 5
-        self.miss_mult = 0.8 - stats[2] * 0.05
-        self.crit_mult = 1.25 + stats[3] * 0.05
+  """
+  """
+  def __init__(self, name, miss, crit, miss_m, crit_m):
+    self.name = name
+    stats = [miss, crit, miss_m, crit_m]
+    stat_num = 0  
+    while stat_num < len(stats):
+      stats[stat_num] = set_in_bounds(stats[stat_num], -3, 3)
+      stat_num += 1
+    self.miss = 20 + stats[0] * 5
+    self.crit = 20 + stats[1] * 5
+    self.miss_mult = 0.8 - stats[2] * 0.05
+    self.crit_mult = 1.25 + stats[3] * 0.05
     
-    def display_data(self):
-        print(self.name + " data:")
-        print("Miss chance: " + str(self.miss) + "%")
-        print("Crit chance: " + str(self.crit) + "%")
-        print("Miss multiplier: " + str(self.miss_mult) + "%")
-        print("Crit multiplier: " + str(self.crit_mult) + "%")
-        print(" ")
+  def display_data(self):
+    pr = [self.name + " data:"]
+    pr.append("Miss chance: " + str(self.miss) + "%")
+    pr.append("Crit chance: " + str(self.crit) + "%")
+    pr.append("Miss multiplier: " + str(self.miss_mult) + "%")
+    pr.append("Crit multiplier: " + str(self.crit_mult) + "%")
+    op(pr)
+  
+  def calc_MHC(self):
+    """
+    Used to calculate hit type
+    """
+    rand = random.randint(1, 100)
+    pr = ["rand in calc_MHC: " + str(rand), "Crit: " + str(100 - self.crit), "Miss: " + str(self.miss)]
+    dp(pr)
+    if rand <= self.miss:
+      op("A glancing blow!")
+      return self.miss_mult
     
-    def calc_MHC(self):
-        """
-        Used to calculate hit type
-        """
-        rand = random.randint(1, 100)
-        if debug:
-            print("rand in calc_MHC: " + str(rand))
-            print("Crit: " + str(100 - self.crit))
-            print("Miss: " + str(self.miss))
-            
-        if rand <= self.miss:
-            print("A glancing blow!")
-            return self.miss_mult
-            
-        elif rand >= 100 - self.crit:
-            print("A critical hit!")
-            return self.crit_mult
-            
-        else: 
-            return 1.0
+    elif rand >= 100 - self.crit:
+      op("A critical hit!")
+      return self.crit_mult
+    
+    else: 
+      return 1.0
 
 # extend to Hero and Enemy
 class Character:
@@ -450,12 +445,12 @@ class Character:
       pr.append("-" + attack.name)
     pr.append(str(self.XP) + "/" + str(self.level * 10))
     op(pr)
+    self.weapon.display_data()
   
   """
   Battle functions:
   Used during battle
   """
-  
   def boost(self, stat, amount, duration):
     """
     Increase or lower stats in battle
