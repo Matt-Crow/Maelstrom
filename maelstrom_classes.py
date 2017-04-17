@@ -141,6 +141,7 @@ def load():
   return Team("Test team", ({"name": "Alexandre", "level": 1}, {"name": "Rene", "level": 1}, {"name": "Ian", "level": 1}, {"name": "Viktor", "level": 1}), False)
 
 # need to comment this
+# make this save weapons as well
 class Savefile:
   def __init__(self, file):
     self.file = file
@@ -151,15 +152,11 @@ class Savefile:
     for line in file_read:
       if line == " ":
         continue
-      line = line.split("|")
+      line = line.split()
       dp(["Line.split:", line])
       for item in line:
-        if item == " ":
-          continue
         dp(["Item:", item])
-        item = item.split()
-        dp(["Item.split:", item])
-        self.dict_file[item[0]] = [item[1], item[2], item[3], item[4]]
+      self.dict_file[line[0]] = [line[1], line[2], line[3], line[4]]
     dp(["Dict file:", self.dict_file])
   
   def upload_team(self):
@@ -201,7 +198,7 @@ class Savefile:
       new = new + data[0] + " "
       new = new + data[1] + " "
       new = new + data[2] + " "
-      new = new + data[3] + " | "
+      new = new + data[3] + "\n"
     file.write(new)
     file.close()
 
