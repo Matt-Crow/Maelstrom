@@ -44,6 +44,8 @@ To do:
 Add abilities
 Add items
 Add locations
+
+equip weapon from save file
 """
 
 def mod(num):
@@ -156,7 +158,9 @@ class Savefile:
       dp(["Line.split:", line])
       for item in line:
         dp(["Item:", item])
-      self.dict_file[line[0]] = [line[1], line[2], line[3], line[4]]
+      self.dict_file[line[0]] = {"Stats": [], "Weapon": []}
+      self.dict_file[line[0]]["Stats"] = [line[1], line[2], line[3], line[4]]
+      self.dict_file[line[0]]["Weapon"] = [line[5], line[6], line[7], line[8], line[9]]
     dp(["Dict file:", self.dict_file])
   
   def upload_team(self):
@@ -164,22 +168,17 @@ class Savefile:
     members = []
     for name, data in self.dict_file.items():
       dp(["Name:", name, "Data:", data])
-      members.append({"name": name, "level": int(data[0])})
+      members.append({"name": name, "level": int(data["Stats"][0])})
     dp(["Members:", members])
     ret = Team("Player Team", members, False)
     
     for member in ret.team:
       for name, data in self.dict_file.items():
         if member.name == name:
-          member.level_set = int(data[1])
-          member.XP = int(data[2])
-          member.stars = int(data[3])
+          member.level_set = int(data["Stats"][1])
+          member.XP = int(data["Stats"][2])
+          member.stars = int(data["Stats"][3])
     return ret
-  
-  # work here
-  def generate(self):
-    test = Team("Test team", ({"name": "Alexandre", "level": 1}, {"name": "Rene", "level": 1}, {"name": "Ian", "level": 1}, {"name": "Viktor", "level": 1}), False)
-    self.update(test)
   
   def update(self, team):
     self.text_to_dict()
@@ -187,7 +186,9 @@ class Savefile:
     
     change = {}
     for member in team.team:
-      change[member.name] = [str(member.level), str(member.level_set), str(member.XP), str(member.stars)]
+      change[member.name] = {"Stats": [], "Weapon": []}
+      change[member.name]["Stats"] = [str(member.level), str(member.level_set), str(member.XP), str(member.stars)]
+      change[member.name]["Weapon"] = [(member.weapon.name), str(member.weapon.base_miss), str(member.weapon.base_crit), str(member.weapon.base_miss_mult), str(member.weapon.base_crit_mult)]
     self.dict_file = change
     dp(["After:", self.dict_file])
     
@@ -195,10 +196,16 @@ class Savefile:
     new = " "
     for member, data in change.items():
       new = new + member + " "
-      new = new + data[0] + " "
-      new = new + data[1] + " "
-      new = new + data[2] + " "
-      new = new + data[3] + "\n"
+      new = new + data["Stats"][0] + " "
+      new = new + data["Stats"][1] + " "
+      new = new + data["Stats"][2] + " "
+      new = new + data["Stats"][3] + " "
+      new = new + data["Weapon"][0] + " "
+      new = new + data["Weapon"][1] + " "
+      new = new + data["Weapon"][2] + " "
+      new = new + data["Weapon"][3] + " "
+      new = new + data["Weapon"][4] + "\n"
+      
     file.write(new)
     file.close()
 
@@ -295,6 +302,12 @@ class Weapon:
     self.crit = 20 + stats[1] * 5
     self.miss_mult = 0.8 - stats[2] * 0.05
     self.crit_mult = 1.25 + stats[3] * 0.05
+    
+    # Used in save file
+    self.base_miss = miss
+    self.base_crit = crit
+    self.base_miss_mult = miss_m
+    self.base_crit_mult = crit_m
     
   def display_data(self):
     pr = [self.name + " data:"]
@@ -412,6 +425,9 @@ class Character:
     self.reset_boosts()
     self.energy = 0
     self.burn = [0, 0]
+  
+  def equip(self, weapon):
+    self.weapon = weapon
   
   """
   Data obtaining functions:
