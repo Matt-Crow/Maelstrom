@@ -1,4 +1,4 @@
- Viktor 1 1 0 0 Default 0 0 0 0
+ Viktor 1 1 0 0 Zygratzyll 10000 0 0 0
 Alexandre 1 1 0 0 Default 0 0 0 0
-Nicole 1 1 0 0 Default 0 0 0 0
-Adrian 1 1 0 0 Default 0 0 0 0
+Nicole 1 1 0 2 Default 0 0 0 0
+Adrian 1 1 0 1 Default 0 0 0 0

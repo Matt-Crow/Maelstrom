@@ -83,16 +83,16 @@ h1.load_team(Team(" ", {"name": "Hail Entity", "level": 1}, True))
 hail_village = Area("The Hail Village", "?", (h1))
 
 if __name__ == "__main__":
-  #player = load()
-  player = Team("Player team", {"name": "Alexandre", "level": 1}, False)
+  player = load()
+  #player = Team("Player team", {"name": "Alexandre", "level": 1}, False)
   
   # temporary
-  
+  """
   t = Tavern("The salty spitoon")
   t.recruit(player, Contract(None))
   t.recruit(player, Contract(None))
   t.recruit(player, Contract(None))
-  
+  """
   #rain_village.display_data(player)
   #hail_village.display_data(player)
   Savefile("player_data.txt").update(player)

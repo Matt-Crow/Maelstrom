@@ -44,8 +44,6 @@ To do:
 Add abilities
 Add items
 Add locations
-
-equip weapon from save file
 """
 
 def mod(num):
@@ -58,8 +56,10 @@ def mod(num):
 
 def set_in_bounds(num, min, max):
   if num < min:
+    dp(str(num) + " is too low")
     return min
   elif num > max:
+    dp(str(num) + " is too high")
     return max
   else:
     return num
@@ -143,7 +143,6 @@ def load():
   return Team("Test team", ({"name": "Alexandre", "level": 1}, {"name": "Rene", "level": 1}, {"name": "Ian", "level": 1}, {"name": "Viktor", "level": 1}), False)
 
 # need to comment this
-# make this save weapons as well
 class Savefile:
   def __init__(self, file):
     self.file = file
@@ -156,8 +155,6 @@ class Savefile:
         continue
       line = line.split()
       dp(["Line.split:", line])
-      for item in line:
-        dp(["Item:", item])
       self.dict_file[line[0]] = {"Stats": [], "Weapon": []}
       self.dict_file[line[0]]["Stats"] = [line[1], line[2], line[3], line[4]]
       self.dict_file[line[0]]["Weapon"] = [line[5], line[6], line[7], line[8], line[9]]
@@ -178,6 +175,7 @@ class Savefile:
           member.level_set = int(data["Stats"][1])
           member.XP = int(data["Stats"][2])
           member.stars = int(data["Stats"][3])
+          member.equip(Weapon(data["Weapon"][0], int(data["Weapon"][1]), int(data["Weapon"][2]), int(data["Weapon"][3]), int(data["Weapon"][4])))
     return ret
   
   def update(self, team):
