@@ -332,6 +332,10 @@ class Weapon:
     
     else: 
       return 1.0
+      
+  def give(self, team):
+    team.arsenal.append(self)
+    dp(team.arsenal)
 
 # extend to Hero and Enemy
 class Character:
@@ -802,6 +806,7 @@ class Team:
     self.team = []
     self.name = name
     self.AI = AI
+    self.arsenal = []
     
     members = to_list(members)
     for new_member in members:
@@ -1116,7 +1121,7 @@ class Battle:
   initializing them
   and the weather.
   """
-  def __init__(self, name, description, script, end, team_size, weather_list):
+  def __init__(self, name, description, script, end, team_size, weather_list, rewards):
     """
     Maximum team size,
     Weather should be improved
@@ -1128,6 +1133,7 @@ class Battle:
     self.final_act = Story(end)
     self.team_size = team_size
     self.forecast = to_list(weather_list)
+    self.rewards = to_list(rewards)
   
   def display_data(self):
     msg = [self.name, self.description]
@@ -1161,7 +1167,8 @@ class Battle:
             num = num - 1
     else:
       team.use = team.team
-  
+  # stuff down here
+  # add random weapon
   def check_winner(self):
     """
     Runs when one
@@ -1172,6 +1179,12 @@ class Battle:
       if team.is_up():
         winner = team
     op(winner.name + " won!")
+    if not winner.AI:
+      self.final_act.print_story()
+      for reward in self.rewards:
+        if reward == None:
+          continue
+        reward.give(winner)
   
   def begin(self):
     """
@@ -1205,7 +1218,6 @@ class Battle:
       for member in team.use:
         xp = team.enemy.xp_given()
         member.gain_XP(xp)
-    self.final_act.print_story()
                   
   def play(self):
     """

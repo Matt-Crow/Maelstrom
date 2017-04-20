@@ -68,23 +68,24 @@ enemies["Rain Entity"] = ((3, -3, 3), "rain", RAct)
 enemies["Hail Entity"] = ((3, -3, -3), "hail", HAct)
 enemies["Wind Entity"] = ((-3, 3, -3), "wind", WAct)
 
-r1 = Battle("Origin Beaches", "All heroes have to start somewhere", ("Encounter! Rain Entity", "Quick! Knock its hit points down to zero and escape!"), ("Congradulations!", "The Entity dissipates into a cloud of smoke"), 1, None)
+# move messages to seperate file
+r1 = Battle("Origin Beaches", "All heroes have to start somewhere", ("Encounter! Rain Entity", "Quick! Knock its hit points down to zero and escape!"), ("Congradulations!", "The Entity dissipates into a cloud of smoke"), 1, None, Weapon("Crazy blade", 3, 3, 3, 3))
 r1.load_team(Team("Rain", {"name":"Rain Entity", "level": 1}, True))
-r2 = Battle("The Gravel Trail", "A rough path leads up from the beaches...", ("The gravel crunches beneath your feet as you walk", "Suddenly it starts to drizzle lightly", "TIP: While it is raining, all characters will regain a little HP each turn"), ("Congradulations!"), 1, weathers[9])
+r2 = Battle("The Gravel Trail", "A rough path leads up from the beaches...", ("The gravel crunches beneath your feet as you walk", "Suddenly it starts to drizzle lightly", "TIP: While it is raining, all characters will regain a little HP each turn"), ("Congradulations!"), 1, weathers[9], None)
 r2.load_team(Team("Rain", {"name": "Rain Entity", "level": 1}, True))
-r3 = Battle("The Stagnant Pools", "Alongside the path lie many puddles...", ("A puddle begins to ripple...", "...and take form!", "TIP: Higher level characters have better stats, but HP grows slowly"), ("Congradulations!", "Perhaps an ally will help you in your quest..."), 1, weathers[10])
+r3 = Battle("The Stagnant Pools", "Alongside the path lie many puddles...", ("A puddle begins to ripple...", "...and take form!", "TIP: Higher level characters have better stats, but HP grows slowly"), ("Congradulations!", "Perhaps an ally will help you in your quest..."), 1, weathers[10], None)
 r3.load_team(Team("Rain", {"name": "Rain Entity", "level": 2}, True))
-r4 = Battle("Deluge", "The rain begins to pour...", ("Flashes of lightning...", "...no longer distant!"), ("You are far stronger than you appear..."), 4, (weathers[0], weathers[1], weathers[2]))
+r4 = Battle("Deluge", "The rain begins to pour...", ("Flashes of lightning...", "...no longer distant!"), ("You are far stronger than you appear..."), 4, (weathers[0], weathers[1], weathers[2]), None)
 r4.load_team(Team("Rain", ({"name": "Lightning Entity", "level": 1}, {"name": "Rain Entity", "level": 1}, {"name": "Hail Entity", "level": 1}, {"name": "Wind Entity", "level": 1}), True))
 rain_village = Area("The Rain Village", "Where peace and tranquility hang over like a fine mist", (r1, r2, r3, r4))
 
-h1 = Battle("Forest Clearing", "A fresh coating of snow covers all the trees", None, None, 1, weathers[6])
+h1 = Battle("Forest Clearing", "A fresh coating of snow covers all the trees", None, None, 1, weathers[6], None)
 h1.load_team(Team(" ", {"name": "Hail Entity", "level": 1}, True))
 hail_village = Area("The Hail Village", "?", (h1))
 
 if __name__ == "__main__":
-  player = load()
-  #player = Team("Player team", {"name": "Alexandre", "level": 1}, False)
+  #player = load()
+  player = Team("Player team", {"name": "Alexandre", "level": 1}, False)
   
   # temporary
   """
@@ -93,6 +94,6 @@ if __name__ == "__main__":
   t.recruit(player, Contract(None))
   t.recruit(player, Contract(None))
   """
-  #rain_village.display_data(player)
+  rain_village.display_data(player)
   #hail_village.display_data(player)
-  Savefile("player_data.txt").update(player)
+  #Savefile("player_data.txt").update(player)
