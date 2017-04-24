@@ -289,33 +289,44 @@ class Attack:
 
 # working here
 # not implemented
-class Threshhold:
-  def __init__(self, thresh, check_targ, stat, target, potency):
-    self.threshhold = thresh
-    # target used for trigger calculations
-    self.check_targ = check_targ
-    # target who recieves the effects
+class Passive:
+  def __init__(self, name, x, target, stat, potency, duration):
+    self.name = name
+    # value used for calculations
+    self.x = x
     self.target = target
+    
     self.stat = stat
     self.potency = potency
-
-  # combine these two?
-  def get_check_target(self, user):
-    if self.check_targ == "enemy":
-      return user.enemy.active
-    return user
-
-  def get_act_target(self, user):
+    self.duration = duration
+  
+  def get_target(self, user):
     if self.target == "enemy":
       return user.enemy.active
     return user
-
-  def check_trigger(self, user):
-    return self.get_check_target(user).hp_perc() <= self.threshhold
-    
+  
   def activate(self, user):
     if self.check_trigger(user):
-      self.get_act_target(user).boost(self.stat, self.potency, 1)
+      self.get_target(user).boost(self.stat, self.potency, self.duration)
+
+class Threshhold(Passive):
+  def check_trigger(self, user):
+    return self.get_target(user).hp_perc() <= self.x
+  
+  def display_data(self):
+    msg = [self.name + ":"]
+    
+    if self.target is not "enemy":
+      msg.append("Inflicts user with a")
+    else:
+      msg.append("Inflicts target with a")
+      
+    msg.append(str(int(self.potency * 100)) + "% boost")
+    msg.append("to their " + self.stat + " stat")
+    msg.append("when they are at or below")
+    msg.append(str(int(self.x * 100)) + "% HP")
+    
+    op(msg)
 
 class Weapon:
   """
@@ -397,11 +408,11 @@ class Character:
     self.XP = 0
     self.level_set = 1
     self.stars = 0
-    self.weapon = Weapon("Default", 0, 0, 0, 0)
     self.attacks = [slash, jab, slam]
-    if data[2] != None:
-      self.attacks.append(data[2])
-  
+    self.attacks.append(data[2])
+    self.weapon = Weapon("Default", 0, 0, 0, 0)
+    self.ability = Threshhold("Test", 0.2, "user", "STR", 0.2, 5)
+    
   def calc_stats(self):
     """
     Calculate a character's stats
@@ -492,6 +503,7 @@ class Character:
     pr.append(str(self.XP) + "/" + str(self.level * 10))
     op(pr)
     self.weapon.display_data()
+    self.ability.display_data()
   
   """
   Battle functions:
