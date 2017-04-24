@@ -24,6 +24,8 @@ Week 2: Revised/improved/reordered functions
 8/4/2017 finsihed Team
 11/4/2017 how_many added, need to implement
 13/4/2017 fixed Contract
+16/4/2017 - 23/4/2017: Started work on Weapon
+24/4/2017 - : Added Passives
 
 Version 0.9
 """
@@ -42,7 +44,6 @@ enemies = {}
 To do:
 
 Add abilities
-Add items
 Add locations
 """
 
@@ -285,6 +286,36 @@ class Attack:
     user.lose_energy(self.energy_cost)
     if self.energy_cost == 0:
       user.gain_energy(3)
+
+# working here
+# not implemented
+class Threshhold:
+  def __init__(self, thresh, check_targ, stat, target, potency):
+    self.threshhold = thresh
+    # target used for trigger calculations
+    self.check_targ = check_targ
+    # target who recieves the effects
+    self.target = target
+    self.stat = stat
+    self.potency = potency
+
+  # combine these two?
+  def get_check_target(self, user):
+    if self.check_targ == "enemy":
+      return user.enemy.active
+    return user
+
+  def get_act_target(self, user):
+    if self.target == "enemy":
+      return user.enemy.active
+    return user
+
+  def check_trigger(self, user):
+    return self.get_check_target(user).hp_perc() <= self.threshhold
+    
+  def activate(self, user):
+    if self.check_trigger(user):
+      self.get_act_target(user).boost(self.stat, self.potency, 1)
 
 class Weapon:
   """
