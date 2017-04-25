@@ -306,12 +306,12 @@ class Passive:
     return user
   
   def activate(self, user):
-    if self.check_trigger(user):
-      self.get_target(user).boost(self.stat, self.potency, self.duration)
+    self.get_target(user).boost(self.stat, self.potency, self.duration)
 
 class Threshhold(Passive):
   def check_trigger(self, user):
-    return self.get_target(user).hp_perc() <= self.x
+    if self.get_target(user).hp_perc() <= self.x:
+      self.activate(user)
   
   def display_data(self):
     msg = [self.name + ":"]
@@ -324,7 +324,29 @@ class Threshhold(Passive):
     msg.append(str(int(self.potency * 100)) + "% boost")
     msg.append("to their " + self.stat + " stat")
     msg.append("when they are at or below")
-    msg.append(str(int(self.x * 100)) + "% HP")
+    msg.append(str(int(self.x * 100)) + "% HP.")
+    
+    op(msg)
+
+class OnHit(Passive):
+  def check_trigger(self, user):
+    r = random.randint(1, 100)
+    if r <= self.x * 100:
+      self.activate(user)
+      
+  def display_data(self):
+    msg = [self.name + ":", "Whenever the user"]
+    
+    if self.target is not "enemy":
+      msg.append("is struck by an enemy melee attack")
+    else:
+      msg.append("strikes an enemy with a melee attack")
+      
+    msg.append("there is a " + str(int(self.x * 100)) + "% chance")
+    
+    msg.append("the target will recieve a " + str(int(self.potency * 100)) + "% boost")
+    msg.append("to their " + self.stat + " stat")
+    msg.append("for " + str(self.duration) + " turns.")
     
     op(msg)
 
@@ -411,7 +433,7 @@ class Character:
     self.attacks = [slash, jab, slam]
     self.attacks.append(data[2])
     self.weapon = Weapon("Default", 0, 0, 0, 0)
-    self.ability = Threshhold("Test", 0.2, "user", "STR", 0.2, 5)
+    self.ability = Threshhold("Test", 0.5, "user", "STR", 999, 1)
     
   def calc_stats(self):
     """
@@ -1078,7 +1100,8 @@ class Team:
       self.choose_switchin()
       self.switched_in = True
     self.active.choose_attack()
-        
+  
+  # check passive triggers    
   def do_turn(self):
     """
     This is where stuff happens
@@ -1098,6 +1121,7 @@ class Team:
     if self.is_up():
       self.switched_in = False
       for member in self.members_rem:
+        member.ability.check_trigger(member)
         member.update_boosts()
       self.choose_action()
 
