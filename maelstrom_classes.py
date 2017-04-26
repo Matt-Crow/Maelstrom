@@ -290,8 +290,10 @@ class Attack:
 # working here
 # not implemented
 class Passive:
-  def __init__(self, name, x, target, stat, potency, duration):
+  def __init__(self, name, type, x, target, stat, potency, duration):
     self.name = name
+    # move this?
+    self.type = type
     # value used for calculations
     self.x = x
     self.target = target
@@ -302,7 +304,7 @@ class Passive:
   
   def get_target(self, user):
     if self.target == "enemy":
-      return user.enemy.active
+      return user.team.enemy.active
     return user
   
   def activate(self, user):
@@ -312,6 +314,7 @@ class Threshhold(Passive):
   def check_trigger(self, user):
     if self.get_target(user).hp_perc() <= self.x:
       self.activate(user)
+    dp([self.get_target(user).hp_perc(), self.x])
   
   def display_data(self):
     msg = [self.name + ":"]
@@ -331,6 +334,7 @@ class Threshhold(Passive):
 class OnHit(Passive):
   def check_trigger(self, user):
     r = random.randint(1, 100)
+    dp([r, self.x])
     if r <= self.x * 100:
       self.activate(user)
       
@@ -433,7 +437,7 @@ class Character:
     self.attacks = [slash, jab, slam]
     self.attacks.append(data[2])
     self.weapon = Weapon("Default", 0, 0, 0, 0)
-    self.ability = Threshhold("Test", 0.5, "user", "STR", 999, 1)
+    self.passives = [Threshhold("Test", "Threshhold", 0.5, "user", "STR", 0.2, 1), OnHit("Test", "OnHit", 0.5, "enemy", "STR", -0.5, 3)]
     
   def calc_stats(self):
     """
@@ -525,7 +529,8 @@ class Character:
     pr.append(str(self.XP) + "/" + str(self.level * 10))
     op(pr)
     self.weapon.display_data()
-    self.ability.display_data()
+    for passive in self.passives:
+      passive.display_data()
   
   """
   Battle functions:
@@ -686,6 +691,10 @@ class Character:
       choice = self.what_attack()
     
     choice.use(self)
+    if choice.energy_cost == 0:
+      for passive in self.passives:
+        if passive.type == "OnHit":
+          passive.check_trigger(self)
   
   """
   Damage calculation
@@ -1121,7 +1130,9 @@ class Team:
     if self.is_up():
       self.switched_in = False
       for member in self.members_rem:
-        member.ability.check_trigger(member)
+        for passive in member.passives:
+          if passive.type == "Threshhold":
+            passive.check_trigger(member)
         member.update_boosts()
       self.choose_action()
 
