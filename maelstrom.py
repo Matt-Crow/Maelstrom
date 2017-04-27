@@ -22,6 +22,15 @@ weathers = (
   Weather("Rain", 7.5, "A deluge of water pours forth from the sky...")
   )
 
+passives = (
+  Threshhold("THSTR", "Threshhold", 0.2, "user", "STR", 0.2, 1),
+  Threshhold("THCON", "Threshhold", 0.2, "user", "CON", 0.2, 1),
+  Threshhold("THRES", "Threshhold", 0.2, "user", "RES", 0.2, 1),
+  OnHit("OHSTR", "OnHit", 0.2, "enemy", "STR", -0.2, 3),
+  OnHit("OHCON", "OnHit", 0.2, "enemy", "CON", -0.2, 3),
+  OnHit("OHRES", "OnHit", 0.2, "enemy", "RES", -0.2, 3)
+)
+
 # use these in specials
 no_eff = (0, 0, 0)
 act_ene = ("enemy", "act")
@@ -94,6 +103,8 @@ if __name__ == "__main__":
   t.recruit(player, Contract(None))
   t.recruit(player, Contract(None))
   """
+  for member in player.team:
+    member.unlock_passive(passives)
   rain_village.display_data(player)
   #hail_village.display_data(player)
   #Savefile("player_data.txt").update(player)

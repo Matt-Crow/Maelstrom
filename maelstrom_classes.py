@@ -290,20 +290,20 @@ class Attack:
 # working here
 # not implemented
 class Passive:
-  def __init__(self, name, type, x, target, stat, potency, duration):
+  def __init__(self, name, type, x, self_target, stat, potency, duration):
     self.name = name
     # move this?
     self.type = type
     # value used for calculations
     self.x = x
-    self.target = target
+    self.self_target = self_target
     
     self.stat = stat
     self.potency = potency
     self.duration = duration
   
   def get_target(self, user):
-    if self.target == "enemy":
+    if not self.self_target:
       return user.team.enemy.active
     return user
   
@@ -314,12 +314,12 @@ class Threshhold(Passive):
   def check_trigger(self, user):
     if self.get_target(user).hp_perc() <= self.x:
       self.activate(user)
-    dp([self.get_target(user).hp_perc(), self.x])
+    dp(["Current HP: " + str(self.get_target(user).hp_perc()), "Threshhold: " + str(self.x)])
   
   def display_data(self):
     msg = [self.name + ":"]
     
-    if self.target is not "enemy":
+    if self.self_target:
       msg.append("Inflicts user with a")
     else:
       msg.append("Inflicts target with a")
@@ -334,14 +334,14 @@ class Threshhold(Passive):
 class OnHit(Passive):
   def check_trigger(self, user):
     r = random.randint(1, 100)
-    dp([r, self.x])
+    dp(["Random: " + str(r), "Minimum: " + str(self.x)])
     if r <= self.x * 100:
       self.activate(user)
       
   def display_data(self):
     msg = [self.name + ":", "Whenever the user"]
     
-    if self.target is not "enemy":
+    if self.self_target:
       msg.append("is struck by an enemy melee attack")
     else:
       msg.append("strikes an enemy with a melee attack")
@@ -437,7 +437,7 @@ class Character:
     self.attacks = [slash, jab, slam]
     self.attacks.append(data[2])
     self.weapon = Weapon("Default", 0, 0, 0, 0)
-    self.passives = [Threshhold("Test", "Threshhold", 0.5, "user", "STR", 0.2, 1), OnHit("Test", "OnHit", 0.5, "enemy", "STR", -0.5, 3)]
+    self.passives = [Threshhold("Test", "Threshhold", 0.5, "user", "STR", 0.2, 1), OnHit("Test", "OnHit", 0.5, "enemy", "STR", -0.2, 3)]
     
   def calc_stats(self):
     """
@@ -789,6 +789,9 @@ class Character:
     level cap by 5
     """
     self.level_set = self.level_set + 1
+    
+  def unlock_passive(self, pas):
+    self.passives.append(choose("Choose a passive:", pas))
 
 class Contract:
   def __init__(self, comes_with):
