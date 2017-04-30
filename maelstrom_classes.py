@@ -25,7 +25,7 @@ Week 2: Revised/improved/reordered functions
 11/4/2017 how_many added, need to implement
 13/4/2017 fixed Contract
 16/4/2017 - 23/4/2017: Started work on Weapon
-24/4/2017 - : Added Passives
+24/4/2017 30/4/2107 : Added Passives
 
 Version 0.9
 """
@@ -144,6 +144,7 @@ def load():
   return Team("Test team", ({"name": "Alexandre", "level": 1}, {"name": "Rene", "level": 1}, {"name": "Ian", "level": 1}, {"name": "Viktor", "level": 1}), False)
 
 # need to comment this
+# ARRRGGG work here
 class Savefile:
   def __init__(self, file):
     self.file = file
@@ -154,11 +155,23 @@ class Savefile:
     for line in file_read:
       if line == " ":
         continue
-      line = line.split()
+      line = line.split("!")
       dp(["Line.split:", line])
-      self.dict_file[line[0]] = {"Stats": [], "Weapon": []}
-      self.dict_file[line[0]]["Stats"] = [line[1], line[2], line[3], line[4]]
-      self.dict_file[line[0]]["Weapon"] = [line[5], line[6], line[7], line[8], line[9]]
+      for item in line:
+        data = item.split()
+        dp(["Data.split:", data])
+        if data[0] == "W":
+          self.dict_file[name]["Weapon"] = [data[1], data[2], data[3], data[4], data[5]]
+        elif data[0] == "P":
+          for i in data:
+            if i == "P":
+              continue
+            else:
+              self.dict_file[name]["Passives"].append(i.replace("_", " "))
+        else:
+          name = data[0]
+          self.dict_file[name] = {"Stats": [], "Weapon": [], "Passives": []}
+      	  self.dict_file[name]["Stats"] = [data[1], data[2], data[3], data[4]]
     dp(["Dict file:", self.dict_file])
   
   def upload_team(self):

@@ -93,8 +93,8 @@ h1.load_team(Team(" ", {"name": "Hail Entity", "level": 1}, True))
 hail_village = Area("The Hail Village", "?", (h1))
 
 if __name__ == "__main__":
-  #player = load()
-  player = Team("Player team", {"name": "Alexandre", "level": 1}, False)
+  player = load()
+  #player = Team("Player team", {"name": "Alexandre", "level": 1}, False)
   
   # temporary
   """
@@ -103,8 +103,10 @@ if __name__ == "__main__":
   t.recruit(player, Contract(None))
   t.recruit(player, Contract(None))
   """
+  """
   for member in player.team:
     member.unlock_passive(passives)
-  rain_village.display_data(player)
+  """
+  #rain_village.display_data(player)
   #hail_village.display_data(player)
   #Savefile("player_data.txt").update(player)
