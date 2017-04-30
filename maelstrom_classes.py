@@ -39,6 +39,7 @@ import random
 
 characters = {}
 enemies = {}
+passives = []
 
 """
 To do:
@@ -190,6 +191,8 @@ class Savefile:
           member.XP = int(data["Stats"][2])
           member.stars = int(data["Stats"][3])
           member.equip(Weapon(data["Weapon"][0], int(data["Weapon"][1]), int(data["Weapon"][2]), int(data["Weapon"][3]), int(data["Weapon"][4])))
+          for passive in data["Passives"]:
+            member.add_passive(passive)
     return ret
   
   def update(self, team):
@@ -511,6 +514,12 @@ class Character:
   
   def equip(self, weapon):
     self.weapon = weapon
+  
+  def add_passive(self, name):
+    from maelstrom import passives
+    for passive in passives:
+      if passive.name == name:
+        self.passives.append(passive)
   
   """
   Data obtaining functions:

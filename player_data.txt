@@ -1,1 +1,1 @@
-Alexandre 1 1 0 0 !W Default 0 0 0 0 !P last_stand
+Alexandre 1 1 0 0 !W Default 0 0 0 0 !P THRES

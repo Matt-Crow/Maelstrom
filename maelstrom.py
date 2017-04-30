@@ -107,6 +107,6 @@ if __name__ == "__main__":
   for member in player.team:
     member.unlock_passive(passives)
   """
-  #rain_village.display_data(player)
+  rain_village.display_data(player)
   #hail_village.display_data(player)
   #Savefile("player_data.txt").update(player)
