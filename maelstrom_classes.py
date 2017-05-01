@@ -43,8 +43,6 @@ passives = []
 
 """
 To do:
-
-Add abilities
 Add locations
 """
 
@@ -878,23 +876,6 @@ class Contract:
     new = choose("Who do you want to hire?", ("?", "??", "???", "????"))
     return {"name": self.poss[len(new) - 1], "level": 1}
 
-class Tavern:
-  def __init__(self, name):
-    self.name = name
-  
-  def recruit(self, team, contracts):
-    contracts = to_list(contracts)
-    msg = ["So, you wan't to hire out another warrior, eh?", "Now let me see..."]
-    if len(contracts) == 0:
-      msg.append("Sorry, but it looks like you don't have any contracts.")
-      msg.append("Come back when you have one, and then we'll talk.")
-    else:
-      msg.append("Well well well, and here I thought you weren't credibly.")
-      msg.append("How about you take a look at who we got here?")
-    
-    con = choose("Which contract do you want to use?", contracts)
-    team.add_member(con.use())
-
 class Team:
   """
   Teams are used to group characters
@@ -1339,6 +1320,32 @@ class Battle:
           break      
     self.check_winner()
     self.end()
+
+class Location:
+  def __init__(self, name, desc, script):
+    self.name = name
+    self.description = desc
+    self.script = Story(script)
+    
+  def display_data(self):
+    op([self.name, self.description])
+  
+  def travel_to(self):
+    self.script.print_story()
+
+class Tavern(Location):
+  def recruit(self, team, contracts):
+    contracts = to_list(contracts)
+    msg = ["So, you wan't to hire out another warrior, eh?", "Now let me see..."]
+    if len(contracts) == 0:
+      msg.append("Sorry, but it looks like you don't have any contracts.")
+      msg.append("Come back when you have one, and then we'll talk.")
+    else:
+      msg.append("Well well well, and here I thought you weren't credibly.")
+      msg.append("How about you take a look at who we got here?")
+    
+    con = choose("Which contract do you want to use?", contracts)
+    team.add_member(con.use())
     
 class Area:
   def __init__(self, name, description, levels):

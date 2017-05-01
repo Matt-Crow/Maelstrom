@@ -93,16 +93,14 @@ h1.load_team(Team(" ", {"name": "Hail Entity", "level": 1}, True))
 hail_village = Area("The Hail Village", "?", (h1))
 
 if __name__ == "__main__":
-  player = load()
-  #player = Team("Player team", {"name": "Alexandre", "level": 1}, False)
+  #player = load()
+  player = Team("Player team", {"name": "Alexandre", "level": 1}, False)
   
   # temporary
-  """
-  t = Tavern("The salty spitoon")
-  t.recruit(player, Contract(None))
-  t.recruit(player, Contract(None))
-  t.recruit(player, Contract(None))
-  """
+  
+  t = Tavern("The Salty Spitoon", "Welcome to the Salty Spitoon, how tough are you?", ["How tough am I?", "I programmed a chessboard the other day!", "Yeah, so?", "...recursively.", "Ugh, come right this way, sorry to keep you waiting."])
+  #t.recruit(player, Contract(None))
+  
   """
   for member in player.team:
     member.unlock_passive(passives)
