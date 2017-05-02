@@ -26,6 +26,7 @@ Week 2: Revised/improved/reordered functions
 13/4/2017 fixed Contract
 16/4/2017 - 23/4/2017: Started work on Weapon
 24/4/2017 30/4/2107 : Added Passives
+1/5/2017 : Added Location
 
 Version 0.9
 """
@@ -41,11 +42,7 @@ characters = {}
 enemies = {}
 passives = []
 
-"""
-To do:
-Add locations
-"""
-
+# move these usefull functions?
 def mod(num):
   """
   A useful little guy
@@ -302,7 +299,7 @@ class Attack:
       user.gain_energy(3)
 
 # working here
-# not implemented
+# not fully implemented
 class Passive:
   def __init__(self, name, type, x, self_target, stat, potency, duration):
     self.name = name
@@ -1189,15 +1186,6 @@ class Weather:
     """
     op(self.msg)
 
-class Story:
-  def __init__(self, story):
-    self.story = to_list(story)
-  
-  def print_story(self):
-    for script in self.story:
-      op(script)
-      go = raw_input("Press enter/return to continue")
-
 class Battle:
   """
   The Battle class pits 2 teams
@@ -1321,48 +1309,6 @@ class Battle:
     self.check_winner()
     self.end()
 
-class Location:
-  def __init__(self, name, desc, script):
-    self.name = name
-    self.description = desc
-    self.script = Story(script)
-    
-  def display_data(self):
-    op([self.name, self.description])
-  
-  def travel_to(self):
-    self.script.print_story()
-
-class Tavern(Location):
-  def recruit(self, team, contracts):
-    contracts = to_list(contracts)
-    msg = ["So, you wan't to hire out another warrior, eh?", "Now let me see..."]
-    if len(contracts) == 0:
-      msg.append("Sorry, but it looks like you don't have any contracts.")
-      msg.append("Come back when you have one, and then we'll talk.")
-    else:
-      msg.append("Well well well, and here I thought you weren't credibly.")
-      msg.append("How about you take a look at who we got here?")
-    
-    con = choose("Which contract do you want to use?", contracts)
-    team.add_member(con.use())
-    
-class Area:
-  def __init__(self, name, description, levels):
-    self.name = name
-    self.description = description
-    self.levels = to_list(levels)
-        
-  def display_data(self, player_team):
-    op([self.name, self.description])
-    for level in self.levels:
-      level.display_data()
-    level_to_play = choose("Which level do you want to play?", self.levels)
-    level_to_play.load_team(player_team)
-    level_to_play.play()
-    # unhash this to make it never end
-    #self.display_data(player_team)
-
 no_eff = (0, 0, 0)
 act_ene = ("enemy", "act")
         
@@ -1372,4 +1318,5 @@ slam = Attack("slam", 1.3, act_ene, no_eff)
 
 attacks = (slash, jab, slam)
 
+from navigate import *
 from maelstrom import do_MHC, debug

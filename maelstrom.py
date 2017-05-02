@@ -1,4 +1,5 @@
 from maelstrom_classes import *
+from navigate import *
 import random
 
 do_MHC = True
@@ -86,20 +87,16 @@ r3 = Battle("The Stagnant Pools", "Alongside the path lie many puddles...", ("A 
 r3.load_team(Team("Rain", {"name": "Rain Entity", "level": 2}, True))
 r4 = Battle("Deluge", "The rain begins to pour...", ("Flashes of lightning...", "...no longer distant!"), ("You are far stronger than you appear..."), 4, (weathers[0], weathers[1], weathers[2]), None)
 r4.load_team(Team("Rain", ({"name": "Lightning Entity", "level": 1}, {"name": "Rain Entity", "level": 1}, {"name": "Hail Entity", "level": 1}, {"name": "Wind Entity", "level": 1}), True))
-rain_village = Area("The Rain Village", "Where peace and tranquility hang over like a fine mist", (r1, r2, r3, r4))
+t = Tavern("The Salty Spitoon", "Welcome to the Salty Spitoon, how tough are you?", ["How tough am I?", "I programmed a chessboard the other day!", "Yeah, so?", "...recursively.", "Ugh, come right this way, sorry to keep you waiting."])
+rain_village = Area("The Rain Village", "Where peace and tranquility hang over like a fine mist", t, (r1, r2, r3, r4))
 
 h1 = Battle("Forest Clearing", "A fresh coating of snow covers all the trees", None, None, 1, weathers[6], None)
 h1.load_team(Team(" ", {"name": "Hail Entity", "level": 1}, True))
-hail_village = Area("The Hail Village", "?", (h1))
+hail_village = Area("The Hail Village", "?", None, (h1))
 
 if __name__ == "__main__":
   #player = load()
   player = Team("Player team", {"name": "Alexandre", "level": 1}, False)
-  
-  # temporary
-  
-  t = Tavern("The Salty Spitoon", "Welcome to the Salty Spitoon, how tough are you?", ["How tough am I?", "I programmed a chessboard the other day!", "Yeah, so?", "...recursively.", "Ugh, come right this way, sorry to keep you waiting."])
-  #t.recruit(player, Contract(None))
   
   """
   for member in player.team:
