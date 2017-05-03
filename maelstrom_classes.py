@@ -26,7 +26,7 @@ Week 2: Revised/improved/reordered functions
 13/4/2017 fixed Contract
 16/4/2017 - 23/4/2017: Started work on Weapon
 24/4/2017 30/4/2107 : Added Passives
-1/5/2017 : Added Location
+1/5/2017 : Added Location, began work on splitting file
 
 Version 0.9
 """
@@ -873,6 +873,7 @@ class Contract:
     new = choose("Who do you want to hire?", ("?", "??", "???", "????"))
     return {"name": self.poss[len(new) - 1], "level": 1}
 
+# extend to player and enemy teams
 class Team:
   """
   Teams are used to group characters
@@ -884,6 +885,7 @@ class Team:
     self.name = name
     self.AI = AI
     self.arsenal = []
+    self.contracts = []
     
     members = to_list(members)
     for new_member in members:
