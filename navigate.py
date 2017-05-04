@@ -68,5 +68,5 @@ class Area:
     else:
       place_to_go = choose("Where do you want to go?", self.locations)
       place_to_go.travel_to(player)
-    # unhash this to make it never end
-    #self.display_data(player_team)
+    #unhash this to make it never end
+    self.display_data(player)
