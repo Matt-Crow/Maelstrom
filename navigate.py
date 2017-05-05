@@ -3,6 +3,7 @@ if __name__ == "__main__":
   print("Try running Maelstrom.py instead!")
   exit()
 
+from maelstrom import debug
 from maelstrom_classes import to_list, op, dp, choose
 
 class Story:
