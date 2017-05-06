@@ -3,9 +3,6 @@ if __name__ == "__main__":
   print("Try running Maelstrom.py instead!")
   exit()
 
-from maelstrom import debug
-from maelstrom_classes import to_list, op, dp, choose
-
 class Story:
   def __init__(self, story):
     self.story = to_list(story)
@@ -27,6 +24,9 @@ class Location:
   def travel_to(self, player):
     self.script.print_story()
     self.action(player)
+    
+  def action(self, player):
+    return False
 
 class Tavern(Location):
   def action(self, player):
@@ -71,3 +71,6 @@ class Area:
       place_to_go.travel_to(player)
     # unhash this to make it never end
     #self.display_data(player_team)
+
+#from maelstrom import debug
+from utilities import *

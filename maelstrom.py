@@ -1,9 +1,7 @@
+from utilities import *
 from maelstrom_classes import *
 from navigate import *
 import random
-
-do_MHC = True
-debug = True
 
 weathers = (
   Weather("Lightning", 40.0, "Flashes of light can be seen in the distance..."),
@@ -97,7 +95,7 @@ h1.load_team(Team(" ", {"name": "Hail Entity", "level": 1}, True))
 hail_village = Area("The Hail Village", "?", None, (h1))
 
 c1 = Battle("Stone Rising", "An ancient threat arises", ("STONE SOLDIER: Foolish ones seek to take our land", "when we ourselves are imbued with its very power!"), "The stone soldier shatters into dust.", 1, None, Weapon("Stalygmite", 4, 4, 4, 4))
-c1.load_team(Team("Stone", {"name": "stone soldier", "level": 1}))
+c1.load_team(Team("Stone", {"name": "stone soldier", "level": 1}, True))
 caves = Location("Ancient library caverns", "These caves seem as old as time itself.", ("LIBRARIAN: These caves have only recently by our scholars.", "Everything here is estimated to be ancient,", "perhaps even older than Altostromia itself!", "But what concerns me are these statues...", "...hundreds of them."))
 lib_cav = Area("Ancient caverns", "?", caves, c1)
 
