@@ -35,100 +35,12 @@ if __name__ == "__main__":
   print("Oops! You're running from the wrong file!")
   print("Try running Maelstrom.py instead!")
   exit()
-    
+
 import random
 
 characters = {}
 enemies = {}
 passives = []
-
-# move these usefull functions?
-def mod(num):
-  """
-  A useful little guy
-  """
-  if num < 1:
-    num = 1
-  return num
-
-def set_in_bounds(num, min, max):
-  if num < min:
-    dp(str(num) + " is too low")
-    return min
-  elif num > max:
-    dp(str(num) + " is too high")
-    return max
-  else:
-    return num
-
-def choose(question, options):
-  if len(options) == 1:
-    return options[0]
-  
-  print(question)
-  
-  num = 1
-  for option in options:
-    try:
-      name = option.name  
-    except:
-      name = option
-    
-    print(str(num) + ": " + name)  
-    num += 1
-  
-  answered = False
-  
-  while not answered:
-    choice = raw_input(" ")
-    for option in options:
-      try:
-        compare = option.name.lower()
-      except:
-        compare = option.lower()
-      
-      if choice.lower() == compare:
-        return option
-      elif choice == str(options.index(option) + 1):
-        return option
-    print("That isn't an option...")
-
-def to_list(change):
-  r = []
-  if type(change) == type([1, 2, 3]) or type(change) == type((1, 2, 3)):
-    for item in change:
-      r.append(item)
-  else:
-    r.append(change)
-  return r
-  
-# output
-def op(write):
-  list = []
-  if type(write) != type([0, 0, 0, 0]):
-    list.append(write)
-  else:
-    list = write
-  b = " "
-  print(b)
-  for item in list:
-    print(item)
-  print(b)
-
-# debug print
-def dp(write):
-  if not debug:
-    return
-  list = []
-  if type(write) != type([0, 0, 0, 0]):
-    list.append(write)
-  else:
-    list = write
-  print " "
-  print("<*DEBUG*>")
-  for item in list:
-    print item
-  print " "
 
 def load():
   should_load = choose("Do you want to load from a save file?", ("Yes", "No"))
@@ -743,8 +655,7 @@ class Character:
     if self.in_threshhold():
       op(self.name + "'s armor protects him/her for damage!")
     
-    if do_MHC:
-      dmg = dmg * self.weapon.calc_MHC()
+    dmg = dmg * self.weapon.calc_MHC()
     op(attacker.name + " struck " + self.name + " for " + str(int(dmg)) + " damage using " + attack_used.name + "!")
     
     self.direct_dmg(dmg)
@@ -1320,5 +1231,6 @@ slam = Attack("slam", 1.3, act_ene, no_eff)
 
 attacks = (slash, jab, slam)
 
-from navigate import *
-from maelstrom import do_MHC, debug
+from utilities import *
+from navigate import Story
+#from maelstrom import do_MHC, debug

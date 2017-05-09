@@ -1,9 +1,7 @@
+from utilities import *
 from maelstrom_classes import *
 from navigate import *
 import random
-
-do_MHC = True
-debug = True
 
 weathers = (
   Weather("Lightning", 40.0, "Flashes of light can be seen in the distance..."),
@@ -78,6 +76,8 @@ enemies["Rain Entity"] = ((3, -3, 3), "rain", RAct)
 enemies["Hail Entity"] = ((3, -3, -3), "hail", HAct)
 enemies["Wind Entity"] = ((-3, 3, -3), "wind", WAct)
 
+enemies["stone soldier"] = ((2, -3, -3), "stone", SAct)
+
 # move messages to seperate file
 r1 = Battle("Origin Beaches", "All heroes have to start somewhere", ("Encounter! Rain Entity", "Quick! Knock its hit points down to zero and escape!"), ("Congradulations!", "The Entity dissipates into a cloud of smoke"), 1, None, Weapon("Crazy blade", 3, 3, 3, 3))
 r1.load_team(Team("Rain", {"name":"Rain Entity", "level": 1}, True))
@@ -94,6 +94,11 @@ h1 = Battle("Forest Clearing", "A fresh coating of snow covers all the trees", N
 h1.load_team(Team(" ", {"name": "Hail Entity", "level": 1}, True))
 hail_village = Area("The Hail Village", "?", None, (h1))
 
+c1 = Battle("Stone Rising", "An ancient threat arises", ("STONE SOLDIER: Foolish ones seek to take our land", "when we ourselves are imbued with its very power!"), "The stone soldier shatters into dust.", 1, None, Weapon("Stalygmite", 4, 4, 4, 4))
+c1.load_team(Team("Stone", {"name": "stone soldier", "level": 1}, True))
+caves = Location("Ancient library caverns", "These caves seem as old as time itself.", ("LIBRARIAN: These caves have only recently by our scholars.", "Everything here is estimated to be ancient,", "perhaps even older than Altostromia itself!", "But what concerns me are these statues...", "...hundreds of them."))
+lib_cav = Area("Ancient caverns", "?", caves, c1)
+
 if __name__ == "__main__":
   #player = load()
   player = Team("Player team", {"name": "Alexandre", "level": 1}, False)
@@ -102,6 +107,7 @@ if __name__ == "__main__":
   for member in player.team:
     member.unlock_passive(passives)
   """
-  rain_village.display_data(player)
+  #rain_village.display_data(player)
   #hail_village.display_data(player)
+  lib_cav.display_data(player)
   #Savefile("player_data.txt").update(player)
