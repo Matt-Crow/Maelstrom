@@ -55,8 +55,7 @@ class Area:
     for loc in self.locations:
       loc.display_data()
     for level in self.levels:
-      level.display_data()
-      
+      level.display_data()  
     self.trav_or_play(player)
   
   def trav_or_play(self, player):
