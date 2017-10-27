@@ -1,36 +1,3 @@
-"""
-Copyright (c) 2016 Matt Crow 
-"""
-
-"""
-Started October 28, 2015
-dd/mm/yyyy
-28/10/2015-: Built Attack, Warrior (later renamed Character), and Team
-Week 2: Revised/improved/reordered functions
-23/11/2015 - 27/11/2015: Implemented Battle
-30/11/2015 - 4/12/2015: Finished most of PvP
-7/12/2015 - 11/12/2015: Implemented Weather, redid stat boosts 
-14/12/2015 - 18/12/2015: Added data files
-31/12/2015 - 1/1/2016: Worked on Special file reading
-
-18/10/2016 - 22/10/2016: General cleanup/improvement
-31/10/2016 - 6/10/2016: File work
-14/11/2016 - 20/11/2016: Area and general cleanup
-21/11/2016 - 1/12/2016: Added AI
-
-6/3/2017 Started major revamp
-29/3/2017 Energy is now per character as opposed to team
-5/4/2017 finished going through character. Will add new features
-8/4/2017 finsihed Team
-11/4/2017 how_many added, need to implement
-13/4/2017 fixed Contract
-16/4/2017 - 23/4/2017: Started work on Weapon
-24/4/2017 30/4/2107 : Added Passives
-1/5/2017 : Added Location, began work on splitting file
-
-Version 0.9
-"""
-
 if __name__ == "__main__":
   print("Oops! You're running from the wrong file!")
   print("Try running Maelstrom.py instead!")
@@ -240,19 +207,19 @@ class Threshhold(Passive):
     dp(["Current HP: " + str(self.get_target(user).hp_perc()), "Threshhold: " + str(self.x)])
   
   def display_data(self):
-    msg = [self.name + ":"]
+    Op.add(self.name + ":")
     
     if self.self_target:
-      msg.append("Inflicts user with a")
+      Op.add("Inflicts user with a")
     else:
-      msg.append("Inflicts target with a")
+      Op.add("Inflicts target with a")
       
-    msg.append(str(int(self.potency * 100)) + "% boost")
-    msg.append("to their " + self.stat + " stat")
-    msg.append("when they are at or below")
-    msg.append(str(int(self.x * 100)) + "% HP.")
+    Op.add(str(int(self.potency * 100)) + "% boost")
+    Op.add("to their " + self.stat + " stat")
+    Op.add("when they are at or below")
+    Op.add(str(int(self.x * 100)) + "% HP.")
     
-    op(msg)
+    Op.dp()
 
 class OnHit(Passive):
   def check_trigger(self, user):
@@ -262,20 +229,20 @@ class OnHit(Passive):
       self.activate(user)
       
   def display_data(self):
-    msg = [self.name + ":", "Whenever the user"]
+    Op.add([self.name + ":", "Whenever the user"])
     
     if self.self_target:
-      msg.append("is struck by an enemy melee attack")
+      Op.add("is struck by an enemy melee attack")
     else:
-      msg.append("strikes an enemy with a melee attack")
+      Op.add("strikes an enemy with a melee attack")
       
-    msg.append("there is a " + str(int(self.x * 100)) + "% chance")
+    Op.add("there is a " + str(int(self.x * 100)) + "% chance")
     
-    msg.append("the target will recieve a " + str(int(self.potency * 100)) + "% boost")
-    msg.append("to their " + self.stat + " stat")
-    msg.append("for " + str(self.duration) + " turns.")
+    Op.add("the target will recieve a " + str(int(self.potency * 100)) + "% boost")
+    Op.add("to their " + self.stat + " stat")
+    Op.add("for " + str(self.duration) + " turns.")
     
-    op(msg)
+    Op.dp()
 
 class Weapon:
   """
@@ -299,30 +266,30 @@ class Weapon:
     self.base_crit_mult = crit_m
     
   def display_data(self):
-    pr = [self.name + " data:"]
-    pr.append("Miss chance: " + str(self.miss) + "%")
-    pr.append("Crit chance: " + str(self.crit) + "%")
-    pr.append("Miss multiplier: " + str(self.miss_mult) + "%")
-    pr.append("Crit multiplier: " + str(self.crit_mult) + "%")
-    op(pr)
+    Op.add(self.name + " data:")
+    Op.add("Miss chance: " + str(self.miss) + "%")
+    Op.add("Crit chance: " + str(self.crit) + "%")
+    Op.add("Miss multiplier: " + str(self.miss_mult) + "%")
+    Op.add("Crit multiplier: " + str(self.crit_mult) + "%")
+    Op.dp()
   
   def calc_MHC(self):
     """
     Used to calculate hit type
     """
     rand = random.randint(1, 100)
+    ret = 1.0
     pr = ["rand in calc_MHC: " + str(rand), "Crit: " + str(100 - self.crit), "Miss: " + str(self.miss)]
     dp(pr)
     if rand <= self.miss:
-      op("A glancing blow!")
-      return self.miss_mult
+      Op.add("A glancing blow!")
+      ret = self.miss_mult
     
     elif rand >= 100 - self.crit:
-      op("A critical hit!")
-      return self.crit_mult
+      Op.add("A critical hit!")
+      ret = self.crit_mult
     
-    else: 
-      return 1.0
+    return ret
       
   def give(self, team):
     team.arsenal.append(self)
@@ -447,16 +414,16 @@ class Character:
     Print info on a character
     """
     self.calc_stats()
-    pr = ["Lv. " + str(self.level) + " " + self.name]
-    pr.append(self.element)
-    pr.append("HP: " + str(int(self.stats["HP"])))
-    pr.append("STR:" + str(int(self.stats["STR"])))
-    pr.append("CON:" + str(int(self.stats["CON"])))
-    pr.append("RES:" + str(int(self.stats["RES"])))
+    Op.add("Lv. " + str(self.level) + " " + self.name)
+    Op.add(self.element)
+    Op.add("HP: " + str(int(self.stats["HP"])))
+    Op.add("STR:" + str(int(self.stats["STR"])))
+    Op.add("CON:" + str(int(self.stats["CON"])))
+    Op.add("RES:" + str(int(self.stats["RES"])))
     for attack in self.attacks:
-      pr.append("-" + attack.name)
-    pr.append(str(self.XP) + "/" + str(self.level * 10))
-    op(pr)
+      Op.add("-" + attack.name)
+    Op.add(str(self.XP) + "/" + str(self.level * 10))
+    Op.dp()
     self.weapon.display_data()
     for passive in self.passives:
       passive.display_data()
@@ -510,15 +477,17 @@ class Character:
     healing = self.get_stat("HP") * (float(percent) / 100)
     self.HP_rem = int(self.HP_rem + healing)
     
-    op(self.name + " healed " + str(int(healing)) + " HP!")
+    Op.add(self.name + " healed " + str(int(healing)) + " HP!")
+    Op.dp()
         
     if self.HP_rem > self.get_stat("HP"):
       self.HP_rem = self.get_stat("HP")
   
   def harm(self, percent):
     harming = self.get_stat("HP") * (float(percent) / 100)
-    self.HP_rem = int(self.HP_rem - healing)
-    op(self.name + " took " + str(int(healing)) + " damage!")
+    self.HP_rem = int(self.HP_rem - harming)
+    Op.add(self.name + " took " + str(int(harming)) + " damage!")
+    Op.dp()
     
   def direct_dmg(self, dmg):
     self.HP_rem -= int(dmg)
@@ -653,11 +622,13 @@ class Character:
     dmg = self.calc_DMG(attacker, attack_used)
     dp([str(self.hp_perc() * 100) + "% HP: ", str(self.armor_threshhold() * 100) + " threshhold"])
     if self.in_threshhold():
-      op(self.name + "'s armor protects him/her for damage!")
+      Op.add(self.name + "'s armor protects him/her for damage!")
     
     dmg = dmg * self.weapon.calc_MHC()
-    op(attacker.name + " struck " + self.name + " for " + str(int(dmg)) + " damage using " + attack_used.name + "!")
-    
+    Op.add(attacker.name + " struck " + self.name)
+    Op.add(" for " + str(int(dmg)) + " damage")
+    Op.add("using " + attack_used.name + "!")
+    Op.dp()
     self.direct_dmg(dmg)
     self.gain_energy(3)
     cont = raw_input("Press enter/return to continue")
@@ -696,10 +667,11 @@ class Character:
     self.XP = self.XP + amount
     if self.XP >= self.level * 10: 
       if self.level < self.level_set * 5:
-        op(self.name + " leveled up!")
+        Op.add(self.name + " leveled up!")
         self.level_up()
       else:
-        print(self.name + " is being held back... perhaps a special item will help?")
+        Op.add(self.name + " is being held back... perhaps a special item will help?")
+      Op.dp()
   
   def level_up(self):
     """
@@ -756,7 +728,8 @@ class Contract:
     RETURNS THE ANSWER
     DOES NOT CHANGE THE PLAYER'S TEAM
     """
-    op("*Recruiting*")
+    Op.add("*Recruiting*")
+    Op.dp()
     char = []
     for member in self.poss:
       char.append(Character(member, 1))
@@ -767,7 +740,6 @@ class Contract:
     pick_or_hint = choose("Do you want a hint before choosing?", ("Yes", "No"))
     if pick_or_hint == "Yes":
       hint = choose("What do you want to see?", ("HP", "RES", "CON", "STR", "Element"))
-      msg = []
       marks = "?"
       for member in char:
         hints = {
@@ -777,9 +749,9 @@ class Contract:
           "STR" : member.get_stat("STR"),
           "Element" : member.element
         }
-        msg.append(marks + ": " + str(hints[hint]))
+        Op.add(marks + ": " + str(hints[hint]))
         marks = marks + "?"
-      op(msg)
+      Op.dp()
                     
     new = choose("Who do you want to hire?", ("?", "??", "???", "????"))
     return {"name": self.poss[len(new) - 1], "level": 1}
@@ -811,12 +783,14 @@ class Team:
     for member in self.team:
       if new_member["name"] == member.name:
         member.stars += 1
-        op(member.name + "'s stats were boosted!")
+        Op.add(member.name + "'s stats were boosted!")
+        Op.dp()
         member.init_for_battle()
         member.display_data()
         return False
     self.team.append(Character(new_member["name"], new_member["level"]))
-    op(new_member["name"] + " joined " + self.name + "!")
+    Op.add(new_member["name"] + " joined " + self.name + "!")
+    Op.dp()
     self.team[-1].team = self
     self.team[-1].init_for_battle()
     self.team[-1].display_data()
@@ -893,7 +867,8 @@ class Team:
     """
     Show info for a team
     """
-    op(self.name)
+    Op.add(self.name)
+    Op.dp()
     for member in self.team:
       member.display_data()
     
@@ -990,21 +965,22 @@ class Team:
     
     self.switch(switch_for)
       
-    op(self.active.name + " up!")
+    Op.add(self.active.name + " up!")
+    Op.dp()
                                     
   def choose_action(self):
     """
     What to do, what to do...
     """
-    pr = [self.name]
+    Op.add(self.name)
     for member in self.members_rem:
-      pr.append("* " + member.name + " " + str(member.HP_rem) + "/" + str(member.get_stat("HP")) + " " + member.element)
+      Op.add("* " + member.name + " " + str(member.HP_rem) + "/" + str(member.get_stat("HP")) + " " + member.element)
         
-    pr.append("Currently active: " + self.active.name)
-    pr.append(self.active.name + "'s Energy: " + str(self.active.energy))
-    pr.append("Active enemy: " + self.enemy.active.name + " " + str(self.enemy.active.HP_rem) + "/" + str(self.enemy.active.get_stat("HP")) + " " + self.enemy.active.element)
+    Op.add("Currently active: " + self.active.name)
+    Op.add(self.active.name + "'s Energy: " + str(self.active.energy))
+    Op.add("Active enemy: " + self.enemy.active.name + " " + str(self.enemy.active.HP_rem) + "/" + str(self.enemy.active.get_stat("HP")) + " " + self.enemy.active.element)
     
-    op(pr)
+    Op.dp()
     
     choices = ["Attack"]
     
@@ -1037,7 +1013,8 @@ class Team:
       if not member.check_if_KOed():
         new_members_rem.append(member)
       else:
-        op(member.name + " is out of the game!")
+        Op.add(member.name + " is out of the game!")
+        Op.dp()
     self.members_rem = new_members_rem
     
     if self.active.check_if_KOed() and self.is_up():
@@ -1097,7 +1074,8 @@ class Weather:
     Print a message showing
     the weather condition
     """
-    op(self.msg)
+    Op.add(self.msg)
+    Op.dp()
 
 class Battle:
   """
@@ -1121,11 +1099,11 @@ class Battle:
     self.rewards = to_list(rewards)
   
   def display_data(self):
-    msg = [self.name, self.description]
+    Op.add([self.name, self.description])
     
     for member in self.teams[0].use:
-      msg.append("* " + member.name + " LV " + str(member.level) + " " + member.element)
-    op(msg)
+      Op.add("* " + member.name + " LV " + str(member.level) + " " + member.element)
+    Op.dp()
   
   def load_team(self, team):
     """
@@ -1135,7 +1113,8 @@ class Battle:
     self.teams.append(team)
     
     if len(team.team) > self.team_size:
-      op("Select which " + str(self.team_size) + " members you wish to use:")
+      Op.add("Select which " + str(self.team_size) + " members you wish to use:")
+      Op.dp()
       num = self.team_size
       team.use = []
       roster = []
@@ -1163,7 +1142,8 @@ class Battle:
     for team in self.teams:
       if team.is_up():
         winner = team
-    op(winner.name + " won!")
+    Op.add(winner.name + " won!")
+    Op.dp()
     if not winner.AI:
       self.final_act.print_story()
       for reward in self.rewards:
@@ -1181,7 +1161,7 @@ class Battle:
     for team in self.teams:
       team.initialize()
       team.enemy = team.find_enemy(self.teams)
-      op(team.name)
+      Op.add(team.name)
       
       for member in team.use:
         member.display_data()

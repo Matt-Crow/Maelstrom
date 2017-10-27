@@ -58,19 +58,32 @@ def to_list(change):
   else:
     r.append(change)
   return r
+
+class Op:
+  """
+  Op is used to output most of the program
+  Use Op.add(msg) to add anything to its next
+  bout of output. It will automatically convert
+  msg into a list
+  """
+  msgs = []
   
-# output
-def op(write):
-  list = []
-  if type(write) != type([0, 0, 0, 0]):
-    list.append(write)
-  else:
-    list = write
-  b = " "
-  print(b)
-  for item in list:
-    print(item)
-  print(b)
+  @staticmethod
+  def add(msg):
+    msg = to_list(msg)
+    for line in msg:
+      Op.msgs.append(line)
+  
+  @staticmethod
+  def reset():
+    Op.msgs = []
+  
+  @staticmethod
+  def dp():
+    print('\n')
+    for msg in Op.msgs:
+      print(str(msg))
+    Op.reset()
 
 # debug print
 def dp(write):

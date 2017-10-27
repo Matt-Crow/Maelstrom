@@ -1,3 +1,38 @@
+"""
+Copyright (c) 2015 Matt Crow 
+"""
+
+"""
+Started October 28, 2015
+dd/mm/yyyy
+28/10/2015-: Built Attack, Warrior (later renamed Character), and Team
+Week 2: Revised/improved/reordered functions
+23/11/2015 - 27/11/2015: Implemented Battle
+30/11/2015 - 4/12/2015: Finished most of PvP
+7/12/2015 - 11/12/2015: Implemented Weather, redid stat boosts 
+14/12/2015 - 18/12/2015: Added data files
+31/12/2015 - 1/1/2016: Worked on Special file reading
+
+18/10/2016 - 22/10/2016: General cleanup/improvement
+31/10/2016 - 6/10/2016: File work
+14/11/2016 - 20/11/2016: Area and general cleanup
+21/11/2016 - 1/12/2016: Added AI
+
+6/3/2017 Started major revamp
+29/3/2017 Energy is now per character as opposed to team
+5/4/2017 finished going through character. Will add new features
+8/4/2017 finsihed Team
+11/4/2017 how_many added, need to implement
+13/4/2017 fixed Contract
+16/4/2017 - 23/4/2017: Started work on Weapon
+24/4/2017 30/4/2107 : Added Passives
+1/5/2017 : Added Location, began work on splitting file
+
+27/10/2017: Revised output
+
+Version 0.9
+"""
+
 from utilities import *
 from maelstrom_classes import *
 from navigate import *

@@ -9,7 +9,8 @@ class Story:
   
   def print_story(self):
     for script in self.story:
-      op(script)
+      Op.add(script)
+      Op.dp()
       go = raw_input("Press enter/return to continue")
 
 class Location:
@@ -19,7 +20,8 @@ class Location:
     self.script = Story(script)
     
   def display_data(self):
-    op([self.name, self.description])
+    Op.add([self.name, self.description])
+    Op.dp()
   
   def travel_to(self, player):
     self.script.print_story()
@@ -31,17 +33,17 @@ class Location:
 class Tavern(Location):
   def action(self, player):
     contracts = to_list(player.contracts)
-    msg = ["So, you wan't to hire out another warrior, eh?", "Now let me see..."]
+    Op.add(["So, you wan't to hire out another warrior, eh?", "Now let me see..."])
     if len(contracts) == 0:
-      msg.append("Sorry, but it looks like you don't have any contracts.")
-      msg.append("Come back when you have one, and then we'll talk.")
-      op(msg)
-      return
-    msg.append("Well well well, and here I thought you weren't credibly.")
-    msg.append("How about you take a look at who we got here?")
-    op(msg)
-    con = choose("Which contract do you want to use?", contracts)
-    player.add_member(con.use())
+      Op.add("Sorry, but it looks like you don't have any contracts.")
+      Op.add("Come back when you have one, and then we'll talk.")
+      Op.dp()
+    else:
+      Op.add("Well well well, and here I thought you weren't credibly.")
+      Op.add("How about you take a look at who we got here?")
+      Op.dp()
+      con = choose("Which contract do you want to use?", contracts)
+      player.add_member(con.use())
 
 class Area:
   def __init__(self, name, description, locations, levels):
@@ -51,7 +53,8 @@ class Area:
     self.levels = to_list(levels)
         
   def display_data(self, player):
-    op([self.name, self.description])
+    Op.add([self.name, self.description])
+    Op.dp()
     for loc in self.locations:
       loc.display_data()
     for level in self.levels:
