@@ -62,17 +62,16 @@ class Area:
     self.trav_or_play(player)
   
   def trav_or_play(self, player):
-    choice = choose("Do you wish to travel to a location, or play a level?", ("Location", "Level"))
+    choice = choose("Do you wish to travel to a location, or play a level?", ("Location", "Level", "Quit"))
     if choice == "Level":
       level_to_play = choose("Which level do you want to play?", self.levels)
       level_to_play.load_team(player)
       level_to_play.play()
+      self.display_data(player)
       
-    else:
+    elif choice == "Location":
       place_to_go = choose("Where do you want to go?", self.locations)
       place_to_go.travel_to(player)
-
-    #unhash this to make it never end
-    self.display_data(player)
+      self.display_data(player)
 
 from utilities import *

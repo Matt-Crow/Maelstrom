@@ -31,10 +31,10 @@ class Savefile:
       if line == " ":
         continue
       line = line.split("!")
-      dp(["Line.split:", line])
+      Dp.add(["Line.split:", line])
       for item in line:
         data = item.split()
-        dp(["Data.split:", data])
+        Dp.add(["Data.split:", data])
         if data[0] == "W":
           self.dict_file[name]["Weapon"] = [data[1], data[2], data[3], data[4], data[5]]
         elif data[0] == "P":
@@ -47,16 +47,18 @@ class Savefile:
           name = data[0]
           self.dict_file[name] = {"Stats": [], "Weapon": [], "Passives": []}
       	  self.dict_file[name]["Stats"] = [data[1], data[2], data[3], data[4]]
-    dp(["Dict file:", self.dict_file])
+    Dp.add(["Dict file:", self.dict_file])
+    Dp.dp()
   
   def upload_team(self):
     self.text_to_dict()
     members = []
     for name, data in self.dict_file.items():
-      dp(["Name:", name, "Data:", data])
+      Dp.add(["Name:", name, "Data:", data])
       members.append({"name": name, "level": int(data["Stats"][0])})
-    dp(["Members:", members])
+    Dp.add(["Members:", members])
     ret = Team("Player Team", members, False)
+    Dp.dp()
     
     for member in ret.team:
       for name, data in self.dict_file.items():
@@ -71,7 +73,7 @@ class Savefile:
   
   def update(self, team):
     self.text_to_dict()
-    dp(["Before:", self.dict_file])
+    Dp.add(["Before:", self.dict_file])
     
     change = {}
     for member in team.team:
@@ -79,8 +81,8 @@ class Savefile:
       change[member.name]["Stats"] = [str(member.level), str(member.level_set), str(member.XP), str(member.stars)]
       change[member.name]["Weapon"] = [(member.weapon.name), str(member.weapon.base_miss), str(member.weapon.base_crit), str(member.weapon.base_miss_mult), str(member.weapon.base_crit_mult)]
     self.dict_file = change
-    dp(["After:", self.dict_file])
-    
+    Dp.add(["After:", self.dict_file])
+    Dp.dp()
     file = open("player_data.txt", "w")
     new = " "
     for member, data in change.items():
@@ -204,7 +206,8 @@ class Threshhold(Passive):
   def check_trigger(self, user):
     if self.get_target(user).hp_perc() <= self.x:
       self.activate(user)
-    dp(["Current HP: " + str(self.get_target(user).hp_perc()), "Threshhold: " + str(self.x)])
+    Dp.add(["Current HP: " + str(self.get_target(user).hp_perc()), "Threshhold: " + str(self.x)])
+    Dp.dp()
   
   def display_data(self):
     Op.add(self.name + ":")
@@ -224,7 +227,8 @@ class Threshhold(Passive):
 class OnHit(Passive):
   def check_trigger(self, user):
     r = random.randint(1, 100)
-    dp(["Random: " + str(r), "Minimum: " + str(self.x)])
+    Dp.add(["Random: " + str(r), "Minimum: " + str(self.x)])
+    Dp.dp()
     if r <= self.x * 100:
       self.activate(user)
       
@@ -279,8 +283,8 @@ class Weapon:
     """
     rand = random.randint(1, 100)
     ret = 1.0
-    pr = ["rand in calc_MHC: " + str(rand), "Crit: " + str(100 - self.crit), "Miss: " + str(self.miss)]
-    dp(pr)
+    Dp.add(["rand in calc_MHC: " + str(rand), "Crit: " + str(100 - self.crit), "Miss: " + str(self.miss)])
+    Dp.dp()
     if rand <= self.miss:
       Op.add("A glancing blow!")
       ret = self.miss_mult
@@ -293,7 +297,8 @@ class Weapon:
       
   def give(self, team):
     team.arsenal.append(self)
-    dp(team.arsenal)
+    Dp.add(team.arsenal)
+    Dp.dp()
 
 # extend to Hero and Enemy
 class Character:
@@ -404,10 +409,13 @@ class Character:
     return float(self.HP_rem) / float(self.get_stat("HP"))
   
   def get_stat(self, stat):
+    ret = -1
     if stat not in self.stats:
-      return 0
-      dp("Stat not found: " + stat)
-    return int(self.stats[stat] * self.get_boost(stat))
+      Dp.add("Stat not found: " + stat)
+      Dp.dp()
+    else:
+      ret = int(self.stats[stat] * self.get_boost(stat))
+    return ret
   
   def display_data(self):
     """
@@ -458,15 +466,14 @@ class Character:
         if boost["duration"] != 0:
           new_boosts[stat].append({"potency": boost["potency"], "duration": boost["duration"] - 1})
     self.boosts = new_boosts
-    dbp = []
-    dbp.append(self.name + "'s boosts:")
+    Dp.add(self.name + "'s boosts:")
     for boost_type in self.boosts.keys():
-      dbp.append(boost_type + ": ")
+      Dp.add(boost_type + ": ")
       for boost in self.boosts[boost_type]:
-        dbp.append("-------------")
-        dbp.append("-Duration: " + str(boost["duration"]))
-        dbp.append("-Potency: " + str(boost["potency"]))
-    dp(dbp)
+        Dp.add("-------------")
+        Dp.add("-Duration: " + str(boost["duration"]))
+        Dp.add("-Potency: " + str(boost["potency"]))
+    Dp.dp()
   
   def heal(self, percent):
     """
@@ -515,7 +522,7 @@ class Character:
   def best_attack(self):
     best = None
     highest_dmg = 0
-    tb = ["----------"]
+    Dp.add("----------")
     for attack in self.attacks:
       if not attack.can_use(self):
         continue
@@ -523,9 +530,9 @@ class Character:
       if dmg > highest_dmg:
         best = attack
         highest_dmg = dmg
-      tb.append("Damge with " + attack.name + ": " + str(dmg))
-    tb.append("----------")
-    dp(tb)
+      Dp.add("Damge with " + attack.name + ": " + str(dmg))
+    Dp.add("----------")
+    Dp.dp()
     return best
   
   def what_attack(self):
@@ -585,7 +592,8 @@ class Character:
       choice = choose("What attack do you wish to use?", attack_options)
       
     else:
-      dp("AI is choosing attack...")
+      Dp.add("AI is choosing attack...")
+      Dp.dp()
       choice = self.what_attack()
     
     choice.use(self)
@@ -620,7 +628,8 @@ class Character:
   
   def take_DMG(self, attacker, attack_used):
     dmg = self.calc_DMG(attacker, attack_used)
-    dp([str(self.hp_perc() * 100) + "% HP: ", str(self.armor_threshhold() * 100) + " threshhold"])
+    Dp.add([str(self.hp_perc() * 100) + "% HP: ", str(self.armor_threshhold() * 100) + " threshhold"])
+    Dp.dp()
     if self.in_threshhold():
       Op.add(self.name + "'s armor protects him/her for damage!")
     
@@ -704,7 +713,8 @@ class Contract:
     self.poss = []
     comes_with = to_list(comes_with)
     if comes_with[0] == None:
-      dp("No set characters in contract.")
+      Dp.add("No set characters in contract.")
+      Dp.dp()
     else:
       for character in comes_with:
         self.poss.append(character)
@@ -915,12 +925,12 @@ class Team:
     for member in self.members_rem:
       if self.enemy.active.calc_DMG(member, member.best_attack()) * 0.75 >= self.enemy.active.HP_rem:
         can_ko.append(member)
-    dbp = []
-    for member in can_ko:
-      dbp.append(member.name)
     
-    dbp.append("can KO")
-    dp(dbp)
+    for member in can_ko:
+      Dp.dd(member.name)
+    
+    Dp.dd("can KO")
+    Dp.dp()
     
     """
     If one person can KO,
@@ -960,7 +970,8 @@ class Team:
     if not self.AI:
       switch_for = choose("Who do you want to bring in?", choices)
     else:
-      dp("AI is deciding...")
+      Dp.add("AI is deciding...")
+      Dp.dp()
       switch_for = self.who_switch()
     
     self.switch(switch_for)
@@ -993,9 +1004,10 @@ class Team:
       if len(choices) == 1:
         attack_switch = "Attack"
       else:
-        dp("AI is deciding if it should switch...")
+        Dp.add("AI is deciding if it should switch...")
         attack_switch = self.should_switch()
-        dp(attack_switch)
+        Dp.add(attack_switch)
+        Dp.dp()
       
     if attack_switch == "Switch":
       self.choose_switchin()

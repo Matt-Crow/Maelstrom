@@ -1,4 +1,4 @@
-debug = False
+debug = True
 
 def mod(num):
   """
@@ -9,14 +9,15 @@ def mod(num):
   return num
 
 def set_in_bounds(num, min, max):
+  ret = num
   if num < min:
-    dp(str(num) + " is too low")
-    return min
+    Dp.add(str(num) + " is too low")
+    ret = min
   elif num > max:
-    dp(str(num) + " is too high")
-    return max
-  else:
-    return num
+    Dp.add(str(num) + " is too high")
+    ret = max
+  Dp.dp()
+  return ret
 
 def choose(question, options):
   if len(options) == 1:
@@ -59,25 +60,31 @@ def to_list(change):
     r.append(change)
   return r
 
-class Op:
+class AbstractOutput:
+  """
+  This abstract class serves as a base
+  for the two output types:
+  normal and debug
+  """
+  msgs = []
+  
+  @classmethod
+  def add(op, msg):
+    msg = to_list(msg)
+    for line in msg:
+      op.msgs.append(line)
+  
+  @classmethod
+  def reset(op):
+    op.msgs = []
+
+class Op(AbstractOutput):
   """
   Op is used to output most of the program
   Use Op.add(msg) to add anything to its next
   bout of output. It will automatically convert
   msg into a list
   """
-  msgs = []
-  
-  @staticmethod
-  def add(msg):
-    msg = to_list(msg)
-    for line in msg:
-      Op.msgs.append(line)
-  
-  @staticmethod
-  def reset():
-    Op.msgs = []
-  
   @staticmethod
   def dp():
     print('\n')
@@ -85,17 +92,12 @@ class Op:
       print(str(msg))
     Op.reset()
 
-# debug print
-def dp(write):
-  if not debug:
-    return
-  list = []
-  if type(write) != type([0, 0, 0, 0]):
-    list.append(write)
-  else:
-    list = write
-  print " "
-  print("<*DEBUG*>")
-  for item in list:
-    print item
-  print " "
+class Dp(AbstractOutput):
+  @staticmethod
+  def dp():
+    if debug and len(Dp.msgs) is not 0:
+      print('\n')
+      print("<*DEBUG*>")
+      for msg in Dp.msgs:
+        print(str(msg))
+      Dp.reset()
