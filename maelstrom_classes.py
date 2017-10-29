@@ -171,8 +171,8 @@ class Attack:
         else:
           hit = best
       else:
-        hit = choose("Who do you wish to hit?", get_names_str(target_team.members_rem))
-      targets.append(target_team.get_member_by_name(hit))
+        hit = choose("Who do you wish to hit?", target_team.members_rem)
+      targets.append(hit)
       
     for warrior in targets:               
       warrior.take_DMG(user, self)
@@ -584,13 +584,6 @@ class Character:
     If you cannot KO...
     """
     return self.best_attack()
-
-  def get_attack_by_name(self, name):
-    ret = self.attacks[0]
-    for attack in self.attacks:
-      if attack.name == name:
-        ret = attack
-    return ret
     
   def choose_attack(self):
     """
@@ -602,7 +595,7 @@ class Character:
         if attack.can_use(self):
           attack_options.append(attack)
       
-      choice = self.get_attack_by_name(choose("What attack do you wish to use?", get_names_str(self.attacks)))
+      choice = choose("What attack do you wish to use?", self.attacks)
       
     else:
       Dp.add("AI is choosing attack...")
@@ -713,7 +706,7 @@ class Character:
     self.level_set = self.level_set + 1
     
   def unlock_passive(self, pas):
-    self.passives.append(choose("Choose a passive:", get_names_str(pas)))
+    self.passives.append(choose("Choose a passive:", pas))
 
 class Contract:
   def __init__(self, comes_with):
@@ -829,13 +822,6 @@ class Team:
       if team != self:
         return team
   
-  def get_member_by_name(name):
-    ret = self.members_rem[0]
-    for member in self.members_rem:
-      if member.name == name:
-        ret = member
-    return ret
-  
   # balance this later
   def xp_given(self):
     """
@@ -873,7 +859,7 @@ class Team:
     """
     self.active = self.use[0]
     if not self.AI:
-      self.active = choose("Who do you want to lead with?", get_names_str(self.use))
+      self.active = choose("Who do you want to lead with?", self.use)
       
   def switch(self, member):
     """
@@ -987,7 +973,7 @@ class Team:
         choices.append(member)
     
     if not self.AI:
-      switch_for = choose("Who do you want to bring in?", get_names_str(choices))
+      switch_for = choose("Who do you want to bring in?", choices)
     else:
       Dp.add("AI is deciding...")
       Dp.dp()
@@ -1153,7 +1139,7 @@ class Battle:
         roster.append(member)
       
       while num > 0:
-        add = choose("Select member to add:", get_names_str(roster))
+        add = choose("Select member to add:", roster)
         
         for member in team.team:
           if add == member:

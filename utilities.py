@@ -25,6 +25,7 @@ def choose(question, options):
   """
   # make sure options is a list
   options = to_list(options)
+  names = get_names_str(options)
   ret = options[0]
   """
   only bother asking if there 
@@ -34,7 +35,7 @@ def choose(question, options):
     # output their options
     Op.add(question)
     for num in range(0, len(options)):
-      Op.add(str(num + 1) + ": " + options[num])
+      Op.add(str(num + 1) + ": " + names[num])
     Op.dp()
     
     #get their input
@@ -57,10 +58,16 @@ def to_list(change):
   return r
 
 def get_names_str(list):
+  """
+  Makes sure all the elements
+  in the list are strings
+  """
   ret = []
   for object in list:
-    ret.append(object.name)
-  
+    if type(object) == type("string"):
+      ret.append(object)
+    else:
+      ret.append(object.name)
   return ret
 
 class Ip:
