@@ -19,34 +19,32 @@ def set_in_bounds(num, min, max):
   Dp.dp()
   return ret
 
-#still working on, convert to string elsewhere
 def choose(question, options):
-  ret = False
+  """
+  Returns a string
+  """
+  # make sure options is a list
   options = to_list(options)
-  if len(options) == 1:
-    ret = options[0]
-  else:
-    print(question)
+  ret = options[0]
+  """
+  only bother asking if there 
+  is more than one option
+  """
+  if len(options) != 1:
+    # output their options
+    Op.add(question)
+    for num in range(0, len(options)):
+      Op.add(str(num + 1) + ": " + options[num])
+    Op.dp()
     
-    for option in range(0, len(options)):
-      print(str(num + 1) + ": " + options[option])
-    
-    answered = False
-    
-    while not answered:
-      choice = raw_input(" ")
-      for option in options:
-        try:
-          compare = option.name.lower()
-        except:
-          compare = option.lower()
-        
-        if choice.lower() == compare:
-          return option
-        elif choice == str(options.index(option) + 1):
-          return option
-      print("That isn't an option...")
-
+    #get their input
+    Ip.askInt("Enter a number: ") # automatically checks for number
+    ret = options[set_in_bounds(Ip.getInt() - 1, 0, len(options) - 1)]
+    """
+    the -1 is because they will enter a number from 1 to len(options),
+    so I have to convert it to the corresponding index.
+    set_in_bounds will make any number work
+    """
   return ret
 
 def to_list(change):
@@ -58,6 +56,13 @@ def to_list(change):
     r.append(change)
   return r
 
+def get_names_str(list):
+  ret = []
+  for object in list:
+    ret.append(object.name)
+  
+  return ret
+
 class Ip:
   """
   Input
@@ -66,11 +71,11 @@ class Ip:
   ints = []
   
   @staticmethod
-  askStr(msg):
+  def askStr(msg):
     Ip.strings.append(raw_input(msg))
 
   @staticmethod
-  askInt(msg):
+  def askInt(msg):
     inp = " "
     works = False
     while not works:
@@ -83,14 +88,14 @@ class Ip:
     Ip.ints.append(inp)
   
   @staticmethod
-  getStr():
+  def getStr():
     ret = "ERROR"
     if len(Ip.strings) != 0:
       ret = Ip.strings.pop(0)
     return ret
   
   @staticmethod
-  getInt():
+  def getInt():
     ret = -1
     if len(Ip.ints) != 0:
       ret = Ip.ints.pop(0)

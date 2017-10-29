@@ -10,13 +10,19 @@ enemies = {}
 passives = []
 
 def load():
+  ret = Team("Test team", ({"name": "Alexandre", "level": 1}, 
+  {"name": "Rene", "level": 1}, 
+  {"name": "Ian", "level": 1}, 
+  {"name": "Viktor", "level": 1}), 
+  False)
+  
   should_load = choose("Do you want to load from a save file?", ("Yes", "No"))
   
   if should_load == "Yes":
     file = Savefile("player_data.txt")
-    return file.upload_team()
+    ret = file.upload_team()
     
-  return Team("Test team", ({"name": "Alexandre", "level": 1}, {"name": "Rene", "level": 1}, {"name": "Ian", "level": 1}, {"name": "Viktor", "level": 1}), False)
+  return ret
 
 # need to comment this
 # ARRRGGG work here
@@ -165,8 +171,8 @@ class Attack:
         else:
           hit = best
       else:
-        hit = choose("Who do you wish to hit?", target_team.members_rem)
-      targets.append(hit)
+        hit = choose("Who do you wish to hit?", get_names_str(target_team.members_rem))
+      targets.append(target_team.get_member_by_name(hit))
       
     for warrior in targets:               
       warrior.take_DMG(user, self)
@@ -578,7 +584,14 @@ class Character:
     If you cannot KO...
     """
     return self.best_attack()
-  
+
+  def get_attack_by_name(self, name):
+    ret = self.attacks[0]
+    for attack in self.attacks:
+      if attack.name == name:
+        ret = attack
+    return ret
+    
   def choose_attack(self):
     """
     How doth thee strike?
@@ -589,7 +602,7 @@ class Character:
         if attack.can_use(self):
           attack_options.append(attack)
       
-      choice = choose("What attack do you wish to use?", attack_options)
+      choice = self.get_attack_by_name(choose("What attack do you wish to use?", get_names_str(self.attacks)))
       
     else:
       Dp.add("AI is choosing attack...")
@@ -700,7 +713,7 @@ class Character:
     self.level_set = self.level_set + 1
     
   def unlock_passive(self, pas):
-    self.passives.append(choose("Choose a passive:", pas))
+    self.passives.append(choose("Choose a passive:", get_names_str(pas)))
 
 class Contract:
   def __init__(self, comes_with):
@@ -816,6 +829,13 @@ class Team:
       if team != self:
         return team
   
+  def get_member_by_name(name):
+    ret = self.members_rem[0]
+    for member in self.members_rem:
+      if member.name == name:
+        ret = member
+    return ret
+  
   # balance this later
   def xp_given(self):
     """
@@ -851,10 +871,9 @@ class Team:
     """
     Elect a leader
     """
-    if self.AI:
-      self.active = self.use[0]
-      return
-    self.active = choose("Who do you want to lead with?", self.use)
+    self.active = self.use[0]
+    if not self.AI:
+      self.active = choose("Who do you want to lead with?", get_names_str(self.use))
       
   def switch(self, member):
     """
@@ -968,7 +987,7 @@ class Team:
         choices.append(member)
     
     if not self.AI:
-      switch_for = choose("Who do you want to bring in?", choices)
+      switch_for = choose("Who do you want to bring in?", get_names_str(choices))
     else:
       Dp.add("AI is deciding...")
       Dp.dp()
@@ -1134,7 +1153,7 @@ class Battle:
         roster.append(member)
       
       while num > 0:
-        add = choose("Select member to add:", roster)
+        add = choose("Select member to add:", get_names_str(roster))
         
         for member in team.team:
           if add == member:
