@@ -19,37 +19,35 @@ def set_in_bounds(num, min, max):
   Dp.dp()
   return ret
 
+#still working on, convert to string elsewhere
 def choose(question, options):
+  ret = False
+  options = to_list(options)
   if len(options) == 1:
-    return options[0]
-  
-  print(question)
-  
-  num = 1
-  for option in options:
-    try:
-      name = option.name  
-    except:
-      name = option
+    ret = options[0]
+  else:
+    print(question)
     
-    print(str(num) + ": " + name)  
-    num += 1
-  
-  answered = False
-  
-  while not answered:
-    choice = raw_input(" ")
-    for option in options:
-      try:
-        compare = option.name.lower()
-      except:
-        compare = option.lower()
-      
-      if choice.lower() == compare:
-        return option
-      elif choice == str(options.index(option) + 1):
-        return option
-    print("That isn't an option...")
+    for option in range(0, len(options)):
+      print(str(num + 1) + ": " + options[option])
+    
+    answered = False
+    
+    while not answered:
+      choice = raw_input(" ")
+      for option in options:
+        try:
+          compare = option.name.lower()
+        except:
+          compare = option.lower()
+        
+        if choice.lower() == compare:
+          return option
+        elif choice == str(options.index(option) + 1):
+          return option
+      print("That isn't an option...")
+
+  return ret
 
 def to_list(change):
   r = []
@@ -59,6 +57,44 @@ def to_list(change):
   else:
     r.append(change)
   return r
+
+class Ip:
+  """
+  Input
+  """
+  strings = []
+  ints = []
+  
+  @staticmethod
+  askStr(msg):
+    Ip.strings.append(raw_input(msg))
+
+  @staticmethod
+  askInt(msg):
+    inp = " "
+    works = False
+    while not works:
+      inp = raw_input(msg)
+      try:
+        inp = int(float(inp))
+        works = True
+      except:
+        print("Invalid input: Enter an integer:") #avoid clashing with Op
+    Ip.ints.append(inp)
+  
+  @staticmethod
+  getStr():
+    ret = "ERROR"
+    if len(Ip.strings) != 0:
+      ret = Ip.strings.pop(0)
+    return ret
+  
+  @staticmethod
+  getInt():
+    ret = -1
+    if len(Ip.ints) != 0:
+      ret = Ip.ints.pop(0)
+    return ret
 
 class AbstractOutput:
   """
