@@ -11,7 +11,6 @@ class Story:
     for script in self.story:
       Op.add(script)
       Op.dp()
-      go = raw_input("Press enter/return to continue")
 
 class Location:
   def __init__(self, name, desc, script):

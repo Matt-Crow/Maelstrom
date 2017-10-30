@@ -70,6 +70,9 @@ def get_names_str(list):
       ret.append(object.name)
   return ret
 
+def pause():
+  raw_input("Press enter/return to continue")
+
 class Ip:
   """
   Input
@@ -139,6 +142,7 @@ class Op(AbstractOutput):
     for msg in Op.msgs:
       print(str(msg))
     Op.reset()
+    pause()
 
 class Dp(AbstractOutput):
   @staticmethod
@@ -149,3 +153,4 @@ class Dp(AbstractOutput):
       for msg in Dp.msgs:
         print(str(msg))
       Dp.reset()
+      pause()

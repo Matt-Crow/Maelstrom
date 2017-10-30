@@ -646,7 +646,6 @@ class Character:
     Op.dp()
     self.direct_dmg(dmg)
     self.gain_energy(3)
-    cont = raw_input("Press enter/return to continue")
   
   def check_if_burned(self, attacker):
     r = random.randint(1, 255)
