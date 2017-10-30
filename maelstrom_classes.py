@@ -882,7 +882,7 @@ class Team:
     Show info for a team
     """
     Op.add(self.name)
-    Op.dp()
+    Op.dp(False)
     for member in self.team:
       member.display_data()
     
@@ -1119,7 +1119,7 @@ class Battle:
     
     for member in self.teams[0].use:
       Op.add("* " + member.name + " LV " + str(member.level) + " " + member.element)
-    Op.dp()
+    Op.dp(False)
   
   def load_team(self, team):
     """
@@ -1130,7 +1130,7 @@ class Battle:
     
     if len(team.team) > self.team_size:
       Op.add("Select which " + str(self.team_size) + " members you wish to use:")
-      Op.dp()
+      Op.dp(False)
       num = self.team_size
       team.use = []
       roster = []

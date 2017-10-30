@@ -1,4 +1,4 @@
-debug = True
+debug = False
 
 def mod(num):
   """
@@ -11,12 +11,9 @@ def mod(num):
 def set_in_bounds(num, min, max):
   ret = num
   if num < min:
-    Dp.add(str(num) + " is too low")
     ret = min
   elif num > max:
-    Dp.add(str(num) + " is too high")
     ret = max
-  Dp.dp()
   return ret
 
 def choose(question, options):
@@ -36,7 +33,7 @@ def choose(question, options):
     Op.add(question)
     for num in range(0, len(options)):
       Op.add(str(num + 1) + ": " + names[num])
-    Op.dp()
+    Op.dp(False)
     
     #get their input
     Ip.askInt("Enter a number: ") # automatically checks for number
@@ -137,12 +134,13 @@ class Op(AbstractOutput):
   msg into a list
   """
   @staticmethod
-  def dp():
+  def dp(p = True):
     print('\n')
     for msg in Op.msgs:
       print(str(msg))
     Op.reset()
-    pause()
+    if p:
+      pause()
 
 class Dp(AbstractOutput):
   @staticmethod

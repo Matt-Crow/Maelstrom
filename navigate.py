@@ -20,7 +20,7 @@ class Location:
     
   def display_data(self):
     Op.add([self.name, self.description])
-    Op.dp()
+    Op.dp(False)
   
   def travel_to(self, player):
     self.script.print_story()
@@ -53,7 +53,7 @@ class Area:
         
   def display_data(self, player):
     Op.add([self.name, self.description])
-    Op.dp()
+    Op.dp(False)
     for loc in self.locations:
       loc.display_data()
     for level in self.levels:
