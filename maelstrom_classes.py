@@ -8,6 +8,8 @@ import random
 characters = {}
 enemies = {}
 passives = []
+elements = ["lightning", "rain", "hail", "wind"]
+
 
 def load():
   ret = Team("Test team", ({"name": "Alexandre", "level": 1}, 
@@ -106,84 +108,67 @@ class Savefile:
     file.write(new)
     file.close()
 
-class Attack:
+# TODO: add hit principle to damage, add side effects
+class AbstractAttack:
   """
   The regular attacks all characters can use
   as well as characters' exclusive Specials
   """
-  def __init__(self, name, damage_multiplier, target, side_effect, energy_cost = 0):
+  def __init__(self, name, energy_cost = 0):
     """
-    Copy-paste: 
-    name, damage_multiplier, (ally_or_enemy, act_any_all), (eff, eff_LV, eff_dur)  
     """
     self.name = name
-    self.mult = float(damage_multiplier)
-    self.ally_or_enemy = target[0]
-    self.act_any_all = target[1]
-    self.eff = side_effect[0]
-    self.eff_LV = side_effect[1]
-    self.eff_dur = side_effect[2]
+    
+    # change this
+    self.damages = {"physical":10}
+    for element in elements:
+      self.damages[element] = 2
+      
     self.energy_cost = energy_cost   
   
   def can_use(self, user):
     return user.energy >= self.energy_cost
       
   def use(self, user):
-    """
-    Use your attack
-    """
-    
-    if self.ally_or_enemy == "ally":
-      target_team = user.team
-    
-    elif self.ally_or_enemy == "enemy":
-      target_team = user.team.enemy
-    
-    targets = []
-    
-    if self.act_any_all == "act":
-      targets.append(target_team.active)
-    
-    elif self.act_any_all == "all":
-      for member in target_team.members_rem:
-        targets.append(member)
-    
-    elif self.act_any_all == "any":
-      if user.team.AI:
-        highest = 0
-        best = None
-        options = []
-        if user.team.switched_in:
-          m = 0.75
-        else:
-          m = 1.0
-        
-        for member in target_team.members_rem:
-          damage = member.calc_DMG(user, self) * m
-          if damage >= member.HP_rem:
-            options.append(member)
-          if damage >= highest:
-            highest = damage
-            best = member
-        
-        if len(options) >= 1:
-          hit = target_team.members_rem[random.randint(0, len(options) - 1)]
-        else:
-          hit = best
-      else:
-        hit = choose("Who do you wish to hit?", target_team.members_rem)
-      targets.append(hit)
-      
-    for warrior in targets:               
-      warrior.take_DMG(user, self)
-      if self.eff != 0:
-        warrior.boost(self.eff, self.eff_LV, self.eff_dur)
-      if self.energy_cost == 0:
-        warrior.check_if_burned(user)
-    
     user.lose_energy(self.energy_cost)
-    if self.energy_cost == 0:
-      user.gain_energy(3)
+
+class ActAttack(AbstractAttack):
+  def use(self, user):
+    user.team.enemy.active.take_DMG(user, self)
+    super(type(self), self).use(self, user)
+
+class AllAttack(AbstractAttack):
+  def use(self, user):
+    for member in user.team.enemy.members_rem:
+      member.take_DMG(user, self)
+    super(type(self), self).use(self, user)
+
+class AnyAttack(AbstractAttack):
+  def use(self, user):  
+    if user.team.AI:
+      highest = 0
+      best = None
+      options = []
+      if user.team.switched_in:
+        m = 0.75
+      else:
+        m = 1.0
+      
+      for member in user.team.enemy.members_rem:
+        damage = member.calc_DMG(user, self) * m
+        if damage >= member.HP_rem:
+          options.append(member)
+        if damage >= highest:
+          highest = damage
+          best = member
+      
+      if len(options) >= 1:
+        target_team.members_rem[random.randint(0, len(options) - 1)].take_DMG(user, self)
+      else:
+        best.take_DMG(user, self)
+    else:
+      choose("Who do you wish to hit?", target_team.members_rem).take_DMG(user, self)
+    super(type(self), self).use(self, user)
 
 # working here
 # not fully implemented
@@ -557,12 +542,12 @@ class Character:
     """
     
     for attack in self.attacks:
-      if not attack.can_use(self) or not attack.act_any_all == "all":
+      if not attack.can_use(self) or not type(attack) == type(AllAttack("test")):
         continue
       
       koes = 0
-      for member in self.enemy.members_rem:
-        if member.calc_DMG(self.active, attack) * sw >= member.HP_rem:
+      for member in self.team.enemy.members_rem:
+        if member.calc_DMG(self, attack) * sw >= member.HP_rem:
           koes += 1
       if koes >= 2:
         return attack
@@ -622,7 +607,11 @@ class Character:
     return 1.0 - float(self.get_stat("RES")) / 255
   
   def calc_DMG(self, attacker, attack_used):
-    damage = attacker.get_stat("STR") * attack_used.mult
+    damage = 0
+    for damage_type, value in attack_used.damages.items():
+      #do calcs
+      damage += value
+    damage *= float(attacker.get_stat("STR")) / self.get_stat("RES")
     
     if self.in_threshhold():
       damage *= self.reduction()
@@ -641,7 +630,7 @@ class Character:
     
     dmg = dmg * self.weapon.calc_MHC()
     Op.add(attacker.name + " struck " + self.name)
-    Op.add(" for " + str(int(dmg)) + " damage")
+    Op.add("for " + str(int(dmg)) + " damage")
     Op.add("using " + attack_used.name + "!")
     Op.dp()
     self.direct_dmg(dmg)
@@ -1221,9 +1210,9 @@ class Battle:
 no_eff = (0, 0, 0)
 act_ene = ("enemy", "act")
         
-slash = Attack("slash", 1.0, act_ene, no_eff)
-jab = Attack("jab", 0.85, act_ene, no_eff)
-slam = Attack("slam", 1.3, act_ene, no_eff)
+slash = ActAttack("slash")
+jab = ActAttack("jab")
+slam = ActAttack("slam")
 
 attacks = (slash, jab, slam)
 
