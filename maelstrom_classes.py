@@ -8,7 +8,7 @@ import random
 characters = {}
 enemies = {}
 passives = []
-elements = ["lightning", "rain", "hail", "wind"]
+ELEMENTS = ["lightning", "rain", "hail", "wind"]
 
 
 def load():
@@ -28,7 +28,7 @@ def load():
 
 # need to comment this
 # ARRRGGG work here
-class Savefile:
+class Savefile(object):
   def __init__(self, file):
     self.file = file
   
@@ -109,7 +109,7 @@ class Savefile:
     file.close()
 
 # TODO: add hit principle to damage, add side effects
-class AbstractAttack:
+class AbstractAttack(object):
   """
   The regular attacks all characters can use
   as well as characters' exclusive Specials
@@ -119,12 +119,23 @@ class AbstractAttack:
     """
     self.name = name
     
-    # change this
-    self.damages = {"physical":10}
-    for element in elements:
-      self.damages[element] = 2
+    self.damages = {}
+    self.damage_distribution = {"physical":4}
+    for element in ELEMENTS:
+      self.damage_distribution[element] = 1
+    
+    self.distribute_damage()
       
     self.energy_cost = energy_cost   
+  
+  def distribute_damage(self):
+    total = 16.0 #redo with HPrince
+    split_between = 0
+    self.damages = {}
+    for value in self.damage_distribution.values():
+      split_between += value
+    for type, value in self.damage_distribution.items():
+      self.damages[type] = total / split_between * value
   
   def can_use(self, user):
     return user.energy >= self.energy_cost
@@ -135,13 +146,13 @@ class AbstractAttack:
 class ActAttack(AbstractAttack):
   def use(self, user):
     user.team.enemy.active.take_DMG(user, self)
-    super(type(self), self).use(self, user)
+    super(type(self), self).use(user)
 
 class AllAttack(AbstractAttack):
   def use(self, user):
     for member in user.team.enemy.members_rem:
       member.take_DMG(user, self)
-    super(type(self), self).use(self, user)
+    super(type(self), self).use(user)
 
 class AnyAttack(AbstractAttack):
   def use(self, user):  
@@ -168,11 +179,11 @@ class AnyAttack(AbstractAttack):
         best.take_DMG(user, self)
     else:
       choose("Who do you wish to hit?", target_team.members_rem).take_DMG(user, self)
-    super(type(self), self).use(self, user)
+    super(type(self), self).use(user)
 
 # working here
 # not fully implemented
-class Passive:
+class Passive(object):
   def __init__(self, name, type, x, self_target, stat, potency, duration):
     self.name = name
     # move this?
@@ -292,7 +303,7 @@ class Weapon:
     Dp.dp()
 
 # extend to Hero and Enemy
-class Character:
+class Character(object):
   """
   A Class containing all the info for a character
   """
@@ -696,7 +707,7 @@ class Character:
   def unlock_passive(self, pas):
     self.passives.append(choose("Choose a passive:", pas))
 
-class Contract:
+class Contract(object):
   def __init__(self, comes_with):
     """
     A contract is used to hire a
@@ -761,7 +772,7 @@ class Contract:
     return {"name": self.poss[len(new) - 1], "level": 1}
 
 # extend to player and enemy teams
-class Team:
+class Team(object):
   """
   Teams are used to group characters
   together so that the program knows
@@ -1034,7 +1045,7 @@ class Team:
         member.update_boosts()
       self.choose_action()
 
-class Weather:
+class Weather(object):
   """
   This is what makes Maelstrom unique!
   Weather provides in-battle effects
@@ -1082,7 +1093,7 @@ class Weather:
     Op.add(self.msg)
     Op.dp()
 
-class Battle:
+class Battle(object):
   """
   The Battle class pits 2 teams
   against eachother, 
