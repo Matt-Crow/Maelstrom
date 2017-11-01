@@ -126,7 +126,7 @@ class AbstractAttack(object):
     
     self.distribute_damage()
       
-    self.energy_cost = energy_cost   
+    self.energy_cost = energy_cost  
   
   def distribute_damage(self):
     total = 16.0 #redo with HPrince
@@ -336,6 +336,13 @@ class Character(object):
     self.weapon = Weapon("Default", 0, 0, 0, 0)
     self.passives = [Threshhold("Test", "Threshhold", 0.5, "user", "STR", 0.2, 1), OnHit("Test", "OnHit", 0.5, "enemy", "STR", -0.2, 3)]
     
+    self.base_dmg_mults = {"physical":1.0}
+    self.base_dmg_reductions = {"physical":0.0}
+    for element in ELEMENTS:
+      self.base_dmg_mults[element] = 1.0
+      self.base_dmg_reductions[element] = 0.0
+    self.calc_dmg_modifiers()
+    
   def calc_stats(self):
     """
     Calculate a character's stats
@@ -375,6 +382,16 @@ class Character(object):
     self.stats["STR"] = base_str * (1 + self.level * 0.2) 
     self.stats["CON"] = base_con * (1 + self.level * 0.2) 
   
+  # move to stats. Stat class? store boosts, base, calculated?
+  def calc_dmg_modifiers(self):
+    self.dmg_mults = {}
+    self.dmg_reductions = {}
+    
+    for type, value in self.base_dmg_mults.items():
+      self.dmg_mults[type] = value
+    for type, value in self.base_dmg_reductions.items():
+      self.dmg_reductions[type] = value
+  
   def reset_boosts(self):
     """
     Set your 
@@ -387,9 +404,10 @@ class Character(object):
     """
     Prepare for battle!
     """
-    self.calc_stats()
-    self.HP_rem = self.get_stat("HP")
     self.reset_boosts()
+    self.calc_stats()
+    self.calc_dmg_modifiers()
+    self.HP_rem = self.get_stat("HP")
     self.energy = 0
     self.burn = [0, 0]
   
@@ -418,6 +436,31 @@ class Character(object):
     else:
       ret = int(self.stats[stat] * self.get_boost(stat))
     return ret
+  
+  # move to stats
+  def get_dmg_mult(self, stat):
+    ret = -1
+    for type, value in self.dmg_mults.items():
+      if type == stat:
+        ret = value
+    
+    if ret == -1:
+      Dp.add("Stat not found: " + stat)
+      Dp.dp()
+    
+    return ret
+  
+  def get_dmg_reduction(self, stat):
+    ret = -1
+    for type, value in self.dmg_reductions.items():
+      if type == stat:
+        ret = value
+    
+    if ret == -1:
+      Dp.add("Stat not found: " + stat)
+      Dp.dp()
+    
+    return ret    
   
   def display_data(self):
     """
@@ -591,7 +634,7 @@ class Character(object):
         if attack.can_use(self):
           attack_options.append(attack)
       
-      choice = choose("What attack do you wish to use?", self.attacks)
+      choice = choose("What attack do you wish to use?", attack_options)
       
     else:
       Dp.add("AI is choosing attack...")
@@ -620,8 +663,7 @@ class Character(object):
   def calc_DMG(self, attacker, attack_used):
     damage = 0
     for damage_type, value in attack_used.damages.items():
-      #do calcs
-      damage += value
+      damage += value * (attacker.get_dmg_mult(damage_type) - self.get_dmg_reduction(damage_type))
     damage *= float(attacker.get_stat("STR")) / self.get_stat("RES")
     
     if self.in_threshhold():
