@@ -309,14 +309,16 @@ class Stat(object):
   making it easier to keep 
   track of values
   """
-  def __init__(self, name, base):
+  def __init__(self, name, base, enable_leveling = False):
     self.name = name
     self.base_value = float(base)
     self.boosts = []
     self.value = float(base)
+    self.can_level_up = enable_leveling
   
   def calc(level):
-    self.value = self.base_value * 0.2 * level
+    l = self.can_level_up ? level : 0
+    self.value = self.base_value * (1 + 0.2 * l)
   
   def boost(id, amount, duration):
     self.boosts.append({"id":id, "amount":amount, "duration":duration})
@@ -326,6 +328,9 @@ class Stat(object):
     for boost in self.boosts:
       mult += boost["amount"]
     return self.value * mult
+  
+  def reset_boosts():
+    self.boosts = []
   
   def update():
     new_boosts = []
@@ -349,7 +354,6 @@ class Character(object):
   
   def __init__(self, name, level):
     """
-    base stats: (def ratio, res ratio, con ratio)
     """
     self.name = name
     if name in characters:
@@ -357,8 +361,27 @@ class Character(object):
     elif name in enemies:
       data = enemies[name]
     else:
-      data = ((0, 0, 0), "stone", None)
-    self.base_stats = data[0]
+      data = ((0, 0, 0, 0, 0), "stone", None)
+    
+    self.stats = []
+    
+    stat_names = ["CON", "RES", "POT", "LUK", "ENE"]
+    
+    stat_num = 0
+    while stat_num < 5:
+      # a bit convoluted
+      self.stats.append(Stat(stat_names[stat_num], 20 + set_in_bounds(data[0], -5, 5), True))
+      stat_num += 1
+    self.stats.append(Stat("Physical damage multiplier", 1.0))
+    
+    # this will need to change, always 0
+    self.stats.append(Stat("Physical damage reduction", 0.0))
+    
+    for element in ELEMENTS:
+      self.stats.append(Stat(element + " damage multiplier", 1.0))
+      # same here
+      self.stats.append(Stat(element + " damage reduction", 0.0))
+    
     self.element = data[1]
     self.special = data[2]
     self.level = level
@@ -368,82 +391,25 @@ class Character(object):
     self.attacks = [slash, jab, slam]
     self.attacks.append(data[2])
     self.weapon = Weapon("Default", 0, 0, 0, 0)
-    self.passives = [Threshhold("Test", "Threshhold", 0.5, "user", "STR", 0.2, 1), OnHit("Test", "OnHit", 0.5, "enemy", "STR", -0.2, 3)]
-    
-    self.base_dmg_mults = {"physical":1.0}
-    self.base_dmg_reductions = {"physical":0.0}
-    for element in ELEMENTS:
-      self.base_dmg_mults[element] = 1.0
-      self.base_dmg_reductions[element] = 0.0
-    self.calc_dmg_modifiers()
-    
+    self.passives = [Threshhold("Test", "Threshhold", 0.5, "user", "CON", 0.2, 1), OnHit("Test", "OnHit", 0.5, "enemy", "CON", -0.2, 3)]
+  
   def calc_stats(self):
     """
     Calculate a character's stats
     """
-    s = []
-    for stat in self.base_stats:
-      s.append(stat)
-    stat_num = 0
-    while stat_num < len(s):
-      s[stat_num] = set_in_bounds(s[stat_num], -5, 5)
-      stat_num += 1
-    
-    def_mult = 1.0 + s[0] * 0.15
-    off_mult = 1.0 - s[0] * 0.15
-    
-    base_HP = def_mult * 100
-    
-    RESRAT = 0.5 + s[1] * 0.05
-    HPRAT = 1.0 - RESRAT
-    
-    # default is 0.5, so 20 base
-    base_res = RESRAT * def_mult * 40
-    base_hp = HPRAT * def_mult * 40
-    
-    # offensive stats
-    CONRAT = 0.5 + s[2] * 0.05
-    STRRAT = 1.0 - CONRAT
-     
-    # once again, default is 0.5
-    base_con = CONRAT * off_mult * 40
-    base_str = STRRAT * off_mult * 40
-    
-    self.stats = dict()
-        
-    self.stats["HP"] = base_HP * (1 + self.level * 0.1)
-    self.stats["RES"] = base_res * (1 + self.level * 0.2) 
-    self.stats["STR"] = base_str * (1 + self.level * 0.2) 
-    self.stats["CON"] = base_con * (1 + self.level * 0.2) 
-  
-  # move to stats. Stat class? store boosts, base, calculated?
-  def calc_dmg_modifiers(self):
-    self.dmg_mults = {}
-    self.dmg_reductions = {}
-    
-    for type, value in self.base_dmg_mults.items():
-      self.dmg_mults[type] = value
-    for type, value in self.base_dmg_reductions.items():
-      self.dmg_reductions[type] = value
-  
-  def reset_boosts(self):
-    """
-    Set your 
-    boosts 
-    as a dict
-    """
-    self.boosts = {"CON": [], "STR": [], "RES": []}
+    for stat in self.stats:
+      stat.calc(self.level)
   
   def init_for_battle(self):
     """
     Prepare for battle!
     """
-    self.reset_boosts()
+    for stat in self.stats:
+      stat.reset_boosts()
     self.calc_stats()
     self.calc_dmg_modifiers()
-    self.HP_rem = self.get_stat("HP")
+    self.HP_rem = 100
     self.energy = 0
-    self.burn = [0, 0]
   
   def equip(self, weapon):
     self.weapon = weapon
@@ -722,18 +688,6 @@ class Character(object):
     Op.dp()
     self.direct_dmg(dmg)
     self.gain_energy(3)
-  
-  def check_if_burned(self, attacker):
-    r = random.randint(1, 255)
-    if r <= attacker.get_stat("CON"):
-      self.burn = [attacker.get_stat("CON") / 5, 3]
-  
-  def update_burn(self):
-    if self.burn[1] == 0:
-      return False
-    self.direct_dmg(self.burn[0])
-    self.burn[1] -= 1
-    print(self.name + " took " + str(int(self.burn[0])) + " damage from his/her Elemental Burn!")
   
   def check_if_KOed(self):
     """
