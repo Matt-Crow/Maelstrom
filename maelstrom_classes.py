@@ -250,7 +250,7 @@ class OnHit(Passive):
     
     Op.dp()
 
-class Weapon:
+class Weapon(object):
   """
   """
   def __init__(self, name, miss, crit, miss_m, crit_m):
@@ -301,6 +301,40 @@ class Weapon:
     team.arsenal.append(self)
     Dp.add(team.arsenal)
     Dp.dp()
+
+class Stat(object):
+  """
+  A class used to store
+  information about a stat,
+  making it easier to keep 
+  track of values
+  """
+  def __init__(self, name, base):
+    self.name = name
+    self.base_value = float(base)
+    self.boosts = []
+    self.value = float(base)
+  
+  def calc(level):
+    self.value = self.base_value * 0.2 * level
+  
+  def boost(id, amount, duration):
+    self.boosts.append({"id":id, "amount":amount, "duration":duration})
+  
+  def get():
+    mult = 1.0
+    for boost in self.boosts:
+      mult += boost["amount"]
+    return self.value * mult
+  
+  def update():
+    new_boosts = []
+    for boost in self.boosts:
+      boost["duration"] -= 1
+      if boost["duration"] > 0:
+        new_boosts.append(boost)
+    self.boosts = new_boosts
+
 
 # extend to Hero and Enemy
 class Character(object):
