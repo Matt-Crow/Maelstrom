@@ -302,6 +302,7 @@ class Weapon(object):
     Dp.add(team.arsenal)
     Dp.dp()
 
+# display data?
 class Stat(object):
   """
   A class used to store
@@ -316,23 +317,24 @@ class Stat(object):
     self.value = float(base)
     self.can_level_up = enable_leveling
   
-  def calc(level):
-    l = self.can_level_up ? level : 0
-    self.value = self.base_value * (1 + 0.2 * l)
+  def calc(self, level):
+    if not self.can_level_up:
+      level = 0
+    self.value = self.base_value * (1 + 0.2 * level)
   
-  def boost(id, amount, duration):
+  def boost(self, id, amount, duration):
     self.boosts.append({"id":id, "amount":amount, "duration":duration})
   
-  def get():
+  def get(self):
     mult = 1.0
     for boost in self.boosts:
       mult += boost["amount"]
     return self.value * mult
   
-  def reset_boosts():
+  def reset_boosts(self):
     self.boosts = []
   
-  def update():
+  def update(self):
     new_boosts = []
     for boost in self.boosts:
       boost["duration"] -= 1
@@ -367,10 +369,12 @@ class Character(object):
     
     stat_names = ["CON", "RES", "POT", "LUK", "ENE"]
     
+    self.stats.append(Stat("HP", 100))
+    
     stat_num = 0
     while stat_num < 5:
       # a bit convoluted
-      self.stats.append(Stat(stat_names[stat_num], 20 + set_in_bounds(data[0], -5, 5), True))
+      self.stats.append(Stat(stat_names[stat_num], 20 + set_in_bounds(data[0][stat_num], -5, 5), True))
       stat_num += 1
     self.stats.append(Stat("Physical damage multiplier", 1.0))
     
@@ -400,6 +404,7 @@ class Character(object):
     for stat in self.stats:
       stat.calc(self.level)
   
+  # HP defined here
   def init_for_battle(self):
     """
     Prepare for battle!
@@ -407,8 +412,7 @@ class Character(object):
     for stat in self.stats:
       stat.reset_boosts()
     self.calc_stats()
-    self.calc_dmg_modifiers()
-    self.HP_rem = 100
+    self.HP_rem = self.get_stat("HP")
     self.energy = 0
   
   def equip(self, weapon):
@@ -428,39 +432,23 @@ class Character(object):
   def hp_perc(self):
     return float(self.HP_rem) / float(self.get_stat("HP"))
   
-  def get_stat(self, stat):
+  def get_stat(self, name):
+    """
+    Returns the calculated
+    value of a given stat.
+    If it is not found,
+    notify Dp, and return -1
+    """
     ret = -1
-    if stat not in self.stats:
-      Dp.add("Stat not found: " + stat)
-      Dp.dp()
-    else:
-      ret = int(self.stats[stat] * self.get_boost(stat))
-    return ret
-  
-  # move to stats
-  def get_dmg_mult(self, stat):
-    ret = -1
-    for type, value in self.dmg_mults.items():
-      if type == stat:
-        ret = value
+    for stat in self.stats:
+      if stat.name == name:
+        ret = stat.get()
     
     if ret == -1:
-      Dp.add("Stat not found: " + stat)
+      Dp.add("Stat not found: " + name)
       Dp.dp()
     
     return ret
-  
-  def get_dmg_reduction(self, stat):
-    ret = -1
-    for type, value in self.dmg_reductions.items():
-      if type == stat:
-        ret = value
-    
-    if ret == -1:
-      Dp.add("Stat not found: " + stat)
-      Dp.dp()
-    
-    return ret    
   
   def display_data(self):
     """
@@ -469,14 +457,14 @@ class Character(object):
     self.calc_stats()
     Op.add("Lv. " + str(self.level) + " " + self.name)
     Op.add(self.element)
-    Op.add("HP: " + str(int(self.stats["HP"])))
-    Op.add("STR:" + str(int(self.stats["STR"])))
-    Op.add("CON:" + str(int(self.stats["CON"])))
-    Op.add("RES:" + str(int(self.stats["RES"])))
+    
+    for stat in self.stats:
+      Op.add(stat.name + ": " + str(stat.value))
+    
     for attack in self.attacks:
       Op.add("-" + attack.name)
     Op.add(str(self.XP) + "/" + str(self.level * 10))
-    Op.dp()
+    Op.dp(False)
     self.weapon.display_data()
     for passive in self.passives:
       passive.display_data()
@@ -485,40 +473,13 @@ class Character(object):
   Battle functions:
   Used during battle
   """
-  def boost(self, stat, amount, duration):
+  def boost(self, name, amount, duration, id = " "):
     """
     Increase or lower stats in battle
     """
-    self.boosts[stat].append({"potency": amount, "duration": duration})
-  
-  def get_boost(self, stat):
-    """
-    Returns stat boost
-    """
-    ret = 1
-    try:
-      for boost in self.boosts[stat]:
-        ret += boost["potency"]
-    except:
-      pass
-    return ret
-  
-  def update_boosts(self):
-    new_boosts = dict()
-    for stat in self.boosts.keys():
-      new_boosts[stat] = []
-      for boost in self.boosts[stat]:
-        if boost["duration"] != 0:
-          new_boosts[stat].append({"potency": boost["potency"], "duration": boost["duration"] - 1})
-    self.boosts = new_boosts
-    Dp.add(self.name + "'s boosts:")
-    for boost_type in self.boosts.keys():
-      Dp.add(boost_type + ": ")
-      for boost in self.boosts[boost_type]:
-        Dp.add("-------------")
-        Dp.add("-Duration: " + str(boost["duration"]))
-        Dp.add("-Potency: " + str(boost["potency"]))
-    Dp.dp()
+    for stat in self.stats:
+      if stat.name == name:
+        stat.boost(id, amount, duration)
   
   def heal(self, percent):
     """
@@ -560,6 +521,10 @@ class Character(object):
     self.energy = self.energy - amount
     if self.energy < 0:
       self.energy = 0
+  
+  def update(self):
+    for stat in self.stats:
+      stat.update()
   
   """
   AI stuff
@@ -650,38 +615,21 @@ class Character(object):
   """
   Damage calculation
   """
-  
-  def armor_threshhold(self):
-    return (255.0 - self.get_stat("RES")) / 255.0
-  
-  def in_threshhold(self):
-    return self.hp_perc() >= self.armor_threshhold()
-  
-  def reduction(self):
-    return 1.0 - float(self.get_stat("RES")) / 255
-  
   def calc_DMG(self, attacker, attack_used):
     damage = 0
     for damage_type, value in attack_used.damages.items():
-      damage += value * (attacker.get_dmg_mult(damage_type) - self.get_dmg_reduction(damage_type))
-    damage *= float(attacker.get_stat("STR")) / self.get_stat("RES")
-    
-    if self.in_threshhold():
-      damage *= self.reduction()
+      damage += value * (attacker.get_stat(damage_type + " damage multiplier") - self.get_stat(damage_type + " damage reduction"))
+    damage *= float(attacker.get_stat("CON")) / self.get_stat("RES")
     
     if attacker.team.switched_in:
       damage = damage * 0.75
       
-    return int(damage)
+    return damage
   
   def take_DMG(self, attacker, attack_used):
     dmg = self.calc_DMG(attacker, attack_used)
-    Dp.add([str(self.hp_perc() * 100) + "% HP: ", str(self.armor_threshhold() * 100) + " threshhold"])
-    Dp.dp()
-    if self.in_threshhold():
-      Op.add(self.name + "'s armor protects him/her for damage!")
     
-    dmg = dmg * self.weapon.calc_MHC()
+    dmg = dmg * attacker.weapon.calc_MHC()
     Op.add(attacker.name + " struck " + self.name)
     Op.add("for " + str(int(dmg)) + " damage")
     Op.add("using " + attack_used.name + "!")
@@ -902,7 +850,6 @@ class Team(object):
     """
     self.members_rem = []
     for member in self.use:
-      member.calc_stats()
       member.init_for_battle()
       self.members_rem.append(member)
     self.init_active()
@@ -1055,9 +1002,9 @@ class Team(object):
     """
     new_members_rem = []
     for member in self.members_rem:
-      member.update_burn()
       if not member.check_if_KOed():
         new_members_rem.append(member)
+        member.update()
       else:
         Op.add(member.name + " is out of the game!")
         Op.dp()
@@ -1072,7 +1019,6 @@ class Team(object):
         for passive in member.passives:
           if passive.type == "Threshhold":
             passive.check_trigger(member)
-        member.update_boosts()
       self.choose_action()
 
 class Weather(object):
