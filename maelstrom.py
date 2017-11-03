@@ -57,12 +57,10 @@ weathers = (
   )
 
 passives = (
-  Threshhold("THSTR", "Threshhold", 0.2, "user", "STR", 0.2, 1),
-  Threshhold("THCON", "Threshhold", 0.2, "user", "CON", 0.2, 1),
-  Threshhold("THRES", "Threshhold", 0.2, "user", "RES", 0.2, 1),
-  OnHit("OHSTR", "OnHit", 0.2, "enemy", "STR", -0.2, 3),
-  OnHit("OHCON", "OnHit", 0.2, "enemy", "CON", -0.2, 3),
-  OnHit("OHRES", "OnHit", 0.2, "enemy", "RES", -0.2, 3)
+  Threshhold("THCON", "Threshhold", 0.2, "user", "control", 0.2, 1),
+  Threshhold("THRES", "Threshhold", 0.2, "user", "resistance", 0.2, 1),
+  OnHit("OHCON", "OnHit", 0.2, "enemy", "control", -0.2, 3),
+  OnHit("OHRES", "OnHit", 0.2, "enemy", "resistance", -0.2, 3)
 )
 
 # use these in specials

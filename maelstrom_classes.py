@@ -9,7 +9,7 @@ characters = {}
 enemies = {}
 passives = []
 ELEMENTS = ["lightning", "rain", "hail", "wind"]
-
+STATS = ["control", "resistance", "Potency", "luck", "energy"]
 
 def load():
   ret = Team("Test team", ({"name": "Alexandre", "level": 1}, 
@@ -229,7 +229,7 @@ class Threshhold(Passive):
 class OnHit(Passive):
   def check_trigger(self, user):
     r = random.randint(1, 100)
-    Dp.add(["Random: " + str(r), "Minimum: " + str(self.x)])
+    Dp.add(["Random: " + str(r), "Minimum: " + str(self.x * 100)])
     Dp.dp()
     if r <= self.x * 100:
       self.activate(user)
@@ -367,24 +367,20 @@ class Character(object):
     
     self.stats = []
     
-    stat_names = ["CON", "RES", "POT", "LUK", "ENE"]
-    
     self.stats.append(Stat("HP", 100))
     
     stat_num = 0
     while stat_num < 5:
       # a bit convoluted
-      self.stats.append(Stat(stat_names[stat_num], 20 + set_in_bounds(data[0][stat_num], -5, 5), True))
+      self.stats.append(Stat(STATS[stat_num], 20 + set_in_bounds(data[0][stat_num], -5, 5), True))
       stat_num += 1
-    self.stats.append(Stat("Physical damage multiplier", 1.0))
+    self.stats.append(Stat("Physical damage multiplier", 100))
     
-    # this will need to change, always 0
-    self.stats.append(Stat("Physical damage reduction", 0.0))
+    self.stats.append(Stat("Physical damage reduction", 100))
     
     for element in ELEMENTS:
-      self.stats.append(Stat(element + " damage multiplier", 1.0))
-      # same here
-      self.stats.append(Stat(element + " damage reduction", 0.0))
+      self.stats.append(Stat(element + " damage multiplier", 100))
+      self.stats.append(Stat(element + " damage reduction", 100))
     
     self.element = data[1]
     self.special = data[2]
@@ -395,7 +391,7 @@ class Character(object):
     self.attacks = [slash, jab, slam]
     self.attacks.append(data[2])
     self.weapon = Weapon("Default", 0, 0, 0, 0)
-    self.passives = [Threshhold("Test", "Threshhold", 0.5, "user", "CON", 0.2, 1), OnHit("Test", "OnHit", 0.5, "enemy", "CON", -0.2, 3)]
+    self.passives = [Threshhold("Test", "Threshhold", 0.5, "user", "control", 0.2, 1), OnHit("Test", "OnHit", 0.5, "enemy", "control", -0.2, 3)]
   
   def calc_stats(self):
     """
@@ -413,7 +409,7 @@ class Character(object):
       stat.reset_boosts()
     self.calc_stats()
     self.HP_rem = self.get_stat("HP")
-    self.energy = 0
+    self.energy = int(self.get_stat("energy") / 2.0)
   
   def equip(self, weapon):
     self.weapon = weapon
@@ -441,7 +437,7 @@ class Character(object):
     """
     ret = -1
     for stat in self.stats:
-      if stat.name == name:
+      if stat.name.upper() == name.upper():
         ret = stat.get()
     
     if ret == -1:
@@ -459,7 +455,7 @@ class Character(object):
     Op.add(self.element)
     
     for stat in self.stats:
-      Op.add(stat.name + ": " + str(stat.value))
+      Op.add(stat.name + ": " + str(int(stat.value)))
     
     for attack in self.attacks:
       Op.add("-" + attack.name)
@@ -477,9 +473,10 @@ class Character(object):
     """
     Increase or lower stats in battle
     """
+    mult = 1 + self.get_stat("potency") / 100
     for stat in self.stats:
       if stat.name == name:
-        stat.boost(id, amount, duration)
+        stat.boost(id, amount * mult, duration)
   
   def heal(self, percent):
     """
@@ -618,8 +615,8 @@ class Character(object):
   def calc_DMG(self, attacker, attack_used):
     damage = 0
     for damage_type, value in attack_used.damages.items():
-      damage += value * (attacker.get_stat(damage_type + " damage multiplier") - self.get_stat(damage_type + " damage reduction"))
-    damage *= float(attacker.get_stat("CON")) / self.get_stat("RES")
+      damage += value * (attacker.get_stat(damage_type + " damage multiplier") / self.get_stat(damage_type + " damage reduction"))
+    damage *= float(attacker.get_stat("control")) / self.get_stat("resistance")
     
     if attacker.team.switched_in:
       damage = damage * 0.75

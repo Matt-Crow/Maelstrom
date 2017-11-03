@@ -1,4 +1,4 @@
-debug = False
+debug = not False
 
 def mod(num):
   """
