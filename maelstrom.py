@@ -86,7 +86,7 @@ HAny = AnyAttack("Frost bolt", 5)
 WAny = AnyAttack("Wind bolt", 5)
 
 characters["TEST"] = ((0, 0, 0, 0, 0), "stone", SAct)
-characters["Alexandre"] = ((0, 1, 1, 0, 0), "lightning", LAct)
+characters["Alexandre"] = ((5, 0, 5, 0, 0), "lightning", LAct)
 characters["Rene"] = ((0, -1, 1, 0, 0), "rain", RAct)
 characters["Ian"] = ((0, -1, -1, 0, 0), "hail", HAct)
 characters["Viktor"] = ((0, 1, -1, 0, 0), "wind", WAct)

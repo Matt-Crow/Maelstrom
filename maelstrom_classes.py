@@ -8,8 +8,8 @@ import random
 characters = {}
 enemies = {}
 passives = []
-ELEMENTS = ["lightning", "rain", "hail", "wind"]
-STATS = ["control", "resistance", "Potency", "luck", "energy"]
+ELEMENTS = ("lightning", "rain", "hail", "wind")
+STATS = ("control", "resistance", "Potency", "luck", "energy")
 
 def load():
   ret = Team("Test team", ({"name": "Alexandre", "level": 1}, 
@@ -250,6 +250,7 @@ class OnHit(Passive):
     
     Op.dp()
 
+#get rid of this!
 class Weapon(object):
   """
   """
@@ -411,9 +412,11 @@ class Character(object):
     self.HP_rem = self.get_stat("HP")
     self.energy = int(self.get_stat("energy") / 2.0)
   
+  # change to equip item
   def equip(self, weapon):
     self.weapon = weapon
   
+  # change this
   def add_passive(self, name):
     from maelstrom import passives
     for passive in passives:
@@ -446,6 +449,7 @@ class Character(object):
     
     return ret
   
+  # work here
   def display_data(self):
     """
     Print info on a character
@@ -464,6 +468,11 @@ class Character(object):
     self.weapon.display_data()
     for passive in self.passives:
       passive.display_data()
+  
+  def display_mutable_stats(self):
+    for stat_name in STATS:
+      Op.add(stat_name + ": " + str(int(self.get_stat(stat_name))))
+    Op.dp(False)
   
   """
   Battle functions:
@@ -484,8 +493,9 @@ class Character(object):
     Converts an INTEGER
     to a percentage.
     """
+    mult = 1 + self.get_stat("potency") / 100
     healing = self.get_stat("HP") * (float(percent) / 100)
-    self.HP_rem = int(self.HP_rem + healing)
+    self.HP_rem = int(self.HP_rem + healing * mult)
     
     Op.add(self.name + " healed " + str(int(healing)) + " HP!")
     Op.dp()
@@ -494,8 +504,9 @@ class Character(object):
       self.HP_rem = self.get_stat("HP")
   
   def harm(self, percent):
+    mult = 1 - self.get_stat("potency") / 100
     harming = self.get_stat("HP") * (float(percent) / 100)
-    self.HP_rem = int(self.HP_rem - harming)
+    self.HP_rem = int(self.HP_rem - harming * mult)
     Op.add(self.name + " took " + str(int(harming)) + " damage!")
     Op.dp()
     
@@ -966,6 +977,7 @@ class Team(object):
       Op.add("* " + member.name + " " + str(member.HP_rem) + "/" + str(member.get_stat("HP")) + " " + member.element)
         
     Op.add("Currently active: " + self.active.name)
+    self.active.display_mutable_stats()
     Op.add(self.active.name + "'s Energy: " + str(self.active.energy))
     Op.add("Active enemy: " + self.enemy.active.name + " " + str(self.enemy.active.HP_rem) + "/" + str(self.enemy.active.get_stat("HP")) + " " + self.enemy.active.element)
     
