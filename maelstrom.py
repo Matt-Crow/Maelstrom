@@ -112,7 +112,7 @@ enemies["Wind Entity"] = ((-3, 3, -3, 0, 0), "wind", WAct)
 enemies["stone soldier"] = ((2, -3, -3, 0, 0), "stone", SAct)
 
 # move messages to seperate file
-r1 = Battle("Origin Beaches", "All heroes have to start somewhere", ("Encounter! Rain Entity", "Quick! Knock its hit points down to zero and escape!"), ("Congradulations!", "The Entity dissipates into a cloud of smoke"), 1, None, Weapon("Crazy blade", 3, 3, 3, 3))
+r1 = Battle("Origin Beaches", "All heroes have to start somewhere", ("Encounter! Rain Entity", "Quick! Knock its hit points down to zero and escape!"), ("Congradulations!", "The Entity dissipates into a cloud of smoke"), 1, None)
 r1.load_team(Team("Rain", {"name":"Rain Entity", "level": 1}, True))
 r2 = Battle("The Gravel Trail", "A rough path leads up from the beaches...", ("The gravel crunches beneath your feet as you walk", "Suddenly it starts to drizzle lightly", "TIP: While it is raining, all characters will regain a little HP each turn"), ("Congradulations!"), 1, weathers[9], None)
 r2.load_team(Team("Rain", {"name": "Rain Entity", "level": 1}, True))
@@ -127,7 +127,7 @@ h1 = Battle("Forest Clearing", "A fresh coating of snow covers all the trees", N
 h1.load_team(Team(" ", {"name": "Hail Entity", "level": 1}, True))
 hail_village = Area("The Hail Village", "?", None, (h1))
 
-c1 = Battle("Stone Rising", "An ancient threat arises", ("STONE SOLDIER: Foolish ones seek to take our land", "when we ourselves are imbued with its very power!"), "The stone soldier shatters into dust.", 1, None, Weapon("Stalygmite", 4, 4, 4, 4))
+c1 = Battle("Stone Rising", "An ancient threat arises", ("STONE SOLDIER: Foolish ones seek to take our land", "when we ourselves are imbued with its very power!"), "The stone soldier shatters into dust.", 1, None)
 c1.load_team(Team("Stone", {"name": "stone soldier", "level": 1}, True))
 caves = Location("Ancient library caverns", "These caves seem as old as time itself.", ("LIBRARIAN: These caves have only recently by our scholars.", "Everything here is estimated to be ancient,", "perhaps even older than Altostromia itself!", "But what concerns me are these statues...", "...hundreds of them."))
 lib_cav = Area("Ancient caverns", "?", caves, c1)

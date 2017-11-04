@@ -43,9 +43,7 @@ class Savefile(object):
       for item in line:
         data = item.split()
         Dp.add(["Data.split:", data])
-        if data[0] == "W":
-          self.dict_file[name]["Weapon"] = [data[1], data[2], data[3], data[4], data[5]]
-        elif data[0] == "P":
+        if data[0] == "P":
           for i in data:
             if i == "P":
               continue
@@ -53,7 +51,7 @@ class Savefile(object):
               self.dict_file[name]["Passives"].append(i.replace("_", " "))
         else:
           name = data[0]
-          self.dict_file[name] = {"Stats": [], "Weapon": [], "Passives": []}
+          self.dict_file[name] = {"Stats": [], "Passives": []}
       	  self.dict_file[name]["Stats"] = [data[1], data[2], data[3], data[4]]
     Dp.add(["Dict file:", self.dict_file])
     Dp.dp()
@@ -74,7 +72,6 @@ class Savefile(object):
           member.level_set = int(data["Stats"][1])
           member.XP = int(data["Stats"][2])
           member.stars = int(data["Stats"][3])
-          member.equip(Weapon(data["Weapon"][0], int(data["Weapon"][1]), int(data["Weapon"][2]), int(data["Weapon"][3]), int(data["Weapon"][4])))
           for passive in data["Passives"]:
             member.add_passive(passive)
     return ret
@@ -85,9 +82,8 @@ class Savefile(object):
     
     change = {}
     for member in team.team:
-      change[member.name] = {"Stats": [], "Weapon": []}
+      change[member.name] = {"Stats": []}
       change[member.name]["Stats"] = [str(member.level), str(member.level_set), str(member.XP), str(member.stars)]
-      change[member.name]["Weapon"] = [(member.weapon.name), str(member.weapon.base_miss), str(member.weapon.base_crit), str(member.weapon.base_miss_mult), str(member.weapon.base_crit_mult)]
     self.dict_file = change
     Dp.add(["After:", self.dict_file])
     Dp.dp()
@@ -99,11 +95,6 @@ class Savefile(object):
       new = new + data["Stats"][1] + " "
       new = new + data["Stats"][2] + " "
       new = new + data["Stats"][3] + " "
-      new = new + data["Weapon"][0] + " "
-      new = new + data["Weapon"][1] + " "
-      new = new + data["Weapon"][2] + " "
-      new = new + data["Weapon"][3] + " "
-      new = new + data["Weapon"][4] + "\n"
       
     file.write(new)
     file.close()
@@ -250,59 +241,6 @@ class OnHit(Passive):
     
     Op.dp()
 
-#get rid of this!
-class Weapon(object):
-  """
-  """
-  def __init__(self, name, miss, crit, miss_m, crit_m):
-    self.name = name
-    stats = [miss, crit, miss_m, crit_m]
-    stat_num = 0  
-    while stat_num < len(stats):
-      stats[stat_num] = set_in_bounds(stats[stat_num], -3, 3)
-      stat_num += 1
-    self.miss = 20 + stats[0] * 5
-    self.crit = 20 + stats[1] * 5
-    self.miss_mult = 0.8 - stats[2] * 0.05
-    self.crit_mult = 1.25 + stats[3] * 0.05
-    
-    # Used in save file
-    self.base_miss = miss
-    self.base_crit = crit
-    self.base_miss_mult = miss_m
-    self.base_crit_mult = crit_m
-    
-  def display_data(self):
-    Op.add(self.name + " data:")
-    Op.add("Miss chance: " + str(self.miss) + "%")
-    Op.add("Crit chance: " + str(self.crit) + "%")
-    Op.add("Miss multiplier: " + str(self.miss_mult) + "%")
-    Op.add("Crit multiplier: " + str(self.crit_mult) + "%")
-    Op.dp()
-  
-  def calc_MHC(self):
-    """
-    Used to calculate hit type
-    """
-    rand = random.randint(1, 100)
-    ret = 1.0
-    Dp.add(["rand in calc_MHC: " + str(rand), "Crit: " + str(100 - self.crit), "Miss: " + str(self.miss)])
-    Dp.dp()
-    if rand <= self.miss:
-      Op.add("A glancing blow!")
-      ret = self.miss_mult
-    
-    elif rand >= 100 - self.crit:
-      Op.add("A critical hit!")
-      ret = self.crit_mult
-    
-    return ret
-      
-  def give(self, team):
-    team.arsenal.append(self)
-    Dp.add(team.arsenal)
-    Dp.dp()
-
 # display data?
 class Stat(object):
   """
@@ -391,7 +329,6 @@ class Character(object):
     self.stars = 0
     self.attacks = [slash, jab, slam]
     self.attacks.append(data[2])
-    self.weapon = Weapon("Default", 0, 0, 0, 0)
     self.passives = [Threshhold("Test", "Threshhold", 0.5, "user", "control", 0.2, 1), OnHit("Test", "OnHit", 0.5, "enemy", "control", -0.2, 3)]
   
   def calc_stats(self):
@@ -411,11 +348,7 @@ class Character(object):
     self.calc_stats()
     self.HP_rem = self.get_stat("HP")
     self.energy = int(self.get_stat("energy") / 2.0)
-  
-  # change to equip item
-  def equip(self, weapon):
-    self.weapon = weapon
-  
+   
   # change this
   def add_passive(self, name):
     from maelstrom import passives
@@ -465,7 +398,6 @@ class Character(object):
       Op.add("-" + attack.name)
     Op.add(str(self.XP) + "/" + str(self.level * 10))
     Op.dp(False)
-    self.weapon.display_data()
     for passive in self.passives:
       passive.display_data()
   
@@ -511,7 +443,8 @@ class Character(object):
     Op.dp()
     
   def direct_dmg(self, dmg):
-    self.HP_rem -= int(dmg)
+    self.HP_rem -= dmg
+    self.HP_rem = int(self.HP_rem)
   
   def gain_energy(self, amount):
     """
@@ -519,8 +452,10 @@ class Character(object):
     """
     self.energy = self.energy + amount
     
-    if self.energy > 20:
-      self.energy = 20
+    if self.energy > self.get_stat("energy"):
+      self.energy = self.get_stat("energy")
+    
+    self.energy = int(self.energy)
   
   def lose_energy(self, amount):
     """
@@ -531,6 +466,7 @@ class Character(object):
       self.energy = 0
   
   def update(self):
+    self.gain_energy(self.get_stat("energy") * 0.15)
     for stat in self.stats:
       stat.update()
   
@@ -623,11 +559,31 @@ class Character(object):
   """
   Damage calculation
   """
+  def calc_MHC(self):
+    """
+    Used to calculate hit type
+    """
+    return 1.0
+    
+    rand = random.randint(1, 100)
+    ret = 1.0
+    Dp.add(["rand in calc_MHC: " + str(rand), "Crit: " + str(100 - self.crit), "Miss: " + str(self.miss)])
+    Dp.dp()
+    if rand <= self.miss:
+      Op.add("A glancing blow!")
+      ret = self.miss_mult
+    
+    elif rand >= 100 - self.crit:
+      Op.add("A critical hit!")
+      ret = self.crit_mult
+    
+    return ret
+  
   def calc_DMG(self, attacker, attack_used):
     damage = 0
     for damage_type, value in attack_used.damages.items():
       damage += value * (attacker.get_stat(damage_type + " damage multiplier") / self.get_stat(damage_type + " damage reduction"))
-    damage *= float(attacker.get_stat("control")) / self.get_stat("resistance")
+    damage *= attacker.get_stat("control") / self.get_stat("resistance")
     
     if attacker.team.switched_in:
       damage = damage * 0.75
@@ -636,14 +592,13 @@ class Character(object):
   
   def take_DMG(self, attacker, attack_used):
     dmg = self.calc_DMG(attacker, attack_used)
-    
-    dmg = dmg * attacker.weapon.calc_MHC()
+    # add MHC here
+    dmg = dmg * self.calc_MHC()
     Op.add(attacker.name + " struck " + self.name)
     Op.add("for " + str(int(dmg)) + " damage")
     Op.add("using " + attack_used.name + "!")
     Op.dp()
     self.direct_dmg(dmg)
-    self.gain_energy(3)
   
   def check_if_KOed(self):
     """
@@ -1085,7 +1040,7 @@ class Battle(object):
   initializing them
   and the weather.
   """
-  def __init__(self, name, description, script, end, team_size, weather_list, rewards):
+  def __init__(self, name, description, script, end, team_size, weather_list, rewards = None):
     """
     Maximum team size,
     Weather should be improved
@@ -1133,7 +1088,7 @@ class Battle(object):
     else:
       team.use = team.team
   # stuff down here
-  # add random weapon
+  # add random loot
   def check_winner(self):
     """
     Runs when one
