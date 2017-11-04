@@ -105,7 +105,7 @@ class AbstractAttack(object):
   The regular attacks all characters can use
   as well as characters' exclusive Specials
   """
-  def __init__(self, name, energy_cost = 0):
+  def __init__(self, name, energy_cost):
     """
     """
     self.name = name
@@ -116,7 +116,11 @@ class AbstractAttack(object):
       self.damage_distribution[element] = 1
     
     self.distribute_damage()
-      
+    
+    self.miss = 0
+    self.crit = 0
+    self.miss_mult = 1.0
+    self.crit_mult = 1.0
     self.energy_cost = energy_cost  
   
   def distribute_damage(self):
@@ -130,6 +134,26 @@ class AbstractAttack(object):
   
   def can_use(self, user):
     return user.energy >= self.energy_cost
+
+  def calc_MHC(self, user):
+    """
+    Used to calculate hit type
+    """
+    ret = 1.0
+	
+    if (self.miss > 0 and self.crit > 0):
+      rand = random.randint(1, 100) * 1 + user.get_stat("luck") / 100
+      Dp.add(["rand in calc_MHC: " + str(rand), "Crit: " + str(100 - self.crit), "Miss: " + str(self.miss)])
+      Dp.dp()
+      if rand <= self.miss:
+        Op.add("A glancing blow!")
+        ret = self.miss_mult
+      
+      elif rand >= 100 - self.crit:
+        Op.add("A critical hit!")
+        ret = self.crit_mult
+      
+    return ret
       
   def use(self, user):
     user.lose_energy(self.energy_cost)
@@ -137,7 +161,15 @@ class AbstractAttack(object):
 class ActAttack(AbstractAttack):
   def use(self, user):
     user.team.enemy.active.take_DMG(user, self)
-    super(type(self), self).use(user)
+    super(ActAttack, self).use(user)
+
+class MeleeAttack(ActAttack):
+  def __init__(self, name, miss, crit, miss_mult, crit_mult):
+    super(MeleeAttack, self).__init__(name, 0)
+    self.miss = miss
+    self.crit = crit
+    self.miss_mult = miss_mult
+    self.crti_mult = crit_mult
 
 class AllAttack(AbstractAttack):
   def use(self, user):
@@ -474,17 +506,16 @@ class Character(object):
   AI stuff
   """
   def best_attack(self):
-    best = None
+    best = self.attacks[0]
     highest_dmg = 0
     Dp.add("----------")
     for attack in self.attacks:
-      if not attack.can_use(self):
-        continue
-      dmg = self.team.enemy.active.calc_DMG(self, attack)
-      if dmg > highest_dmg:
-        best = attack
-        highest_dmg = dmg
-      Dp.add("Damge with " + attack.name + ": " + str(dmg))
+      if attack.can_use(self):
+        dmg = self.team.enemy.active.calc_DMG(self, attack)
+        if dmg > highest_dmg:
+          best = attack
+          highest_dmg = dmg
+        Dp.add("Damge with " + attack.name + ": " + str(dmg))
     Dp.add("----------")
     Dp.dp()
     return best
@@ -503,28 +534,25 @@ class Character(object):
     """
     Can you get multiple KOes?
     """
-    
+    """
     for attack in self.attacks:
-      if not attack.can_use(self) or not type(attack) == type(AllAttack("test")):
+      if not attack.can_use(self) or not type(attack) == type(AllAttack("test", 0)):
         continue
-      
       koes = 0
       for member in self.team.enemy.members_rem:
         if member.calc_DMG(self, attack) * sw >= member.HP_rem:
           koes += 1
       if koes >= 2:
         return attack
-    
+    """
     """
     Can you get a KO?
     """
     can_ko = []
-    
     for attack in self.attacks:
-      if not attack.can_use(self):
-        continue
-      if self.team.enemy.active.calc_DMG(self, attack) * sw >= self.team.enemy.active.HP_rem:
-        can_ko.append(attack)
+      if attack.can_use(self):
+        if self.team.enemy.active.calc_DMG(self, attack) * sw >= self.team.enemy.active.HP_rem:
+          can_ko.append(attack)
       
     if len(can_ko) == 1:
       return can_ko[0]
@@ -559,27 +587,11 @@ class Character(object):
   """
   Damage calculation
   """
-  def calc_MHC(self):
-    """
-    Used to calculate hit type
-    """
-    return 1.0
-    
-    rand = random.randint(1, 100)
-    ret = 1.0
-    Dp.add(["rand in calc_MHC: " + str(rand), "Crit: " + str(100 - self.crit), "Miss: " + str(self.miss)])
-    Dp.dp()
-    if rand <= self.miss:
-      Op.add("A glancing blow!")
-      ret = self.miss_mult
-    
-    elif rand >= 100 - self.crit:
-      Op.add("A critical hit!")
-      ret = self.crit_mult
-    
-    return ret
-  
   def calc_DMG(self, attacker, attack_used):
+    """
+    MHC is not checked here so that it doesn't
+    mess with AI
+    """
     damage = 0
     for damage_type, value in attack_used.damages.items():
       damage += value * (attacker.get_stat(damage_type + " damage multiplier") / self.get_stat(damage_type + " damage reduction"))
@@ -592,8 +604,7 @@ class Character(object):
   
   def take_DMG(self, attacker, attack_used):
     dmg = self.calc_DMG(attacker, attack_used)
-    # add MHC here
-    dmg = dmg * self.calc_MHC()
+    dmg = dmg * attack_used.calc_MHC(attacker)
     Op.add(attacker.name + " struck " + self.name)
     Op.add("for " + str(int(dmg)) + " damage")
     Op.add("using " + attack_used.name + "!")
@@ -1146,6 +1157,7 @@ class Battle(object):
     the battle
     """
     self.begin()
+    
     while self.teams[0].is_up() and self.teams[1].is_up():
       for team in self.teams:
         if team.is_up():
@@ -1161,12 +1173,11 @@ class Battle(object):
 no_eff = (0, 0, 0)
 act_ene = ("enemy", "act")
         
-slash = ActAttack("slash")
-jab = ActAttack("jab")
-slam = ActAttack("slam")
+slash = MeleeAttack("slash", 15, 15, 0.75, 1.5)
+jab = MeleeAttack("jab", 10, 40, 0.5, 2.0)
+slam = MeleeAttack("slam", 30, 15, 0.5, 1.35)
 
 attacks = (slash, jab, slam)
 
 from utilities import *
 from navigate import Story
-#from maelstrom import do_MHC, debug

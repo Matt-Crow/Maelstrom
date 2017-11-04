@@ -70,44 +70,17 @@ act_ene = ("enemy", "act")
 boom = AllAttack("BOOM!", 7)
 
 LAct = ActAttack("Shock Pulse", 5)
-RAct = ActAttack("Water Pulse", 5)
-HAct = ActAttack("Icicle Pulse", 5)
-WAct = ActAttack("Vacuum Pulse", 5)
 SAct = ActAttack("Rock Slide", 5)
 
-LAll = AllAttack("Shock Wave", 5)
-RAll = AllAttack("Tidal Wave", 5)
-HAll = AllAttack("Avalanche", 5)
-WAll = AllAttack("Tempest", 5)
-
-LAny = AnyAttack("Thunderbolt", 5)
-RAny = AnyAttack("Water bolt", 5)
-HAny = AnyAttack("Frost bolt", 5)
-WAny = AnyAttack("Wind bolt", 5)
-
-characters["TEST"] = ((0, 0, 0, 0, 0), "stone", SAct)
 characters["Alexandre"] = ((5, 0, 5, 0, 0), "lightning", LAct)
-characters["Rene"] = ((0, -1, 1, 0, 0), "rain", RAct)
-characters["Ian"] = ((0, -1, -1, 0, 0), "hail", HAct)
-characters["Viktor"] = ((0, 1, -1, 0, 0), "wind", WAct)
-
-characters["Isaac"] = ((-1, 0, -3, 0, 0), "lightning", LAll)
-characters["Barry"] = ((1, -1, 1, 0, 0), "rain", RAll)
-characters["Nicole"] = ((1, 2, 2, 0, 0), "hail", HAll)
-characters["Colin"] = ((0, -1, 0, 0, 0), "wind", WAll)
-
-characters["Adrian"] = ((1, -2, 1, 0, 0), "lightning", LAny)
-characters["Omar"] = ((-1, 0, -2, 0, 0), "rain", RAny)
-characters["Richard"] = ((-1, -3, -3, 0, 0), "hail", HAny)
-characters["Tobias"] = ((0, -2, -1, 0, 0), "wind", WAny)
 
 enemies["MAX"] = ((5, 0, 0, 0, 0), "stone", SAct)
 enemies["MIN"] = ((-5, 0, 0, 0, 0), "stone", SAct)
 
-enemies["Lightning Entity"] = ((-3, 3, 3, 0, 0), "lightning", LAct)
-enemies["Rain Entity"] = ((3, -3, 3, 0, 0), "rain", RAct)
-enemies["Hail Entity"] = ((3, -3, -3, 0, 0), "hail", HAct)
-enemies["Wind Entity"] = ((-3, 3, -3, 0, 0), "wind", WAct)
+enemies["Lightning Entity"] = ((-3, 3, 3, 0, 0), "lightning", SAct)
+enemies["Rain Entity"] = ((3, -3, 3, 0, 0), "rain", SAct)
+enemies["Hail Entity"] = ((3, -3, -3, 0, 0), "hail", SAct)
+enemies["Wind Entity"] = ((-3, 3, -3, 0, 0), "wind", SAct)
 
 enemies["stone soldier"] = ((2, -3, -3, 0, 0), "stone", SAct)
 
