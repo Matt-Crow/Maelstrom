@@ -142,7 +142,7 @@ class AbstractAttack(object):
     ret = 1.0
 	
     if (self.miss > 0 and self.crit > 0):
-      rand = random.randint(1, 100) * 1 + user.get_stat("luck") / 100
+      rand = random.randint(user.get_stat("luck"), 100)
       Dp.add(["rand in calc_MHC: " + str(rand), "Crit: " + str(100 - self.crit), "Miss: " + str(self.miss)])
       Dp.dp()
       if rand <= self.miss:
@@ -459,7 +459,7 @@ class Character(object):
     """
     mult = 1 + self.get_stat("potency") / 100
     healing = self.get_stat("HP") * (float(percent) / 100)
-    self.HP_rem = int(self.HP_rem + healing * mult)
+    self.HP_rem = self.HP_rem + healing * mult
     
     Op.add(self.name + " healed " + str(int(healing)) + " HP!")
     Op.dp()
@@ -940,12 +940,12 @@ class Team(object):
     """
     Op.add(self.name)
     for member in self.members_rem:
-      Op.add("* " + member.name + " " + str(member.HP_rem) + "/" + str(member.get_stat("HP")) + " " + member.element)
+      Op.add("* " + member.name + " " + str(int(member.HP_rem)) + "/" + str(int(member.get_stat("HP"))) + " " + member.element)
         
     Op.add("Currently active: " + self.active.name)
     self.active.display_mutable_stats()
     Op.add(self.active.name + "'s Energy: " + str(self.active.energy))
-    Op.add("Active enemy: " + self.enemy.active.name + " " + str(self.enemy.active.HP_rem) + "/" + str(self.enemy.active.get_stat("HP")) + " " + self.enemy.active.element)
+    Op.add("Active enemy: " + self.enemy.active.name + " " + str(int(self.enemy.active.HP_rem)) + "/" + str(int(self.enemy.active.get_stat("HP"))) + " " + self.enemy.active.element)
     
     Op.dp()
     
