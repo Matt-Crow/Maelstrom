@@ -29,6 +29,7 @@ Week 2: Revised/improved/reordered functions
 1/5/2017 : Added Location, began work on splitting file
 
 27/10/2017: Revised output
+1/11/2017 - 8/11/2017: Revised how attacks work, added hit principle
 
 Version 0.9
 """
@@ -67,10 +68,10 @@ passives = (
 no_eff = (0, 0, 0)
 act_ene = ("enemy", "act")
 
-boom = AllAttack("BOOM!", 7)
+boom = AllAttack("BOOM!", 7, 7)
 
-LAct = ActAttack("Shock Pulse", 5)
-SAct = ActAttack("Rock Slide", 5)
+LAct = ActAttack("Shock Pulse", 1.75, 5)
+SAct = ActAttack("Rock Slide", 1.75, 5)
 
 characters["Alexandre"] = ((5, 0, 5, 0, 0), "lightning", LAct)
 

@@ -11,6 +11,15 @@ passives = []
 ELEMENTS = ("lightning", "rain", "hail", "wind")
 STATS = ("control", "resistance", "Potency", "luck", "energy")
 
+def get_hit_perc(lv):
+  """
+  Calculates how much
+  damage an attack should
+  do to a target at a given
+  level
+  """
+  return 16.67 * (1 + lv * 0.05)
+
 def load():
   ret = Team("Test team", ({"name": "Alexandre", "level": 1}, 
   {"name": "Rene", "level": 1}, 
@@ -105,17 +114,16 @@ class AbstractAttack(object):
   The regular attacks all characters can use
   as well as characters' exclusive Specials
   """
-  def __init__(self, name, energy_cost):
+  def __init__(self, name, mult, energy_cost):
     """
     """
     self.name = name
+    self.dmg_mult = mult
     
     self.damages = {}
-    self.damage_distribution = {"physical":4}
+    self.damage_distribution = {"physical":50}
     for element in ELEMENTS:
-      self.damage_distribution[element] = 1
-    
-    self.distribute_damage()
+      self.damage_distribution[element] = 12.5
     
     self.miss = 0
     self.crit = 0
@@ -123,8 +131,15 @@ class AbstractAttack(object):
     self.crit_mult = 1.0
     self.energy_cost = energy_cost  
   
+  def set_user(self, user):
+    self.user = user
+    self.distribute_damage()
+  
+  def init_for_battle(self):
+    self.distribute_damage()
+  
   def distribute_damage(self):
-    total = 16.0 #redo with HPrince
+    total = get_hit_perc(self.user.level) * self.dmg_mult
     split_between = 0
     self.damages = {}
     for value in self.damage_distribution.values():
@@ -132,17 +147,27 @@ class AbstractAttack(object):
     for type, value in self.damage_distribution.items():
       self.damages[type] = total / split_between * value
   
-  def can_use(self, user):
-    return user.energy >= self.energy_cost
+  def display_data(self):
+    Op.add(self.name)
+    for type, value in self.damages.items():
+      Op.add(type + " damage: " + str(int(value)))
+    Op.add("Critical hit chance: " + str(self.crit) + "%")
+    Op.add("Miss chance: " + str(self.miss) + "%")
+    Op.add("Critical hit multiplier: " + str(int(self.crit_mult * 100)) + "%")
+    Op.add("Miss penalty: " + str(int(self.miss_mult * 100)) + "%")
+    Op.dp(False)
+  
+  def can_use(self):
+    return self.user.energy >= self.energy_cost
 
-  def calc_MHC(self, user):
+  def calc_MHC(self):
     """
     Used to calculate hit type
     """
     ret = 1.0
 	
     if (self.miss > 0 and self.crit > 0):
-      rand = random.randint(user.get_stat("luck"), 100)
+      rand = random.randint(self.user.get_stat("luck"), 100)
       Dp.add(["rand in calc_MHC: " + str(rand), "Crit: " + str(100 - self.crit), "Miss: " + str(self.miss)])
       Dp.dp()
       if rand <= self.miss:
@@ -154,42 +179,45 @@ class AbstractAttack(object):
         ret = self.crit_mult
       
     return ret
+  
+  def hit(self, target):
+    target.take_DMG(self.user, self)
       
-  def use(self, user):
-    user.lose_energy(self.energy_cost)
+  def use(self):
+    self.user.lose_energy(self.energy_cost)
 
 class ActAttack(AbstractAttack):
-  def use(self, user):
-    user.team.enemy.active.take_DMG(user, self)
-    super(ActAttack, self).use(user)
+  def use(self):
+    self.hit(self.user.team.enemy.active)
+    super(ActAttack, self).use()
 
 class MeleeAttack(ActAttack):
-  def __init__(self, name, miss, crit, miss_mult, crit_mult):
-    super(MeleeAttack, self).__init__(name, 0)
+  def __init__(self, name, dmg, miss, crit, miss_mult, crit_mult):
+    super(MeleeAttack, self).__init__(name, dmg, 0)
     self.miss = miss
     self.crit = crit
     self.miss_mult = miss_mult
-    self.crti_mult = crit_mult
+    self.crit_mult = crit_mult
 
 class AllAttack(AbstractAttack):
-  def use(self, user):
-    for member in user.team.enemy.members_rem:
-      member.take_DMG(user, self)
-    super(type(self), self).use(user)
+  def use(self):
+    for member in self.user.team.enemy.members_rem:
+      self.hit(member)
+    super(type(self), self).use()
 
 class AnyAttack(AbstractAttack):
-  def use(self, user):  
-    if user.team.AI:
+  def use(self):  
+    if self.user.team.AI:
       highest = 0
       best = None
       options = []
-      if user.team.switched_in:
+      if self.user.team.switched_in:
         m = 0.75
       else:
         m = 1.0
       
-      for member in user.team.enemy.members_rem:
-        damage = member.calc_DMG(user, self) * m
+      for member in self.user.team.enemy.members_rem:
+        damage = member.calc_DMG(self.user, self) * m
         if damage >= member.HP_rem:
           options.append(member)
         if damage >= highest:
@@ -197,12 +225,12 @@ class AnyAttack(AbstractAttack):
           best = member
       
       if len(options) >= 1:
-        target_team.members_rem[random.randint(0, len(options) - 1)].take_DMG(user, self)
+        target_team.members_rem[random.randint(0, len(options) - 1)].take_DMG(self.user, self)
       else:
-        best.take_DMG(user, self)
+        self.hit(best)
     else:
-      choose("Who do you wish to hit?", target_team.members_rem).take_DMG(user, self)
-    super(type(self), self).use(user)
+      self.hit(choose("Who do you wish to hit?", target_team.members_rem))
+    super(type(self), self).use()
 
 # working here
 # not fully implemented
@@ -359,8 +387,12 @@ class Character(object):
     self.XP = 0
     self.level_set = 1
     self.stars = 0
-    self.attacks = [slash, jab, slam]
+    #ugly
+    self.attacks = [MeleeAttack("slash", 1.0, 15, 15, 0.75, 1.5), MeleeAttack("jab", 0.75, 10, 40, 0.5, 2.0), MeleeAttack("slam", 1.35, 30, 15, 0.5, 1.35)]
     self.attacks.append(data[2])
+    for attack in self.attacks:
+      attack.set_user(self)
+    
     self.passives = [Threshhold("Test", "Threshhold", 0.5, "user", "control", 0.2, 1), OnHit("Test", "OnHit", 0.5, "enemy", "control", -0.2, 3)]
   
   def calc_stats(self):
@@ -377,6 +409,8 @@ class Character(object):
     """
     for stat in self.stats:
       stat.reset_boosts()
+    for attack in self.attacks:
+      attack.init_for_battle()
     self.calc_stats()
     self.HP_rem = self.get_stat("HP")
     self.energy = int(self.get_stat("energy") / 2.0)
@@ -428,6 +462,7 @@ class Character(object):
     
     for attack in self.attacks:
       Op.add("-" + attack.name)
+      attack.display_data()
     Op.add(str(self.XP) + "/" + str(self.level * 10))
     Op.dp(False)
     for passive in self.passives:
@@ -510,7 +545,7 @@ class Character(object):
     highest_dmg = 0
     Dp.add("----------")
     for attack in self.attacks:
-      if attack.can_use(self):
+      if attack.can_use():
         dmg = self.team.enemy.active.calc_DMG(self, attack)
         if dmg > highest_dmg:
           best = attack
@@ -550,7 +585,7 @@ class Character(object):
     """
     can_ko = []
     for attack in self.attacks:
-      if attack.can_use(self):
+      if attack.can_use():
         if self.team.enemy.active.calc_DMG(self, attack) * sw >= self.team.enemy.active.HP_rem:
           can_ko.append(attack)
       
@@ -568,7 +603,7 @@ class Character(object):
     if not self.team.AI:
       attack_options = []
       for attack in self.attacks:
-        if attack.can_use(self):
+        if attack.can_use():
           attack_options.append(attack)
       
       choice = choose("What attack do you wish to use?", attack_options)
@@ -578,7 +613,7 @@ class Character(object):
       Dp.dp()
       choice = self.what_attack()
     
-    choice.use(self)
+    choice.use()
     if choice.energy_cost == 0:
       for passive in self.passives:
         if passive.type == "OnHit":
@@ -604,7 +639,7 @@ class Character(object):
   
   def take_DMG(self, attacker, attack_used):
     dmg = self.calc_DMG(attacker, attack_used)
-    dmg = dmg * attack_used.calc_MHC(attacker)
+    dmg = dmg * attack_used.calc_MHC()
     Op.add(attacker.name + " struck " + self.name)
     Op.add("for " + str(int(dmg)) + " damage")
     Op.add("using " + attack_used.name + "!")
@@ -1169,15 +1204,6 @@ class Battle(object):
           break      
     self.check_winner()
     self.end()
-
-no_eff = (0, 0, 0)
-act_ene = ("enemy", "act")
-        
-slash = MeleeAttack("slash", 15, 15, 0.75, 1.5)
-jab = MeleeAttack("jab", 10, 40, 0.5, 2.0)
-slam = MeleeAttack("slam", 30, 15, 0.5, 1.35)
-
-attacks = (slash, jab, slam)
 
 from utilities import *
 from navigate import Story
