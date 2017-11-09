@@ -30,6 +30,7 @@ Week 2: Revised/improved/reordered functions
 
 27/10/2017: Revised output
 1/11/2017 - 8/11/2017: Revised how attacks work, added hit principle
+9/11/2017 - ? : Finished Attack, added events
 
 Version 0.9
 """

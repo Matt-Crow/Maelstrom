@@ -54,14 +54,16 @@ class Area:
   def display_data(self, player):
     Op.add([self.name, self.description])
     Op.dp(False)
+    """
     for loc in self.locations:
       loc.display_data()
     for level in self.levels:
-      level.display_data()  
+      level.display_data()
+    """
     self.trav_or_play(player)
   
   def trav_or_play(self, player):
-    choice = choose("Do you wish to travel to a location, or play a level?", ("Location", "Level", "Quit"))
+    choice = choose("Do you wish to travel to a location, play a level, or quit?", ("Location", "Level", "Quit"))
     if choice == "Level":
       level_to_play = choose("Which level do you want to play?", self.levels)
       level_to_play.load_team(player)

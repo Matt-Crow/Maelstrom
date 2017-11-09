@@ -108,7 +108,33 @@ class Savefile(object):
     file.write(new)
     file.close()
 
-# TODO: add hit principle to damage, add side effects
+
+class AbstractEvent(object):
+  def __init__(self, id):
+    self.id = id
+    
+  def check_trigger(self):
+    pass
+    
+  def trip(self):
+    pass
+
+class OnHitEvent(AbstractEvent):
+  def __init__(self, id, hitter, hitee, hit_by, damage):
+    self.id = id
+    self.hitter = hitter
+    self.hitee = hitee
+    self.hit_by = hit_by
+    self.damage = damage
+    
+  def display_data(self):
+    Dp.add("OnHitEvent " + self.id)
+    Dp.add(self.hitter.name + " struck " + self.hitee.name)
+    Dp.add("using " + self.hit_by.name)
+    Dp.add("dealing " + str(self.damage) + " damage")
+    Dp.dp()
+
+# TODO: add side effects, needs onhitevent
 class AbstractAttack(object):
   """
   The regular attacks all characters can use
@@ -129,7 +155,12 @@ class AbstractAttack(object):
     self.crit = 0
     self.miss_mult = 1.0
     self.crit_mult = 1.0
-    self.energy_cost = energy_cost  
+    self.energy_cost = energy_cost
+    
+    self.side_effects = []
+  
+  def add_side_effect(self, function, chance = 100):
+    self.side_effects.push({"effect": function, "chance":chance}) 
   
   def set_user(self, user):
     self.user = user
@@ -182,6 +213,16 @@ class AbstractAttack(object):
   
   def hit(self, target):
     target.take_DMG(self.user, self)
+    for side_effect in self.side_effects:
+      rand = random.randint(self.user.get_stat("luck"), 100)
+      
+      Dp.add("Rolling for side effect...")
+      Dp.add("Rolled: " + str(rand))
+      Dp.add("Minimum to activate: " + str(side_effect["chance"]))
+      Dp.dp()
+      
+      if rand > 100 - side_effect["chance"]:
+        side_effect["effect"]()
       
   def use(self):
     self.user.lose_energy(self.energy_cost)
@@ -301,7 +342,6 @@ class OnHit(Passive):
     
     Op.dp()
 
-# display data?
 class Stat(object):
   """
   A class used to store
@@ -340,7 +380,17 @@ class Stat(object):
       if boost["duration"] > 0:
         new_boosts.append(boost)
     self.boosts = new_boosts
-
+  
+  def display_data(self):
+    Dp.add(self.name);
+    Dp.add("Raw: " + str(self.base_value))
+    Dp.add("Boosts:")
+    for boost in self.boosts:
+      Dp.add("ID: " + boost["id"])
+      Dp.add("-Amount: " + str(boost["amount"]))
+      Dp.add("-Duration: " + str(boost["duration"]))
+    Dp.add("Calculated: " + str(self.value))
+    Dp.dp()
 
 # extend to Hero and Enemy
 class Character(object):
@@ -448,7 +498,6 @@ class Character(object):
     
     return ret
   
-  # work here
   def display_data(self):
     """
     Print info on a character
@@ -457,16 +506,16 @@ class Character(object):
     Op.add("Lv. " + str(self.level) + " " + self.name)
     Op.add(self.element)
     
-    for stat in self.stats:
-      Op.add(stat.name + ": " + str(int(stat.value)))
+    for stat in STATS:
+      Op.add(stat + ": " + str(int(self.get_stat(stat))))
     
     for attack in self.attacks:
       Op.add("-" + attack.name)
-      attack.display_data()
+    
     Op.add(str(self.XP) + "/" + str(self.level * 10))
-    Op.dp(False)
     for passive in self.passives:
-      passive.display_data()
+      Op.add(passive.name)
+    Op.dp()
   
   def display_mutable_stats(self):
     for stat_name in STATS:
@@ -532,10 +581,12 @@ class Character(object):
     if self.energy < 0:
       self.energy = 0
   
+  # stat.display_data in here
   def update(self):
     self.gain_energy(self.get_stat("energy") * 0.15)
     for stat in self.stats:
       stat.update()
+      #stat.display_data();
   
   """
   AI stuff
@@ -644,6 +695,10 @@ class Character(object):
     Op.add("for " + str(int(dmg)) + " damage")
     Op.add("using " + attack_used.name + "!")
     Op.dp()
+    
+    event = OnHitEvent("Attack", attacker, self, attack_used, dmg)
+    event.display_data()
+    
     self.direct_dmg(dmg)
   
   def check_if_KOed(self):
