@@ -273,8 +273,8 @@ class AnyAttack(AbstractAttack):
       self.hit(choose("Who do you wish to hit?", target_team.members_rem))
     super(type(self), self).use()
 
-# working here
-# not fully implemented
+
+# old
 class Passive(object):
   def __init__(self, name, type, x, self_target, stat, potency, duration):
     self.name = name
@@ -295,28 +295,6 @@ class Passive(object):
   
   def activate(self, user):
     self.get_target(user).boost(self.stat, self.potency, self.duration)
-
-class Threshhold(Passive):
-  def check_trigger(self, user):
-    if self.get_target(user).hp_perc() <= self.x:
-      self.activate(user)
-    Dp.add(["Current HP: " + str(self.get_target(user).hp_perc()), "Threshhold: " + str(self.x)])
-    Dp.dp()
-  
-  def display_data(self):
-    Op.add(self.name + ":")
-    
-    if self.self_target:
-      Op.add("Inflicts user with a")
-    else:
-      Op.add("Inflicts target with a")
-      
-    Op.add(str(int(self.potency * 100)) + "% boost")
-    Op.add("to their " + self.stat + " stat")
-    Op.add("when they are at or below")
-    Op.add(str(int(self.x * 100)) + "% HP.")
-    
-    Op.dp()
 
 class OnHit(Passive):
   def check_trigger(self, user):
@@ -341,6 +319,30 @@ class OnHit(Passive):
     Op.add("for " + str(self.duration) + " turns.")
     
     Op.dp()
+
+# new
+class AbstractPassive(object):
+  def __init__(self, name):
+    self.name = name
+  
+  def display_data(self):
+    Op.add("TODO: " + self.name + " display_data")
+    Op.dp()
+
+class Threshhold(AbstractPassive):
+  def __init__(self, name, threshhold, function):
+    super(self.__class__, self).__init__(name)
+    self.threshhold = threshhold
+    self.function = function
+  
+  def set_user(self, user):
+    self.user = user
+  
+  def check_trigger(self):
+    if self.user.hp_perc() <= self.threshhold:
+      self.function(self.user)
+
+
 
 class Stat(object):
   """
@@ -442,8 +444,14 @@ class Character(object):
     self.attacks.append(data[2])
     for attack in self.attacks:
       attack.set_user(self)
+    # temp
+    self.passives = []
+    def pf(user):
+      user.boost("resistance", 0.5, -1, id = "Threshhold test")
     
-    self.passives = [Threshhold("Test", "Threshhold", 0.5, "user", "control", 0.2, 1), OnHit("Test", "OnHit", 0.5, "enemy", "control", -0.2, 3)]
+    p = Threshhold("Threshhold test", 50, pf)
+    self.passives.append(p)
+    p.set_user(self)
   
   def calc_stats(self):
     """
@@ -457,6 +465,7 @@ class Character(object):
     """
     Prepare for battle!
     """
+    self.reset_action_registers()
     for stat in self.stats:
       stat.reset_boosts()
     for attack in self.attacks:
@@ -464,21 +473,74 @@ class Character(object):
     self.calc_stats()
     self.HP_rem = self.get_stat("HP")
     self.energy = int(self.get_stat("energy") / 2.0)
-   
+  
+  # action register class?
+  def reset_action_registers(self):
+    """
+    Action registers are used to
+    hold functions which should be
+    invoked whenever a specific
+    condition is met, such as being
+    hit. They should each take an 
+    extendtion of AbstractEvent as
+    a paramter
+    """
+    self.on_hit_given_actions = []
+    self.on_hit_taken_actions = []
+    self.on_update_actions = []
+  
+  def add_on_hit_given_action(self, action, duration = -1):
+    """
+    duration is how long to check for the condition
+    """
+    self.on_hit_given_actions.push({"function":action, "duration":duration})
+  
+  def add_on_hit_taken_action(self, action, duration = -1):
+    """
+    duration of -1 means it lasts forever in battle
+    """
+    self.on_hit_taken_actions.push({"function":action, "duration":duration})
+  
+  def add_on_update_action(self, action, duration = -1):
+    """
+    """
+    self.on_update_actions.push({"function":action, "duration":duration})
+  
+  def update_action_registers(self):
+    """
+    Standard decrement, check, reasign
+    pattern I use all the time
+    """
+    def update(register):
+      new = []
+      for action in register:
+        action["duration"] -= 1
+        # don't check if negative,
+        # that way I can make stuff last forever
+        if action["duration"] != 0:
+          new.push(action)
+    update(self.on_hit_given_actions)
+    update(self.on_hit_taken_actions)
+    update(self.on_update_actions)
+  
   # change this
+  """
   def add_passive(self, name):
     from maelstrom import passives
     for passive in passives:
       if passive.name == name:
         self.passives.append(passive)
-  
+  """
   """
   Data obtaining functions:
   Used to get data about a character
   """
   
   def hp_perc(self):
-    return float(self.HP_rem) / float(self.get_stat("HP"))
+    """
+    Returns as a value between 0 and 100
+    """
+    return int((float(self.HP_rem) / float(self.get_stat("HP"))) * 100.0)
   
   def get_stat(self, name):
     """
@@ -526,6 +588,7 @@ class Character(object):
   Battle functions:
   Used during battle
   """
+  # add ID checking to prevent doubling up
   def boost(self, name, amount, duration, id = " "):
     """
     Increase or lower stats in battle
@@ -583,6 +646,10 @@ class Character(object):
   
   # stat.display_data in here
   def update(self):
+    self.update_action_registers()
+    for action in self.on_update_actions:
+      action.check_trigger()
+    
     self.gain_energy(self.get_stat("energy") * 0.15)
     for stat in self.stats:
       stat.update()
@@ -665,10 +732,6 @@ class Character(object):
       choice = self.what_attack()
     
     choice.use()
-    if choice.energy_cost == 0:
-      for passive in self.passives:
-        if passive.type == "OnHit":
-          passive.check_trigger(self)
   
   """
   Damage calculation
@@ -1080,10 +1143,6 @@ class Team(object):
     
     if self.is_up():
       self.switched_in = False
-      for member in self.members_rem:
-        for passive in member.passives:
-          if passive.type == "Threshhold":
-            passive.check_trigger(member)
       self.choose_action()
 
 class Weather(object):
