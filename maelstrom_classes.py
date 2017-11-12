@@ -274,75 +274,43 @@ class AnyAttack(AbstractAttack):
     super(type(self), self).use()
 
 
-# old
-class Passive(object):
-  def __init__(self, name, type, x, self_target, stat, potency, duration):
-    self.name = name
-    # move this?
-    self.type = type
-    # value used for calculations
-    self.x = x
-    self.self_target = self_target
-    
-    self.stat = stat
-    self.potency = potency
-    self.duration = duration
-  
-  def get_target(self, user):
-    if not self.self_target:
-      return user.team.enemy.active
-    return user
-  
-  def activate(self, user):
-    self.get_target(user).boost(self.stat, self.potency, self.duration)
 
-class OnHit(Passive):
-  def check_trigger(self, user):
-    r = random.randint(1, 100)
-    Dp.add(["Random: " + str(r), "Minimum: " + str(self.x * 100)])
-    Dp.dp()
-    if r <= self.x * 100:
-      self.activate(user)
-      
-  def display_data(self):
-    Op.add([self.name + ":", "Whenever the user"])
-    
-    if self.self_target:
-      Op.add("is struck by an enemy melee attack")
-    else:
-      Op.add("strikes an enemy with a melee attack")
-      
-    Op.add("there is a " + str(int(self.x * 100)) + "% chance")
-    
-    Op.add("the target will recieve a " + str(int(self.potency * 100)) + "% boost")
-    Op.add("to their " + self.stat + " stat")
-    Op.add("for " + str(self.duration) + " turns.")
-    
-    Op.dp()
-
-# new
 class AbstractPassive(object):
-  def __init__(self, name):
+  def __init__(self, name, desc):
     self.name = name
+    self.description = desc
+  
+  def set_user(self, user):
+    self.user = user
   
   def display_data(self):
     Op.add("TODO: " + self.name + " display_data")
     Op.dp()
 
 class Threshhold(AbstractPassive):
-  def __init__(self, name, threshhold, function):
-    super(self.__class__, self).__init__(name)
+  def __init__(self, name, desc, threshhold, function):
+    super(self.__class__, self).__init__(name, desc)
     self.threshhold = threshhold
     self.function = function
   
-  def set_user(self, user):
-    self.user = user
+  def init_for_battle(self):
+    self.user.add_on_update_action(self.check_trigger)
   
   def check_trigger(self):
+    Dp.add("Checking trigger for " + self.name)
+    Dp.add(str(self.threshhold) + "% threshhold")
+    Dp.add(str(self.user.hp_perc()) + "% user health")
     if self.user.hp_perc() <= self.threshhold:
+      Dp.add("activated")
       self.function(self.user)
-
-
+    Dp.dp()
+  
+  def display_data(self):
+    Op.add(self.name + ":")
+    Op.add(self.description)
+    Op.add("when user is at or below")
+    Op.add(str(self.threshhold) + "% maximum Hit Points") 
+    Op.dp()
 
 class Stat(object):
   """
@@ -378,9 +346,16 @@ class Stat(object):
   def update(self):
     new_boosts = []
     for boost in self.boosts:
-      boost["duration"] -= 1
-      if boost["duration"] > 0:
+      """
+      a stat boost with a duration
+      of 1 will be checked, then
+      down to 0, while a duration
+      of -1 will always fail the 
+      check; thus, lasting forever
+      """
+      if boost["duration"] != 0:
         new_boosts.append(boost)
+        boost["duration"] -= 1
     self.boosts = new_boosts
   
   def display_data(self):
@@ -447,9 +422,9 @@ class Character(object):
     # temp
     self.passives = []
     def pf(user):
-      user.boost("resistance", 0.5, -1, id = "Threshhold test")
+      user.boost("resistance", 20, 1, id = "Threshhold test")
     
-    p = Threshhold("Threshhold test", 50, pf)
+    p = Threshhold("Threshhold test", "Inflices user with a 20% boost to their resistance stat", 50, pf)
     self.passives.append(p)
     p.set_user(self)
   
@@ -466,10 +441,14 @@ class Character(object):
     Prepare for battle!
     """
     self.reset_action_registers()
+    
     for stat in self.stats:
       stat.reset_boosts()
     for attack in self.attacks:
       attack.init_for_battle()
+    for passive in self.passives:
+      passive.init_for_battle()
+    
     self.calc_stats()
     self.HP_rem = self.get_stat("HP")
     self.energy = int(self.get_stat("energy") / 2.0)
@@ -504,7 +483,7 @@ class Character(object):
   def add_on_update_action(self, action, duration = -1):
     """
     """
-    self.on_update_actions.push({"function":action, "duration":duration})
+    self.on_update_actions.append({"function":action, "duration":duration})
   
   def update_action_registers(self):
     """
@@ -518,19 +497,11 @@ class Character(object):
         # don't check if negative,
         # that way I can make stuff last forever
         if action["duration"] != 0:
-          new.push(action)
+          new.append(action)
     update(self.on_hit_given_actions)
     update(self.on_hit_taken_actions)
     update(self.on_update_actions)
   
-  # change this
-  """
-  def add_passive(self, name):
-    from maelstrom import passives
-    for passive in passives:
-      if passive.name == name:
-        self.passives.append(passive)
-  """
   """
   Data obtaining functions:
   Used to get data about a character
@@ -568,15 +539,19 @@ class Character(object):
     Op.add("Lv. " + str(self.level) + " " + self.name)
     Op.add(self.element)
     
+    Op.add("STATS:")
     for stat in STATS:
       Op.add(stat + ": " + str(int(self.get_stat(stat))))
     
+    Op.add("ACTIVES:")
     for attack in self.attacks:
       Op.add("-" + attack.name)
     
-    Op.add(str(self.XP) + "/" + str(self.level * 10))
+    Op.add("PASSIVES:")
     for passive in self.passives:
-      Op.add(passive.name)
+      Op.add("-" + passive.name)
+    
+    Op.add(str(self.XP) + "/" + str(self.level * 10))
     Op.dp()
   
   def display_mutable_stats(self):
@@ -592,11 +567,21 @@ class Character(object):
   def boost(self, name, amount, duration, id = " "):
     """
     Increase or lower stats in battle
+    amount will be an integeral amount
+    20 translates to 20%
     """
     mult = 1 + self.get_stat("potency") / 100
-    for stat in self.stats:
-      if stat.name == name:
-        stat.boost(id, amount * mult, duration)
+    
+    found = False
+    statNum = 0
+    while statNum < len(self.stats) and not found:
+      if self.stats[statNum].name == name:
+        found = True
+        self.stats[statNum].boost(id, amount * mult / 100, duration)
+      statNum += 1
+    if not found:
+      Dp.add("STAT NOT FOUND: " + name)
+      Dp.dp()
   
   def heal(self, percent):
     """
@@ -648,7 +633,7 @@ class Character(object):
   def update(self):
     self.update_action_registers()
     for action in self.on_update_actions:
-      action.check_trigger()
+      action["function"]()
     
     self.gain_energy(self.get_stat("energy") * 0.15)
     for stat in self.stats:
