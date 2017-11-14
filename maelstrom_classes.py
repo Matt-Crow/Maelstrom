@@ -120,6 +120,14 @@ class AbstractEvent(object):
     pass
 
 class OnHitEvent(AbstractEvent):
+  """
+  an OnHitEvent is created during 
+  battle whenever one character 
+  hits another. The event is then
+  passed in to all of the hitter's
+  onHitGiven functions and all of
+  the hitee's onHitTaken functions
+  """
   def __init__(self, id, hitter, hitee, hit_by, damage):
     self.id = id
     self.hitter = hitter
@@ -134,7 +142,10 @@ class OnHitEvent(AbstractEvent):
     Dp.add("dealing " + str(self.damage) + " damage")
     Dp.dp()
 
-# TODO: add side effects, needs onhitevent
+"""
+Actives:
+"""
+# TODO: add side effects
 class AbstractAttack(object):
   """
   The regular attacks all characters can use
@@ -274,8 +285,22 @@ class AnyAttack(AbstractAttack):
     super(type(self), self).use()
 
 
-
+"""
+Passives
+"""
 class AbstractPassive(object):
+  """
+  HOW TO ADD A PASSIVE TO A CHARACTER:
+  1. create a function for the passive:
+  ---for onUpdate: f(user)
+  ---for any onHit: f(user, event)
+  2. define the passive:
+  * pas = ~~~Passive(~ ~ ~ ~ ~ ~, f)
+  3. append the passive:
+  * character.passives.append(pas)
+  4. set the user:
+  * pas.set_user(character)
+  """
   def __init__(self, name, desc):
     self.name = name
     self.description = desc
@@ -288,6 +313,9 @@ class AbstractPassive(object):
     Op.dp()
 
 class Threshhold(AbstractPassive):
+  """
+  Automatically invoked at the end of every turn
+  """
   def __init__(self, name, desc, threshhold, function):
     super(self.__class__, self).__init__(name, desc)
     self.threshhold = threshhold
@@ -311,6 +339,60 @@ class Threshhold(AbstractPassive):
     Op.add("when user is at or below")
     Op.add(str(self.threshhold) + "% maximum Hit Points") 
     Op.dp()
+
+class OnHitGiven(AbstractPassive):
+  def __init__(self, name, desc, chance, function):
+    super(self.__class__, self).__init__(name, desc)
+    self.chance = chance
+    self.function = function
+  
+  def init_for_battle(self):
+    self.user.add_on_hit_given_action(self.check_trigger)
+  
+  def check_trigger(self, onHitEvent):
+    rand = random.randint(self.user.get_stat("luck"), 100)
+    Dp.add("Checking trigger for " + self.name)
+    Dp.add("Need to roll " + str(100 - self.chance) + " or higher to activate")
+    Dp.add("Rolled " + str(rand))
+    if rand > 100 - self.chance:
+      Dp.add("activated")
+      self.function(self.user, onHitEvent)
+    Dp.dp()
+  
+  def display_data(self):
+    Op.add(self.name + ":")
+    Op.add("Whenever the user strikes an opponent, ")
+    Op.add("there is a " + str(self.chance) + " chance that")
+    Op.add(self.description)
+    Op.dp()
+
+class OnHitTaken(AbstractPassive):
+  def __init__(self, name, desc, chance, function):
+    super(self.__class__, self).__init__(name, desc)
+    self.chance = chance
+    self.function = function
+  
+  def init_for_battle(self):
+    self.user.add_on_hit_taken_action(self.check_trigger)
+  
+  def check_trigger(self, onHitEvent):
+    rand = random.randint(self.user.get_stat("luck"), 100)
+    Dp.add("Checking trigger for " + self.name)
+    Dp.add("Need to roll " + str(100 - self.chance) + " or higher to activate")
+    Dp.add("Rolled " + str(rand))
+    if rand > 100 - self.chance:
+      Dp.add("activated")
+      self.function(self.user, onHitEvent)
+    Dp.dp()
+  
+  def display_data(self):
+    Op.add(self.name + ":")
+    Op.add("Whenever the user is struck by an opponent, ")
+    Op.add("there is a " + str(self.chance) + " chance that")
+    Op.add(self.description)
+    Op.dp()
+
+
 
 class Stat(object):
   """
@@ -421,12 +503,34 @@ class Character(object):
       attack.set_user(self)
     # temp
     self.passives = []
+    
     def pf(user):
       user.boost("resistance", 20, 1, id = "Threshhold test")
     
-    p = Threshhold("Threshhold test", "Inflices user with a 20% boost to their resistance stat", 50, pf)
+    p = Threshhold("Threshhold test", "Inflicts user with a 20% boost to their resistance stat", 50, pf)
     self.passives.append(p)
     p.set_user(self)
+    
+    
+    def f1(user, event):
+      Op.add("BOOM!")
+      Op.dp()
+      event.hitee.direct_dmg(999)
+    
+    o = OnHitGiven("BOOM", "explode the target", 20, f1)
+    self.passives.append(o)
+    o.set_user(self)
+    
+    
+    
+    def f2(user, event):
+      Op.add("ow")
+      Op.dp()
+      event.hitee.boost("control", 100, 5)
+    
+    h = OnHitTaken("ow", "double their control stat", 50, f2)
+    self.passives.append(h)
+    h.set_user(self)
   
   def calc_stats(self):
     """
@@ -472,13 +576,13 @@ class Character(object):
     """
     duration is how long to check for the condition
     """
-    self.on_hit_given_actions.push({"function":action, "duration":duration})
+    self.on_hit_given_actions.append({"function":action, "duration":duration})
   
   def add_on_hit_taken_action(self, action, duration = -1):
     """
     duration of -1 means it lasts forever in battle
     """
-    self.on_hit_taken_actions.push({"function":action, "duration":duration})
+    self.on_hit_taken_actions.append({"function":action, "duration":duration})
   
   def add_on_update_action(self, action, duration = -1):
     """
@@ -747,6 +851,12 @@ class Character(object):
     event = OnHitEvent("Attack", attacker, self, attack_used, dmg)
     event.display_data()
     
+    for passive in self.on_hit_taken_actions:
+      passive["function"](event)
+    
+    for passive in attacker.on_hit_given_actions:
+      passive["function"](event)
+    
     self.direct_dmg(dmg)
   
   def check_if_KOed(self):
@@ -793,9 +903,6 @@ class Character(object):
     level cap by 5
     """
     self.level_set = self.level_set + 1
-    
-  def unlock_passive(self, pas):
-    self.passives.append(choose("Choose a passive:", pas))
 
 class Contract(object):
   def __init__(self, comes_with):
@@ -1107,8 +1214,7 @@ class Team(object):
       self.choose_switchin()
       self.switched_in = True
     self.active.choose_attack()
-  
-  # check passive triggers    
+      
   def do_turn(self):
     """
     This is where stuff happens

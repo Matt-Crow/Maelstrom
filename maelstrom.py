@@ -104,10 +104,6 @@ if __name__ == "__main__":
   #player = load()
   player = Team("Player team", {"name": "Alexandre", "level": 1}, False)
   
-  """
-  for member in player.team:
-    member.unlock_passive(passives)
-  """
   #rain_village.display_data(player)
   #hail_village.display_data(player)
   lib_cav.display_data(player)
