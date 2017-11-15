@@ -209,7 +209,7 @@ class AbstractAttack(object):
     ret = 1.0
 	
     if (self.miss > 0 and self.crit > 0):
-      rand = random.randint(self.user.get_stat("luck"), 100)
+      rand = random.randint(int(self.user.get_stat("luck")), 100)
       Dp.add(["rand in calc_MHC: " + str(rand), "Crit: " + str(100 - self.crit), "Miss: " + str(self.miss)])
       Dp.dp()
       if rand <= self.miss:
@@ -291,22 +291,32 @@ Passives
 class AbstractPassive(object):
   """
   HOW TO ADD A PASSIVE TO A CHARACTER:
-  1. create a function for the passive:
-  ---for onUpdate: f(user)
-  ---for any onHit: f(user, event)
-  2. define the passive:
-  * pas = ~~~Passive(~ ~ ~ ~ ~ ~, f)
-  3. append the passive:
+  1. define the passive:
+  * pas = ~~~Passive(~ ~ ~ ~ ~ ~)
+  2. append the passive:
   * character.passives.append(pas)
-  4. set the user:
+  3. set the user:
   * pas.set_user(character)
   """
-  def __init__(self, name, desc):
+  def __init__(self, name, stat, potency, duration, targets_user = True):
     self.name = name
-    self.description = desc
+    self.boosted_stat = stat
+    self.boost_amount = potency
+    self.boost_duration = duration
+    self.desc = " with a " + str(potency) + "% boost to their " + stat + " stat for " + str(duration) + " turns "
+    self.targets_user = targets_user
   
   def set_user(self, user):
     self.user = user
+  
+  def find_target(self):
+    ret = self.user
+    if not self.targets_user:
+      ret = self.user.team.enemy.active
+    return ret
+  
+  def f(self):
+    self.find_target().boost(self.boosted_stat, self.boost_amount, self.boost_duration, self.name)
   
   def display_data(self):
     Op.add("TODO: " + self.name + " display_data")
@@ -316,10 +326,9 @@ class Threshhold(AbstractPassive):
   """
   Automatically invoked at the end of every turn
   """
-  def __init__(self, name, desc, threshhold, function):
-    super(self.__class__, self).__init__(name, desc)
+  def __init__(self, name, threshhold, stat, potency, duration):
+    super(self.__class__, self).__init__(name, stat, potency, duration)
     self.threshhold = threshhold
-    self.function = function
   
   def init_for_battle(self):
     self.user.add_on_update_action(self.check_trigger)
@@ -330,69 +339,74 @@ class Threshhold(AbstractPassive):
     Dp.add(str(self.user.hp_perc()) + "% user health")
     if self.user.hp_perc() <= self.threshhold:
       Dp.add("activated")
-      self.function(self.user)
+      self.f()
     Dp.dp()
   
   def display_data(self):
     Op.add(self.name + ":")
-    Op.add(self.description)
-    Op.add("when user is at or below")
+    Op.add("Inflicts user")
+    Op.add(self.desc)
+    Op.add("when at or below")
     Op.add(str(self.threshhold) + "% maximum Hit Points") 
     Op.dp()
 
 class OnHitGiven(AbstractPassive):
-  def __init__(self, name, desc, chance, function):
-    super(self.__class__, self).__init__(name, desc)
+  def __init__(self, name, chance, stat, potency, duration, targets_user = True):
+    super(self.__class__, self).__init__(name, stat, potency, duration, targets_user)
     self.chance = chance
-    self.function = function
   
   def init_for_battle(self):
     self.user.add_on_hit_given_action(self.check_trigger)
   
   def check_trigger(self, onHitEvent):
-    rand = random.randint(self.user.get_stat("luck"), 100)
+    rand = random.randint(int(self.user.get_stat("luck")), 100)
     Dp.add("Checking trigger for " + self.name)
     Dp.add("Need to roll " + str(100 - self.chance) + " or higher to activate")
     Dp.add("Rolled " + str(rand))
     if rand > 100 - self.chance:
       Dp.add("activated")
-      self.function(self.user, onHitEvent)
+      self.f()
     Dp.dp()
   
   def display_data(self):
     Op.add(self.name + ":")
     Op.add("Whenever the user strikes an opponent, ")
-    Op.add("there is a " + str(self.chance) + " chance that")
-    Op.add(self.description)
+    Op.add("there is a " + str(self.chance) + " chance that the")
+    if self.targets_user:
+      Op.add("user")
+    else:
+      Op.add("target")
+    Op.add(self.desc)
     Op.dp()
 
 class OnHitTaken(AbstractPassive):
-  def __init__(self, name, desc, chance, function):
-    super(self.__class__, self).__init__(name, desc)
+  def __init__(self, name, chance, stat, potency, duration, targets_user = True):
+    super(self.__class__, self).__init__(name, stat, potency, duration, targets_user)
     self.chance = chance
-    self.function = function
   
   def init_for_battle(self):
     self.user.add_on_hit_taken_action(self.check_trigger)
   
   def check_trigger(self, onHitEvent):
-    rand = random.randint(self.user.get_stat("luck"), 100)
+    rand = random.randint(int(self.user.get_stat("luck")), 100)
     Dp.add("Checking trigger for " + self.name)
     Dp.add("Need to roll " + str(100 - self.chance) + " or higher to activate")
     Dp.add("Rolled " + str(rand))
     if rand > 100 - self.chance:
       Dp.add("activated")
-      self.function(self.user, onHitEvent)
+      self.f()
     Dp.dp()
   
   def display_data(self):
     Op.add(self.name + ":")
     Op.add("Whenever the user is struck by an opponent, ")
-    Op.add("there is a " + str(self.chance) + " chance that")
-    Op.add(self.description)
+    Op.add("there is a " + str(self.chance) + " chance that the")
+    if self.targets_user:
+      Op.add("user")
+    else:
+      Op.add("target")
+    Op.add(self.desc)
     Op.dp()
-
-
 
 class Stat(object):
   """
@@ -504,31 +518,15 @@ class Character(object):
     # temp
     self.passives = []
     
-    def pf(user):
-      user.boost("resistance", 20, 1, id = "Threshhold test")
-    
-    p = Threshhold("Threshhold test", "Inflicts user with a 20% boost to their resistance stat", 50, pf)
+    p = Threshhold("Threshhold test", 50, "resistance", 50, 1)
     self.passives.append(p)
     p.set_user(self)
     
-    
-    def f1(user, event):
-      Op.add("BOOM!")
-      Op.dp()
-      event.hitee.direct_dmg(999)
-    
-    o = OnHitGiven("BOOM", "explode the target", 20, f1)
+    o = OnHitGiven("OnHitGivenTest", 50, "control", -50, 1, False)
     self.passives.append(o)
     o.set_user(self)
     
-    
-    
-    def f2(user, event):
-      Op.add("ow")
-      Op.dp()
-      event.hitee.boost("control", 100, 5)
-    
-    h = OnHitTaken("ow", "double their control stat", 50, f2)
+    h = OnHitTaken("OnHitTakenTest", 50, "luck", 50, -1)
     self.passives.append(h)
     h.set_user(self)
   
