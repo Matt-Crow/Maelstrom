@@ -145,11 +145,9 @@ class OnHitEvent(AbstractEvent):
 """
 Actives:
 """
-# TODO: add side effects
 class AbstractAttack(object):
   """
-  The regular attacks all characters can use
-  as well as characters' exclusive Specials
+  The attacks all characters can use
   """
   def __init__(self, name, mult, energy_cost):
     """
@@ -408,6 +406,8 @@ class OnHitTaken(AbstractPassive):
     Op.add(self.desc)
     Op.dp()
 
+
+
 class Stat(object):
   """
   A class used to store
@@ -465,8 +465,9 @@ class Stat(object):
     Dp.add("Calculated: " + str(self.value))
     Dp.dp()
 
-# extend to Hero and Enemy
-class Character(object):
+
+# still need to add constructor to subclasses
+class AbstractCharacter(object):
   """
   A Class containing all the info for a character
   """
@@ -475,7 +476,6 @@ class Character(object):
   Initializers:
   Used to 'build' the characters
   """
-  
   def __init__(self, name, level):
     """
     """
@@ -743,6 +743,95 @@ class Character(object):
       #stat.display_data();
   
   """
+  Damage calculation
+  """
+  def calc_DMG(self, attacker, attack_used):
+    """
+    MHC is not checked here so that it doesn't
+    mess with AI
+    """
+    damage = 0
+    for damage_type, value in attack_used.damages.items():
+      damage += value * (attacker.get_stat(damage_type + " damage multiplier") / self.get_stat(damage_type + " damage reduction"))
+    damage *= attacker.get_stat("control") / self.get_stat("resistance")
+    
+    if attacker.team.switched_in:
+      damage = damage * 0.75
+      
+    return damage
+  
+  def take_DMG(self, attacker, attack_used):
+    dmg = self.calc_DMG(attacker, attack_used)
+    dmg = dmg * attack_used.calc_MHC()
+    Op.add(attacker.name + " struck " + self.name)
+    Op.add("for " + str(int(dmg)) + " damage")
+    Op.add("using " + attack_used.name + "!")
+    Op.dp()
+    
+    event = OnHitEvent("Attack", attacker, self, attack_used, dmg)
+    event.display_data()
+    
+    for passive in self.on_hit_taken_actions:
+      passive["function"](event)
+    
+    for passive in attacker.on_hit_given_actions:
+      passive["function"](event)
+    
+    self.direct_dmg(dmg)
+  
+  def check_if_KOed(self):
+    """
+    Am I dead yet?
+    """
+    return self.HP_rem <= 0
+
+class PlayerCharacter(AbstractCharacter):
+  def choose_attack(self):
+    attack_options = []
+    for attack in self.attacks:
+      if attack.can_use():
+        attack_options.append(attack)
+    
+    choose("What attack do you wish to use?", attack_options).use()
+  
+  """
+  Post-battle actions:
+  Occur after battle
+  """        
+  def gain_XP(self, amount):
+    """
+    Give experience.
+    Caps at the most XP required for a battle
+    (Can't level up twice after one battle)
+    """
+    self.XP = self.XP + amount
+    if self.XP >= self.level * 10: 
+      if self.level < self.level_set * 5:
+        Op.add(self.name + " leveled up!")
+        self.level_up()
+      else:
+        Op.add(self.name + " is being held back... perhaps a special item will help?")
+      Op.dp()
+  
+  def level_up(self):
+    """
+    Increases level
+    """
+    self.XP = 0
+    self.level += 1
+    self.calc_stats()
+    self.HP_rem = self.get_stat("HP")
+    self.display_data()
+  
+  def plus_level_set(self):
+    """
+    Increases your 
+    level cap by 5
+    """
+    self.level_set = self.level_set + 1
+
+class EnemyCharacter(AbstractCharacter):
+  """
   AI stuff
   """
   def best_attack(self):
@@ -800,211 +889,29 @@ class Character(object):
     If you cannot KO...
     """
     return self.best_attack()
-    
+  
   def choose_attack(self):
-    """
-    How doth thee strike?
-    """
-    if not self.team.AI:
-      attack_options = []
-      for attack in self.attacks:
-        if attack.can_use():
-          attack_options.append(attack)
-      
-      choice = choose("What attack do you wish to use?", attack_options)
-      
-    else:
-      Dp.add("AI is choosing attack...")
-      Dp.dp()
-      choice = self.what_attack()
-    
-    choice.use()
-  
-  """
-  Damage calculation
-  """
-  def calc_DMG(self, attacker, attack_used):
-    """
-    MHC is not checked here so that it doesn't
-    mess with AI
-    """
-    damage = 0
-    for damage_type, value in attack_used.damages.items():
-      damage += value * (attacker.get_stat(damage_type + " damage multiplier") / self.get_stat(damage_type + " damage reduction"))
-    damage *= attacker.get_stat("control") / self.get_stat("resistance")
-    
-    if attacker.team.switched_in:
-      damage = damage * 0.75
-      
-    return damage
-  
-  def take_DMG(self, attacker, attack_used):
-    dmg = self.calc_DMG(attacker, attack_used)
-    dmg = dmg * attack_used.calc_MHC()
-    Op.add(attacker.name + " struck " + self.name)
-    Op.add("for " + str(int(dmg)) + " damage")
-    Op.add("using " + attack_used.name + "!")
-    Op.dp()
-    
-    event = OnHitEvent("Attack", attacker, self, attack_used, dmg)
-    event.display_data()
-    
-    for passive in self.on_hit_taken_actions:
-      passive["function"](event)
-    
-    for passive in attacker.on_hit_given_actions:
-      passive["function"](event)
-    
-    self.direct_dmg(dmg)
-  
-  def check_if_KOed(self):
-    """
-    Am I dead yet?
-    """
-    return self.HP_rem <= 0
-  
-  """
-  Post-battle actions:
-  Occur after battle
-  """        
-  def gain_XP(self, amount):
-    """
-    Give experience.
-    Caps at the most XP required for a battle
-    (Can't level up twice after one battle)
-    """
-    if self.team.AI:
-      return
-    
-    self.XP = self.XP + amount
-    if self.XP >= self.level * 10: 
-      if self.level < self.level_set * 5:
-        Op.add(self.name + " leveled up!")
-        self.level_up()
-      else:
-        Op.add(self.name + " is being held back... perhaps a special item will help?")
-      Op.dp()
-  
-  def level_up(self):
-    """
-    Increases level
-    """
-    self.XP = 0
-    self.level += 1
-    self.calc_stats()
-    self.HP_rem = self.get_stat("HP")
-    self.display_data()
-  
-  def plus_level_set(self):
-    """
-    Increases your 
-    level cap by 5
-    """
-    self.level_set = self.level_set + 1
+    self.what_attack().use()
 
-class Contract(object):
-  def __init__(self, comes_with):
-    """
-    A contract is used to hire a
-    new character, or boost an old
-    one.
-    """
-    self.name = "Contract"
-    self.poss = []
-    comes_with = to_list(comes_with)
-    if comes_with[0] == None:
-      Dp.add("No set characters in contract.")
-      Dp.dp()
-    else:
-      for character in comes_with:
-        self.poss.append(character)
-    
-    poss = []
-    for key in characters.keys():
-      poss.append(key)
-    size = len(self.poss)
-    while size < 4:
-      num = random.randint(1, len(poss) - 1)
-      if poss[num] in self.poss:
-        continue
-      self.poss.append(poss[num])
-      size += 1
-  
-  def use(self):
-    """
-    Ask the player if they want
-    a hint, then let them choose
-    a character.
-    RETURNS THE ANSWER
-    DOES NOT CHANGE THE PLAYER'S TEAM
-    """
-    Op.add("*Recruiting*")
-    Op.dp()
-    char = []
-    for member in self.poss:
-      char.append(Character(member, 1))
-    
-    for member in char:
-      member.calc_stats()
-    
-    pick_or_hint = choose("Do you want a hint before choosing?", ("Yes", "No"))
-    if pick_or_hint == "Yes":
-      hint = choose("What do you want to see?", ("HP", "RES", "CON", "STR", "Element"))
-      marks = "?"
-      for member in char:
-        hints = {
-          "HP" : member.get_stat("HP"), 
-          "RES" : member.get_stat("RES"),
-          "CON" : member.get_stat("CON"),
-          "STR" : member.get_stat("STR"),
-          "Element" : member.element
-        }
-        Op.add(marks + ": " + str(hints[hint]))
-        marks = marks + "?"
-      Op.dp()
-                    
-    new = choose("Who do you want to hire?", ("?", "??", "???", "????"))
-    return {"name": self.poss[len(new) - 1], "level": 1}
 
-# extend to player and enemy teams
-class Team(object):
+# shorten choose action by making in battle display data,
+# add constructors to subclasses
+class AbstractTeam(object):
   """
   Teams are used to group characters
   together so that the program knows
   who are enemies, and who are allies.
   """
-  def __init__(self, name, members, AI = False):
+  def __init__(self, name, members):
     self.team = []
     self.name = name
-    self.AI = AI
-    self.arsenal = []
-    self.contracts = []
     
     members = to_list(members)
     for new_member in members:
       self.team.append(Character(new_member["name"], new_member["level"]))
     for member in self.team:
       member.team = self
-      
-  def add_member(self, new_member):
-    """
-    Add a member to a team.
-    """
-    for member in self.team:
-      if new_member["name"] == member.name:
-        member.stars += 1
-        Op.add(member.name + "'s stats were boosted!")
-        Op.dp()
-        member.init_for_battle()
-        member.display_data()
-        return False
-    self.team.append(Character(new_member["name"], new_member["level"]))
-    Op.add(new_member["name"] + " joined " + self.name + "!")
-    Op.dp()
-    self.team[-1].team = self
-    self.team[-1].init_for_battle()
-    self.team[-1].display_data()
-    
+  
   def find_enemy(self, teams):
     """
     Take a list of teams 
@@ -1039,13 +946,6 @@ class Team(object):
     Detects when you have only one member left
     """
     return len(self.members_rem) == 1
-   
-  def knock_out(self, member):
-    """
-    Delete a warrior
-    from members_rem
-    """
-    self.members_rem.remove(member)
   
   def init_active(self):
     """
@@ -1079,15 +979,103 @@ class Team(object):
     Op.dp(False)
     for member in self.team:
       member.display_data()
+     
+  def do_turn(self):
+    """
+    This is where stuff happens
+    """
+    new_members_rem = []
+    for member in self.members_rem:
+      if not member.check_if_KOed():
+        new_members_rem.append(member)
+        member.update()
+      else:
+        Op.add(member.name + " is out of the game!")
+        Op.dp()
+    self.members_rem = new_members_rem
     
+    if self.active.check_if_KOed() and self.is_up():
+      self.choose_switchin()
+    
+    if self.is_up():
+      self.switched_in = False
+      self.choose_action()
+
+class PlayerTeam(AbstractTeam):
+  
+  def add_member(self, new_member):
+    """
+    Add a member to a team.
+    """
+    for member in self.team:
+      if new_member["name"] == member.name:
+        member.stars += 1
+        Op.add(member.name + "'s stats were boosted!")
+        Op.dp()
+        member.init_for_battle()
+        member.display_data()
+        return False
+    self.team.append(Character(new_member["name"], new_member["level"]))
+    Op.add(new_member["name"] + " joined " + self.name + "!")
+    Op.dp()
+    self.team[-1].team = self
+    self.team[-1].init_for_battle()
+    self.team[-1].display_data()
+  
+  """
+  Choices are made using these functions
+  """         
+  def choose_switchin(self):
+    """
+    Who will fight?
+    """
+    choices = []
+    for member in self.members_rem:
+      if member != self.active:
+        choices.append(member)
+    
+    self.switch(choose("Who do you want to bring in?", choices))
+      
+    Op.add(self.active.name + " up!")
+    Op.dp()
+                                    
+  def choose_action(self):
+    """
+    What to do, what to do...
+    """
+    Op.add(self.name)
+    for member in self.members_rem:
+      Op.add("* " + member.name + " " + str(int(member.HP_rem)) + "/" + str(int(member.get_stat("HP"))) + " " + member.element)
+        
+    Op.add("Currently active: " + self.active.name)
+    self.active.display_mutable_stats()
+    Op.add(self.active.name + "'s Energy: " + str(self.active.energy))
+    Op.add("Active enemy: " + self.enemy.active.name + " " + str(int(self.enemy.active.HP_rem)) + "/" + str(int(self.enemy.active.get_stat("HP"))) + " " + self.enemy.active.element)
+    
+    Op.dp()
+    
+    choices = ["Attack"]
+    
+    if not self.one_left():
+      choices.append("Switch")
+    
+    if choose("What do you wish to do?", choices) == "Switch":
+      self.choose_switchin()
+      self.switched_in = True
+    self.active.choose_attack()
+
+class EnemyTeam(AbstractTeam):
   """
   AI stuff
   BENCHIT NEEDS FIX
+  general improvements needed
   """
   def should_switch(self):
     """
     First, check if our active can KO
     """
+    if self.one_left():
+      return "Attack"
     if self.enemy.active.calc_DMG(self.active, self.active.best_attack()) >= self.enemy.active.HP_rem:
       return "Attack"
     """
@@ -1147,7 +1135,7 @@ class Team(object):
         
     rand = random.randint(0, len(array) - 1)
     return array[rand]  
-  
+
   """
   Choices are made using these functions
   """         
@@ -1155,24 +1143,7 @@ class Team(object):
     """
     Who will fight?
     """
-    
-    if self.one_left():
-      self.switch(self.members_rem[0])
-      return
-    
-    choices = []
-    for member in self.members_rem:
-      if member != self.active:
-        choices.append(member)
-    
-    if not self.AI:
-      switch_for = choose("Who do you want to bring in?", choices)
-    else:
-      Dp.add("AI is deciding...")
-      Dp.dp()
-      switch_for = self.who_switch()
-    
-    self.switch(switch_for)
+    self.switch(self.who_switch())
       
     Op.add(self.active.name + " up!")
     Op.dp()
@@ -1196,43 +1167,13 @@ class Team(object):
     
     if not self.one_left():
       choices.append("Switch")
-    
-    if not self.AI:
-      attack_switch = choose("What do you wish to do?", choices)
-    else:
-      if len(choices) == 1:
-        attack_switch = "Attack"
-      else:
-        Dp.add("AI is deciding if it should switch...")
-        attack_switch = self.should_switch()
-        Dp.add(attack_switch)
-        Dp.dp()
       
-    if attack_switch == "Switch":
+    if self.should_switch() == "Switch":
       self.choose_switchin()
       self.switched_in = True
     self.active.choose_attack()
-      
-  def do_turn(self):
-    """
-    This is where stuff happens
-    """
-    new_members_rem = []
-    for member in self.members_rem:
-      if not member.check_if_KOed():
-        new_members_rem.append(member)
-        member.update()
-      else:
-        Op.add(member.name + " is out of the game!")
-        Op.dp()
-    self.members_rem = new_members_rem
-    
-    if self.active.check_if_KOed() and self.is_up():
-      self.choose_switchin()
-    
-    if self.is_up():
-      self.switched_in = False
-      self.choose_action()
+
+
 
 class Weather(object):
   """
