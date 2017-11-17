@@ -11,6 +11,9 @@ passives = []
 ELEMENTS = ("lightning", "rain", "hail", "wind")
 STATS = ("control", "resistance", "Potency", "luck", "energy")
 
+#add general random roller function
+
+
 def get_hit_perc(lv):
   """
   Calculates how much
@@ -109,6 +112,9 @@ class Savefile(object):
     file.close()
 
 
+"""
+Events
+"""
 class AbstractEvent(object):
   def __init__(self, id):
     self.id = id
@@ -407,7 +413,9 @@ class OnHitTaken(AbstractPassive):
     Op.dp()
 
 
-
+"""
+Poor stat, all alone :(
+"""
 class Stat(object):
   """
   A class used to store
@@ -466,7 +474,10 @@ class Stat(object):
     Dp.dp()
 
 
-# still need to add constructor to subclasses
+
+"""
+Characters
+"""
 class AbstractCharacter(object):
   """
   A Class containing all the info for a character
@@ -476,20 +487,11 @@ class AbstractCharacter(object):
   Initializers:
   Used to 'build' the characters
   """
-  def __init__(self, name, level):
+  def __init__(self, name, data, level):
     """
     """
     self.name = name
-    if name in characters:
-      data = characters[name]
-    elif name in enemies:
-      data = enemies[name]
-    else:
-      data = ((0, 0, 0, 0, 0), "stone", None)
-    
-    self.stats = []
-    
-    self.stats.append(Stat("HP", 100))
+    self.stats = [Stat("HP", 100)]
     
     stat_num = 0
     while stat_num < 5:
@@ -505,17 +507,24 @@ class AbstractCharacter(object):
       self.stats.append(Stat(element + " damage reduction", 100))
     
     self.element = data[1]
-    self.special = data[2]
     self.level = level
     self.XP = 0
     self.level_set = 1
-    self.stars = 0
-    #ugly
-    self.attacks = [MeleeAttack("slash", 1.0, 15, 15, 0.75, 1.5), MeleeAttack("jab", 0.75, 10, 40, 0.5, 2.0), MeleeAttack("slam", 1.35, 30, 15, 0.5, 1.35)]
-    self.attacks.append(data[2])
+    
+    self.attacks = [data[2]]
+    self.add_default_actives()
+    self.set_passives_to_defaults()
+  
+  #temporary
+  def add_default_actives(self):
+    self.attacks.append(MeleeAttack("slash", 1.0, 15, 15, 0.75, 1.5))
+    self.attacks.append(MeleeAttack("jab", 0.75, 10, 40, 0.5, 2.0))
+    self.attacks.append(MeleeAttack("slam", 1.35, 30, 15, 0.5, 1.35))
     for attack in self.attacks:
       attack.set_user(self)
-    # temp
+  
+  #temporary
+  def set_passives_to_defaults(self):
     self.passives = []
     
     p = Threshhold("Threshhold test", 50, "resistance", 50, 1)
@@ -831,6 +840,9 @@ class PlayerCharacter(AbstractCharacter):
     self.level_set = self.level_set + 1
 
 class EnemyCharacter(AbstractCharacter):
+  def __init__(self, name, level):
+    super(self.__class__, self).__init__(name, enemies[name], level)
+  
   """
   AI stuff
   """
@@ -894,24 +906,15 @@ class EnemyCharacter(AbstractCharacter):
     self.what_attack().use()
 
 
-# shorten choose action by making in battle display data,
-# add constructors to subclasses
+"""
+Teams
+"""
 class AbstractTeam(object):
   """
   Teams are used to group characters
   together so that the program knows
   who are enemies, and who are allies.
   """
-  def __init__(self, name, members):
-    self.team = []
-    self.name = name
-    
-    members = to_list(members)
-    for new_member in members:
-      self.team.append(Character(new_member["name"], new_member["level"]))
-    for member in self.team:
-      member.team = self
-  
   def find_enemy(self, teams):
     """
     Take a list of teams 
@@ -952,8 +955,6 @@ class AbstractTeam(object):
     Elect a leader
     """
     self.active = self.use[0]
-    if not self.AI:
-      self.active = choose("Who do you want to lead with?", self.use)
       
   def switch(self, member):
     """
@@ -971,15 +972,30 @@ class AbstractTeam(object):
       self.members_rem.append(member)
     self.init_active()
   
-  def display_data(self):
+  def list_members(self):
     """
-    Show info for a team
+    Display the data
+    of each member
+    of the team
     """
     Op.add(self.name)
     Op.dp(False)
     for member in self.team:
       member.display_data()
-     
+  
+  def display_data(self):
+    """
+    Show info for a team
+    """
+    Op.add(self.name)
+    for member in self.members_rem:
+      Op.add("* " + member.name + " " + str(int(member.HP_rem)) + "/" + str(int(member.get_stat("HP"))))
+    Op.add("Currently active: " + self.active.name)
+    self.active.display_mutable_stats()
+    Op.add(self.active.name + "'s Energy: " + str(self.active.energy))
+    Op.add("Active enemy: " + self.enemy.active.name + " " + str(int(self.enemy.active.HP_rem)) + "/" + str(int(self.enemy.active.get_stat("HP"))))
+    Op.dp()
+    
   def do_turn(self):
     """
     This is where stuff happens
@@ -1002,25 +1018,12 @@ class AbstractTeam(object):
       self.choose_action()
 
 class PlayerTeam(AbstractTeam):
-  
-  def add_member(self, new_member):
-    """
-    Add a member to a team.
-    """
+  def __init__(self, name, member):
+    self.team = []
+    self.name = name
+    self.team.append(PlayerCharacter(member["name"], member["data"], member["level"]))
     for member in self.team:
-      if new_member["name"] == member.name:
-        member.stars += 1
-        Op.add(member.name + "'s stats were boosted!")
-        Op.dp()
-        member.init_for_battle()
-        member.display_data()
-        return False
-    self.team.append(Character(new_member["name"], new_member["level"]))
-    Op.add(new_member["name"] + " joined " + self.name + "!")
-    Op.dp()
-    self.team[-1].team = self
-    self.team[-1].init_for_battle()
-    self.team[-1].display_data()
+      member.team = self
   
   """
   Choices are made using these functions
@@ -1043,17 +1046,7 @@ class PlayerTeam(AbstractTeam):
     """
     What to do, what to do...
     """
-    Op.add(self.name)
-    for member in self.members_rem:
-      Op.add("* " + member.name + " " + str(int(member.HP_rem)) + "/" + str(int(member.get_stat("HP"))) + " " + member.element)
-        
-    Op.add("Currently active: " + self.active.name)
-    self.active.display_mutable_stats()
-    Op.add(self.active.name + "'s Energy: " + str(self.active.energy))
-    Op.add("Active enemy: " + self.enemy.active.name + " " + str(int(self.enemy.active.HP_rem)) + "/" + str(int(self.enemy.active.get_stat("HP"))) + " " + self.enemy.active.element)
-    
-    Op.dp()
-    
+    self.display_data()
     choices = ["Attack"]
     
     if not self.one_left():
@@ -1065,6 +1058,16 @@ class PlayerTeam(AbstractTeam):
     self.active.choose_attack()
 
 class EnemyTeam(AbstractTeam):
+  def __init__(self, name, members):
+    self.team = []
+    self.name = name
+    
+    members = to_list(members)
+    for new_member in members:
+      self.team.append(EnemyCharacter(new_member["name"], new_member["level"]))
+    for member in self.team:
+      member.team = self
+  
   """
   AI stuff
   BENCHIT NEEDS FIX
@@ -1152,16 +1155,7 @@ class EnemyTeam(AbstractTeam):
     """
     What to do, what to do...
     """
-    Op.add(self.name)
-    for member in self.members_rem:
-      Op.add("* " + member.name + " " + str(int(member.HP_rem)) + "/" + str(int(member.get_stat("HP"))) + " " + member.element)
-        
-    Op.add("Currently active: " + self.active.name)
-    self.active.display_mutable_stats()
-    Op.add(self.active.name + "'s Energy: " + str(self.active.energy))
-    Op.add("Active enemy: " + self.enemy.active.name + " " + str(int(self.enemy.active.HP_rem)) + "/" + str(int(self.enemy.active.get_stat("HP"))) + " " + self.enemy.active.element)
-    
-    Op.dp()
+    self.display_data()
     
     choices = ["Attack"]
     

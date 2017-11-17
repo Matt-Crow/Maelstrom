@@ -67,8 +67,6 @@ boom = AllAttack("BOOM!", 7, 7)
 LAct = ActAttack("Shock Pulse", 1.75, 5)
 SAct = ActAttack("Rock Slide", 1.75, 5)
 
-characters["Alexandre"] = ((5, 0, 5, 0, 0), "lightning", LAct)
-
 enemies["MAX"] = ((5, 0, 0, 0, 0), "stone", SAct)
 enemies["MIN"] = ((-5, 0, 0, 0, 0), "stone", SAct)
 
@@ -80,6 +78,7 @@ enemies["Wind Entity"] = ((-3, 3, -3, 0, 0), "wind", SAct)
 enemies["stone soldier"] = ((2, -3, -3, 0, 0), "stone", SAct)
 
 # move messages to seperate file
+"""
 r1 = Battle("Origin Beaches", "All heroes have to start somewhere", ("Encounter! Rain Entity", "Quick! Knock its hit points down to zero and escape!"), ("Congradulations!", "The Entity dissipates into a cloud of smoke"), 1, None)
 r1.load_team(Team("Rain", {"name":"Rain Entity", "level": 1}, True))
 r2 = Battle("The Gravel Trail", "A rough path leads up from the beaches...", ("The gravel crunches beneath your feet as you walk", "Suddenly it starts to drizzle lightly", "TIP: While it is raining, all characters will regain a little HP each turn"), ("Congradulations!"), 1, weathers[9], None)
@@ -94,15 +93,15 @@ rain_village = Area("The Rain Village", "Where peace and tranquility hang over l
 h1 = Battle("Forest Clearing", "A fresh coating of snow covers all the trees", None, None, 1, weathers[6], None)
 h1.load_team(Team(" ", {"name": "Hail Entity", "level": 1}, True))
 hail_village = Area("The Hail Village", "?", None, (h1))
-
+"""
 c1 = Battle("Stone Rising", "An ancient threat arises", ("STONE SOLDIER: Foolish ones seek to take our land", "when we ourselves are imbued with its very power!"), "The stone soldier shatters into dust.", 1, None)
-c1.load_team(Team("Stone", {"name": "stone soldier", "level": 1}, True))
+c1.load_team(EnemyTeam("Stone", {"name": "stone soldier", "level": 1}))
 caves = Location("Ancient library caverns", "These caves seem as old as time itself.", ("LIBRARIAN: These caves have only recently by our scholars.", "Everything here is estimated to be ancient,", "perhaps even older than Altostromia itself!", "But what concerns me are these statues...", "...hundreds of them."))
 lib_cav = Area("Ancient caverns", "?", caves, c1)
 
 if __name__ == "__main__":
   #player = load()
-  player = Team("Player team", {"name": "Alexandre", "level": 1}, False)
+  player = PlayerTeam("Player team", {"name": "Alexandre", "data": ((5, 0, 5, 0, 0), "lightning", LAct), "level": 1})
   
   #rain_village.display_data(player)
   #hail_village.display_data(player)
