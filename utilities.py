@@ -1,3 +1,5 @@
+import random
+
 debug = not False
 
 def mod(num):
@@ -16,9 +18,29 @@ def set_in_bounds(num, min, max):
     ret = max
   return ret
 
+def roll_perc(base = 0):
+  """
+  Chooses a random number
+  between base and 100,
+  use 
+  roll_perc(self.get_stat("luck"))
+  """
+  ret = 100
+  base = int(base)
+  # don't roll if base is more than 100
+  if base > 100:
+    Dp.add("Cannot roll: " + str(base) + " is too high")
+  else:
+    ret = random.randint(base, 100)
+    Dp.add("Rolling between " + str(base) + " and 100")
+    Dp.add("Rolled " + str(ret))
+  Dp.dp() 
+  return ret
+
 def choose(question, options):
   """
-  Returns a string
+  Returns something from options
+  does not convert it to string
   """
   # make sure options is a list
   options = to_list(options)

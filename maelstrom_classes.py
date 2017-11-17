@@ -3,7 +3,7 @@ if __name__ == "__main__":
   print("Try running Maelstrom.py instead!")
   exit()
 
-import random
+import random # still need for non-luck things
 
 characters = {}
 enemies = {}
@@ -213,7 +213,7 @@ class AbstractAttack(object):
     ret = 1.0
 	
     if (self.miss > 0 and self.crit > 0):
-      rand = random.randint(int(self.user.get_stat("luck")), 100)
+      rand = roll_perc(self.user.get_stat("luck"))
       Dp.add(["rand in calc_MHC: " + str(rand), "Crit: " + str(100 - self.crit), "Miss: " + str(self.miss)])
       Dp.dp()
       if rand <= self.miss:
@@ -229,7 +229,7 @@ class AbstractAttack(object):
   def hit(self, target):
     target.take_DMG(self.user, self)
     for side_effect in self.side_effects:
-      rand = random.randint(self.user.get_stat("luck"), 100)
+      rand = roll_perc(self.user.get_stat("luck"))
       
       Dp.add("Rolling for side effect...")
       Dp.add("Rolled: " + str(rand))
@@ -363,7 +363,7 @@ class OnHitGiven(AbstractPassive):
     self.user.add_on_hit_given_action(self.check_trigger)
   
   def check_trigger(self, onHitEvent):
-    rand = random.randint(int(self.user.get_stat("luck")), 100)
+    rand = roll_perc(self.user.get_stat("luck"))
     Dp.add("Checking trigger for " + self.name)
     Dp.add("Need to roll " + str(100 - self.chance) + " or higher to activate")
     Dp.add("Rolled " + str(rand))
@@ -392,7 +392,7 @@ class OnHitTaken(AbstractPassive):
     self.user.add_on_hit_taken_action(self.check_trigger)
   
   def check_trigger(self, onHitEvent):
-    rand = random.randint(int(self.user.get_stat("luck")), 100)
+    rand = roll_perc(self.user.get_stat("luck"))
     Dp.add("Checking trigger for " + self.name)
     Dp.add("Need to roll " + str(100 - self.chance) + " or higher to activate")
     Dp.add("Rolled " + str(rand))
