@@ -3,15 +3,13 @@ if __name__ == "__main__":
   print("Try running Maelstrom.py instead!")
   exit()
 
-import random # still need for non-luck things
+import random # still needed for non-luck things
 
 characters = {}
 enemies = {}
 passives = []
 ELEMENTS = ("lightning", "rain", "hail", "wind")
 STATS = ("control", "resistance", "Potency", "luck", "energy")
-
-#add general random roller function
 
 
 def get_hit_perc(lv):
@@ -173,6 +171,12 @@ class AbstractAttack(object):
     self.energy_cost = energy_cost
     
     self.side_effects = []
+  
+  def set_damage_distributions(self, new_dist):
+    """
+    new_dist should be a dictionary
+    """
+    self.damage_distribution = new_dist
   
   def add_side_effect(self, function, chance = 100):
     self.side_effects.push({"effect": function, "chance":chance}) 
@@ -527,6 +531,10 @@ class AbstractCharacter(object):
   def set_passives_to_defaults(self):
     self.passives = []
     
+    
+    return
+    
+    
     p = Threshhold("Threshhold test", 50, "resistance", 50, 1)
     self.passives.append(p)
     p.set_user(self)
@@ -795,6 +803,10 @@ class AbstractCharacter(object):
     return self.HP_rem <= 0
 
 class PlayerCharacter(AbstractCharacter):
+  def __init__(self, name, data, level):
+    super(self.__class__, self).__init__(name, data, level)
+    self.attack_customization_points = 0
+  
   def choose_attack(self):
     attack_options = []
     for attack in self.attacks:
@@ -828,6 +840,7 @@ class PlayerCharacter(AbstractCharacter):
     """
     self.XP = 0
     self.level += 1
+    self.attack_customization_points += 1
     self.calc_stats()
     self.HP_rem = self.get_stat("HP")
     self.display_data()
@@ -838,6 +851,45 @@ class PlayerCharacter(AbstractCharacter):
     level cap by 5
     """
     self.level_set = self.level_set + 1
+  
+  """
+  Character management
+  """
+  def customize_attack(self, attack):
+    attack.distribute_damage()
+    attack.display_data()
+    
+    # copy the old attack data into new data
+    new_data = {}
+    for k, v in attack.damage_distribution.items():
+      new_data[k] = v
+    
+    can_down = []
+    
+    for k, v in attack.damage_distribution.items():
+      if v > 0:
+        can_down.append(k)
+    
+    new_data[choose("Which damage stat do you want to increase by 12.5% of total damage?", new_data.keys())] += 12.5
+    new_data[choose("Which damage stat do you want to decrease by 12.5%? of total damage", can_down)] -= 12.5
+    attack.set_damage_distributions(new_data)
+    attack.distribute_damage()
+    attack.display_data()
+    
+    self.attack_customization_points -= 1
+  
+  def choose_attack_to_customize(self):
+    self.customize_attack(choose("Which attack do you want to modify?", self.attacks))
+  
+  def customize(self):
+    options = ["Quit"]
+    if self.attack_customization_points > 0:
+      options.append("Attack")
+    
+    choice = choose("What do you want to modify?", options)
+    
+    if choice == "Attack":
+      self.choose_attack_to_customize()
 
 class EnemyCharacter(AbstractCharacter):
   def __init__(self, name, level):
@@ -1056,7 +1108,13 @@ class PlayerTeam(AbstractTeam):
       self.choose_switchin()
       self.switched_in = True
     self.active.choose_attack()
-
+  
+  """
+  Customization options
+  """
+  def customize(self):
+    self.team[0].customize()
+  
 class EnemyTeam(AbstractTeam):
   def __init__(self, name, members):
     self.team = []
@@ -1217,6 +1275,7 @@ class Weather(object):
     Op.add(self.msg)
     Op.dp()
 
+# BUG: adds player multiple times when played consecutively
 class Battle(object):
   """
   The Battle class pits 2 teams
@@ -1284,12 +1343,14 @@ class Battle(object):
         winner = team
     Op.add(winner.name + " won!")
     Op.dp()
+    """
     if not winner.AI:
       self.final_act.print_story()
       for reward in self.rewards:
         if reward == None:
           continue
         reward.give(winner)
+    """
   
   def begin(self):
     """
@@ -1320,9 +1381,10 @@ class Battle(object):
     The stuff that takes place after battle
     """
     for team in self.teams:
-      for member in team.use:
-        xp = team.enemy.xp_given()
-        member.gain_XP(xp)
+      if team.__class__ == PlayerTeam:
+        for member in team.use:
+          xp = team.enemy.xp_given()
+          member.gain_XP(xp)
                   
   def play(self):
     """

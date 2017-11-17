@@ -63,16 +63,21 @@ class Area:
     self.trav_or_play(player)
   
   def trav_or_play(self, player):
-    choice = choose("Do you wish to travel to a location, play a level, or quit?", ("Location", "Level", "Quit"))
+    choice = choose("Do you wish to travel to a location, play a level, customize your character, or quit?", ("Location", "Level", "Customize", "Quit"))
     if choice == "Level":
       level_to_play = choose("Which level do you want to play?", self.levels)
       level_to_play.load_team(player)
       level_to_play.play()
-      self.display_data(player)
+    
+    
+    elif choice == "Customize":
+      player.customize()
       
     elif choice == "Location":
       place_to_go = choose("Where do you want to go?", self.locations)
       place_to_go.travel_to(player)
+    
+    if choice != "Quit":
       self.display_data(player)
 
 from utilities import *
