@@ -309,7 +309,7 @@ class AbstractPassive(object):
   def __init__(self, name, stat, potency, duration, targets_user = True):
     self.name = name
     self.boosted_stat = stat
-    self.boost_amount = potency
+    self.boost_amount = abs(potency) #will negate later if targets enemy
     self.boost_duration = duration
     self.targets_user = targets_user
     self.update_desc()
@@ -318,7 +318,7 @@ class AbstractPassive(object):
     self.user = user
   
   def update_desc(self):
-    self.desc = "with a " + str(potency) + "% boost to their " + stat + " stat for " + str(duration) + " turns"
+    self.desc = "with a " + str(self.get_boost_amount()) + "% boost to their " + self.boosted_stat + " stat for " + str(self.boost_duration) + " turns"
   
   def find_target(self):
     ret = self.user
@@ -326,8 +326,19 @@ class AbstractPassive(object):
       ret = self.user.team.enemy.active
     return ret
   
+  def get_boost_amount(self):
+    """
+    This way, it automatically
+    makes any boosts to an enemy
+    negative
+    """
+    ret = self.boost_amount
+    if not self.targets_user:
+      ret = -ret
+    return ret
+  
   def f(self):
-    self.find_target().boost(self.boosted_stat, self.boost_amount, self.boost_duration, self.name)
+    self.find_target().boost(self.boosted_stat, self.get_boost_amount(), self.boost_duration, self.name)
   
   def display_data(self):
     Op.add("TODO: " + self.name + " display_data")
@@ -434,11 +445,12 @@ class OnHitGiven(AbstractPassive):
   def display_data(self):
     Op.add(self.name + ":")
     Op.add("Whenever the user strikes an opponent, ")
-    Op.add("there is a " + str(self.chance) + " chance that the")
+    Op.add("there is a " + str(self.chance) + "% chance that the")
     if self.targets_user:
       Op.add("user")
     else:
       Op.add("target")
+    Op.add("will be inflicted")
     Op.add(self.desc)
     Op.dp()
 
@@ -489,11 +501,12 @@ class OnHitTaken(AbstractPassive):
   def display_data(self):
     Op.add(self.name + ":")
     Op.add("Whenever the user is struck by an opponent, ")
-    Op.add("there is a " + str(self.chance) + " chance that the")
+    Op.add("there is a " + str(self.chance) + "% chance that the")
     if self.targets_user:
       Op.add("user")
     else:
-      Op.add("target")
+      Op.add("attacker")
+    Op.add("will be inflicted")
     Op.add(self.desc)
     Op.dp()
 
@@ -961,14 +974,15 @@ class PlayerCharacter(AbstractCharacter):
     # and display again
     attack.distribute_damage()
     attack.display_data()
-    
-    self.attack_customization_points -= 1
   
+  #add quit option
   def choose_attack_to_customize(self):
     self.customize_attack(choose("Which attack do you want to modify?", self.attacks))
+    self.attack_customization_points -= 1
   
   def choose_passive_to_customize(self):
     choose("Which passive do you want to modify?", self.passives).customize()
+    self.passive_customization_points -= 1
   
   def customize(self):
     options = ["Quit"]
@@ -1406,27 +1420,10 @@ class Battle(object):
     Add a team 
     to the battle
     """
-    self.teams.append(team)
-    
-    if len(team.team) > self.team_size:
-      Op.add("Select which " + str(self.team_size) + " members you wish to use:")
-      Op.dp(False)
-      num = self.team_size
-      team.use = []
-      roster = []
-      for member in team.team:
-        roster.append(member)
-      
-      while num > 0:
-        add = choose("Select member to add:", roster)
-        
-        for member in team.team:
-          if add == member:
-            team.use.append(member)
-            roster.remove(member)
-            num = num - 1
-    else:
+    if len(self.teams) < 2:
+      self.teams.append(team)
       team.use = team.team
+    
   # stuff down here
   # add random loot
   def check_winner(self):
@@ -1463,15 +1460,15 @@ class Battle(object):
       
       for member in team.use:
         member.display_data()
-      if self.forecast[0] == None:
-        self.weather = Weather(None, 0, "The land is seized by an undying calm...")
+    if self.forecast[0] == None:
+      self.weather = Weather(None, 0, "The land is seized by an undying calm...")
+    else:
+      if len(self.forecast) == 1:
+        num = 0
       else:
-        if len(self.forecast) == 1:
-          num = 0
-        else:
-          num = random.randrange(0, len(self.forecast) - 1)
+        num = random.randrange(0, len(self.forecast) - 1)
         self.weather = self.forecast[num]
-      self.weather.disp_msg()
+    self.weather.disp_msg()
   
   def end(self):
     """
