@@ -9,7 +9,7 @@ characters = {}
 enemies = {}
 passives = []
 ELEMENTS = ("lightning", "rain", "hail", "wind")
-STATS = ("control", "resistance", "Potency", "luck", "energy")
+STATS = ("control", "resistance", "potency", "luck", "energy")
 
 
 def get_hit_perc(lv):
@@ -187,6 +187,33 @@ class AbstractAttack(object):
   
   def init_for_battle(self):
     self.distribute_damage()
+  
+  def customize(self):
+    """
+    Start by showing what the attack's 
+    stats are
+    """
+    self.distribute_damage()
+    self.display_data()
+    
+    # copy the old attack data into new data
+    new_data = {}
+    for k, v in self.damage_distribution.items():
+      new_data[k] = v
+    
+    can_down = []
+    # make sure it would not be decreased past 0 
+    #(base 12.5 system, can't be between 0 and 12.5)
+    for k, v in self.damage_distribution.items():
+      if v > 0:
+        can_down.append(k)
+    
+    new_data[choose("Which damage stat do you want to increase by 12.5% of total damage?", new_data.keys())] += 12.5
+    new_data[choose("Which damage stat do you want to decrease by 12.5%? of total damage", can_down)] -= 12.5
+    self.set_damage_distributions(new_data)
+    # and display again
+    self.distribute_damage()
+    self.display_data()  
   
   def distribute_damage(self):
     total = get_hit_perc(self.user.level) * self.dmg_mult
@@ -591,11 +618,8 @@ class AbstractCharacter(object):
     self.name = name
     self.stats = [Stat("HP", 100)]
     
-    stat_num = 0
-    while stat_num < 5:
-      # a bit convoluted
-      self.stats.append(Stat(STATS[stat_num], 20 + set_in_bounds(data[0][stat_num], -5, 5), True))
-      stat_num += 1
+    self.set_stat_bases(data[0])
+      
     self.stats.append(Stat("Physical damage multiplier", 100))
     
     self.stats.append(Stat("Physical damage reduction", 100))
@@ -612,6 +636,28 @@ class AbstractCharacter(object):
     self.attacks = [data[2]]
     self.add_default_actives()
     self.set_passives_to_defaults()
+  
+  def set_stat_bases(self, bases):
+    """
+    Set the base stat shifts
+    """
+    # we'll go through 5 stats
+    stat_num = 0
+    while stat_num < 5:
+      val = Stat(STATS[stat_num], 20 + set_in_bounds(bases[stat_num], -5, 5), True)
+      # check all of my existing stats...
+      found = False
+      search_num = 0
+      while search_num < len(self.stats) and not found:
+        # to see if the stat I'm asigning already exists
+        if self.stats[search_num].name == STATS[stat_num]:
+          found = True
+          self.stats[search_num] = val
+        search_num += 1
+      if not found:
+        self.stats.append(val)
+      stat_num += 1
+    self.stat_bases = bases
   
   #temporary
   def add_default_actives(self):
@@ -897,6 +943,7 @@ class PlayerCharacter(AbstractCharacter):
     super(self.__class__, self).__init__(name, data, level)
     self.attack_customization_points = 0
     self.passive_customization_points = 0
+    self.stat_customization_points = 0
   
   def choose_attack(self):
     attack_options = []
@@ -933,6 +980,7 @@ class PlayerCharacter(AbstractCharacter):
     self.level += 1
     self.attack_customization_points += 1
     self.passive_customization_points += 1
+    self.stat_customization_points += 1
     self.calc_stats()
     self.HP_rem = self.get_stat("HP")
     self.display_data()
@@ -947,37 +995,30 @@ class PlayerCharacter(AbstractCharacter):
   """
   Character management
   """
-  # move this
-  def customize_attack(self, attack):
-    """
-    Start by showing what the attack's 
-    stats are
-    """
-    attack.distribute_damage()
-    attack.display_data()
+  # something's going wrong here
+  def modify_stats(self):
+    self.display_mutable_stats()
     
-    # copy the old attack data into new data
-    new_data = {}
-    for k, v in attack.damage_distribution.items():
-      new_data[k] = v
+    new_bases = []
+    for value in self.stat_bases:
+      new_bases.append(value)
     
-    can_down = []
-    # make sure it would not be decreased past 0 
-    #(base 12.5 system, can't be between 0 and 12.5)
-    for k, v in attack.damage_distribution.items():
-      if v > 0:
-        can_down.append(k)
+    stat = choose("Which stat do you want to increase by 5%?", STATS)
+    index = STATS.index(stat)
+    new_bases[index] += 0.5
     
-    new_data[choose("Which damage stat do you want to increase by 12.5% of total damage?", new_data.keys())] += 12.5
-    new_data[choose("Which damage stat do you want to decrease by 12.5%? of total damage", can_down)] -= 12.5
-    attack.set_damage_distributions(new_data)
-    # and display again
-    attack.distribute_damage()
-    attack.display_data()
-  
+    stat = choose("Which stat do you want to decrease by 5%?", STATS)
+    index = STATS.index(stat)
+    new_bases[index] -= 0.5
+    
+    self.set_stat_bases(new_bases)
+    self.calc_stats()
+    self.display_mutable_stats()
+    self.stat_customization_points -= 1
+    
   #add quit option
   def choose_attack_to_customize(self):
-    self.customize_attack(choose("Which attack do you want to modify?", self.attacks))
+    choose("Which attack do you want to modify?", self.attacks).customize()
     self.attack_customization_points -= 1
   
   def choose_passive_to_customize(self):
@@ -992,6 +1033,9 @@ class PlayerCharacter(AbstractCharacter):
     if self.passive_customization_points > 0:
       options.append("Passive")
     
+    if self.stat_customization_points > 0:
+      options.append("Stat")
+    
     options.reverse()
     
     choice = choose("What do you want to modify?", options)
@@ -1001,6 +1045,9 @@ class PlayerCharacter(AbstractCharacter):
     
     elif choice == "Passive":
       self.choose_passive_to_customize()
+    
+    elif choice == "Stat":
+      self.modify_stats()
 
 class EnemyCharacter(AbstractCharacter):
   def __init__(self, name, level):
@@ -1386,7 +1433,6 @@ class Weather(object):
     Op.add(self.msg)
     Op.dp()
 
-# BUG: adds player multiple times when played consecutively
 class Battle(object):
   """
   The Battle class pits 2 teams
