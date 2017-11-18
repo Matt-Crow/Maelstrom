@@ -311,11 +311,14 @@ class AbstractPassive(object):
     self.boosted_stat = stat
     self.boost_amount = potency
     self.boost_duration = duration
-    self.desc = " with a " + str(potency) + "% boost to their " + stat + " stat for " + str(duration) + " turns "
     self.targets_user = targets_user
+    self.update_desc()
   
   def set_user(self, user):
     self.user = user
+  
+  def update_desc(self):
+    self.desc = "with a " + str(potency) + "% boost to their " + stat + " stat for " + str(duration) + " turns"
   
   def find_target(self):
     ret = self.user
@@ -350,6 +353,32 @@ class Threshhold(AbstractPassive):
       self.f()
     Dp.dp()
   
+  # add checks
+  def customize(self):
+    self.display_data()
+    options = ["Threshhold", "Potency", "Duration"]
+    
+    choice = choose("Which stat do you want to increase?", options)
+    
+    if choice == "Threshhold":
+      self.threshhold -= 5
+    elif choice == "Potency":
+      self.boost_amount += 5
+    else:
+      self.boost_duration += 1 
+    
+    
+    choice = choose("Which stat do you want to decrease?", options)
+    if choice == "Threshhold":
+      self.threshhold += 5
+    elif choice == "Potency":
+      self.boost_amount -= 5
+    else:
+      self.boost_duration -= 1
+    
+    self.update_desc()
+    self.display_data()
+  
   def display_data(self):
     Op.add(self.name + ":")
     Op.add("Inflicts user")
@@ -375,6 +404,32 @@ class OnHitGiven(AbstractPassive):
       Dp.add("activated")
       self.f()
     Dp.dp()
+  
+  def customize(self):
+    self.display_data()
+    
+    options = ["Chance", "Potency", "Duration"]
+    
+    choice = choose("Which stat do you want to increase?", options)
+    
+    if choice == "Chance":
+      self.chance += 5
+    elif choice == "Potency":
+      self.boost_amount += 5
+    else:
+      self.boost_duration += 1 
+    
+    
+    choice = choose("Which stat do you want to decrease?", options)
+    if choice == "Chance":
+      self.chance += 5
+    elif choice == "Potency":
+      self.boost_amount -= 5
+    else:
+      self.boost_duration -= 1
+    
+    self.update_desc()
+    self.display_data()
   
   def display_data(self):
     Op.add(self.name + ":")
@@ -404,6 +459,32 @@ class OnHitTaken(AbstractPassive):
       Dp.add("activated")
       self.f()
     Dp.dp()
+
+  def customize(self):
+    self.display_data()
+    
+    options = ["Chance", "Potency", "Duration"]
+    
+    choice = choose("Which stat do you want to increase?", options)
+    
+    if choice == "Chance":
+      self.chance += 5
+    elif choice == "Potency":
+      self.boost_amount += 5
+    else:
+      self.boost_duration += 1 
+    
+    
+    choice = choose("Which stat do you want to decrease?", options)
+    if choice == "Chance":
+      self.chance += 5
+    elif choice == "Potency":
+      self.boost_amount -= 5
+    else:
+      self.boost_duration -= 1
+    
+    self.update_desc()
+    self.display_data()
   
   def display_data(self):
     Op.add(self.name + ":")
@@ -531,19 +612,15 @@ class AbstractCharacter(object):
   def set_passives_to_defaults(self):
     self.passives = []
     
-    
-    return
-    
-    
-    p = Threshhold("Threshhold test", 50, "resistance", 50, 1)
+    p = Threshhold("Threshhold test", 25, "resistance", 20, 1)
     self.passives.append(p)
     p.set_user(self)
     
-    o = OnHitGiven("OnHitGivenTest", 50, "control", -50, 1, False)
+    o = OnHitGiven("OnHitGivenTest", 25, "luck", 20, 5)
     self.passives.append(o)
     o.set_user(self)
     
-    h = OnHitTaken("OnHitTakenTest", 50, "luck", 50, -1)
+    h = OnHitTaken("OnHitTakenTest", 25, "control", -20, 1, False)
     self.passives.append(h)
     h.set_user(self)
   
@@ -806,6 +883,7 @@ class PlayerCharacter(AbstractCharacter):
   def __init__(self, name, data, level):
     super(self.__class__, self).__init__(name, data, level)
     self.attack_customization_points = 0
+    self.passive_customization_points = 0
   
   def choose_attack(self):
     attack_options = []
@@ -841,6 +919,7 @@ class PlayerCharacter(AbstractCharacter):
     self.XP = 0
     self.level += 1
     self.attack_customization_points += 1
+    self.passive_customization_points += 1
     self.calc_stats()
     self.HP_rem = self.get_stat("HP")
     self.display_data()
@@ -855,7 +934,12 @@ class PlayerCharacter(AbstractCharacter):
   """
   Character management
   """
+  # move this
   def customize_attack(self, attack):
+    """
+    Start by showing what the attack's 
+    stats are
+    """
     attack.distribute_damage()
     attack.display_data()
     
@@ -865,7 +949,8 @@ class PlayerCharacter(AbstractCharacter):
       new_data[k] = v
     
     can_down = []
-    
+    # make sure it would not be decreased past 0 
+    #(base 12.5 system, can't be between 0 and 12.5)
     for k, v in attack.damage_distribution.items():
       if v > 0:
         can_down.append(k)
@@ -873,6 +958,7 @@ class PlayerCharacter(AbstractCharacter):
     new_data[choose("Which damage stat do you want to increase by 12.5% of total damage?", new_data.keys())] += 12.5
     new_data[choose("Which damage stat do you want to decrease by 12.5%? of total damage", can_down)] -= 12.5
     attack.set_damage_distributions(new_data)
+    # and display again
     attack.distribute_damage()
     attack.display_data()
     
@@ -881,15 +967,26 @@ class PlayerCharacter(AbstractCharacter):
   def choose_attack_to_customize(self):
     self.customize_attack(choose("Which attack do you want to modify?", self.attacks))
   
+  def choose_passive_to_customize(self):
+    choose("Which passive do you want to modify?", self.passives).customize()
+  
   def customize(self):
     options = ["Quit"]
     if self.attack_customization_points > 0:
       options.append("Attack")
     
+    if self.passive_customization_points > 0:
+      options.append("Passive")
+    
+    options.reverse()
+    
     choice = choose("What do you want to modify?", options)
     
     if choice == "Attack":
       self.choose_attack_to_customize()
+    
+    elif choice == "Passive":
+      self.choose_passive_to_customize()
 
 class EnemyCharacter(AbstractCharacter):
   def __init__(self, name, level):
