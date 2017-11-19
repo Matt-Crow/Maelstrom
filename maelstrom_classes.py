@@ -1015,10 +1015,10 @@ class PlayerCharacter(AbstractCharacter):
   def modify_stats(self):
     self.display_mutable_stats()
     
-    new_bases = []
+    new_stats = []
     for stat in STATS:
-      new_bases.append(self.get_stat_data(stat).base_value - 20)
-    
+      new_stats.append(self.get_stat_data(stat))
+    #.base_value - 20
     stat = choose("Which stat do you want to increase by 5%?", STATS)
     index = STATS.index(stat)
     new_bases[index] += 0.5
