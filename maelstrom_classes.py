@@ -786,6 +786,22 @@ class AbstractCharacter(object):
     
     return ret
   
+  def get_stat_data(self, name):
+    """
+    Returns the stat object which
+    matches name
+    """
+    ret = Stat("ERROR", 0)
+    for stat in self.stats:
+      if stat.name.upper() == name.upper():
+        ret = stat
+    
+    if ret.name == "ERROR":
+      Dp.add("Stat not found: " + name)
+      Dp.dp()
+    
+    return ret
+  
   def display_data(self):
     """
     Print info on a character
@@ -995,13 +1011,13 @@ class PlayerCharacter(AbstractCharacter):
   """
   Character management
   """
-  # something's going wrong here
+  # move to stat? still bugged
   def modify_stats(self):
     self.display_mutable_stats()
     
     new_bases = []
-    for value in self.stat_bases:
-      new_bases.append(value)
+    for stat in STATS:
+      new_bases.append(self.get_stat_data(stat).base_value - 20)
     
     stat = choose("Which stat do you want to increase by 5%?", STATS)
     index = STATS.index(stat)
