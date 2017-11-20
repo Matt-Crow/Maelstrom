@@ -102,9 +102,7 @@ lib_cav = Area("Ancient caverns", "?", caves, c1)
 
 if __name__ == "__main__":
   #player = load()
-  player = PlayerTeam("Player team", {"name": "Alexandre", "data": ((5, 0, 5, 0, 0), "lightning", LAct), "level": 1})
+  player = PlayerTeam("Player team", {"name": "Alexandre", "data": ((0, 0, 0, 0, 0), "lightning", LAct), "level": 1})
   
-  #rain_village.display_data(player)
-  #hail_village.display_data(player)
   lib_cav.display_data(player)
   #Savefile("player_data.txt").update(player)

@@ -953,6 +953,37 @@ class AbstractCharacter(object):
     Am I dead yet?
     """
     return self.HP_rem <= 0
+  
+  def generate_stat_code(self):
+    """
+    Generates a sequence used
+    during file reading in order
+    to copy stats from one play
+    session to the next
+    """
+    ret = "s"
+    for stat in STATS:
+      ret += "/" + str(self.get_stat_data(stat).base_value - 20)
+    
+    return ret
+  
+  def read_stat_code(self, code):
+    """
+    Used to load a stat spread
+    via a string
+    """
+    # 0th element is 's'
+    new_stat_bases = []
+    broken_down_code = code.split('/')
+    broken_down_code = broken_down_code[1:]
+    Dp.add(broken_down_code)
+    Dp.dp()
+    ind = 0
+    while ind < 5:
+      new_stat_bases.append(int(float(broken_down_code[ind])))
+      ind += 1
+    
+    self.set_stat_bases(new_stat_bases)
 
 class PlayerCharacter(AbstractCharacter):
   def __init__(self, name, data, level):
@@ -1011,23 +1042,16 @@ class PlayerCharacter(AbstractCharacter):
   """
   Character management
   """
-  # move to stat? still bugged
+  
   def modify_stats(self):
+    for stat in self.stats:
+      stat.reset_boosts()
+    self.calc_stats()
     self.display_mutable_stats()
     
-    new_stats = []
-    for stat in STATS:
-      new_stats.append(self.get_stat_data(stat))
-    #.base_value - 20
-    stat = choose("Which stat do you want to increase by 5%?", STATS)
-    index = STATS.index(stat)
-    new_bases[index] += 0.5
+    self.get_stat_data(choose("Which stat do you want to increase by 5%?", STATS)).base_value += 1
+    self.get_stat_data(choose("Which stat do you want to decrease by 5%?", STATS)).base_value -= 1
     
-    stat = choose("Which stat do you want to decrease by 5%?", STATS)
-    index = STATS.index(stat)
-    new_bases[index] -= 0.5
-    
-    self.set_stat_bases(new_bases)
     self.calc_stats()
     self.display_mutable_stats()
     self.stat_customization_points -= 1
