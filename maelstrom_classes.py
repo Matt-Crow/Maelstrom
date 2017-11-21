@@ -539,7 +539,34 @@ class OnHitTaken(AbstractPassive):
 
 
 """
+Items
+"""
+class Item(object):
+  def __init__(self, name, type, enhancements = None, desc = None):
+    self.name = name
+    if desc == None:
+      self.generate_desc(type)
+    self.enhancements = to_list(enhancements)
+  
+  def generate_desc(type):
+    self.desc = "Do this later"
+    
+  def equip(self, user):
+    self.user = user
+  
+  def unequip(self):
+    self.user = None
+  
+  def display_data(self):
+    Op.add(self.name + ":")
+    for enhancement in self.enhancements:
+      enhancement.display_data()
+    Op.add(self.desc)
+
+
+"""
 Poor stat, all alone :(
+Not any more :)
 """
 class Stat(object):
   """
@@ -561,12 +588,12 @@ class Stat(object):
     self.value = self.base_value * (1 + 0.2 * level)
   
   def boost(self, id, amount, duration):
-    self.boosts.append({"id":id, "amount":amount, "duration":duration})
+    self.boosts.append(Boost(self, amount, duration, id))
   
   def get(self):
     mult = 1.0
     for boost in self.boosts:
-      mult += boost["amount"]
+      mult += boost.amount
     return self.value * mult
   
   def reset_boosts(self):
@@ -582,9 +609,9 @@ class Stat(object):
       of -1 will always fail the 
       check; thus, lasting forever
       """
-      if boost["duration"] != 0:
+      if boost.duration != 0:
         new_boosts.append(boost)
-        boost["duration"] -= 1
+        boost.duration -= 1
     self.boosts = new_boosts
   
   def display_data(self):
@@ -592,13 +619,23 @@ class Stat(object):
     Dp.add("Raw: " + str(self.base_value))
     Dp.add("Boosts:")
     for boost in self.boosts:
-      Dp.add("ID: " + boost["id"])
-      Dp.add("-Amount: " + str(boost["amount"]))
-      Dp.add("-Duration: " + str(boost["duration"]))
+      boost.display_data()
     Dp.add("Calculated: " + str(self.value))
     Dp.dp()
 
-
+class Boost(object):
+  def __init__(self, stat, amount, duration, id = "NoIDSet"):
+    self.stat = stat
+    self.amount = amount
+    self.duration = duration
+    self.id = id
+  
+  def display_data(self):
+    Op.add("Boost: " + self.id)
+    Op.add("+" + str(self.amount * 100) + "% to")
+    Op.add(self.stat.name + " stat")
+    Op.add("for " + str(self.duration) + " turns")
+    Op.dp()
 
 """
 Characters
@@ -909,7 +946,7 @@ class AbstractCharacter(object):
     self.gain_energy(self.get_stat("energy") * 0.15)
     for stat in self.stats:
       stat.update()
-      #stat.display_data();
+      stat.display_data();
   
   """
   Damage calculation
