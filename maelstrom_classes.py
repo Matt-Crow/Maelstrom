@@ -323,6 +323,8 @@ class AnyAttack(AbstractAttack):
 """
 Passives
 """
+# make so that individual boosts can target specific players, some user, some enemy
+# work on negative boosts
 class AbstractPassive(object):
   """
   HOW TO ADD A PASSIVE TO A CHARACTER:
@@ -333,11 +335,9 @@ class AbstractPassive(object):
   3. set the user:
   * pas.set_user(character)
   """
-  def __init__(self, name, stat, potency, duration, targets_user = True):
+  def __init__(self, name, boosts, targets_user = True):
     self.name = name
-    self.boosted_stat = stat
-    self.boost_amount = abs(potency) #will negate later if targets enemy
-    self.boost_duration = duration
+    self.boosts = to_list(boosts)
     self.targets_user = targets_user
     self.update_desc()
   
@@ -345,7 +345,8 @@ class AbstractPassive(object):
     self.user = user
   
   def update_desc(self):
-    self.desc = "with a " + str(self.get_boost_amount()) + "% boost to their " + self.boosted_stat + " stat for " + str(self.boost_duration) + " turns"
+    #self.desc = "with a " + str(self.get_boost_amount()) + "% boost to their " + self.boosted_stat + " stat for " + str(self.boost_duration) + " turns"
+    self.desc = "work on abstractpassive desc"
   
   def find_target(self):
     ret = self.user
@@ -353,19 +354,9 @@ class AbstractPassive(object):
       ret = self.user.team.enemy.active
     return ret
   
-  def get_boost_amount(self):
-    """
-    This way, it automatically
-    makes any boosts to an enemy
-    negative
-    """
-    ret = self.boost_amount
-    if not self.targets_user:
-      ret = -ret
-    return ret
-  
   def f(self):
-    self.find_target().boost(self.boosted_stat, self.get_boost_amount(), self.boost_duration, self.name)
+    for boost in self.boosts:
+      self.find_target().boost(boost)
   
   def display_data(self):
     Op.add("TODO: " + self.name + " display_data")
@@ -375,8 +366,8 @@ class Threshhold(AbstractPassive):
   """
   Automatically invoked at the end of every turn
   """
-  def __init__(self, name, threshhold, stat, potency, duration):
-    super(self.__class__, self).__init__(name, stat, potency, duration)
+  def __init__(self, name, threshhold, boosts):
+    super(self.__class__, self).__init__(name, boosts)
     self.threshhold = threshhold
   
   def init_for_battle(self):
@@ -426,8 +417,8 @@ class Threshhold(AbstractPassive):
     Op.dp()
 
 class OnHitGiven(AbstractPassive):
-  def __init__(self, name, chance, stat, potency, duration, targets_user = True):
-    super(self.__class__, self).__init__(name, stat, potency, duration, targets_user)
+  def __init__(self, name, chance, boosts, targets_user = True):
+    super(self.__class__, self).__init__(name, boosts, targets_user)
     self.chance = chance
   
   def init_for_battle(self):
@@ -482,8 +473,8 @@ class OnHitGiven(AbstractPassive):
     Op.dp()
 
 class OnHitTaken(AbstractPassive):
-  def __init__(self, name, chance, stat, potency, duration, targets_user = True):
-    super(self.__class__, self).__init__(name, stat, potency, duration, targets_user)
+  def __init__(self, name, chance, boosts, targets_user = True):
+    super(self.__class__, self).__init__(name, boosts, targets_user)
     self.chance = chance
   
   def init_for_battle(self):
@@ -557,6 +548,10 @@ class Item(object):
   def unequip(self):
     self.user = None
   
+  def apply_boosts(self):
+    for enh in self.enhancements:
+      self.user.boost(enh)
+  
   def display_data(self):
     Op.add(self.name + ":")
     for enhancement in self.enhancements:
@@ -565,8 +560,7 @@ class Item(object):
 
 
 """
-Poor stat, all alone :(
-Not any more :)
+Stat stuff
 """
 class Stat(object):
   """
@@ -587,8 +581,8 @@ class Stat(object):
       level = 0
     self.value = self.base_value * (1 + 0.2 * level)
   
-  def boost(self, id, amount, duration):
-    self.boosts.append(Boost(self, amount, duration, id))
+  def boost(self, boost):
+    self.boosts.append(boost)
   
   def get(self):
     mult = 1.0
@@ -624,16 +618,21 @@ class Stat(object):
     Dp.dp()
 
 class Boost(object):
-  def __init__(self, stat, amount, duration, id = "NoIDSet"):
-    self.stat = stat
+  def __init__(self, stat_name, amount, duration, id = "NoIDSet"):
+    """
+    stat should be a string
+    """
+    self.stat_name = stat_name
     self.amount = amount
+    if self.amount > 1.0:
+      self.amount = float(self.amount) / 100
     self.duration = duration
     self.id = id
   
   def display_data(self):
     Op.add("Boost: " + self.id)
     Op.add("+" + str(self.amount * 100) + "% to")
-    Op.add(self.stat.name + " stat")
+    Op.add(self.stat_name + " stat")
     Op.add("for " + str(self.duration) + " turns")
     Op.dp()
 
@@ -708,15 +707,16 @@ class AbstractCharacter(object):
   def set_passives_to_defaults(self):
     self.passives = []
     
-    p = Threshhold("Threshhold test", 25, "resistance", 20, 1)
+    p = Threshhold("Threshhold test", 25, Boost("resistance", 20, 1, "Threshhold test"))
     self.passives.append(p)
     p.set_user(self)
     
-    o = OnHitGiven("OnHitGivenTest", 25, "luck", 20, 5)
+    o = OnHitGiven("OnHitGivenTest", 25, Boost("luck", 20, 5, "OnHitGivenTest"))
     self.passives.append(o)
     o.set_user(self)
     
-    h = OnHitTaken("OnHitTakenTest", 25, "control", -20, 1, False)
+    #bugged
+    h = OnHitTaken("OnHitTakenTest", 25, Boost("control", -20, 1, "OnHitTakenTest"), False)
     self.passives.append(h)
     h.set_user(self)
   
@@ -872,7 +872,7 @@ class AbstractCharacter(object):
   Used during battle
   """
   # add ID checking to prevent doubling up
-  def boost(self, name, amount, duration, id = " "):
+  def boost(self, boost):
     """
     Increase or lower stats in battle
     amount will be an integeral amount
@@ -883,9 +883,9 @@ class AbstractCharacter(object):
     found = False
     statNum = 0
     while statNum < len(self.stats) and not found:
-      if self.stats[statNum].name == name:
+      if self.stats[statNum].name == boost.stat_name:
         found = True
-        self.stats[statNum].boost(id, amount * mult / 100, duration)
+        self.stats[statNum].boost(boost)
       statNum += 1
     if not found:
       Dp.add("STAT NOT FOUND: " + name)
