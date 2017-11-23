@@ -31,7 +31,7 @@ Week 2: Revised/improved/reordered functions
 27/10/2017: Revised output
 1/11/2017 - 8/11/2017: Revised how attacks work, added hit principle
 9/11/2017 - 15/11/2017 : Finished Attack, added events
-17/11/2017 - ?: Added customization
+17/11/2017 - ?: Added customization, worked on save codes
 
 Version 0.9
 """
@@ -42,22 +42,22 @@ from navigate import *
 import random
 
 weathers = (
-  Weather("Lightning", 40.0, "Flashes of light can be seen in the distance..."),
-  Weather("Lightning", 50.0, "Thunder rings not far away..."),
-  Weather("Lightning", 60.0, "The sky rains down its fire upon the field..."),
-  
-  Weather("Wind", 40.0, "A gentle breeze whips through..."),
-  Weather("Wind", 50.0, "The strong winds blow mightily..."),
-  Weather("Wind", 60.0, "A twister rips up the land..."),
-  
-  Weather("Hail", 2.5, "A light snow was falling..."),
-  Weather("Hail", 5, "Hail clatters along the ground..."),
-  Weather("Hail", 7.5, "The field is battered by hail..."),
-  
-  Weather("Rain", 2.5, "A light rain falls..."),
-  Weather("Rain", 5, "A brisk shower is forecast..."),
-  Weather("Rain", 7.5, "A deluge of water pours forth from the sky...")
-  )
+    Weather("Lightning", 40.0, "Flashes of light can be seen in the distance..."),
+    Weather("Lightning", 50.0, "Thunder rings not far away..."),
+    Weather("Lightning", 60.0, "The sky rains down its fire upon the field..."),
+    
+    Weather("Wind", 40.0, "A gentle breeze whips through..."),
+    Weather("Wind", 50.0, "The strong winds blow mightily..."),
+    Weather("Wind", 60.0, "A twister rips up the land..."),
+    
+    Weather("Hail", 2.5, "A light snow was falling..."),
+    Weather("Hail", 5, "Hail clatters along the ground..."),
+    Weather("Hail", 7.5, "The field is battered by hail..."),
+    
+    Weather("Rain", 2.5, "A light rain falls..."),
+    Weather("Rain", 5, "A brisk shower is forecast..."),
+    Weather("Rain", 7.5, "A deluge of water pours forth from the sky...")
+    )
 
 # use these in specials
 no_eff = (0, 0, 0)
@@ -101,8 +101,10 @@ caves = Location("Ancient library caverns", "These caves seem as old as time its
 lib_cav = Area("Ancient caverns", "?", caves, c1)
 
 if __name__ == "__main__":
-  #player = load()
-  player = PlayerTeam("Player team", {"name": "Alexandre", "data": ((0, 0, 0, 0, 0), "lightning", LAct), "level": 1})
-  
-  lib_cav.display_data(player)
-  #Savefile("player_data.txt").update(player)
+    #player = load()
+    player = PlayerTeam("Player team", {"name": "Alexandre", "data": ((0, 0, 0, 0, 0), "lightning", LAct), "level": 1})
+    
+    lib_cav.display_data(player)
+    Op.add(player.team[0].generate_save_code())
+    Op.dp()
+    #Savefile("player_data.txt").update(player)
