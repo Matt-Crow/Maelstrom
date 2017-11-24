@@ -386,6 +386,8 @@ class AbstractCharacter(object):
         self.attacks = [data[2]]
         self.add_default_actives()
         self.set_passives_to_defaults()
+        
+        self.equipped_items = []
     
     def set_stat_bases(self, bases):
         """
@@ -579,6 +581,10 @@ class AbstractCharacter(object):
         for stat_name in STATS:
             Op.add(stat_name + ": " + str(int(self.get_stat(stat_name))))
         Op.dp(False)
+    
+    def display_items(self):
+        for item in self.equipped_items:
+            item.display_data()
     
     """
     Battle functions:
@@ -815,23 +821,32 @@ class PlayerCharacter(AbstractCharacter):
         self.calc_stats()
         self.display_mutable_stats()
         self.stat_customization_points -= 1
+    
+    def choose_items(self):
+        self.display_items()
         
-    #add quit option
-    def choose_attack_to_customize(self):
-        choose("Which attack do you want to modify?", self.attacks).customize()
-        self.attack_customization_points -= 1
+        if choose("Do you wish to change these items?", ("yes", "no")) == "yes":
+            
     
     def choose_passive_to_customize(self):
         choose("Which passive do you want to modify?", self.passives).customize()
         self.passive_customization_points -= 1
     
+    def choose_attack_to_customize(self):
+        choose("Which attack do you want to modify?", self.attacks).customize()
+        self.attack_customization_points -= 1
+    
     def customize(self):
         options = ["Quit"]
-        if self.attack_customization_points > 0:
-            options.append("Attack")
+        
+        if len(self.team.inventory > 0):
+            options.append("Items")
         
         if self.passive_customization_points > 0:
             options.append("Passive")
+        
+        if self.attack_customization_points > 0:
+            options.append("Attack")
         
         if self.stat_customization_points > 0:
             options.append("Stat")
@@ -840,11 +855,14 @@ class PlayerCharacter(AbstractCharacter):
         
         choice = choose("What do you want to modify?", options)
         
-        if choice == "Attack":
-            self.choose_attack_to_customize()
+        if choice == "Items":
+            self.choose_items()
         
         elif choice == "Passive":
             self.choose_passive_to_customize()
+        
+        elif choice == "Attack":
+            self.choose_attack_to_customize()
         
         elif choice == "Stat":
             self.modify_stats()
@@ -1032,6 +1050,7 @@ class PlayerTeam(AbstractTeam):
         self.team = []
         self.name = name
         self.team.append(PlayerCharacter(member["name"], member["data"], member["level"]))
+        self.inventory = []
         for member in self.team:
             member.team = self
     
@@ -1070,6 +1089,9 @@ class PlayerTeam(AbstractTeam):
     """
     Customization options
     """
+    def obtain(item):
+      self.inventory.append(item)
+    
     def customize(self):
         self.team[0].customize()
     
