@@ -322,23 +322,26 @@ class AnyAttack(AbstractAttack):
         super(type(self), self).use()
 
 """
-Items
+Items need random generation, stat codes
 """
 class Item(object):
-    def __init__(self, name, type, enhancements = None, desc = None):
+    def __init__(self, name, type = "Greeble", enhancements = None, desc = None):
         self.name = name
         if desc == None:
             self.generate_desc(type)
         self.enhancements = to_list(enhancements)
+        self.equipped = False
     
-    def generate_desc(type):
+    def generate_desc(self, type):
         self.desc = "Do this later"
         
     def equip(self, user):
         self.user = user
+        self.equipped = True
     
     def unequip(self):
         self.user = None
+        self.equipped = False
     
     def apply_boosts(self):
         for enh in self.enhancements:
@@ -455,6 +458,8 @@ class AbstractCharacter(object):
             attack.init_for_battle()
         for passive in self.passives:
             passive.init_for_battle()
+        for item in self.equipped_items:
+            item.apply_boosts()
         
         self.calc_stats()
         self.HP_rem = self.get_stat("HP")
@@ -573,6 +578,10 @@ class AbstractCharacter(object):
         Op.add("PASSIVES:")
         for passive in self.passives:
             Op.add("-" + passive.name)
+        
+        Op.add("ITEMS:")
+        for item in self.equipped_items:
+            Op.add("-" + item.name)
         
         Op.add(str(self.XP) + "/" + str(self.level * 10))
         Op.dp()
@@ -826,7 +835,15 @@ class PlayerCharacter(AbstractCharacter):
         self.display_items()
         
         if choose("Do you wish to change these items?", ("yes", "no")) == "yes":
+            for item in self.equipped_items:
+                item.unequip()
             
+            items = self.team.get_available_items()
+            while (len(self.equipped_items) < 3) and (len(items) is not 0):
+                item = choose("Which item do you want to equip?", items)
+                item.equip(self)
+                self.equipped_items.append(item)
+                items = self.team.get_available_items()
     
     def choose_passive_to_customize(self):
         choose("Which passive do you want to modify?", self.passives).customize()
@@ -839,7 +856,7 @@ class PlayerCharacter(AbstractCharacter):
     def customize(self):
         options = ["Quit"]
         
-        if len(self.team.inventory > 0):
+        if len(self.team.inventory) > 0:
             options.append("Items")
         
         if self.passive_customization_points > 0:
@@ -1089,8 +1106,15 @@ class PlayerTeam(AbstractTeam):
     """
     Customization options
     """
-    def obtain(item):
+    def obtain(self, item):
       self.inventory.append(item)
+    
+    def get_available_items(self):
+        new_array = []
+        for item in self.inventory:
+            if not item.equipped:
+                new_array.append(item)
+        return new_array
     
     def customize(self):
         self.team[0].customize()

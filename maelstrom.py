@@ -103,8 +103,8 @@ lib_cav = Area("Ancient caverns", "?", caves, c1)
 if __name__ == "__main__":
     #player = load()
     player = PlayerTeam("Player team", {"name": "Alexandre", "data": ((0, 0, 0, 0, 0), "lightning", LAct), "level": 1})
-    
+    player.obtain(Item("TestItem1", "Boot", Boost("control", 10, -1)))
+    player.obtain(Item("TestItem2", "Trinket", Boost("hail damage reduction", 10, -1)))
+    player.obtain(Item("TestItem3", "Gobblygook", Boost("lightning damage multiplier", 10, -1)))
     lib_cav.display_data(player)
-    Op.add(player.team[0].generate_save_code())
-    Op.dp()
     #Savefile("player_data.txt").update(player)
