@@ -11,6 +11,7 @@ class Story:
         for script in self.story:
             Op.add(script)
             Op.dp()
+            pause()
 
 class Location:
     def __init__(self, name, desc, script):
@@ -20,7 +21,7 @@ class Location:
         
     def display_data(self):
         Op.add([self.name, self.description])
-        Op.dp(False)
+        Op.dp()
     
     def travel_to(self, player):
         self.script.print_story()
@@ -53,7 +54,7 @@ class Area:
                 
     def display_data(self, player):
         Op.add([self.name, self.description])
-        Op.dp(False)
+        Op.dp()
         """
         for loc in self.locations:
             loc.display_data()

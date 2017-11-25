@@ -105,6 +105,6 @@ if __name__ == "__main__":
     player = PlayerTeam("Player team", {"name": "Alexandre", "data": ((0, 0, 0, 0, 0), "lightning", LAct), "level": 1})
     player.obtain(Item("TestItem1", "Boot", Boost("control", 10, -1)))
     player.obtain(Item("TestItem2", "Trinket", Boost("hail damage reduction", 10, -1)))
-    player.obtain(Item("TestItem3", "Gobblygook", Boost("lightning damage multiplier", 10, -1)))
+    player.obtain(Item("TestItem3", "Gobblygook"))
     lib_cav.display_data(player)
     #Savefile("player_data.txt").update(player)

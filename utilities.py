@@ -55,7 +55,7 @@ def choose(question, options):
         Op.add(question)
         for num in range(0, len(options)):
             Op.add(str(num + 1) + ": " + names[num])
-        Op.dp(False)
+        Op.dp()
         
         #get their input
         Ip.askInt("Enter a number: ") # automatically checks for number
@@ -156,13 +156,11 @@ class Op(AbstractOutput):
     msg into a list
     """
     @staticmethod
-    def dp(p = True):
+    def dp():
         print('\n')
         for msg in Op.msgs:
             print(str(msg))
         Op.reset()
-        if p:
-            pause()
 
 class Dp(AbstractOutput):
     @staticmethod

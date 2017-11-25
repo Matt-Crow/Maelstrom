@@ -234,7 +234,7 @@ class AbstractAttack(object):
         Op.add("Miss chance: " + str(self.miss) + "%")
         Op.add("Critical hit multiplier: " + str(int(self.crit_mult * 100)) + "%")
         Op.add("Miss penalty: " + str(int(self.miss_mult * 100)) + "%")
-        Op.dp(False)
+        Op.dp()
     
     def can_use(self):
         return self.user.energy >= self.energy_cost
@@ -329,8 +329,27 @@ class Item(object):
         self.name = name
         if desc == None:
             self.generate_desc(type)
-        self.enhancements = to_list(enhancements)
+        if enhancements == None:
+            self.enhancements = []
+            self.generate_random_enh()
+        else:
+            self.enhancements = to_list(enhancements)
         self.equipped = False
+    
+    def generate_random_enh(self):
+        """
+        Applies a random enhancement
+        """
+        enh_type = random.choice(("element+", "element-", "stat*"))
+        if enh_type == "element+":
+            boosted_element = random.choice(ELEMENTS)
+            self.enhancements.append(Boost(boosted_element + " damage multiplier", 10, -1, self.name))
+        elif enh_type == "element-":
+            boosted_element = random.choice(ELEMENTS)
+            self.enhancements.append(Boost(boosted_element + " damage reduction", 10, -1, self.name))
+        else:
+            boosted_stat = random.choice(STATS)
+            self.enhancements.append(Boost(boosted_stat, 10, -1, self.name))
     
     def generate_desc(self, type):
         self.desc = "Do this later"
@@ -352,6 +371,7 @@ class Item(object):
         for enhancement in self.enhancements:
             enhancement.display_data()
         Op.add(self.desc)
+        Op.dp()
 
 """
 Characters
@@ -589,7 +609,7 @@ class AbstractCharacter(object):
     def display_mutable_stats(self):
         for stat_name in STATS:
             Op.add(stat_name + ": " + str(int(self.get_stat(stat_name))))
-        Op.dp(False)
+        Op.dp()
     
     def display_items(self):
         for item in self.equipped_items:
@@ -834,16 +854,27 @@ class PlayerCharacter(AbstractCharacter):
     def choose_items(self):
         self.display_items()
         
-        if choose("Do you wish to change these items?", ("yes", "no")) == "yes":
+        if len(self.equipped_items) == 0 or choose("Do you wish to change these items?", ("yes", "no")) == "yes":
             for item in self.equipped_items:
                 item.unequip()
             
             items = self.team.get_available_items()
+            
+            if len(items) <= 3:
+                for item in items:
+                    item.equip(self)
+                    self.equipped_items.append(item)
+            else:
+                for item in items:
+                    item.display_data()
+            
             while (len(self.equipped_items) < 3) and (len(items) is not 0):
                 item = choose("Which item do you want to equip?", items)
                 item.equip(self)
                 self.equipped_items.append(item)
                 items = self.team.get_available_items()
+            
+            self.display_items()
     
     def choose_passive_to_customize(self):
         choose("Which passive do you want to modify?", self.passives).customize()
@@ -1024,7 +1055,7 @@ class AbstractTeam(object):
         of the team
         """
         Op.add(self.name)
-        Op.dp(False)
+        Op.dp()
         for member in self.team:
             member.display_data()
     
@@ -1061,6 +1092,7 @@ class AbstractTeam(object):
         if self.is_up():
             self.switched_in = False
             self.choose_action()
+        pause()
 
 class PlayerTeam(AbstractTeam):
     def __init__(self, name, member):
@@ -1305,7 +1337,7 @@ class Battle(object):
         
         for member in self.teams[0].use:
             Op.add("* " + member.name + " LV " + str(member.level) + " " + member.element)
-        Op.dp(False)
+        Op.dp()
     
     def load_team(self, team):
         """
