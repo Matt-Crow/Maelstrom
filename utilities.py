@@ -137,16 +137,26 @@ class AbstractOutput:
     normal and debug
     """
     msgs = []
+    indentation = " "
+    
+    @classmethod
+    def indent(op):
+        op.indentation += "    "
+    
+    @classmethod
+    def unindent(op):
+        op.indentation = " "
     
     @classmethod
     def add(op, msg):
         msg = to_list(msg)
         for line in msg:
-            op.msgs.append(line)
+            op.msgs.append(op.indentation + str(line))
     
     @classmethod
     def reset(op):
         op.msgs = []
+        op.unindent()
 
 class Op(AbstractOutput):
     """

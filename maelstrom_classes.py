@@ -6,12 +6,11 @@ if __name__ == "__main__":
 import random # still needed for non-luck things
 from passives import *
 from stat_classes import *
+from item import *
 
 characters = {}
 enemies = {}
 passives = []
-ELEMENTS = ("lightning", "rain", "hail", "wind")
-STATS = ("control", "resistance", "potency", "luck", "energy")
 
 
 def get_hit_perc(lv):
@@ -320,58 +319,6 @@ class AnyAttack(AbstractAttack):
         else:
             self.hit(choose("Who do you wish to hit?", target_team.members_rem))
         super(type(self), self).use()
-
-"""
-Items need random generation, stat codes
-"""
-class Item(object):
-    def __init__(self, name, type = "Greeble", enhancements = None, desc = None):
-        self.name = name
-        if desc == None:
-            self.generate_desc(type)
-        if enhancements == None:
-            self.enhancements = []
-            self.generate_random_enh()
-        else:
-            self.enhancements = to_list(enhancements)
-        self.equipped = False
-    
-    def generate_random_enh(self):
-        """
-        Applies a random enhancement
-        """
-        enh_type = random.choice(("element+", "element-", "stat*"))
-        if enh_type == "element+":
-            boosted_element = random.choice(ELEMENTS)
-            self.enhancements.append(Boost(boosted_element + " damage multiplier", 10, -1, self.name))
-        elif enh_type == "element-":
-            boosted_element = random.choice(ELEMENTS)
-            self.enhancements.append(Boost(boosted_element + " damage reduction", 10, -1, self.name))
-        else:
-            boosted_stat = random.choice(STATS)
-            self.enhancements.append(Boost(boosted_stat, 10, -1, self.name))
-    
-    def generate_desc(self, type):
-        self.desc = "Do this later"
-        
-    def equip(self, user):
-        self.user = user
-        self.equipped = True
-    
-    def unequip(self):
-        self.user = None
-        self.equipped = False
-    
-    def apply_boosts(self):
-        for enh in self.enhancements:
-            self.user.boost(enh)
-    
-    def display_data(self):
-        Op.add(self.name + ":")
-        for enhancement in self.enhancements:
-            enhancement.display_data()
-        Op.add(self.desc)
-        Op.dp()
 
 """
 Characters
@@ -786,6 +733,7 @@ class PlayerCharacter(AbstractCharacter):
         self.attack_customization_points = 0
         self.passive_customization_points = 0
         self.stat_customization_points = 0
+        self.item_customization_points = 0
     
     def choose_attack(self):
         attack_options = []
@@ -823,6 +771,7 @@ class PlayerCharacter(AbstractCharacter):
         self.attack_customization_points += 1
         self.passive_customization_points += 1
         self.stat_customization_points += 1
+        self.item_customization_points += 1
         self.calc_stats()
         self.HP_rem = self.get_stat("HP")
         self.display_data()
@@ -877,12 +826,22 @@ class PlayerCharacter(AbstractCharacter):
             self.display_items()
     
     def choose_passive_to_customize(self):
+        for passive in self.passives:
+            passive.display_data()
         choose("Which passive do you want to modify?", self.passives).customize()
         self.passive_customization_points -= 1
     
     def choose_attack_to_customize(self):
+        for attack in self.attacks:
+            attack.display_data()
         choose("Which attack do you want to modify?", self.attacks).customize()
         self.attack_customization_points -= 1
+    
+    def choose_item_to_customize(self):
+        for item in self.team.inventory:
+            item.display_data()
+        choose("Which item do you want to modify?", self.team.inventory).generate_random_enh()
+        self.item_customization_points -= 1
     
     def customize(self):
         options = ["Quit"]
@@ -904,7 +863,13 @@ class PlayerCharacter(AbstractCharacter):
         choice = choose("What do you want to modify?", options)
         
         if choice == "Items":
-            self.choose_items()
+            item_actions = ["equip"]
+            if self.item_customization_points > 0:
+                item_actions.append("augment")
+            if choose("Do you want to equip items, or augment them?", item_actions) == "equip":
+                self.choose_items()
+            else:
+                self.choose_item_to_customize()
         
         elif choice == "Passive":
             self.choose_passive_to_customize()
