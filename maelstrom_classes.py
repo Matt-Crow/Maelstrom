@@ -232,7 +232,7 @@ class AbstractAttack(object):
         Op.add("Critical hit chance: " + str(self.crit) + "%")
         Op.add("Miss chance: " + str(self.miss) + "%")
         Op.add("Critical hit multiplier: " + str(int(self.crit_mult * 100)) + "%")
-        Op.add("Miss penalty: " + str(int(self.miss_mult * 100)) + "%")
+        Op.add("Miss multiplier: " + str(int(self.miss_mult * 100)) + "%")
         Op.dp()
     
     def can_use(self):

@@ -77,7 +77,8 @@ class Boost(object):
         Op.add("Boost: " + self.id)
         Op.add("+" + str(int(self.amount * 100)) + "% to")
         Op.add(self.stat_name + " stat")
-        Op.add("for " + str(self.duration) + " turns")
+        if self.duration > 0:
+            Op.add("for " + str(self.duration) + " turns")
         Op.dp()
     
     def generate_save_code(self):
