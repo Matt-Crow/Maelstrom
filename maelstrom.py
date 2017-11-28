@@ -40,6 +40,7 @@ Version 0.9
 from utilities import *
 from maelstrom_classes import *
 from navigate import *
+from item import *
 import random
 
 weathers = (
@@ -104,8 +105,8 @@ lib_cav = Area("Ancient caverns", "?", caves, c1)
 if __name__ == "__main__":
     #player = load()
     player = PlayerTeam("Player team", {"name": "Alexandre", "data": ((0, 0, 0, 0, 0), "lightning", LAct), "level": 1})
-    player.obtain(Item("TestItem1", "Boot", Boost("control", 10, -1)))
-    player.obtain(Item("TestItem2", "Trinket", Boost("hail damage reduction", 10, -1)))
-    player.obtain(Item("TestItem3", "Gobblygook"))
+    player.obtain(t1)
+    player.obtain(t2)
+    player.obtain(t3)
     lib_cav.display_data(player)
     #Savefile("player_data.txt").update(player)

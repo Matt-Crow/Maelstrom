@@ -425,8 +425,18 @@ class AbstractCharacter(object):
             attack.init_for_battle()
         for passive in self.passives:
             passive.init_for_battle()
+        
+        check_set = None
+        set_total = 0
         for item in self.equipped_items:
             item.apply_boosts()
+            if item.set != None:
+                if check_set == None:
+                    check_set = item.set
+                if item.set == check_set:
+                    set_total += 1
+            if set_total == 3:
+                check_set.f(self)
         
         self.calc_stats()
         self.HP_rem = self.get_stat("HP")
@@ -817,6 +827,7 @@ class PlayerCharacter(AbstractCharacter):
                 for item in items:
                     item.display_data()
             
+            items = self.team.get_available_items()
             while (len(self.equipped_items) < 3) and (len(items) is not 0):
                 item = choose("Which item do you want to equip?", items)
                 item.equip(self)

@@ -1,6 +1,17 @@
 from utilities import *
 from stat_classes import *
 
+class ItemSet(object):
+    """
+    An item set is a 
+    combination of three
+    items that will give
+    the user a powerful
+    bonus
+    """
+    def __init__(self, name, bonus_function):
+        self.name = name
+        self.f = bonus_function
 """
 Items need weather specific, stat codes
 """
@@ -12,7 +23,7 @@ class Item(object):
         "gear": "It comes from another dimension.",
         "greeble": "It looks incredible fun to play with."
     }
-    def __init__(self, name, type = None, enhancements = None, desc = None):
+    def __init__(self, name, type = None, enhancements = None, desc = None, set = None):
         self.name = name
         if type not in Item.types.keys():
             self.randomize_type()
@@ -23,6 +34,8 @@ class Item(object):
             self.generate_random_enh()
         else:
             self.enhancements = to_list(enhancements)
+        
+        self.set = set
         self.equipped = False
     
     def randomize_type(self):
@@ -67,3 +80,13 @@ class Item(object):
         Op.unindent()
         Op.add(self.desc)
         Op.dp()
+
+def test_set_f(user):
+    def f(event):
+         event.hitter.direct_dmg(100)
+    user.add_on_hit_taken_action(f)
+test_set = ItemSet("Test item set", test_set_f)
+
+t1 = Item("Testitem 1", None, None, None, test_set)
+t2 = Item("Testitem 2", None, None, None, test_set)
+t3 = Item("Testitem 3", None, None, None, test_set)
