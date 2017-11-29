@@ -393,7 +393,7 @@ class AbstractCharacter(object):
     def set_passives_to_defaults(self):
         self.passives = []
         
-        p = Threshhold("Threshhold test", 25, Boost("resistance", 20, 1, "Threshhold test"))
+        p = Threshhold("Threshhold test", 100, Boost("resistance", 20, 1, "Threshhold test"))
         self.passives.append(p)
         p.set_user(self)
         
@@ -401,7 +401,7 @@ class AbstractCharacter(object):
         self.passives.append(o)
         o.set_user(self)
         
-        h = OnHitTaken("OnHitTakenTest", 25, Boost("control", -20, 1, "OnHitTakenTest"), False)
+        h = OnHitTaken("OnHitTakenTest", 25, Boost("control", -20, 1, "OnHitTakenTest"))
         self.passives.append(h)
         h.set_user(self)
     
@@ -732,9 +732,12 @@ class AbstractCharacter(object):
         Used to get all data on this
         character
         """
-        ret = [self.generate_stat_code]
+        ret = self.name
+        ret += " "
+        ret += self.level
+        ret += self.generate_stat_code
         for passive in self.passives:
-            ret.append(passive.generate_save_code())
+            ret += passive.generate_save_code()
         return ret
     
 class PlayerCharacter(AbstractCharacter):

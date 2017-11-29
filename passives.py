@@ -16,10 +16,9 @@ class AbstractPassive(object):
     3. set the user:
     * pas.set_user(character)
     """
-    def __init__(self, name, boosts, targets_user = True):
+    def __init__(self, name, boosts):
         self.name = name
         self.boosts = to_list(boosts)
-        self.targets_user = targets_user
         self.update_desc()
     
     def set_user(self, user):
@@ -29,15 +28,13 @@ class AbstractPassive(object):
         #self.desc = "with a " + str(self.get_boost_amount()) + "% boost to their " + self.boosted_stat + " stat for " + str(self.boost_duration) + " turns"
         self.desc = "work on abstractpassive desc"
     
-    def find_target(self):
-        ret = self.user
-        if not self.targets_user:
-            ret = self.user.team.enemy.active
-        return ret
-    
     def f(self):
         for boost in self.boosts:
-            self.find_target().boost(boost)
+            # if it's possitive, affect the user
+            if boost.amount > 0:
+                self.user.boost(boost)
+            else:
+                self.user.team.enemy.active.boost(boost)
     
     def display_data(self):
         Op.add("TODO: " + self.name + " display_data")
@@ -111,8 +108,8 @@ class Threshhold(AbstractPassive):
         Op.dp()
 
 class OnHitGiven(AbstractPassive):
-    def __init__(self, name, chance, boosts, targets_user = True):
-        super(self.__class__, self).__init__(name, boosts, targets_user)
+    def __init__(self, name, chance, boosts):
+        super(self.__class__, self).__init__(name, boosts)
         self.chance = chance
     
     def init_for_battle(self):
@@ -167,8 +164,8 @@ class OnHitGiven(AbstractPassive):
         Op.dp()
 
 class OnHitTaken(AbstractPassive):
-    def __init__(self, name, chance, boosts, targets_user = True):
-        super(self.__class__, self).__init__(name, boosts, targets_user)
+    def __init__(self, name, chance, boosts):
+        super(self.__class__, self).__init__(name, boosts)
         self.chance = chance
     
     def init_for_battle(self):

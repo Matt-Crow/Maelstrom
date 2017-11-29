@@ -81,9 +81,16 @@ class Item(object):
         Op.add(self.desc)
         Op.dp()
 
+    def generate_save_code(self):
+        ret = "i"
+        for enh in self.enhancements:
+            ret += "/"
+            ret += enh.generate_save_code()
+
 def test_set_f(user):
     def f(event):
-         event.hitter.direct_dmg(100)
+        Dp.add("Three piece bonus works!")
+        Dp.dp()
     user.add_on_hit_taken_action(f)
 test_set = ItemSet("Test item set", test_set_f)
 

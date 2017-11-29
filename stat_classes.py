@@ -63,9 +63,6 @@ class Stat(object):
 
 class Boost(object):
     def __init__(self, stat_name, amount, duration, id = "NoIDSet"):
-        """
-        stat should be a string
-        """
         self.stat_name = stat_name
         self.amount = amount
         if abs(self.amount) > 1.0:
