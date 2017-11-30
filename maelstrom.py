@@ -32,7 +32,8 @@ Week 2: Revised/improved/reordered functions
 1/11/2017 - 8/11/2017: Revised how attacks work, added hit principle
 9/11/2017 - 15/11/2017 : Finished Attack, added events
 17/11/2017 - 25/11/2017: Added customization, worked on save codes
-26/11/2017 - ? : Worked on Item
+26/11/2017 - 28/11/2017: Worked on Item
+30/11/2017 - ? : Improved Area and Levels
 
 Version 0.9
 """
@@ -42,24 +43,6 @@ from maelstrom_classes import *
 from navigate import *
 from item import *
 import random
-
-weathers = (
-    Weather("Lightning", 40.0, "Flashes of light can be seen in the distance..."),
-    Weather("Lightning", 50.0, "Thunder rings not far away..."),
-    Weather("Lightning", 60.0, "The sky rains down its fire upon the field..."),
-    
-    Weather("Wind", 40.0, "A gentle breeze whips through..."),
-    Weather("Wind", 50.0, "The strong winds blow mightily..."),
-    Weather("Wind", 60.0, "A twister rips up the land..."),
-    
-    Weather("Hail", 2.5, "A light snow was falling..."),
-    Weather("Hail", 5, "Hail clatters along the ground..."),
-    Weather("Hail", 7.5, "The field is battered by hail..."),
-    
-    Weather("Rain", 2.5, "A light rain falls..."),
-    Weather("Rain", 5, "A brisk shower is forecast..."),
-    Weather("Rain", 7.5, "A deluge of water pours forth from the sky...")
-    )
 
 # use these in specials
 no_eff = (0, 0, 0)
@@ -97,8 +80,7 @@ h1 = Battle("Forest Clearing", "A fresh coating of snow covers all the trees", N
 h1.load_team(Team(" ", {"name": "Hail Entity", "level": 1}, True))
 hail_village = Area("The Hail Village", "?", None, (h1))
 """
-c1 = Battle("Stone Rising", "An ancient threat arises", ("STONE SOLDIER: Foolish ones seek to take our land", "when we ourselves are imbued with its very power!"), "The stone soldier shatters into dust.", 1, None)
-c1.load_team(EnemyTeam("Stone", {"name": "stone soldier", "level": 1}))
+c1 = Battle("Stone Rising", "An ancient threat arises", ("STONE SOLDIER: Foolish ones seek to take our land", "when we ourselves are imbued with its very power!"), "The stone soldier shatters into dust.", EnemyTeam("Stone", {"name": "stone soldier", "level": 1}), None)
 caves = Location("Ancient library caverns", "These caves seem as old as time itself.", ("LIBRARIAN: These caves have only recently by our scholars.", "Everything here is estimated to be ancient,", "perhaps even older than Altostromia itself!", "But what concerns me are these statues...", "...hundreds of them."))
 lib_cav = Area("Ancient caverns", "?", caves, c1)
 

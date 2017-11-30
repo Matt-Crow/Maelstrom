@@ -3,6 +3,8 @@ if __name__ == "__main__":
     print("Try running Maelstrom.py instead!")
     exit()
 
+from utilities import *
+
 class Story:
     def __init__(self, story):
         self.story = to_list(story)
@@ -30,20 +32,170 @@ class Location:
     def action(self, player):
         return False
 
-class Tavern(Location):
-    def action(self, player):
-        contracts = to_list(player.contracts)
-        Op.add(["So, you wan't to hire out another warrior, eh?", "Now let me see..."])
-        if len(contracts) == 0:
-            Op.add("Sorry, but it looks like you don't have any contracts.")
-            Op.add("Come back when you have one, and then we'll talk.")
+class Weather(object):
+    """
+    This is what makes Maelstrom unique!
+    Weather provides in-battle effects
+    that alter the stats of characters
+    """
+    def __init__(self, type, intensity, msg):
+        """
+        The type determines what sort of effect will
+        be applied to all participants in a battle.
+        The intensity is how potent the effect will be.
+        The msg is what text will show to help
+        the player determine the weather.
+        """
+        self.type = type
+        self.intensity = intensity
+        self.msg = msg
+            
+    def do_effect(self, affected):
+        """
+        Apply stat changes 
+        to a team
+        """
+        return
+        if self.type == "Lightning":
+            for person in affected:
+                person.gain_energy(int(self.intensity/20))
+                
+        if self.type == "Wind":
+            for person in affected:
+                person.boost("STR", self.intensity/100, 3)
+        
+        if self.type == "Hail":
+            for person in affected:
+                person.take_dmg(self.intensity)
+        
+        if self.type == "Rain":
+            for person in affected:
+                person.heal(self.intensity)
+                     
+    def disp_msg(self):
+        """
+        Print a message showing
+        the weather condition
+        """
+        Op.add(self.msg)
+        Op.dp()
+
+# weather need work above and below
+# ditch the scripts?
+# get rid of the stupid 'use' thing
+class Battle(object):
+    """
+    The Battle class pits 2 teams
+    against eachother, 
+    initializing them
+    and the weather.
+    """
+    def __init__(self, name, description, script, end, enemy_team, rewards = None):
+        self.name = name
+        self.description = description
+        self.script = Story(script)
+        self.final_act = Story(end)
+        
+        self.forecast = weathers
+        
+        self.enemy_team = enemy_team
+        self.enemy_team.use = self.enemy_team.team
+        
+        self.rewards = to_list(rewards)
+    
+    def restrict_weather(self, forecast):
+        """
+        Since most battles can have any
+        weather, it only makes sense to
+        exclude it from the constructor,
+        so here it is
+        """
+        self.forecast = to_list(forecast)
+    
+    def display_data(self):
+        Op.add([self.name, self.description])
+        
+        for member in self.enemy_team.use:
+            Op.add("* " + member.name + " LV " + str(member.level) + " " + member.element)
+        Op.dp()
+    
+    def load_team(self, team):
+        """
+        Load the player's team
+        """
+        self.player_team = team
+        team.use = team.team
+        
+    # stuff down here
+    # add random loot
+    def check_winner(self):
+        """
+        Runs when one
+        teams loses all
+        members.
+        """
+        if self.player_team.is_up():
+            Op.add(self.player_team.name + " won!")
             Op.dp()
+        
+            self.final_act.print_story()
+            for reward in self.rewards:
+                if reward != None:
+                    reward.give(self.player_team)
+    
+    def begin(self):
+        """
+        Prepare both teams
+        for the match.
+        """
+        self.script.print_story()
+        
+        self.enemy_team.initialize()
+        self.enemy_team.enemy = self.player_team
+        
+        self.player_team.initialize()
+        self.player_team.enemy = self.enemy_team
+        
+        self.enemy_team.display_data()
+        self.player_team.display_data()
+        
+        if self.forecast[0] == None:
+            self.weather = Weather(None, 0, "The land is seized by an undying calm...")
         else:
-            Op.add("Well well well, and here I thought you weren't credibly.")
-            Op.add("How about you take a look at who we got here?")
-            Op.dp()
-            con = choose("Which contract do you want to use?", contracts)
-            player.add_member(con.use())
+            if len(self.forecast) == 1:
+                num = 0
+            else:
+                num = random.randrange(0, len(self.forecast) - 1)
+                self.weather = self.forecast[num]
+        self.weather.disp_msg()
+    
+    def end(self):
+        """
+        The stuff that takes place after battle
+        """
+        xp = self.enemy_team.xp_given()
+        for member in self.player_team.use:
+            member.gain_XP(xp)
+                                    
+    def play(self):
+        """
+        Used to start
+        the battle
+        """
+        self.begin()
+        
+        while self.enemy_team.is_up() and self.player_team.is_up():
+            self.weather.do_effect(self.enemy_team.members_rem)
+            # did the weather defeat them?
+            if self.enemy_team.is_up():
+                self.enemy_team.do_turn()
+                # only bother doing player turn if enemy survives
+                # so this way we don't get 'ghost rounds'
+                self.weather.do_effect(self.player_team.members_rem)
+                if self.player_team.is_up():
+                    self.player_team.do_turn()           
+        self.check_winner()
+        self.end()
 
 class Area:
     def __init__(self, name, description, locations, levels):
@@ -53,14 +205,20 @@ class Area:
         self.levels = to_list(levels)
                 
     def display_data(self, player):
-        Op.add([self.name, self.description])
+        Op.add("Area: " + self.name)
+        Op.indent()
+        Op.add(self.description)
         Op.dp()
-        """
+        Op.add("Locations:")
+        Op.indent()
         for loc in self.locations:
             loc.display_data()
+        Op.unindent()
+        Op.add("Levels:")
+        Op.indent()
         for level in self.levels:
             level.display_data()
-        """
+        Op.unindent()
         self.trav_or_play(player)
     
     def trav_or_play(self, player):
@@ -69,7 +227,6 @@ class Area:
             level_to_play = choose("Which level do you want to play?", self.levels)
             level_to_play.load_team(player)
             level_to_play.play()
-        
         
         elif choice == "Customize":
             player.customize()
@@ -81,4 +238,20 @@ class Area:
         if choice != "Quit":
             self.display_data(player)
 
-from utilities import *
+weathers = (
+    Weather("Lightning", 40.0, "Flashes of light can be seen in the distance..."),
+    Weather("Lightning", 50.0, "Thunder rings not far away..."),
+    Weather("Lightning", 60.0, "The sky rains down its fire upon the field..."),
+    
+    Weather("Wind", 40.0, "A gentle breeze whips through..."),
+    Weather("Wind", 50.0, "The strong winds blow mightily..."),
+    Weather("Wind", 60.0, "A twister rips up the land..."),
+    
+    Weather("Hail", 2.5, "A light snow was falling..."),
+    Weather("Hail", 5, "Hail clatters along the ground..."),
+    Weather("Hail", 7.5, "The field is battered by hail..."),
+    
+    Weather("Rain", 2.5, "A light rain falls..."),
+    Weather("Rain", 5, "A brisk shower is forecast..."),
+    Weather("Rain", 7.5, "A deluge of water pours forth from the sky...")
+    )
