@@ -986,6 +986,15 @@ class AbstractTeam(object):
         """
         Use to see if your team still exists
         """
+        new_members_rem = []
+        for member in self.members_rem:
+            if not member.check_if_KOed():
+                new_members_rem.append(member)
+                member.update()
+            else:
+                Op.add(member.name + " is out of the game!")
+                Op.dp()
+        self.members_rem = new_members_rem        
         return len(self.members_rem) != 0
     
     def one_left(self):
@@ -1039,27 +1048,15 @@ class AbstractTeam(object):
         Op.add(self.active.name + "'s Energy: " + str(self.active.energy))
         Op.add("Active enemy: " + self.enemy.active.name + " " + str(int(self.enemy.active.HP_rem)) + "/" + str(int(self.enemy.active.get_stat("HP"))))
         Op.dp()
-        
+       
     def do_turn(self):
         """
         This is where stuff happens
         """
-        new_members_rem = []
-        for member in self.members_rem:
-            if not member.check_if_KOed():
-                new_members_rem.append(member)
-                member.update()
-            else:
-                Op.add(member.name + " is out of the game!")
-                Op.dp()
-        self.members_rem = new_members_rem
-        
-        if self.active.check_if_KOed() and self.is_up():
+        if self.active.check_if_KOed():
             self.choose_switchin()
-        
-        if self.is_up():
-            self.switched_in = False
-            self.choose_action()
+        self.switched_in = False
+        self.choose_action()
         pause()
 
 class PlayerTeam(AbstractTeam):

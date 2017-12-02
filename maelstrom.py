@@ -33,7 +33,7 @@ Week 2: Revised/improved/reordered functions
 9/11/2017 - 15/11/2017 : Finished Attack, added events
 17/11/2017 - 25/11/2017: Added customization, worked on save codes
 26/11/2017 - 28/11/2017: Worked on Item
-30/11/2017 - ? : Improved Area and Levels
+30/11/2017 - ? : Improved Area, Levels, and Files
 
 Version 0.9
 """
@@ -42,6 +42,7 @@ from utilities import *
 from maelstrom_classes import *
 from navigate import *
 from item import *
+from file import *
 import random
 
 # use these in specials
