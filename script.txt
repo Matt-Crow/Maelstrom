@@ -1,0 +1,35 @@
+Origin Beaches: 
+All heroes have to start somewhere 
+Encounter! Rain Entity
+Quick! Knock its hit points down to zero and escape!
+Congradulations!
+The Entity dissipates into a cloud of smoke
+
+The Gravel Trail:
+A rough path leads up from the beaches... 
+The gravel crunches beneath your feet as you walk
+Suddenly it starts to drizzle lightly
+TIP: While it is raining, all characters will regain a little HP each turn
+Congradulations!
+
+The Stagnant Pools:
+Alongside the path lie many puddles...
+A puddle begins to ripple...
+...and take form!
+TIP: Higher level characters have better stats, but HP grows slowly
+Congradulations!
+
+Deluge:
+The rain begins to pour...
+Flashes of lightning...
+...no longer distant!
+You are far stronger than you appear...
+
+The Rain Village:
+Where peace and tranquility hang over like a fine mist
+
+Forest Clearing:
+A fresh coating of snow covers all the trees
+
+The Hail Village:
+?

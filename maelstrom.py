@@ -63,23 +63,6 @@ enemies["Wind Entity"] = ((-3, 3, -3, 0, 0), "wind", SAct)
 
 enemies["stone soldier"] = ((2, -3, -3, 0, 0), "stone", SAct)
 
-# move messages to seperate file
-"""
-r1 = Battle("Origin Beaches", "All heroes have to start somewhere", ("Encounter! Rain Entity", "Quick! Knock its hit points down to zero and escape!"), ("Congradulations!", "The Entity dissipates into a cloud of smoke"), 1, None)
-r1.load_team(Team("Rain", {"name":"Rain Entity", "level": 1}, True))
-r2 = Battle("The Gravel Trail", "A rough path leads up from the beaches...", ("The gravel crunches beneath your feet as you walk", "Suddenly it starts to drizzle lightly", "TIP: While it is raining, all characters will regain a little HP each turn"), ("Congradulations!"), 1, weathers[9], None)
-r2.load_team(Team("Rain", {"name": "Rain Entity", "level": 1}, True))
-r3 = Battle("The Stagnant Pools", "Alongside the path lie many puddles...", ("A puddle begins to ripple...", "...and take form!", "TIP: Higher level characters have better stats, but HP grows slowly"), ("Congradulations!", "Perhaps an ally will help you in your quest..."), 1, weathers[10], None)
-r3.load_team(Team("Rain", {"name": "Rain Entity", "level": 2}, True))
-r4 = Battle("Deluge", "The rain begins to pour...", ("Flashes of lightning...", "...no longer distant!"), ("You are far stronger than you appear..."), 4, (weathers[0], weathers[1], weathers[2]), None)
-r4.load_team(Team("Rain", ({"name": "Lightning Entity", "level": 1}, {"name": "Rain Entity", "level": 1}, {"name": "Hail Entity", "level": 1}, {"name": "Wind Entity", "level": 1}), True))
-t = Tavern("The Salty Spitoon", "Welcome to the Salty Spitoon, how tough are you?", ["How tough am I?", "I programmed a chessboard the other day!", "Yeah, so?", "...recursively.", "Ugh, come right this way, sorry to keep you waiting."])
-rain_village = Area("The Rain Village", "Where peace and tranquility hang over like a fine mist", t, (r1, r2, r3, r4))
-
-h1 = Battle("Forest Clearing", "A fresh coating of snow covers all the trees", None, None, 1, weathers[6], None)
-h1.load_team(Team(" ", {"name": "Hail Entity", "level": 1}, True))
-hail_village = Area("The Hail Village", "?", None, (h1))
-"""
 c1 = Battle("Stone Rising", "An ancient threat arises", ("STONE SOLDIER: Foolish ones seek to take our land", "when we ourselves are imbued with its very power!"), "The stone soldier shatters into dust.", EnemyTeam("Stone", {"name": "stone soldier", "level": 1}), None)
 caves = Location("Ancient library caverns", "These caves seem as old as time itself.", ("LIBRARIAN: These caves have only recently by our scholars.", "Everything here is estimated to be ancient,", "perhaps even older than Altostromia itself!", "But what concerns me are these statues...", "...hundreds of them."))
 lib_cav = Area("Ancient caverns", "?", caves, c1)

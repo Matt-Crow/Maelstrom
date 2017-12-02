@@ -5,6 +5,33 @@ if __name__ == "__main__":
 
 from utilities import *
 
+# change this to a seperate file as a fill reading class
+script = dict() # this will be used by locations, areas, and levels
+def load_script():
+    # what key matches up to the next few values?
+    current_script_for = None
+    for line in open("script.txt"):
+        omit = False
+        print("Line: " + line)
+        
+        # Go through the letters in the line...
+        for i in range(0, len(line)):
+            # a colon symbolizes a change in key for our dictionary
+            if line[i] == ':':
+                # grab everything prior to the colon
+                current_script_for = line[0:i]
+                # create a list for that key
+                script[current_script_for] = list()
+                # don't append the key to its list
+                omit = True
+        
+        if not omit:
+            script[current_script_for].append(line)
+    
+    print(script)
+
+load_script()
+
 class Story:
     def __init__(self, story):
         self.story = to_list(story)
