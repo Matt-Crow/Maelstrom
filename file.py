@@ -37,6 +37,12 @@ class File(object):
             if not omit:
                 self.dictionary[current_key].append(line)
     
+    def grab_key(self, key):
+        ret = ("ERROR", "Key " + key, "does not exist for file", self.file)
+        if key in self.dictionary.keys():
+            ret = self.dictionary[key]
+        return ret
+    
     def save(self):
         file = open(self.file, 'w')
         for line in self.raw_data:

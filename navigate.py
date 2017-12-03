@@ -8,7 +8,6 @@ from file import *
 
 script_file = File("script.txt")
 script_file.create_dict(':')
-print(script_file.dictionary)
 
 class Story:
     def __init__(self, story):
@@ -95,11 +94,19 @@ class Battle(object):
     initializing them
     and the weather.
     """
-    def __init__(self, name, description, script, end, enemy_team, rewards = None):
+    def __init__(self, name, enemy_team, rewards = None):
         self.name = name
-        self.description = description
-        self.script = Story(script)
-        self.final_act = Story(end)
+        self.all_text = script_file.grab_key(name)
+        
+        
+        
+        print(self.all_text)
+        
+        
+        
+        self.description = "still needs imp"
+        self.script = Story("still needs imp")
+        self.final_act = Story("still needs imp")
         
         self.forecast = weathers
         

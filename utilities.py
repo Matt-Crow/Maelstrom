@@ -2,6 +2,36 @@ import random
 
 debug = False
 
+def ignore_text(word, ignore):
+    """
+    Returns a string, if ignore
+    exists in that string, remove
+    it from the returned string
+    """
+    ret = ""
+    letters_found = 0
+    found_so_far = ""
+    
+    # go through the word...
+    for letter in range(0, len(word)):
+        # is the current letter equal to the next letter in ignore?
+        if word[letter] == ignore[letters_found]:
+            # keep track of what we've found, just in case
+            found_so_far += word[letter]
+            letters_found += 1
+            # have we found the whole word?
+            if letters_found == len(ignore):
+                # ignore it
+                letters_found = 0
+                found_so_far = ""
+        else:
+            # don't ignore it
+            letters_found = 0
+            ret += found_so_far
+            found_so_far = ""
+            ret += word[letter]
+    return ret
+
 def mod(num):
     """
     A useful little guy
