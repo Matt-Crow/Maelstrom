@@ -1,4 +1,7 @@
 class File(object):
+    description_key = "<desc>"
+    prescript_key = "<pre>"
+    postscript_key = "<post>"
     def __init__(self, file_name):
         self.file = file_name
         self.load()

@@ -98,15 +98,34 @@ class Battle(object):
         self.name = name
         self.all_text = script_file.grab_key(name)
         
+        self.description = " "
+        self.script = Story(" ")
+        self.final_act = Story(" ")
         
+        script_list = list()
+        final_act_list = list()
         
-        print(self.all_text)
-        
-        
-        
-        self.description = "still needs imp"
-        self.script = Story("still needs imp")
-        self.final_act = Story("still needs imp")
+        mode = None
+        for line in self.all_text:
+            if contains(line, File.description_key):
+                self.description = ignore_text(line, File.description_key)
+            
+            if contains(line, File.prescript_key):
+                mode = "pre"
+            
+            if contains(line, File.postscript_key):
+                mode = "post"
+                
+            if mode == "pre":
+                script_list.append(ignore_text(line, File.prescript_key))
+                
+            elif mode == "post":
+                final_act_list.append(ignore_text(line, File.postscript_key))
+            
+            if len(script_list) is not 0:
+                self.script = Story(script_list)
+            if len(final_act_list) is not 0:
+                self.final_act = Story(final_act_list)
         
         self.forecast = weathers
         

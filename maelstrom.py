@@ -75,5 +75,4 @@ if __name__ == "__main__":
     player.obtain(t2)
     player.obtain(t3)
     lib_cav.display_data(player)
-    
     #Savefile("player_data.txt").update(player)
