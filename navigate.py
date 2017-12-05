@@ -4,7 +4,9 @@ if __name__ == "__main__":
     exit()
 
 from utilities import *
+from stat_classes import *
 from file import *
+import random
 
 script_file = File("script.txt")
 script_file.create_dict(':')
@@ -42,7 +44,16 @@ class Weather(object):
     Weather provides in-battle effects
     that alter the stats of characters
     """
-    def __init__(self, type, intensity, msg):
+    
+    types = {
+        "lightning": "The sky rains down its fire upon the field...",
+        "rain": "A deluge of water pours forth from the sky...",
+        "hail": "A light snow was falling...",
+        "wind": "The strong winds blow mightily...",
+        None: "The land is seized by an undying calm..."
+    }
+    
+    def __init__(self, type, intensity):
         """
         The type determines what sort of effect will
         be applied to all participants in a battle.
@@ -50,31 +61,35 @@ class Weather(object):
         The msg is what text will show to help
         the player determine the weather.
         """
-        self.type = type
         self.intensity = intensity
-        self.msg = msg
+        
+        if type in Weather.types:
+            self.type = type
+        else:
+            self.type = Weather.random_type()
+        
+        self.msg = Weather.types[type]
             
     def do_effect(self, affected):
         """
         Apply stat changes 
         to a team
         """
-        return
-        if self.type == "Lightning":
+        if self.type == "lightning":
             for person in affected:
-                person.gain_energy(int(self.intensity/20))
+                person.gain_energy(self.intensity)
                 
-        if self.type == "Wind":
+        if self.type == "wind":
             for person in affected:
-                person.boost("STR", self.intensity/100, 3)
+                person.boost(Boost("control", self.intensity * 5, 1, "Weather"))
         
-        if self.type == "Hail":
+        if self.type == "hail":
             for person in affected:
-                person.take_dmg(self.intensity)
+                person.harm(self.intensity * 4)
         
-        if self.type == "Rain":
+        if self.type == "rain":
             for person in affected:
-                person.heal(self.intensity)
+                person.heal(self.intensity * 3)
                      
     def disp_msg(self):
         """
@@ -83,9 +98,20 @@ class Weather(object):
         """
         Op.add(self.msg)
         Op.dp()
+    
+    @staticmethod
+    def generate_random():
+        return Weather(Weather.random_type(), Weather.random_intensity())
+    
+    @staticmethod
+    def random_type():
+        return random.choice(Weather.types.keys())
+    
+    @staticmethod
+    def random_intensity():
+        return random.randint(1, 5)
 
 # weather need work above and below
-# ditch the scripts?
 # get rid of the stupid 'use' thing
 class Battle(object):
     """
@@ -127,7 +153,7 @@ class Battle(object):
             if len(final_act_list) is not 0:
                 self.final_act = Story(final_act_list)
         
-        self.forecast = weathers
+        self.forecast = to_list(None)
         
         self.enemy_team = enemy_team
         self.enemy_team.use = self.enemy_team.team
@@ -190,14 +216,13 @@ class Battle(object):
         self.enemy_team.display_data()
         self.player_team.display_data()
         
-        if self.forecast[0] == None:
-            self.weather = Weather(None, 0, "The land is seized by an undying calm...")
-        else:
-            if len(self.forecast) == 1:
-                num = 0
-            else:
+        self.weather = Weather.generate_random()
+        
+        if self.forecast[0] is not None:
+            num = 0
+            if len(self.forecast) > 1:
                 num = random.randrange(0, len(self.forecast) - 1)
-                self.weather = self.forecast[num]
+            self.weather = self.forecast[num]
         self.weather.disp_msg()
     
     def end(self):
@@ -268,21 +293,3 @@ class Area:
         
         if choice != "Quit":
             self.display_data(player)
-
-weathers = (
-    Weather("Lightning", 40.0, "Flashes of light can be seen in the distance..."),
-    Weather("Lightning", 50.0, "Thunder rings not far away..."),
-    Weather("Lightning", 60.0, "The sky rains down its fire upon the field..."),
-    
-    Weather("Wind", 40.0, "A gentle breeze whips through..."),
-    Weather("Wind", 50.0, "The strong winds blow mightily..."),
-    Weather("Wind", 60.0, "A twister rips up the land..."),
-    
-    Weather("Hail", 2.5, "A light snow was falling..."),
-    Weather("Hail", 5, "Hail clatters along the ground..."),
-    Weather("Hail", 7.5, "The field is battered by hail..."),
-    
-    Weather("Rain", 2.5, "A light rain falls..."),
-    Weather("Rain", 5, "A brisk shower is forecast..."),
-    Weather("Rain", 7.5, "A deluge of water pours forth from the sky...")
-    )

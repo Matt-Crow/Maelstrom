@@ -2,14 +2,14 @@ import random
 
 debug = False
 
-def contains(word, search):
+def contains(string, search):
     ret = False
     letters_found = 0
     
     # go through the word...
-    for letter in range(0, len(word)):
+    for letter in range(0, len(string)):
         # is the current letter equal to the next letter in ignore?
-        if word[letter] == search[letters_found]:
+        if string[letter] == search[letters_found]:
             letters_found += 1
             # have we found the whole word?
             if letters_found == len(search):
