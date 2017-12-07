@@ -22,10 +22,28 @@ class Story:
             pause()
 
 class Location:
-    def __init__(self, name, desc, script):
+    def __init__(self, name):
         self.name = name
-        self.description = desc
-        self.script = Story(script)
+        
+        self.all_text = script_file.grab_key(name)
+        self.description = " "
+        self.script = Story(" ")
+        
+        script_list = list()
+        
+        mode = None
+        for line in self.all_text:
+            if contains(line, File.description_key):
+                self.description = ignore_text(line, File.description_key)
+            
+            if contains(line, File.script_key):
+                mode = "script"
+            
+            if mode == "script":
+                script_list.append(ignore_text(line, File.script_key))
+            
+            if len(script_list) is not 0:
+                self.script = Story(script_list)
         
     def display_data(self):
         Op.add([self.name, self.description])
@@ -111,7 +129,6 @@ class Weather(object):
     def random_intensity():
         return random.randint(1, 5)
 
-# weather need work above and below
 # get rid of the stupid 'use' thing
 class Battle(object):
     """

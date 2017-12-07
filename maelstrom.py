@@ -33,7 +33,7 @@ Week 2: Revised/improved/reordered functions
 9/11/2017 - 15/11/2017 : Finished Attack, added events
 17/11/2017 - 25/11/2017: Added customization, worked on save codes
 26/11/2017 - 28/11/2017: Worked on Item
-30/11/2017 - ? : Improved Area, Levels, and Files
+30/11/2017 - 7/12/2017 : Improved Area, Levels, Weather, and Files
 
 Version 0.9
 """
@@ -65,7 +65,7 @@ enemies["Wind Entity"] = ((-3, 3, -3, 0, 0), "wind", SAct)
 enemies["stone soldier"] = ((2, -3, -3, 0, 0), "stone", SAct)
 
 c1 = Battle("Stone Rising", EnemyTeam("Stone", {"name": "stone soldier", "level": 1}), None)
-caves = Location("Ancient library caverns", "These caves seem as old as time itself.", ("LIBRARIAN: These caves have only recently by our scholars.", "Everything here is estimated to be ancient,", "perhaps even older than Altostromia itself!", "But what concerns me are these statues...", "...hundreds of them."))
+caves = Location("Ancient library caverns")
 lib_cav = Area("Ancient caverns", "?", caves, c1)
 
 if __name__ == "__main__":

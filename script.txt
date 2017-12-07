@@ -10,3 +10,11 @@ Stone Rising:
 <pre> STONE SOLDIER Foolish ones seek to take our land
 when we ourselves are imbued with its very power!
 <post> The stone soldier shatters into dust
+
+Ancient library caverns: 
+<desc> These caves seem as old as time itself.
+<script> LIBRARIAN These caves have only recently by our scholars.
+Everything here is estimated to be ancient,
+perhaps even older than Altostromia itself!
+But what concerns me are these statues...
+...hundreds of them.

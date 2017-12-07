@@ -2,6 +2,7 @@ class File(object):
     description_key = "<desc>"
     prescript_key = "<pre>"
     postscript_key = "<post>"
+    script_key = "<script>"
     def __init__(self, file_name):
         self.file = file_name
         self.load()
@@ -26,19 +27,21 @@ class File(object):
         for line in self.raw_data:
             omit = False
             
-            # Go through the letters in the line...
-            for i in range(0, len(line)):
-                # a split symbolizes a change in key for our dictionary
-                if line[i] == split:
-                    # grab everything prior to the split
-                    current_key = line[0:i]
-                    # create a list for that key
-                    self.dictionary[current_key] = list()
-                    # don't append the key to its list
-                    omit = True
-        
-            if not omit:
-                self.dictionary[current_key].append(line)
+            # ignore blank lines
+            if not line in ('\n', '\r\n'):
+                # Go through the letters in the line...
+                for i in range(0, len(line)):
+                    # a split symbolizes a change in key for our dictionary
+                    if line[i] == split:
+                        # grab everything prior to the split
+                        current_key = line[0:i]
+                        # create a list for that key
+                        self.dictionary[current_key] = list()
+                        # don't append the key to its list
+                        omit = True
+                
+                if not omit:
+                    self.dictionary[current_key].append(line)
     
     def grab_key(self, key):
         ret = ("ERROR", "Key " + key, "does not exist for file", self.file)
