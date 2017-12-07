@@ -45,10 +45,6 @@ from item import *
 from file import *
 import random
 
-# use these in specials
-no_eff = (0, 0, 0)
-act_ene = ("enemy", "act")
-
 boom = AllAttack("BOOM!", 7, 7)
 
 LAct = ActAttack("Shock Pulse", 1.75, 5)

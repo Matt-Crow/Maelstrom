@@ -7,6 +7,8 @@ import random # still needed for non-luck things
 from passives import *
 from stat_classes import *
 from item import *
+from utilities import *
+from navigate import Story
 
 characters = {}
 enemies = {}
@@ -615,13 +617,14 @@ class AbstractCharacter(object):
     def harm(self, percent):
         mult = 1 - self.get_stat("potency") / 100
         harming = self.get_stat("HP") * (float(percent) / 100)
-        self.HP_rem = int(self.HP_rem - harming * mult)
-        Op.add(self.name + " took " + str(int(harming)) + " damage!")
+        self.direct_dmg(harming * mult)
+        Op.add(self.name + " took " + str(int(harming * mult)) + " damage!")
         Op.dp()
         
     def direct_dmg(self, dmg):
         self.HP_rem -= dmg
         self.HP_rem = int(self.HP_rem)
+        self.team.update_members_rem()
     
     def gain_energy(self, amount):
         """
@@ -978,14 +981,11 @@ class AbstractTeam(object):
         defeated.
         """
         xp = 0
-        for member in self.use:
+        for member in self.team:
             xp += member.level * 10
-        return xp / len(self.use)
+        return xp / len(self.team)
     
-    def is_up(self):
-        """
-        Use to see if your team still exists
-        """
+    def update_members_rem(self):
         new_members_rem = []
         for member in self.members_rem:
             if not member.check_if_KOed():
@@ -994,7 +994,13 @@ class AbstractTeam(object):
             else:
                 Op.add(member.name + " is out of the game!")
                 Op.dp()
-        self.members_rem = new_members_rem        
+        self.members_rem = new_members_rem
+    
+    def is_up(self):
+        """
+        Use to see if your team still exists
+        """
+                
         return len(self.members_rem) != 0
     
     def one_left(self):
@@ -1002,12 +1008,6 @@ class AbstractTeam(object):
         Detects when you have only one member left
         """
         return len(self.members_rem) == 1
-    
-    def init_active(self):
-        """
-        Elect a leader
-        """
-        self.active = self.use[0]
             
     def switch(self, member):
         """
@@ -1020,10 +1020,10 @@ class AbstractTeam(object):
         Ready the troops!
         """
         self.members_rem = []
-        for member in self.use:
+        for member in self.team:
             member.init_for_battle()
             self.members_rem.append(member)
-        self.init_active()
+        self.active = self.members_rem[0]
     
     def list_members(self):
         """
@@ -1225,6 +1225,3 @@ class EnemyTeam(AbstractTeam):
             self.choose_switchin()
             self.switched_in = True
         self.active.choose_attack()
-
-from utilities import *
-from navigate import Story

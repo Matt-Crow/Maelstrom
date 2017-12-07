@@ -173,7 +173,6 @@ class Battle(object):
         self.forecast = to_list(None)
         
         self.enemy_team = enemy_team
-        self.enemy_team.use = self.enemy_team.team
         
         self.rewards = to_list(rewards)
     
@@ -189,7 +188,7 @@ class Battle(object):
     def display_data(self):
         Op.add([self.name, self.description])
         
-        for member in self.enemy_team.use:
+        for member in self.enemy_team.team:
             Op.add("* " + member.name + " LV " + str(member.level) + " " + member.element)
         Op.dp()
     
@@ -198,7 +197,6 @@ class Battle(object):
         Load the player's team
         """
         self.player_team = team
-        team.use = team.team
         
     # stuff down here
     # add random loot
@@ -247,7 +245,7 @@ class Battle(object):
         The stuff that takes place after battle
         """
         xp = self.enemy_team.xp_given()
-        for member in self.player_team.use:
+        for member in self.player_team.team:
             member.gain_XP(xp)
                                     
     def play(self):
@@ -269,7 +267,13 @@ class Battle(object):
                     self.player_team.do_turn()           
         self.check_winner()
         self.end()
-
+    
+    @staticmethod
+    def generate_random():
+        """
+        Creates a random level
+        """
+        
 class Area:
     def __init__(self, name, description, locations, levels):
         self.name = name
