@@ -18,3 +18,6 @@ Everything here is estimated to be ancient,
 perhaps even older than Altostromia itself!
 But what concerns me are these statues...
 ...hundreds of them.
+
+Ancient caverns: 
+<desc> What once lay forgoten now lies renewed

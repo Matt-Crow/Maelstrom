@@ -8,11 +8,9 @@ from passives import *
 from stat_classes import *
 from item import *
 from utilities import *
+from enemies import * 
 from navigate import Story
 
-characters = {}
-enemies = {}
-passives = []
 
 
 def get_hit_perc(lv):
@@ -355,7 +353,7 @@ class AbstractCharacter(object):
         self.XP = 0
         self.level_set = 1
         
-        self.attacks = [data[2]]
+        self.attacks = [ActAttack(self.element + " bolt", 1.75, 5)]
         self.add_default_actives()
         self.set_passives_to_defaults()
         
@@ -654,7 +652,7 @@ class AbstractCharacter(object):
         self.gain_energy(self.get_stat("energy") * 0.15)
         for stat in self.stats:
             stat.update()
-            stat.display_data();
+            #stat.display_data();
     
     """
     Damage calculation
@@ -1117,13 +1115,13 @@ class PlayerTeam(AbstractTeam):
         self.team[0].customize()
     
 class EnemyTeam(AbstractTeam):
-    def __init__(self, name, members):
+    def __init__(self, members, level):
         self.team = []
-        self.name = name
+        self.name = "Enemy team"
         
         members = to_list(members)
         for new_member in members:
-            self.team.append(EnemyCharacter(new_member["name"], new_member["level"]))
+            self.team.append(EnemyCharacter(new_member, level))
         for member in self.team:
             member.team = self
     

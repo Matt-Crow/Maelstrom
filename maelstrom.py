@@ -35,6 +35,8 @@ Week 2: Revised/improved/reordered functions
 26/11/2017 - 28/11/2017: Worked on Item
 30/11/2017 - 7/12/2017 : Improved Area, Levels, Weather, and Files
 
+need set attack to not default
+
 Version 0.9
 """
 
@@ -43,30 +45,16 @@ from maelstrom_classes import *
 from navigate import *
 from item import *
 from file import *
+from enemies import *
 import random
 
-boom = AllAttack("BOOM!", 7, 7)
-
-LAct = ActAttack("Shock Pulse", 1.75, 5)
-SAct = ActAttack("Rock Slide", 1.75, 5)
-
-enemies["MAX"] = ((5, 0, 0, 0, 0), "stone", SAct)
-enemies["MIN"] = ((-5, 0, 0, 0, 0), "stone", SAct)
-
-enemies["Lightning Entity"] = ((-3, 3, 3, 0, 0), "lightning", SAct)
-enemies["Rain Entity"] = ((3, -3, 3, 0, 0), "rain", SAct)
-enemies["Hail Entity"] = ((3, -3, -3, 0, 0), "hail", SAct)
-enemies["Wind Entity"] = ((-3, 3, -3, 0, 0), "wind", SAct)
-
-enemies["stone soldier"] = ((2, -3, -3, 0, 0), "stone", SAct)
-
-c1 = Battle("Stone Rising", EnemyTeam("Stone", {"name": "stone soldier", "level": 1}), None)
+c1 = Battle("Stone Rising", EnemyTeam(["stone soldier"], 1))
 caves = Location("Ancient library caverns")
-lib_cav = Area("Ancient caverns", "?", caves, c1)
+lib_cav = Area("Ancient caverns", caves, c1)
 
 if __name__ == "__main__":
     #player = load()
-    player = PlayerTeam("Player team", {"name": "Alexandre", "data": ((0, 0, 0, 0, 0), "lightning", LAct), "level": 1})
+    player = PlayerTeam("Player team", {"name": "Alexandre", "data": ((0, 0, 0, 0, 0), "lightning"), "level": 1})
     player.obtain(t1)
     player.obtain(t2)
     player.obtain(t3)

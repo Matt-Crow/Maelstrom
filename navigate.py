@@ -6,6 +6,8 @@ if __name__ == "__main__":
 from utilities import *
 from stat_classes import *
 from file import *
+from enemies import *
+from maelstrom_classes import EnemyTeam
 import random
 
 script_file = File("script.txt")
@@ -129,7 +131,6 @@ class Weather(object):
     def random_intensity():
         return random.randint(1, 5)
 
-# get rid of the stupid 'use' thing
 class Battle(object):
     """
     The Battle class pits 2 teams
@@ -273,13 +274,20 @@ class Battle(object):
         """
         Creates a random level
         """
+        enemy_names = []
+        num_enemies = random.randint(1, 4)
+        for i in range(0, num_enemies):
+            enemy_names.append(elemental_enemies[random.randint(0, len(elemental_enemies))])
+        rand_team = EnemyTeam(enemy_names, 1)
+        return Battle("Random encounter", rand_team)
         
 class Area:
-    def __init__(self, name, description, locations, levels):
+    def __init__(self, name, locations, levels):
         self.name = name
-        self.description = description
+        self.description = ignore_text(script_file.grab_key(name)[0], File.description_key)
         self.locations = to_list(locations)
         self.levels = to_list(levels)
+        self.levels.append(Battle.generate_random())
                 
     def display_data(self, player):
         Op.add("Area: " + self.name)
