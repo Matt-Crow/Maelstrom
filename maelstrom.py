@@ -34,21 +34,15 @@ Week 2: Revised/improved/reordered functions
 17/11/2017 - 25/11/2017: Added customization, worked on save codes
 26/11/2017 - 28/11/2017: Worked on Item
 30/11/2017 - 7/12/2017 : Improved Area, Levels, Weather, and Files
+9/12/2017 - ? : Split files, working on campagne
 
 need set attack to not default
 
 Version 0.9
 """
-
-from utilities import *
-from maelstrom_classes import *
 from navigate import *
-from item import *
-from file import *
-from enemies import *
-import random
 
-c1 = Battle("Stone Rising", EnemyTeam(["stone soldier"], 1))
+c1 = Battle("Stone Rising", ("stone soldier"), 1)
 caves = Location("Ancient library caverns")
 lib_cav = Area("Ancient caverns", caves, c1)
 

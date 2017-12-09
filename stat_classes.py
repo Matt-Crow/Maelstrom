@@ -1,8 +1,5 @@
 from utilities import *
 
-ELEMENTS = ("lightning", "rain", "hail", "wind")
-STATS = ("control", "resistance", "potency", "luck", "energy")
-
 """
 Stat stuff
 """

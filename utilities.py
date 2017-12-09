@@ -2,6 +2,18 @@ import random
 
 debug = False
 
+ELEMENTS = ("lightning", "rain", "hail", "wind")
+STATS = ("control", "resistance", "potency", "luck", "energy")
+
+def get_hit_perc(lv):
+    """
+    Calculates how much
+    damage an attack should
+    do to a target at a given
+    level
+    """
+    return 16.67 * (1 + lv * 0.05)
+
 def contains(string, search):
     ret = False
     letters_found = 0

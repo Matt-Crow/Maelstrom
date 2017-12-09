@@ -1,13 +1,8 @@
-if __name__ == "__main__":
-    print("Oops! You're running from the wrong file!")
-    print("Try running Maelstrom.py instead!")
-    exit()
-
 from utilities import *
 from stat_classes import *
 from file import *
 from enemies import *
-from maelstrom_classes import EnemyTeam
+from teams import *
 import random
 
 script_file = File("script.txt")
@@ -138,7 +133,7 @@ class Battle(object):
     initializing them
     and the weather.
     """
-    def __init__(self, name, enemy_team, rewards = None):
+    def __init__(self, name, enemy_names, enemy_levels, rewards = None):
         self.name = name
         self.all_text = script_file.grab_key(name)
         
@@ -173,7 +168,7 @@ class Battle(object):
         
         self.forecast = to_list(None)
         
-        self.enemy_team = enemy_team
+        self.enemy_team = EnemyTeam(enemy_names, enemy_levels)
         
         self.rewards = to_list(rewards)
     
@@ -277,9 +272,8 @@ class Battle(object):
         enemy_names = []
         num_enemies = random.randint(1, 4)
         for i in range(0, num_enemies):
-            enemy_names.append(elemental_enemies[random.randint(0, len(elemental_enemies))])
-        rand_team = EnemyTeam(enemy_names, 1)
-        return Battle("Random encounter", rand_team)
+            enemy_names.append(elemental_enemies[random.randint(0, len(elemental_enemies) - 1 )])
+        return Battle("Random encounter", enemy_names, 1)
         
 class Area:
     def __init__(self, name, locations, levels):
