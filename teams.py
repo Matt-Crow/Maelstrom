@@ -178,15 +178,6 @@ class EnemyTeam(AbstractTeam):
         if self.enemy.active.calc_DMG(self.active, self.active.best_attack()) >= self.enemy.active.HP_rem:
             return "Attack"
         """
-        # check if your active can benchhit
-        if self.active.special.act_any_all != "act":
-            for member in self.enemy.members_rem:
-                if member.calc_DMG(self.active, self.active.special) >= member.HP_rem and self.active.can_spec():
-                    if debug:
-                        print(self.active.name + " can KO " + member.name + " with " + self.active.special.name)
-                     return "Attack"
-        """
-        """
         Second, check if an ally can KO 
         """
         for member in self.members_rem:
@@ -212,9 +203,9 @@ class EnemyTeam(AbstractTeam):
                 can_ko.append(member)
         
         for member in can_ko:
-            Dp.dp(member.name)
+            Dp.add(member.name)
         
-        Dp.dd("can KO")
+        Dp.add("can KO")
         Dp.dp()
         
         """

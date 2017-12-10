@@ -3,11 +3,11 @@ from utilities import *
 """
 Actives:
 """
-class AbstractAttack(object):
+class Active(object):
     """
     The attacks all characters can use
     """
-    def __init__(self, name, mult, energy_cost):
+    def __init__(self, name, mult, cleave_perc, energy_cost):
         """
         """
         self.name = name
@@ -17,6 +17,8 @@ class AbstractAttack(object):
         self.damage_distribution = {"physical":50}
         for element in ELEMENTS:
             self.damage_distribution[element] = 12.5
+        
+        self.cleave = float(cleave_perc) / 100
         
         self.miss = 0
         self.crit = 0
@@ -78,6 +80,12 @@ class AbstractAttack(object):
         for type, value in self.damage_distribution.items():
             self.damages[type] = total / split_between * value
     
+    def total_dmg(self):
+        ret = 0
+        for damage in self.damages.values():
+            ret += damage
+        return ret
+    
     def display_data(self):
         Op.add(self.name)
         for type, value in self.damages.items():
@@ -86,6 +94,7 @@ class AbstractAttack(object):
         Op.add("Miss chance: " + str(self.miss) + "%")
         Op.add("Critical hit multiplier: " + str(int(self.crit_mult * 100)) + "%")
         Op.add("Miss multiplier: " + str(int(self.miss_mult * 100)) + "%")
+        Op.add("Cleave damage: " + str(int(self.cleave * 100)) + "% of damage from initial hit")
         Op.dp()
     
     def can_use(self):
@@ -111,8 +120,7 @@ class AbstractAttack(object):
             
         return ret
     
-    def hit(self, target):
-        target.take_DMG(self.user, self)
+    def apply_side_effects_to(self, target):
         for side_effect in self.side_effects:
             rand = roll_perc(self.user.get_stat("luck"))
             
@@ -126,49 +134,19 @@ class AbstractAttack(object):
             
     def use(self):
         self.user.lose_energy(self.energy_cost)
+        if self.dmg_mult is not 0:
+            self.user.team.enemy.active.take_DMG(self.user, self)
+            self.apply_side_effects_to(self.user.team.enemy.active)
+        if self.cleave is not 0:
+            for enemy in self.user.team.enemy.members_rem:
+                if enemy is not self.user.team.enemy.active:
+                    enemy.direct_dmg(self.total_dmg() * self.cleave)
+                    self.apply_side_effects_to(enemy)
 
-class ActAttack(AbstractAttack):
-    def use(self):
-        self.hit(self.user.team.enemy.active)
-        super(ActAttack, self).use()
-
-class MeleeAttack(ActAttack):
-    def __init__(self, name, dmg, miss, crit, miss_mult, crit_mult):
-        super(MeleeAttack, self).__init__(name, dmg, 0)
+class MeleeAttack(Active):
+    def __init__(self, name, dmg, miss, crit, miss_mult, crit_mult, cleave):
+        super(MeleeAttack, self).__init__(name, dmg, cleave, 0)
         self.miss = miss
         self.crit = crit
         self.miss_mult = miss_mult
         self.crit_mult = crit_mult
-
-class AllAttack(AbstractAttack):
-    def use(self):
-        for member in self.user.team.enemy.members_rem:
-            self.hit(member)
-        super(type(self), self).use()
-
-class AnyAttack(AbstractAttack):
-    def use(self):    
-        if self.user.team.AI:
-            highest = 0
-            best = None
-            options = []
-            if self.user.team.switched_in:
-                m = 0.75
-            else:
-                m = 1.0
-            
-            for member in self.user.team.enemy.members_rem:
-                damage = member.calc_DMG(self.user, self) * m
-                if damage >= member.HP_rem:
-                    options.append(member)
-                if damage >= highest:
-                    highest = damage
-                    best = member
-            
-            if len(options) >= 1:
-                target_team.members_rem[random.randint(0, len(options) - 1)].take_DMG(self.user, self)
-            else:
-                self.hit(best)
-        else:
-            self.hit(choose("Who do you wish to hit?", target_team.members_rem))
-        super(type(self), self).use()
