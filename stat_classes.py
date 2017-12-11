@@ -64,8 +64,12 @@ class Boost(object):
         self.amount = amount
         if abs(self.amount) > 1.0:
             self.amount = float(self.amount) / 100
+        self.base_duration = duration
         self.duration = duration
         self.id = id
+    
+    def reset(self):
+        self.duration = self.base_duration
     
     def display_data(self):
         Op.add("Boost: " + self.id)

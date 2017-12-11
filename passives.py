@@ -2,9 +2,12 @@ from utilities import *
 from stat_classes import *
 
 """
+needs work
+"""
+
+"""
 Passives
 """
-# make so that individual boosts can target specific players, some user, some enemy
 # work on negative boosts
 class AbstractPassive(object):
     """
@@ -19,14 +22,9 @@ class AbstractPassive(object):
     def __init__(self, name, boosts):
         self.name = name
         self.boosts = to_list(boosts)
-        self.update_desc()
     
     def set_user(self, user):
         self.user = user
-    
-    def update_desc(self):
-        #self.desc = "with a " + str(self.get_boost_amount()) + "% boost to their " + self.boosted_stat + " stat for " + str(self.boost_duration) + " turns"
-        self.desc = "work on abstractpassive desc"
     
     def f(self):
         for boost in self.boosts:
@@ -73,36 +71,58 @@ class Threshhold(AbstractPassive):
             self.f()
         Dp.dp()
     
-    # add checks
+    # add checks for all boosts undurationed
     def customize(self):
         self.display_data()
-        options = ["Threshhold", "Potency", "Duration"]
+        options = ["Potency", "Duration"]
+        if self.threshhold <= 95:
+            options.append("Threshhold")
         
-        choice = choose("Which stat do you want to increase?", options)
+        choice = choose("What do you want to improve?", options)
         
-        if choice == "Threshhold":
-            self.threshhold -= 5
-        elif choice == "Potency":
-            self.boost_amount += 5
-        else:
-            self.boost_duration += 1 
-        
-        
-        choice = choose("Which stat do you want to decrease?", options)
         if choice == "Threshhold":
             self.threshhold += 5
         elif choice == "Potency":
-            self.boost_amount -= 5
+            for boost in self.boosts:
+                boost.amount += 0.05
         else:
-            self.boost_duration -= 1
+            for boost in self.boosts:
+                boost.base_duration += 1 
         
-        self.update_desc()
+        options = []
+        if self.threshhold > 5:
+            options.append("Threshhold")
+        can_pot = True
+        can_dur = True
+        
+        for boost in self.boosts:
+            if abs(boost.amount) <= 5:
+                can_pot = False
+            if boost.base_duration <= 1:
+                can_dur = False
+        if can_pot:
+            options.append("Potency")
+        if can_dur:
+            options.append("Duration")
+        
+        choice = choose("Which stat do you want to decrease?", options)
+        if choice == "Threshhold":
+            self.threshhold -= 5
+        elif choice == "Potency":
+            for boost in self.boosts:
+                boost.amount -= 0.05
+        else:
+            for boost in self.boosts:
+                boost.base_duration -= 1
+        
         self.display_data()
     
     def display_data(self):
         Op.add(self.name + ":")
-        Op.add("Inflicts user")
-        Op.add(self.desc)
+        Op.add("Inflicts user with:")
+        for boost in self.boosts:
+            Op.indent()
+            boost.display_data()
         Op.add("when at or below")
         Op.add(str(self.threshhold) + "% maximum Hit Points") 
         Op.dp()
@@ -155,13 +175,15 @@ class OnHitGiven(AbstractPassive):
         Op.add(self.name + ":")
         Op.add("Whenever the user strikes an opponent, ")
         Op.add("there is a " + str(self.chance) + "% chance that the")
-        if self.targets_user:
-            Op.add("user")
-        else:
-            Op.add("target")
-        Op.add("will be inflicted")
-        Op.add(self.desc)
-        Op.dp()
+        for boost in self.boosts:
+            if boost.amount > 0:
+                Op.add("user")
+            else:
+                Op.add("target")
+            Op.add("will be inflicted with:")
+            Op.indent()
+            boost.display_data()
+        #Op.dp()
 
 class OnHitTaken(AbstractPassive):
     def __init__(self, name, chance, boosts):
@@ -211,10 +233,12 @@ class OnHitTaken(AbstractPassive):
         Op.add(self.name + ":")
         Op.add("Whenever the user is struck by an opponent, ")
         Op.add("there is a " + str(self.chance) + "% chance that the")
-        if self.targets_user:
-            Op.add("user")
-        else:
-            Op.add("attacker")
-        Op.add("will be inflicted")
-        Op.add(self.desc)
-        Op.dp()
+        for boost in self.boosts:
+            if boost.amount > 0:
+                Op.add("user")
+            else:
+                Op.add("attacker")
+            Op.add("will be inflicted with:")
+            Op.indent()
+            boost.display_data()
+        #Op.dp()
