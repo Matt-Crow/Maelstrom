@@ -37,7 +37,6 @@ class AbstractCharacter(object):
         self.element = data[1]
         self.level = level
         self.XP = 0
-        self.level_set = 1
         
         self.attacks = [Active(self.element + " bolt", 1.75, 25, 5)]
         self.add_default_actives()
@@ -383,50 +382,6 @@ class AbstractCharacter(object):
         """
         return self.HP_rem <= 0
     
-    def generate_stat_code(self):
-        """
-        Generates a sequence used
-        during file reading in order
-        to copy stats from one play
-        session to the next
-        """
-        ret = "s"
-        for stat in STATS:
-            ret += "/" + str(self.get_stat_data(stat).base_value - 20)
-        
-        return ret
-    
-    def read_stat_code(self, code):
-        """
-        Used to load a stat spread
-        via a string
-        """
-        # 0th element is 's'
-        new_stat_bases = []
-        broken_down_code = code.split('/')
-        broken_down_code = broken_down_code[1:]
-        Dp.add(broken_down_code)
-        Dp.dp()
-        ind = 0
-        while ind < 5:
-            new_stat_bases.append(int(float(broken_down_code[ind])))
-            ind += 1
-        
-        self.set_stat_bases(new_stat_bases)
-    
-    def generate_save_code(self):
-        """
-        Used to get all data on this
-        character
-        """
-        ret = self.name
-        ret += " "
-        ret += self.level
-        ret += self.generate_stat_code
-        for passive in self.passives:
-            ret += passive.generate_save_code()
-        return ret
-    
 class PlayerCharacter(AbstractCharacter):
     def __init__(self, name, data, level):
         super(self.__class__, self).__init__(name, data, level)
@@ -454,13 +409,10 @@ class PlayerCharacter(AbstractCharacter):
         (Can't level up twice after one battle)
         """
         self.XP = self.XP + amount
-        if self.XP >= self.level * 10: 
-            if self.level < self.level_set * 5:
-                Op.add(self.name + " leveled up!")
-                self.level_up()
-            else:
-                Op.add(self.name + " is being held back... perhaps a special item will help?")
+        while self.XP >= self.level * 10: 
+            Op.add(self.name + " leveled up!")
             Op.dp()
+            self.level_up()
     
     def level_up(self):
         """
@@ -475,13 +427,6 @@ class PlayerCharacter(AbstractCharacter):
         self.calc_stats()
         self.HP_rem = self.get_stat("HP")
         self.display_data()
-    
-    def plus_level_set(self):
-        """
-        Increases your 
-        level cap by 5
-        """
-        self.level_set = self.level_set + 1
     
     """
     Character management
@@ -580,6 +525,57 @@ class PlayerCharacter(AbstractCharacter):
         
         elif choice == "Stat":
             self.modify_stats()
+    
+    def generate_stat_code(self):
+        """
+        Generates a sequence used
+        during file reading in order
+        to copy stats from one play
+        session to the next
+        """
+        ret = "s"
+        for stat in STATS:
+            ret += "/" + str(self.get_stat_data(stat).base_value - 20)
+        
+        return ret
+    
+    def read_stat_code(self, code):
+        """
+        Used to load a stat spread
+        via a string
+        """
+        # 0th element is 's'
+        new_stat_bases = []
+        broken_down_code = code.split('/')
+        broken_down_code = broken_down_code[1:]
+        Dp.add(broken_down_code)
+        Dp.dp()
+        ind = 0
+        while ind < 5:
+            new_stat_bases.append(int(float(broken_down_code[ind])))
+            ind += 1
+        
+        self.set_stat_bases(new_stat_bases)
+    
+    def generate_save_code(self):
+        """
+        Used to get all data on this
+        character
+        """
+        ret = ["NAME: " + self.name]
+        ret.append("LEVEL: " + str(self.level))
+        ret.append("XP: " + str(self.XP))
+        ret.append(self.generate_stat_code())
+        for passive in self.passives:
+            for line in passive.generate_save_code():
+                ret.append(line)
+        for active in self.attacks:
+            for line in active.generate_save_code():
+                ret.append(line)
+        for item in self.team.inventory:
+            for line in item.generate_save_code():
+                ret.append(line)
+        return ret
 
 class EnemyCharacter(AbstractCharacter):
     def __init__(self, name, level):

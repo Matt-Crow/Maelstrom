@@ -53,4 +53,6 @@ if __name__ == "__main__":
     player.obtain(t2)
     player.obtain(t3)
     lib_cav.display_data(player)
+    for line in player.team[0].generate_save_code():
+        print(line)
     #Savefile("player_data.txt").update(player)

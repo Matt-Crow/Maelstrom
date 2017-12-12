@@ -53,3 +53,8 @@ class File(object):
         file = open(self.file, 'w')
         for line in self.raw_data:
             file.write(line)
+
+class PlayerSaveFile(File):
+    def save_data_from(self, player):
+        self.raw_data = player.generate_save_code()
+        self.save()

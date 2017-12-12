@@ -166,7 +166,23 @@ class Active(object):
                 if enemy is not self.user.team.enemy.active:
                     enemy.direct_dmg(self.total_dmg() * self.cleave)
                     self.apply_side_effects_to(enemy)
-
+    
+    def generate_save_code(self):
+        ret = ["a " + self.name]
+        ret.append("*" + str(self.dmg_mult))
+        ret.append(str(self.cleave) + "%")
+        for k, v in self.damage_distribution.items():
+            ret.append(k + ": " + str(v))
+        ret.append("m%: " + str(self.miss))
+        ret.append("c%: " + str(self.crit))
+        ret.append("m*: " + str(self.miss_mult))
+        ret.append("c*: " + str(self.crit_mult))
+        ret.append("ENE: " + str(self.energy_cost))
+        for status in self.side_effects:
+            ret.append(status["effect"].generate_save_code())
+            ret.append(str(status["chance"]) + "%")
+        return ret
+    
 class MeleeAttack(Active):
     def __init__(self, name, dmg, miss, crit, miss_mult, crit_mult, cleave):
         super(MeleeAttack, self).__init__(name, dmg, cleave, 0)

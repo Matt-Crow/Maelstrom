@@ -37,19 +37,6 @@ class AbstractPassive(object):
     def display_data(self):
         Op.add("TODO: " + self.name + " display_data")
         Op.dp()
-    
-    def generate_save_code(self):
-        """
-        Returns a sequence used 
-        to save data across multiple
-        play sessions with help from
-        save file
-        """
-        ret = "p " + self.name
-        for boost in self.boosts:
-          ret += "/"
-          ret += boost.generate_save_code()
-        return ret
 
 class Threshhold(AbstractPassive):
     """
@@ -126,6 +113,20 @@ class Threshhold(AbstractPassive):
         Op.add("when at or below")
         Op.add(str(self.threshhold) + "% maximum Hit Points") 
         Op.dp()
+    
+    def generate_save_code(self):
+        """
+        Returns a sequence used 
+        to save data across multiple
+        play sessions with help from
+        save file
+        """
+        ret = ["p " + self.name]
+        ret.append("thresh: " + str(self.threshhold))
+        for boost in self.boosts:
+            ret.append(boost.generate_save_code())
+        return ret 
+
 
 class OnHitGiven(AbstractPassive):
     def __init__(self, name, chance, boosts):
@@ -183,8 +184,20 @@ class OnHitGiven(AbstractPassive):
             Op.add("will be inflicted with:")
             Op.indent()
             boost.display_data()
-        #Op.dp()
-
+    
+    def generate_save_code(self):
+        """
+        Returns a sequence used 
+        to save data across multiple
+        play sessions with help from
+        save file
+        """
+        ret = ["p " + self.name]
+        ret.append("given: " + str(self.chance))
+        for boost in self.boosts:
+            ret.append(boost.generate_save_code())
+        return ret
+    
 class OnHitTaken(AbstractPassive):
     def __init__(self, name, chance, boosts):
         super(self.__class__, self).__init__(name, boosts)
@@ -241,4 +254,16 @@ class OnHitTaken(AbstractPassive):
             Op.add("will be inflicted with:")
             Op.indent()
             boost.display_data()
-        #Op.dp()
+    
+    def generate_save_code(self):
+        """
+        Returns a sequence used 
+        to save data across multiple
+        play sessions with help from
+        save file
+        """
+        ret = ["p " + self.name]
+        ret.append("taken: " + str(self.chance))
+        for boost in self.boosts:
+            ret.append(boost.generate_save_code())
+        return ret

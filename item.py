@@ -82,10 +82,13 @@ class Item(object):
         Op.dp()
 
     def generate_save_code(self):
-        ret = "i"
+        ret = ["i " + self.name]
+        ret.append("type: " + self.type)
+        ret.append("desc: " + self.desc)
+        ret.append("set: " + self.set.name)
         for enh in self.enhancements:
-            ret += "/"
-            ret += enh.generate_save_code()
+            ret.append(enh.generate_save_code())
+        return ret
 
 def test_set_f(user):
     def f(event):
