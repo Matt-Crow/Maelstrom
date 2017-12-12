@@ -1,1 +1,80 @@
-Alexandre 1 1 0 0 !W Default 0 0 0 0 !P THRES
+NAME:  Alexandre
+LEVEL: 3
+XP: 0
+STATS: /0.0/0.0/0.0/0.0/0.0
+p Threshhold test
+thresh: 100
+b Threshhold test/resistance/0.2/0
+p OnHitGivenTest
+given: 25
+b OnHitGivenTest/luck/0.2/1
+p OnHitTakenTest
+taken: 25
+b OnHitTakenTest/control/-0.2/0
+a lightning bolt
+*1.75
+0.25%
+wind: 12.5
+lightning: 12.5
+hail: 12.5
+rain: 12.5
+physical: 50
+m%: 0
+c%: 0
+m*: 1.0
+c*: 1.0
+ENE: 5
+a slash
+*1.0
+0.5%
+wind: 12.5
+lightning: 12.5
+hail: 12.5
+rain: 12.5
+physical: 50
+m%: 15
+c%: 15
+m*: 0.75
+c*: 1.5
+ENE: 0
+a jab
+*0.75
+0.0%
+wind: 12.5
+lightning: 12.5
+hail: 12.5
+rain: 12.5
+physical: 50
+m%: 10
+c%: 40
+m*: 0.5
+c*: 2.0
+ENE: 0
+a slam
+*1.35
+0.67%
+wind: 12.5
+lightning: 12.5
+hail: 12.5
+rain: 12.5
+physical: 50
+m%: 30
+c%: 15
+m*: 0.5
+c*: 1.35
+ENE: 0
+i Testitem 1
+type: gear
+desc: It comes from another dimension.
+set: Test item set
+b Testitem 1/lightning damage reduction/0.1/-1
+i Testitem 2
+type: gear
+desc: It comes from another dimension.
+set: Test item set
+b Testitem 2/lightning damage reduction/0.1/-1
+i Testitem 3
+type: ring
+desc: We wants it.
+set: Test item set
+b Testitem 3/control/0.1/-1

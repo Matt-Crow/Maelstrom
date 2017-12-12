@@ -1,3 +1,5 @@
+from utilities import *
+
 class File(object):
     description_key = "<desc>"
     prescript_key = "<pre>"
@@ -52,7 +54,10 @@ class File(object):
     def save(self):
         file = open(self.file, 'w')
         for line in self.raw_data:
-            file.write(line)
+            write = line
+            if not contains(line, "\n"):
+                write += "\n"
+            file.write(write)
 
 class PlayerSaveFile(File):
     def save_data_from(self, player):

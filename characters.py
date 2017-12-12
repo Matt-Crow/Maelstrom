@@ -533,7 +533,7 @@ class PlayerCharacter(AbstractCharacter):
         to copy stats from one play
         session to the next
         """
-        ret = "s"
+        ret = "STATS: "
         for stat in STATS:
             ret += "/" + str(self.get_stat_data(stat).base_value - 20)
         
@@ -544,15 +544,18 @@ class PlayerCharacter(AbstractCharacter):
         Used to load a stat spread
         via a string
         """
-        # 0th element is 's'
         new_stat_bases = []
         broken_down_code = code.split('/')
-        broken_down_code = broken_down_code[1:]
-        Dp.add(broken_down_code)
+        use = list()
+        for line in broken_down_code:
+            if not line.isspace():
+                use.append(line)
+        Dp.add("Broken down: ")
+        Dp.add(use)
         Dp.dp()
         ind = 0
         while ind < 5:
-            new_stat_bases.append(int(float(broken_down_code[ind])))
+            new_stat_bases.append(int(float(use[ind])))
             ind += 1
         
         self.set_stat_bases(new_stat_bases)
@@ -566,6 +569,7 @@ class PlayerCharacter(AbstractCharacter):
         ret.append("LEVEL: " + str(self.level))
         ret.append("XP: " + str(self.XP))
         ret.append(self.generate_stat_code())
+        
         for passive in self.passives:
             for line in passive.generate_save_code():
                 ret.append(line)
@@ -576,6 +580,17 @@ class PlayerCharacter(AbstractCharacter):
             for line in item.generate_save_code():
                 ret.append(line)
         return ret
+    
+    def read_save_code(self, code):
+        for line in code:
+            if contains(line, "NAME:"):
+                self.name = ignore_text(line, "NAME:")
+            elif contains(line, "LEVEL:"):
+                self.level = int(float(ignore_text(line, "LEVEL:")))
+            elif contains(line, "XP:"):
+                self.XP = int(float(ignore_text(line, "XP:")))
+            elif contains(line, "STATS:"):
+                self.read_stat_code(ignore_text(line, "STATS:"))
 
 class EnemyCharacter(AbstractCharacter):
     def __init__(self, name, level):

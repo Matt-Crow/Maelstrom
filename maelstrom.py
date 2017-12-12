@@ -34,25 +34,30 @@ Week 2: Revised/improved/reordered functions
 17/11/2017 - 25/11/2017: Added customization, worked on save codes
 26/11/2017 - 28/11/2017: Worked on Item
 30/11/2017 - 7/12/2017 : Improved Area, Levels, Weather, and Files
-9/12/2017 - ? : Split files, working on campagne
+9/12/2017 - 11/12/2017 : Split files, working on campagne
+12/12/2017: Working on save file
 
 need set attack to not default
 
 Version 0.9
 """
 from navigate import *
+from file import *
 
 c1 = Battle("Stone Rising", ("stone soldier"), 1)
 caves = Location("Ancient library caverns")
 lib_cav = Area("Ancient caverns", caves, c1)
 
 if __name__ == "__main__":
+    data = PlayerSaveFile("player_data.txt")
     #player = load()
     player = PlayerTeam("Player team", {"name": "Alexandre", "data": ((0, 0, 0, 0, 0), "lightning"), "level": 1})
+    
+    player.team[0].read_save_code(data.raw_data)
+    
     player.obtain(t1)
     player.obtain(t2)
     player.obtain(t3)
     lib_cav.display_data(player)
-    for line in player.team[0].generate_save_code():
-        print(line)
-    #Savefile("player_data.txt").update(player)
+    
+    data.save_data_from(player.team[0])
