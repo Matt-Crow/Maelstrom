@@ -1,16 +1,20 @@
-NAME:  Alexandre
-LEVEL: 3
-XP: 0
-STATS: /0.0/0.0/0.0/0.0/0.0
+<NAME>: Alexandre
+<LEVEL>: 3
+<XP>: 10
+<STATS>: /0.0/0.0/0.0/0.0/0.0
+<CP> passive customization points: 2
+<CP> item customization points: 2
+<CP> attack customization points: 2
+<CP> stat customization points: 2
 p Threshhold test
 thresh: 100
 b Threshhold test/resistance/0.2/0
 p OnHitGivenTest
 given: 25
-b OnHitGivenTest/luck/0.2/1
+b OnHitGivenTest/luck/0.2/5
 p OnHitTakenTest
 taken: 25
-b OnHitTakenTest/control/-0.2/0
+b OnHitTakenTest/control/-0.2/1
 a lightning bolt
 *1.75
 0.25%
@@ -64,17 +68,17 @@ m*: 0.5
 c*: 1.35
 ENE: 0
 i Testitem 1
-type: gear
-desc: It comes from another dimension.
+type: trinket
+desc: Fresh from the street vendor.
 set: Test item set
-b Testitem 1/lightning damage reduction/0.1/-1
+b Testitem 1/energy/0.1/-1
 i Testitem 2
-type: gear
-desc: It comes from another dimension.
-set: Test item set
-b Testitem 2/lightning damage reduction/0.1/-1
-i Testitem 3
 type: ring
 desc: We wants it.
 set: Test item set
-b Testitem 3/control/0.1/-1
+b Testitem 2/hail damage multiplier/0.1/-1
+i Testitem 3
+type: gear
+desc: It comes from another dimension.
+set: Test item set
+b Testitem 3/rain damage reduction/0.1/-1

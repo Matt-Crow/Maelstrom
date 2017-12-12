@@ -385,10 +385,12 @@ class AbstractCharacter(object):
 class PlayerCharacter(AbstractCharacter):
     def __init__(self, name, data, level):
         super(self.__class__, self).__init__(name, data, level)
-        self.attack_customization_points = 0
-        self.passive_customization_points = 0
-        self.stat_customization_points = 0
-        self.item_customization_points = 0
+        self.custom_points = {
+            "attack": 0,
+            "passive": 0,
+            "stat": 0,
+            "item": 0
+        }
     
     def choose_attack(self):
         attack_options = []
@@ -420,10 +422,8 @@ class PlayerCharacter(AbstractCharacter):
         """
         self.XP = 0
         self.level += 1
-        self.attack_customization_points += 1
-        self.passive_customization_points += 1
-        self.stat_customization_points += 1
-        self.item_customization_points += 1
+        for type in self.custom_points.keys():
+            self.custom_points[type] += 1
         self.calc_stats()
         self.HP_rem = self.get_stat("HP")
         self.display_data()
@@ -493,38 +493,30 @@ class PlayerCharacter(AbstractCharacter):
         options = ["Quit"]
         
         if len(self.team.inventory) > 0:
-            options.append("Items")
+            options.append("Equipped items")
         
-        if self.passive_customization_points > 0:
-            options.append("Passive")
-        
-        if self.attack_customization_points > 0:
-            options.append("Attack")
-        
-        if self.stat_customization_points > 0:
-            options.append("Stat")
+        for type, points in self.custom_points.items():
+            if points > 0:
+                options.append(type)
         
         options.reverse()
         
         choice = choose("What do you want to modify?", options)
         
-        if choice == "Items":
-            item_actions = ["equip"]
-            if self.item_customization_points > 0:
-                item_actions.append("augment")
-            if choose("Do you want to equip items, or augment them?", item_actions) == "equip":
-                self.choose_items()
-            else:
-                self.choose_item_to_customize()
+        if choice == "Equipped items":
+            self.choose_items()
         
-        elif choice == "Passive":
+        elif choice == "passive":
             self.choose_passive_to_customize()
         
-        elif choice == "Attack":
+        elif choice == "attack":
             self.choose_attack_to_customize()
         
-        elif choice == "Stat":
+        elif choice == "stat":
             self.modify_stats()
+        
+        elif choice == "item":
+            self.choose_item_to_customize()
     
     def generate_stat_code(self):
         """
@@ -533,7 +525,7 @@ class PlayerCharacter(AbstractCharacter):
         to copy stats from one play
         session to the next
         """
-        ret = "STATS: "
+        ret = "<STATS>: "
         for stat in STATS:
             ret += "/" + str(self.get_stat_data(stat).base_value - 20)
         
@@ -565,10 +557,13 @@ class PlayerCharacter(AbstractCharacter):
         Used to get all data on this
         character
         """
-        ret = ["NAME: " + self.name]
-        ret.append("LEVEL: " + str(self.level))
-        ret.append("XP: " + str(self.XP))
+        ret = ["<NAME>: " + self.name]
+        ret.append("<LEVEL>: " + str(self.level))
+        ret.append("<XP>: " + str(self.XP))
         ret.append(self.generate_stat_code())
+        
+        for type, amount in self.custom_points.items():
+            ret.append("<CP> " + type + " customization points: " + str(amount))
         
         for passive in self.passives:
             for line in passive.generate_save_code():
@@ -583,14 +578,19 @@ class PlayerCharacter(AbstractCharacter):
     
     def read_save_code(self, code):
         for line in code:
-            if contains(line, "NAME:"):
-                self.name = ignore_text(line, "NAME:")
-            elif contains(line, "LEVEL:"):
-                self.level = int(float(ignore_text(line, "LEVEL:")))
-            elif contains(line, "XP:"):
-                self.XP = int(float(ignore_text(line, "XP:")))
-            elif contains(line, "STATS:"):
-                self.read_stat_code(ignore_text(line, "STATS:"))
+            line = line.strip()
+            if contains(line, "<NAME>:"):
+                self.name = ignore_text(line, "<NAME>:").strip()
+            elif contains(line, "<LEVEL>:"):
+                self.level = int(float(ignore_text(line, "<LEVEL>:")))
+            elif contains(line, "<XP>:"):
+                self.XP = int(float(ignore_text(line, "<XP>:")))
+            elif contains(line, "<STATS>:"):
+                self.read_stat_code(ignore_text(line, "<STATS>:"))
+            elif contains(line, "<CP>"):
+                n = ignore_text(ignore_text(line, "<CP>"), " customization points:")
+                n = n.split()
+                self.custom_points[n[0]] = int(float(n[1]))
 
 class EnemyCharacter(AbstractCharacter):
     def __init__(self, name, level):
