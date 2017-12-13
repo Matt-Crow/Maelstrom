@@ -38,23 +38,30 @@ class AbstractPassive(object):
         Op.add("TODO: " + self.name + " display_data")
         Op.dp()
     
-    # need to add boosts
     @staticmethod
     def read_save_code(code):
-        Op.add("Code:")
-        Op.add(code)
-        Op.dp()
         ret = None
+        
+        #generate the name...
         name = ignore_text(code[0], "<PASSIVE>: ").strip()
+        
+        #boosts...
+        boosts = []
+        boost_codes = code[2:]
+        for boost_code in boost_codes:
+            boosts.append(Boost.read_save_code(boost_code))
+        
+        # and passive, can improve though
         if contains(code[1], "thresh:"):
             thresh = int(float(ignore_text(code[1], "thresh:")))
-            ret = Threshhold(name, thresh, Boost("control", 1, 1))
+            ret = Threshhold(name, thresh, boosts)
         elif contains(code[1], "given:"):
             chance = int(float(ignore_text(code[1], "given:")))
-            ret = OnHitGiven(name, chance, Boost("control", 1, 1))
+            ret = OnHitGiven(name, chance, boosts)
         elif contains(code[1], "taken:"):
             chance = int(float(ignore_text(code[1], "taken:")))
-            ret = OnHitTaken(name, chance, Boost("control", 1, 1))
+            ret = OnHitTaken(name, chance, boosts)
+        
         return ret
 
 

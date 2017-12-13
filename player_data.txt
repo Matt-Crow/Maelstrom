@@ -1,11 +1,11 @@
 <NAME>: Alexandre
-<LEVEL>: 3
-<XP>: 10
+<LEVEL>: 4
+<XP>: 0
 <STATS>: /0.0/0.0/0.0/0.0/0.0
-<CP> passive customization points: 2
-<CP> item customization points: 2
-<CP> attack customization points: 2
-<CP> stat customization points: 2
+<CP> passive customization points: 3
+<CP> item customization points: 3
+<CP> attack customization points: 3
+<CP> stat customization points: 3
 <PASSIVE>: Threshhold test
 thresh: 100
 b Threshhold test/resistance/0.2/1
@@ -68,17 +68,17 @@ m*: 0.5
 c*: 1.35
 ENE: 0
 i Testitem 1
-type: trinket
-desc: Fresh from the street vendor.
+type: gear
+desc: It comes from another dimension.
 set: Test item set
-b Testitem 1/control/0.1/-1
+b Testitem 1/resistance/0.1/-1
 i Testitem 2
-type: ring
-desc: We wants it.
+type: greeble
+desc: It looks incredible fun to play with.
 set: Test item set
-b Testitem 2/hail damage multiplier/0.1/-1
+b Testitem 2/rain damage reduction/0.1/-1
 i Testitem 3
-type: trinket
-desc: Fresh from the street vendor.
+type: greeble
+desc: It looks incredible fun to play with.
 set: Test item set
-b Testitem 3/hail damage reduction/0.1/-1
+b Testitem 3/resistance/0.1/-1

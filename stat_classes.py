@@ -87,5 +87,14 @@ class Boost(object):
         ret = "b " + self.id + "/"
         ret += self.stat_name + "/"
         ret += str(self.amount) + "/"
-        ret += str(self.duration)
+        ret += str(self.base_duration)
         return ret
+    
+    @staticmethod
+    def read_save_code(code):
+        code = code.split("/")
+        id = ignore_text(code[0], "b").strip()
+        stat = code[1].strip()
+        amount = float(code[2])
+        dur = int(float(code[3]))
+        return Boost(stat, amount, dur, id)

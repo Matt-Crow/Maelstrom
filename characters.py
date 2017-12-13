@@ -475,19 +475,19 @@ class PlayerCharacter(AbstractCharacter):
         for passive in self.passives:
             passive.display_data()
         choose("Which passive do you want to modify?", self.passives).customize()
-        self.passive_customization_points -= 1
+        self.custom_points["passive"] -= 1
     
     def choose_attack_to_customize(self):
         for attack in self.attacks:
             attack.display_data()
         choose("Which attack do you want to modify?", self.attacks).customize()
-        self.attack_customization_points -= 1
+        self.custom_points["attack"] -= 1
     
     def choose_item_to_customize(self):
         for item in self.team.inventory:
             item.display_data()
         choose("Which item do you want to modify?", self.team.inventory).generate_random_enh()
-        self.item_customization_points -= 1
+        self.custom_points["item"] -= 1
     
     def customize(self):
         options = ["Quit"]
@@ -542,9 +542,7 @@ class PlayerCharacter(AbstractCharacter):
         for line in broken_down_code:
             if not line.isspace():
                 use.append(line)
-        Dp.add("Broken down: ")
-        Dp.add(use)
-        Dp.dp()
+        
         ind = 0
         while ind < 5:
             new_stat_bases.append(int(float(use[ind])))
@@ -611,8 +609,13 @@ class PlayerCharacter(AbstractCharacter):
             if mode == "PASSIVE":
                 passive_codes[-1].append(ignore_text(line, "<PASSIVE>:"))
         
+        new_passives = []
         for code in passive_codes:
-            AbstractPassive.read_save_code(code).display_data()
+            new_passives.append(AbstractPassive.read_save_code(code))
+        
+        for passive in new_passives:
+            passive.set_user(self)
+        self.passives = new_passives
 
 class EnemyCharacter(AbstractCharacter):
     def __init__(self, name, level):
