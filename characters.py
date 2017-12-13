@@ -577,20 +577,42 @@ class PlayerCharacter(AbstractCharacter):
         return ret
     
     def read_save_code(self, code):
+        passive_codes = []
+        active_codes = []
+        
+        mode = None
         for line in code:
+            
             line = line.strip()
             if contains(line, "<NAME>:"):
                 self.name = ignore_text(line, "<NAME>:").strip()
+                mode = None
             elif contains(line, "<LEVEL>:"):
                 self.level = int(float(ignore_text(line, "<LEVEL>:")))
+                mode = None
             elif contains(line, "<XP>:"):
                 self.XP = int(float(ignore_text(line, "<XP>:")))
+                mode = None
             elif contains(line, "<STATS>:"):
                 self.read_stat_code(ignore_text(line, "<STATS>:"))
+                mode = None
             elif contains(line, "<CP>"):
                 n = ignore_text(ignore_text(line, "<CP>"), " customization points:")
                 n = n.split()
                 self.custom_points[n[0]] = int(float(n[1]))
+                mode = None
+            elif contains(line, "<PASSIVE>:"):
+                passive_codes.append(list())
+                mode = "PASSIVE"
+            elif contains(line, "<ACTIVE>:"):
+                active_codes.append(list())
+                mode = "ACTIVE"
+            
+            if mode == "PASSIVE":
+                passive_codes[-1].append(ignore_text(line, "<PASSIVE>:"))
+        
+        for code in passive_codes:
+            AbstractPassive.read_save_code(code).display_data()
 
 class EnemyCharacter(AbstractCharacter):
     def __init__(self, name, level):

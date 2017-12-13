@@ -37,6 +37,26 @@ class AbstractPassive(object):
     def display_data(self):
         Op.add("TODO: " + self.name + " display_data")
         Op.dp()
+    
+    # need to add boosts
+    @staticmethod
+    def read_save_code(code):
+        Op.add("Code:")
+        Op.add(code)
+        Op.dp()
+        ret = None
+        name = ignore_text(code[0], "<PASSIVE>: ").strip()
+        if contains(code[1], "thresh:"):
+            thresh = int(float(ignore_text(code[1], "thresh:")))
+            ret = Threshhold(name, thresh, Boost("control", 1, 1))
+        elif contains(code[1], "given:"):
+            chance = int(float(ignore_text(code[1], "given:")))
+            ret = OnHitGiven(name, chance, Boost("control", 1, 1))
+        elif contains(code[1], "taken:"):
+            chance = int(float(ignore_text(code[1], "taken:")))
+            ret = OnHitTaken(name, chance, Boost("control", 1, 1))
+        return ret
+
 
 class Threshhold(AbstractPassive):
     """
@@ -121,7 +141,7 @@ class Threshhold(AbstractPassive):
         play sessions with help from
         save file
         """
-        ret = ["p " + self.name]
+        ret = ["<PASSIVE>: " + self.name]
         ret.append("thresh: " + str(self.threshhold))
         for boost in self.boosts:
             ret.append(boost.generate_save_code())
@@ -192,12 +212,12 @@ class OnHitGiven(AbstractPassive):
         play sessions with help from
         save file
         """
-        ret = ["p " + self.name]
+        ret = ["<PASSIVE>: " + self.name]
         ret.append("given: " + str(self.chance))
         for boost in self.boosts:
             ret.append(boost.generate_save_code())
         return ret
-    
+
 class OnHitTaken(AbstractPassive):
     def __init__(self, name, chance, boosts):
         super(self.__class__, self).__init__(name, boosts)
@@ -262,7 +282,7 @@ class OnHitTaken(AbstractPassive):
         play sessions with help from
         save file
         """
-        ret = ["p " + self.name]
+        ret = ["<PASSIVE>: " + self.name]
         ret.append("taken: " + str(self.chance))
         for boost in self.boosts:
             ret.append(boost.generate_save_code())

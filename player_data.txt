@@ -6,16 +6,16 @@
 <CP> item customization points: 2
 <CP> attack customization points: 2
 <CP> stat customization points: 2
-p Threshhold test
+<PASSIVE>: Threshhold test
 thresh: 100
-b Threshhold test/resistance/0.2/0
-p OnHitGivenTest
+b Threshhold test/resistance/0.2/1
+<PASSIVE>: OnHitGivenTest
 given: 25
 b OnHitGivenTest/luck/0.2/5
-p OnHitTakenTest
+<PASSIVE>: OnHitTakenTest
 taken: 25
 b OnHitTakenTest/control/-0.2/1
-a lightning bolt
+<ACTIVE>: lightning bolt
 *1.75
 0.25%
 wind: 12.5
@@ -28,7 +28,7 @@ c%: 0
 m*: 1.0
 c*: 1.0
 ENE: 5
-a slash
+<ACTIVE>: slash
 *1.0
 0.5%
 wind: 12.5
@@ -41,7 +41,7 @@ c%: 15
 m*: 0.75
 c*: 1.5
 ENE: 0
-a jab
+<ACTIVE>: jab
 *0.75
 0.0%
 wind: 12.5
@@ -54,7 +54,7 @@ c%: 40
 m*: 0.5
 c*: 2.0
 ENE: 0
-a slam
+<ACTIVE>: slam
 *1.35
 0.67%
 wind: 12.5
@@ -71,14 +71,14 @@ i Testitem 1
 type: trinket
 desc: Fresh from the street vendor.
 set: Test item set
-b Testitem 1/energy/0.1/-1
+b Testitem 1/control/0.1/-1
 i Testitem 2
 type: ring
 desc: We wants it.
 set: Test item set
 b Testitem 2/hail damage multiplier/0.1/-1
 i Testitem 3
-type: gear
-desc: It comes from another dimension.
+type: trinket
+desc: Fresh from the street vendor.
 set: Test item set
-b Testitem 3/rain damage reduction/0.1/-1
+b Testitem 3/hail damage reduction/0.1/-1

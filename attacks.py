@@ -168,7 +168,7 @@ class Active(object):
                     self.apply_side_effects_to(enemy)
     
     def generate_save_code(self):
-        ret = ["a " + self.name]
+        ret = ["<ACTIVE>: " + self.name]
         ret.append("*" + str(self.dmg_mult))
         ret.append(str(self.cleave) + "%")
         for k, v in self.damage_distribution.items():
