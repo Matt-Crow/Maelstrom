@@ -38,7 +38,7 @@ class AbstractCharacter(object):
         self.level = level
         self.XP = 0
         
-        self.attacks = [Active(self.element + " bolt", 1.75, 25, 5)]
+        self.attacks = [AbstractActive(self.element + " bolt", 1.75, 25, 5)]
         self.add_default_actives()
         self.set_passives_to_defaults()
         
@@ -632,7 +632,7 @@ class PlayerCharacter(AbstractCharacter):
         
         for active in new_actives:
             active.set_user(self)
-            active.display_data()
+        self.attacks = new_actives
 
 class EnemyCharacter(AbstractCharacter):
     def __init__(self, name, level):

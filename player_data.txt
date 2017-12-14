@@ -1,11 +1,11 @@
 <NAME>: Alexandre
-<LEVEL>: 4
-<XP>: 0
+<LEVEL>: 3
+<XP>: 10
 <STATS>: /0.0/0.0/0.0/0.0/0.0
-<CP> passive customization points: 3
-<CP> item customization points: 3
-<CP> attack customization points: 3
-<CP> stat customization points: 3
+<CP> passive customization points: 2
+<CP> item customization points: 2
+<CP> attack customization points: 1
+<CP> stat customization points: 2
 <PASSIVE>: Threshhold test
 thresh: 100
 b Threshhold test/resistance/0.2/1
@@ -18,10 +18,10 @@ b OnHitTakenTest/control/-0.2/1
 <ACTIVE>: lightning bolt
 *1.75
 0.25%
-wind: 12.5
-lightning: 12.5
-hail: 12.5
-rain: 12.5
+wind: 12
+lightning: 12
+hail: 12
+rain: 12
 physical: 50
 m%: 0
 c%: 0
@@ -31,10 +31,10 @@ ENE: 5
 <ACTIVE>: slash
 *1.0
 0.5%
-wind: 12.5
-lightning: 12.5
-hail: 12.5
-rain: 12.5
+wind: 12
+lightning: 12
+hail: 12
+rain: 12
 physical: 50
 m%: 15
 c%: 15
@@ -44,10 +44,10 @@ ENE: 0
 <ACTIVE>: jab
 *0.75
 0.0%
-wind: 12.5
-lightning: 12.5
-hail: 12.5
-rain: 12.5
+wind: 12
+lightning: 12
+hail: 12
+rain: 12
 physical: 50
 m%: 10
 c%: 40
@@ -57,28 +57,28 @@ ENE: 0
 <ACTIVE>: slam
 *1.35
 0.67%
-wind: 12.5
-lightning: 12.5
-hail: 12.5
-rain: 12.5
+wind: 12
+lightning: 12
+hail: 12
+rain: 12
 physical: 50
 m%: 30
 c%: 15
 m*: 0.5
 c*: 1.35
 ENE: 0
-i Testitem 1
+<ITEM>: Testitem 1
+type: greeble
+desc: It looks incredible fun to play with.
+set: Test item set
+b Testitem 1/hail damage multiplier/0.1/-1
+<ITEM>: Testitem 2
+type: gem
+desc: It holds a secret power.
+set: Test item set
+b Testitem 2/potency/0.1/-1
+<ITEM>: Testitem 3
 type: gear
 desc: It comes from another dimension.
 set: Test item set
-b Testitem 1/resistance/0.1/-1
-i Testitem 2
-type: greeble
-desc: It looks incredible fun to play with.
-set: Test item set
-b Testitem 2/rain damage reduction/0.1/-1
-i Testitem 3
-type: greeble
-desc: It looks incredible fun to play with.
-set: Test item set
-b Testitem 3/resistance/0.1/-1
+b Testitem 3/rain damage multiplier/0.1/-1

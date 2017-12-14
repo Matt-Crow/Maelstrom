@@ -82,7 +82,7 @@ class Item(object):
         Op.dp()
 
     def generate_save_code(self):
-        ret = ["i " + self.name]
+        ret = ["<ITEM>: " + self.name]
         ret.append("type: " + self.type)
         ret.append("desc: " + self.desc)
         ret.append("set: " + self.set.name)
