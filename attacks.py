@@ -5,7 +5,7 @@ from utilities import *
 """
 Actives:
 """
-class Active(object):
+class AbstractActive(object):
     """
     The attacks all characters can use
     """
@@ -183,7 +183,46 @@ class Active(object):
             ret.append(str(status["chance"]) + "%")
         return ret
     
-class MeleeAttack(Active):
+    # still need to do boosts
+    @staticmethod
+    def read_save_code(code):
+        ret = None
+        
+        # start with the name
+        name = ignore_text(code[0], "<ACTIVE>:").strip()
+        dmg_mult = float(ignore_text(code[1], "*"))
+        cleave = float(ignore_text(code[2], "%"))
+        new_dist = dict()
+        for i in range(3, 8):
+            line = code[i].split(":")
+            new_dist[line[0].strip()] = int(float(line[1]))
+        miss_c = int(float(ignore_text(code[8], "%:")))
+        crit_c = int(float(ignore_text(code[9], "%:")))
+        miss_m = float(ignore_text(code[10], "*:"))
+        crit_m = float(ignore_text(code[11], "*:"))
+        cost = int(float(ignore_text(code[12], "ENE: ")))
+        
+        #boosts...
+        boosts = dict()
+        boost_codes = code[13:]
+        
+        #skip by 2, not 1
+        for boost_code in boost_codes:
+            boosts[Boost.read_save_code(boost_code)]
+        
+        if crit_c is not 0:
+            ret = MeleeAttack(name, dmg_mult, miss_c, crit_c, miss_m, crit_m, cleave)
+        
+        else:
+            ret = AbstractAttack(name, dmg_mult, cleave, cost)
+        
+        ret.set_damage_distributions(new_dist)
+        
+            
+            
+        
+    
+class MeleeAttack(AbstractActive):
     def __init__(self, name, dmg, miss, crit, miss_mult, crit_mult, cleave):
         super(MeleeAttack, self).__init__(name, dmg, cleave, 0)
         self.miss = miss

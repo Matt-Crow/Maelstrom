@@ -577,6 +577,7 @@ class PlayerCharacter(AbstractCharacter):
     def read_save_code(self, code):
         passive_codes = []
         active_codes = []
+        item_codes = []
         
         mode = None
         for line in code:
@@ -606,8 +607,16 @@ class PlayerCharacter(AbstractCharacter):
                 active_codes.append(list())
                 mode = "ACTIVE"
             
+            elif contains(line, "<ITEM>:"):
+                item_codes.append(list())
+                mode = "ITEM"
+                
+            
             if mode == "PASSIVE":
                 passive_codes[-1].append(ignore_text(line, "<PASSIVE>:"))
+            
+            if mode == "ACTIVE":
+                active_codes[-1].append(ignore_text(line, "<ACTIVE>:"))
         
         new_passives = []
         for code in passive_codes:
@@ -616,6 +625,14 @@ class PlayerCharacter(AbstractCharacter):
         for passive in new_passives:
             passive.set_user(self)
         self.passives = new_passives
+        
+        new_actives = []
+        for code in active_codes:
+            new_actives.append(AbstractActive.read_save_code(code))
+        
+        for active in new_actives:
+            active.set_user(self)
+            active.display_data()
 
 class EnemyCharacter(AbstractCharacter):
     def __init__(self, name, level):
