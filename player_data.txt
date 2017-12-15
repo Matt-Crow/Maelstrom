@@ -18,11 +18,11 @@ b OnHitTakenTest/control/-0.2/1
 <ACTIVE>: lightning bolt
 *1.75
 0.25%
-wind: 12
-lightning: 12
-hail: 12
 rain: 12
 physical: 50
+hail: 12
+wind: 12
+lightning: 12
 m%: 0
 c%: 0
 m*: 1.0
@@ -31,11 +31,11 @@ ENE: 5
 <ACTIVE>: slash
 *1.0
 0.5%
-wind: 12
-lightning: 12
-hail: 12
 rain: 12
 physical: 50
+hail: 12
+wind: 12
+lightning: 12
 m%: 15
 c%: 15
 m*: 0.75
@@ -44,11 +44,11 @@ ENE: 0
 <ACTIVE>: jab
 *0.75
 0.0%
-wind: 12
-lightning: 12
-hail: 12
 rain: 12
 physical: 50
+hail: 12
+wind: 12
+lightning: 12
 m%: 10
 c%: 40
 m*: 0.5
@@ -57,11 +57,11 @@ ENE: 0
 <ACTIVE>: slam
 *1.35
 0.67%
-wind: 12
-lightning: 12
-hail: 12
 rain: 12
 physical: 50
+hail: 12
+wind: 12
+lightning: 12
 m%: 30
 c%: 15
 m*: 0.5
@@ -70,15 +70,15 @@ ENE: 0
 <ITEM>: Testitem 1
 type: greeble
 desc: It looks incredible fun to play with.
-set: Test item set
+set: Test item
 b Testitem 1/hail damage multiplier/0.1/-1
 <ITEM>: Testitem 2
 type: gem
 desc: It holds a secret power.
-set: Test item set
+set: Test item
 b Testitem 2/potency/0.1/-1
 <ITEM>: Testitem 3
 type: gear
 desc: It comes from another dimension.
-set: Test item set
+set: Test item
 b Testitem 3/rain damage multiplier/0.1/-1

@@ -12,6 +12,22 @@ class ItemSet(object):
     def __init__(self, name, bonus_function):
         self.name = name
         self.f = bonus_function
+    
+    @staticmethod
+    def get_set_bonus(set_name):
+        def set_f(user):
+            def f(event):
+                Op.add("An error was encountered")
+                Op.add("item set by name of")
+                Op.add(set_name)
+                Op.add("does not exist")
+                Op.dp()
+            user.add_on_update_action(set_f)
+        ret = ItemSet("ERROR", set_f)
+        for set in sets:
+            if set.name == set_name:
+                ret = set
+        return ret.f
 """
 Items need weather specific, stat codes
 """
@@ -23,19 +39,25 @@ class Item(object):
         "gear": "It comes from another dimension.",
         "greeble": "It looks incredible fun to play with."
     }
-    def __init__(self, name, type = None, enhancements = None, desc = None, set = None):
+    def __init__(self, name, type = None, enhancements = None, desc = None, set_name = None):
         self.name = name
         if type not in Item.types.keys():
             self.randomize_type()
+        else:
+            self.type = type
+        
         if desc == None:
             self.generate_desc()
+        else:
+            self.desc = desc
+            
         if enhancements == None:
             self.enhancements = []
             self.generate_random_enh()
         else:
             self.enhancements = to_list(enhancements)
         
-        self.set = set
+        self.set_name = set_name
         self.equipped = False
     
     def randomize_type(self):
@@ -85,18 +107,34 @@ class Item(object):
         ret = ["<ITEM>: " + self.name]
         ret.append("type: " + self.type)
         ret.append("desc: " + self.desc)
-        ret.append("set: " + self.set.name)
+        ret.append("set: " + self.set_name)
         for enh in self.enhancements:
             ret.append(enh.generate_save_code())
         return ret
-
+    
+    @staticmethod
+    def read_save_code(code):
+        ret = None
+        name = ignore_text(code[0], "<ITEM>:").strip()
+        type = ignore_text(code[1], "type: ").strip()
+        desc = ignore_text(code[2], "desc: ").strip()
+        set = ignore_text(code[3], "set: ").strip()
+        enh = []
+        enh_codes = code[4:]
+        for enh_code in enh_codes:
+            enh.append(Boost.read_save_code(enh_code))
+        ret = Item(name, type, enh, desc, set)
+        return ret
+        
 def test_set_f(user):
     def f(event):
         Dp.add("Three piece bonus works!")
         Dp.dp()
     user.add_on_hit_taken_action(f)
-test_set = ItemSet("Test item set", test_set_f)
+sets = (
+    ItemSet("Test item set", test_set_f)
+)
 
-t1 = Item("Testitem 1", None, None, None, test_set)
-t2 = Item("Testitem 2", None, None, None, test_set)
-t3 = Item("Testitem 3", None, None, None, test_set)
+t1 = Item("Testitem 1", None, None, None, "Test item set")
+t2 = Item("Testitem 2", None, None, None, "Test item set")
+t3 = Item("Testitem 3", None, None, None, "Test item set")

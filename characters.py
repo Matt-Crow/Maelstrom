@@ -121,7 +121,7 @@ class AbstractCharacter(object):
                 if item.set == check_set:
                     set_total += 1
             if set_total == 3:
-                check_set.f(self)
+                ItemSet.get_set_bonus(check_set).f(self)
         
         self.calc_stats()
         self.HP_rem = self.get_stat("HP")
@@ -610,13 +610,19 @@ class PlayerCharacter(AbstractCharacter):
             elif contains(line, "<ITEM>:"):
                 item_codes.append(list())
                 mode = "ITEM"
-                
+            
+            elif line.isspace():
+                mode = "DONE"    
             
             if mode == "PASSIVE":
                 passive_codes[-1].append(ignore_text(line, "<PASSIVE>:"))
             
             if mode == "ACTIVE":
                 active_codes[-1].append(ignore_text(line, "<ACTIVE>:"))
+            
+            if mode == "ITEM":
+                item_codes[-1].append(ignore_text(line, "<ITEM>:"))
+            
         
         new_passives = []
         for code in passive_codes:
@@ -626,6 +632,7 @@ class PlayerCharacter(AbstractCharacter):
             passive.set_user(self)
         self.passives = new_passives
         
+        
         new_actives = []
         for code in active_codes:
             new_actives.append(AbstractActive.read_save_code(code))
@@ -633,6 +640,12 @@ class PlayerCharacter(AbstractCharacter):
         for active in new_actives:
             active.set_user(self)
         self.attacks = new_actives
+        
+        
+        new_items = []
+        for code in item_codes:
+            new_items.append(Item.read_save_code(code))
+        self.team.inventory = new_items
 
 class EnemyCharacter(AbstractCharacter):
     def __init__(self, name, level):

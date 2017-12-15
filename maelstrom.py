@@ -53,10 +53,6 @@ if __name__ == "__main__":
     player = PlayerTeam("Player team", {"name": "Alexandre", "data": ((0, 0, 0, 0, 0), "lightning"), "level": 1})
     
     player.team[0].read_save_code(data.raw_data)
-    
-    player.obtain(t1)
-    player.obtain(t2)
-    player.obtain(t3)
     lib_cav.display_data(player)
     
     data.save_data_from(player.team[0])
