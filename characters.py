@@ -115,10 +115,10 @@ class AbstractCharacter(object):
         set_total = 0
         for item in self.equipped_items:
             item.apply_boosts()
-            if item.set != None:
+            if item.set_name != None:
                 if check_set == None:
-                    check_set = item.set
-                if item.set == check_set:
+                    check_set = item.set_name
+                if item.set_name == check_set:
                     set_total += 1
             if set_total == 3:
                 ItemSet.get_set_bonus(check_set).f(self)
@@ -443,7 +443,7 @@ class PlayerCharacter(AbstractCharacter):
         
         self.calc_stats()
         self.display_mutable_stats()
-        self.stat_customization_points -= 1
+        self.custom_points["stat"] -= 1
     
     def choose_items(self):
         self.display_items()

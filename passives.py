@@ -183,20 +183,23 @@ class OnHitGiven(AbstractPassive):
         if choice == "Chance":
             self.chance += 5
         elif choice == "Potency":
-            self.boost_amount += 5
+            for boost in self.boosts:
+                boost.amount += 5
         else:
-            self.boost_duration += 1 
+            for boost in self.boosts:
+                boost.base_duration += 1 
         
         
         choice = choose("Which stat do you want to decrease?", options)
         if choice == "Chance":
             self.chance += 5
         elif choice == "Potency":
-            self.boost_amount -= 5
+            for boost in self.boosts:
+                boost.amount -= 5
         else:
-            self.boost_duration -= 1
+            for boost in self.boosts:
+                boost.base_duration -= 1
         
-        self.update_desc()
         self.display_data()
     
     def display_data(self):
@@ -253,22 +256,25 @@ class OnHitTaken(AbstractPassive):
         if choice == "Chance":
             self.chance += 5
         elif choice == "Potency":
-            self.boost_amount += 5
+            for boost in self.boosts:
+                boost.amount += 5
         else:
-            self.boost_duration += 1 
+            for boost in self.boosts:
+                boost.base_duration += 1 
         
         
         choice = choose("Which stat do you want to decrease?", options)
         if choice == "Chance":
             self.chance += 5
         elif choice == "Potency":
-            self.boost_amount -= 5
+            for boost in self.boosts:
+                boost.amount -= 5
         else:
-            self.boost_duration -= 1
+            for boost in self.boosts:
+                boost.base_duration -= 1
         
-        self.update_desc()
         self.display_data()
-    
+        
     def display_data(self):
         Op.add(self.name + ":")
         Op.add("Whenever the user is struck by an opponent, ")
