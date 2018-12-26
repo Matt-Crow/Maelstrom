@@ -85,6 +85,9 @@ class AbstractTeam(object):
         Op.add(self.active.name + "'s Energy: " + str(self.active.energy))
         Op.add("Active enemy: " + self.enemy.active.name + " " + str(int(self.enemy.active.HP_rem)) + "/" + str(int(self.enemy.active.get_stat("HP"))))
         Op.dp()
+    
+    def __str__(self):
+        return self.name
        
     def do_turn(self):
         """

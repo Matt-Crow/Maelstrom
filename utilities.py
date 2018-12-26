@@ -142,14 +142,11 @@ def get_names_str(list):
     """
     ret = []
     for object in list:
-        if type(object) == type("string"):
-            ret.append(object)
-        else:
-            ret.append(object.name)
+        ret.append(str(object))
     return ret
 
 def pause():
-    raw_input("Press enter/return to continue")
+    input("Press enter/return to continue")
 
 class Ip:
     """
@@ -167,7 +164,7 @@ class Ip:
         inp = " "
         works = False
         while not works:
-            inp = raw_input(msg)
+            inp = input(msg)
             try:
                 inp = int(float(inp))
                 works = True

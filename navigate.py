@@ -120,7 +120,7 @@ class Weather(object):
     
     @staticmethod
     def random_type():
-        return random.choice(Weather.types.keys())
+        return random.choice(list(Weather.types.keys()))
     
     @staticmethod
     def random_intensity():
@@ -187,6 +187,9 @@ class Battle(object):
         for member in self.enemy_team.team:
             Op.add("* " + member.name + " LV " + str(member.level) + " " + member.element)
         Op.dp()
+
+    def __str__(self):
+        return self.name
     
     def load_team(self, team):
         """
@@ -299,6 +302,8 @@ class Area:
             level.display_data()
         Op.unindent()
         self.trav_or_play(player)
+    def __str__(self):
+        return self.name
     
     def trav_or_play(self, player):
         choice = choose("Do you wish to travel to a location, play a level, customize your character, or quit?", ("Location", "Level", "Customize", "Quit"))

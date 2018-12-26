@@ -247,6 +247,9 @@ class AbstractCharacter(object):
         
         Op.add(str(self.XP) + "/" + str(self.level * 10))
         Op.dp()
+
+    def __str__(self):
+        return self.name
     
     def display_mutable_stats(self):
         for stat_name in STATS:

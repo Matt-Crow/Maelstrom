@@ -37,6 +37,9 @@ class AbstractPassive(object):
     def display_data(self):
         Op.add("TODO: " + self.name + " display_data")
         Op.dp()
+
+    def __str__(self):
+        return self.name
     
     @staticmethod
     def read_save_code(code):

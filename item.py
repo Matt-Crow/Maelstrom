@@ -1,5 +1,6 @@
 from utilities import *
 from stat_classes import *
+import random
 
 class ItemSet(object):
     """
@@ -61,7 +62,7 @@ class Item(object):
         self.equipped = False
     
     def randomize_type(self):
-        self.type = random.choice(Item.types.keys())
+        self.type = random.choice(list(Item.types.keys()))
     
     def generate_desc(self):
         self.desc = Item.types[self.type]
@@ -103,6 +104,9 @@ class Item(object):
         Op.add(self.desc)
         Op.dp()
 
+    def __str__(self):
+        return self.name
+    
     def generate_save_code(self):
         ret = ["<ITEM>: " + self.name]
         ret.append("type: " + self.type)
@@ -131,8 +135,11 @@ def test_set_f(user):
         Dp.add("Three piece bonus works!")
         Dp.dp()
     user.add_on_hit_taken_action(f)
+
+#tuples with one item are converted to that one item
 sets = (
-    ItemSet("Test item set", test_set_f)
+    ItemSet("Test item set", test_set_f),
+    ItemSet("noexist", test_set_f)
 )
 
 t1 = Item("Testitem 1", None, None, None, "Test item set")

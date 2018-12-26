@@ -84,7 +84,7 @@ class AbstractActive(object):
             if v > 0:
                 can_down.append(k)
         
-        new_data[choose("Which damage stat do you want to increase by 12.5% of total damage?", new_data.keys())] += 12.5
+        new_data[choose("Which damage stat do you want to increase by 12.5% of total damage?", list(new_data.keys()))] += 12.5
         new_data[choose("Which damage stat do you want to decrease by 12.5%? of total damage", can_down)] -= 12.5
         self.set_damage_distributions(new_data)
     
@@ -121,6 +121,10 @@ class AbstractActive(object):
             Op.add(str(side_effect["chance"]) + "% chance to inflict")
             side_effect["effect"].display_data()
         Op.dp()
+
+    def __str__(self):
+        #improve me later?
+        return self.name
     
     def can_use(self):
         return self.user.energy >= self.energy_cost
