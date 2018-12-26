@@ -1,8 +1,10 @@
 from navigate import *
 from utilities import *
 from file import File
-from teams import EnemyTeam
-from enemies import *
+from battle.weather import Weather
+from battle.teams import EnemyTeam
+from battle.enemies import *
+from story import Story
 
 class Battle(object):
     """

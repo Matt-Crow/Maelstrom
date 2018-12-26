@@ -1,5 +1,5 @@
 from utilities import *
-from stat_classes import *
+from battle.stat_classes import *
 
 """
 needs work
@@ -22,10 +22,10 @@ class AbstractPassive(object):
     def __init__(self, name, boosts):
         self.name = name
         self.boosts = to_list(boosts)
-    
+
     def set_user(self, user):
         self.user = user
-    
+
     def f(self):
         for boost in self.boosts:
             # if it's possitive, affect the user
@@ -33,27 +33,27 @@ class AbstractPassive(object):
                 self.user.boost(boost)
             else:
                 self.user.team.enemy.active.boost(boost)
-    
+
     def display_data(self):
         Op.add("TODO: " + self.name + " display_data")
         Op.dp()
 
     def __str__(self):
         return self.name
-    
+
     @staticmethod
     def read_save_code(code):
         ret = None
-        
+
         #generate the name...
         name = ignore_text(code[0], "<PASSIVE>: ").strip()
-        
+
         #boosts...
         boosts = []
         boost_codes = code[2:]
         for boost_code in boost_codes:
             boosts.append(Boost.read_save_code(boost_code))
-        
+
         # and passive, can improve though
         if contains(code[1], "thresh:"):
             thresh = int(float(ignore_text(code[1], "thresh:")))
@@ -64,7 +64,7 @@ class AbstractPassive(object):
         elif contains(code[1], "taken:"):
             chance = int(float(ignore_text(code[1], "taken:")))
             ret = OnHitTaken(name, chance, boosts)
-        
+
         return ret
 
 
@@ -75,10 +75,10 @@ class Threshhold(AbstractPassive):
     def __init__(self, name, threshhold, boosts):
         super(self.__class__, self).__init__(name, boosts)
         self.threshhold = threshhold
-    
+
     def init_for_battle(self):
         self.user.add_on_update_action(self.check_trigger)
-    
+
     def check_trigger(self):
         Dp.add("Checking trigger for " + self.name)
         Dp.add(str(self.threshhold) + "% threshhold")
@@ -87,16 +87,16 @@ class Threshhold(AbstractPassive):
             Dp.add("activated")
             self.f()
         Dp.dp()
-    
+
     # add checks for all boosts undurationed
     def customize(self):
         self.display_data()
         options = ["Potency", "Duration"]
         if self.threshhold <= 95:
             options.append("Threshhold")
-        
+
         choice = choose("What do you want to improve?", options)
-        
+
         if choice == "Threshhold":
             self.threshhold += 5
         elif choice == "Potency":
@@ -104,14 +104,14 @@ class Threshhold(AbstractPassive):
                 boost.amount += 0.05
         else:
             for boost in self.boosts:
-                boost.base_duration += 1 
-        
+                boost.base_duration += 1
+
         options = []
         if self.threshhold > 5:
             options.append("Threshhold")
         can_pot = True
         can_dur = True
-        
+
         for boost in self.boosts:
             if abs(boost.amount) <= 5:
                 can_pot = False
@@ -121,7 +121,7 @@ class Threshhold(AbstractPassive):
             options.append("Potency")
         if can_dur:
             options.append("Duration")
-        
+
         choice = choose("Which stat do you want to decrease?", options)
         if choice == "Threshhold":
             self.threshhold -= 5
@@ -131,9 +131,9 @@ class Threshhold(AbstractPassive):
         else:
             for boost in self.boosts:
                 boost.base_duration -= 1
-        
+
         self.display_data()
-    
+
     def display_data(self):
         Op.add(self.name + ":")
         Op.add("Inflicts user with:")
@@ -141,12 +141,12 @@ class Threshhold(AbstractPassive):
             Op.indent()
             boost.display_data()
         Op.add("when at or below")
-        Op.add(str(self.threshhold) + "% maximum Hit Points") 
+        Op.add(str(self.threshhold) + "% maximum Hit Points")
         Op.dp()
-    
+
     def generate_save_code(self):
         """
-        Returns a sequence used 
+        Returns a sequence used
         to save data across multiple
         play sessions with help from
         save file
@@ -155,17 +155,17 @@ class Threshhold(AbstractPassive):
         ret.append("thresh: " + str(self.threshhold))
         for boost in self.boosts:
             ret.append(boost.generate_save_code())
-        return ret 
+        return ret
 
 
 class OnHitGiven(AbstractPassive):
     def __init__(self, name, chance, boosts):
         super(self.__class__, self).__init__(name, boosts)
         self.chance = chance
-    
+
     def init_for_battle(self):
         self.user.add_on_hit_given_action(self.check_trigger)
-    
+
     def check_trigger(self, onHitEvent):
         rand = roll_perc(self.user.get_stat("luck"))
         Dp.add("Checking trigger for " + self.name)
@@ -175,14 +175,14 @@ class OnHitGiven(AbstractPassive):
             Dp.add("activated")
             self.f()
         Dp.dp()
-    
+
     def customize(self):
         self.display_data()
-        
+
         options = ["Chance", "Potency", "Duration"]
-        
+
         choice = choose("Which stat do you want to increase?", options)
-        
+
         if choice == "Chance":
             self.chance += 5
         elif choice == "Potency":
@@ -190,9 +190,9 @@ class OnHitGiven(AbstractPassive):
                 boost.amount += 5
         else:
             for boost in self.boosts:
-                boost.base_duration += 1 
-        
-        
+                boost.base_duration += 1
+
+
         choice = choose("Which stat do you want to decrease?", options)
         if choice == "Chance":
             self.chance += 5
@@ -202,9 +202,9 @@ class OnHitGiven(AbstractPassive):
         else:
             for boost in self.boosts:
                 boost.base_duration -= 1
-        
+
         self.display_data()
-    
+
     def display_data(self):
         Op.add(self.name + ":")
         Op.add("Whenever the user strikes an opponent, ")
@@ -217,10 +217,10 @@ class OnHitGiven(AbstractPassive):
             Op.add("will be inflicted with:")
             Op.indent()
             boost.display_data()
-    
+
     def generate_save_code(self):
         """
-        Returns a sequence used 
+        Returns a sequence used
         to save data across multiple
         play sessions with help from
         save file
@@ -235,10 +235,10 @@ class OnHitTaken(AbstractPassive):
     def __init__(self, name, chance, boosts):
         super(self.__class__, self).__init__(name, boosts)
         self.chance = chance
-    
+
     def init_for_battle(self):
         self.user.add_on_hit_taken_action(self.check_trigger)
-    
+
     def check_trigger(self, onHitEvent):
         rand = roll_perc(self.user.get_stat("luck"))
         Dp.add("Checking trigger for " + self.name)
@@ -251,11 +251,11 @@ class OnHitTaken(AbstractPassive):
 
     def customize(self):
         self.display_data()
-        
+
         options = ["Chance", "Potency", "Duration"]
-        
+
         choice = choose("Which stat do you want to increase?", options)
-        
+
         if choice == "Chance":
             self.chance += 5
         elif choice == "Potency":
@@ -263,9 +263,9 @@ class OnHitTaken(AbstractPassive):
                 boost.amount += 5
         else:
             for boost in self.boosts:
-                boost.base_duration += 1 
-        
-        
+                boost.base_duration += 1
+
+
         choice = choose("Which stat do you want to decrease?", options)
         if choice == "Chance":
             self.chance += 5
@@ -275,9 +275,9 @@ class OnHitTaken(AbstractPassive):
         else:
             for boost in self.boosts:
                 boost.base_duration -= 1
-        
+
         self.display_data()
-        
+
     def display_data(self):
         Op.add(self.name + ":")
         Op.add("Whenever the user is struck by an opponent, ")
@@ -290,10 +290,10 @@ class OnHitTaken(AbstractPassive):
             Op.add("will be inflicted with:")
             Op.indent()
             boost.display_data()
-    
+
     def generate_save_code(self):
         """
-        Returns a sequence used 
+        Returns a sequence used
         to save data across multiple
         play sessions with help from
         save file

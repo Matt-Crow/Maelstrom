@@ -1,14 +1,14 @@
 <NAME>: Alexandre
-<LEVEL>: 4
-<XP>: 30.0
+<LEVEL>: 6
+<XP>: 10.0
 <STATS>: /0.0/0.0/0.0/0.0/0.0
-<CP> attack customization points: 2
-<CP> passive customization points: 3
-<CP> stat customization points: 3
-<CP> item customization points: 3
+<CP> attack customization points: 3
+<CP> passive customization points: 4
+<CP> stat customization points: 4
+<CP> item customization points: 4
 <PASSIVE>: Threshhold test
-thresh: 100
-b Threshhold test/resistance/0.2/1
+thresh: 95
+b Threshhold test/resistance/0.25/1
 <PASSIVE>: OnHitGivenTest
 given: 25
 b OnHitGivenTest/luck/0.2/5
@@ -19,8 +19,8 @@ b OnHitTakenTest/control/-0.2/1
 *1.75
 0.25%
 rain: 12
-physical: 50
-hail: 12
+physical: 62
+hail: 0
 wind: 12
 lightning: 12
 m%: 0
@@ -72,6 +72,7 @@ type: greeble
 desc: It looks incredible fun to play with.
 set: Test item
 b Testitem 1/hail damage multiplier/0.1/-1
+b Testitem 1/energy/0.1/-1
 <ITEM>: Testitem 2
 type: gem
 desc: It holds a secret power.

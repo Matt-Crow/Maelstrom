@@ -43,10 +43,11 @@ need set attack to not default
 
 Version 0.9
 """
-from navigate import *
-from battle import Battle
+from battle.battle import Battle
+from battle.teams import PlayerTeam
 from file import *
 from area import Area
+from location import Location
 
 c1 = Battle("Stone Rising", ("stone soldier"), 1)
 caves = Location("Ancient library caverns")

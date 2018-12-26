@@ -1,6 +1,6 @@
 from utilities import *
 from navigate import script_file
-from battle import Battle
+from battle.battle import Battle
 from file import File
 
 class Area:

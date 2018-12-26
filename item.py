@@ -1,10 +1,10 @@
 from utilities import *
-from stat_classes import *
+from battle.stat_classes import *
 import random
 
 class ItemSet(object):
     """
-    An item set is a 
+    An item set is a
     combination of three
     items that will give
     the user a powerful
@@ -13,7 +13,7 @@ class ItemSet(object):
     def __init__(self, name, bonus_function):
         self.name = name
         self.f = bonus_function
-    
+
     @staticmethod
     def get_set_bonus(set_name):
         def set_f(user):
@@ -46,27 +46,27 @@ class Item(object):
             self.randomize_type()
         else:
             self.type = type
-        
+
         if desc == None:
             self.generate_desc()
         else:
             self.desc = desc
-            
+
         if enhancements == None:
             self.enhancements = []
             self.generate_random_enh()
         else:
             self.enhancements = to_list(enhancements)
-        
+
         self.set_name = set_name
         self.equipped = False
-    
+
     def randomize_type(self):
         self.type = random.choice(list(Item.types.keys()))
-    
+
     def generate_desc(self):
         self.desc = Item.types[self.type]
-    
+
     def generate_random_enh(self):
         """
         Applies a random enhancement
@@ -81,19 +81,19 @@ class Item(object):
         else:
             boosted_stat = random.choice(STATS)
             self.enhancements.append(Boost(boosted_stat, 10, -1, self.name))
-        
+
     def equip(self, user):
         self.user = user
         self.equipped = True
-    
+
     def unequip(self):
         self.user = None
         self.equipped = False
-    
+
     def apply_boosts(self):
         for enh in self.enhancements:
             self.user.boost(enh)
-    
+
     def display_data(self):
         Op.add(self.name + ":")
         Op.add(self.type)
@@ -106,7 +106,7 @@ class Item(object):
 
     def __str__(self):
         return self.name
-    
+
     def generate_save_code(self):
         ret = ["<ITEM>: " + self.name]
         ret.append("type: " + self.type)
@@ -115,7 +115,7 @@ class Item(object):
         for enh in self.enhancements:
             ret.append(enh.generate_save_code())
         return ret
-    
+
     @staticmethod
     def read_save_code(code):
         ret = None
@@ -129,7 +129,7 @@ class Item(object):
             enh.append(Boost.read_save_code(enh_code))
         ret = Item(name, type, enh, desc, set)
         return ret
-        
+
 def test_set_f(user):
     def f(event):
         Dp.add("Three piece bonus works!")

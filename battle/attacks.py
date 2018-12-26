@@ -1,5 +1,5 @@
 from utilities import *
-from stat_classes import *
+from battle.stat_classes import *
 
 # TODO: add ability to customize side effects
 
@@ -15,51 +15,51 @@ class AbstractActive(object):
         """
         self.name = name
         self.dmg_mult = mult
-        
+
         self.damages = {}
         self.damage_distribution = {"physical":50}
         for element in ELEMENTS:
             self.damage_distribution[element] = 12.5
-        
+
         self.cleave = float(cleave_perc) / 100
-        
+
         self.miss = 0
         self.crit = 0
         self.miss_mult = 1.0
         self.crit_mult = 1.0
         self.energy_cost = energy_cost
-        
+
         self.side_effects = []
-    
+
     def set_damage_distributions(self, new_dist):
         """
         new_dist should be a dictionary
         """
         self.damage_distribution = new_dist
-    
+
     def add_side_effect(self, boost, chance = 100):
         """
         Add a boost to inflict upon hitting
         """
-        self.side_effects.append({"effect": boost, "chance":chance}) 
-    
+        self.side_effects.append({"effect": boost, "chance":chance})
+
     def set_user(self, user):
         self.user = user
         self.distribute_damage()
-    
+
     def init_for_battle(self):
         self.distribute_damage()
         for side_effect in self.side_effects:
             side_effect["effect"].reset()
-    
+
     def customize(self):
         """
-        Start by showing what the attack's 
+        Start by showing what the attack's
         stats are
         """
         self.init_for_battle()
         self.display_data()
-        """        
+        """
         choice = choose("Do you want to change these damage stats, add a side effect, or change an existing one?", ("stats", "add effect", "change effect"))
         if choice == "stat":
             self.customize_damages()
@@ -69,25 +69,25 @@ class AbstractActive(object):
         self.customize_damages()
         # and display again
         self.init_for_battle()
-        self.display_data()    
-    
+        self.display_data()
+
     def customize_damages(self):
         # copy the old attack data into new data
         new_data = {}
         for k, v in self.damage_distribution.items():
             new_data[k] = v
-        
+
         can_down = []
-        # make sure it would not be decreased past 0 
+        # make sure it would not be decreased past 0
         #(base 12.5 system, can't be between 0 and 12.5)
         for k, v in self.damage_distribution.items():
             if v > 0:
                 can_down.append(k)
-        
+
         new_data[choose("Which damage stat do you want to increase by 12.5% of total damage?", list(new_data.keys()))] += 12.5
         new_data[choose("Which damage stat do you want to decrease by 12.5%? of total damage", can_down)] -= 12.5
         self.set_damage_distributions(new_data)
-    
+
     def distribute_damage(self):
         total = get_hit_perc(self.user.level) * self.dmg_mult
         split_between = 0
@@ -96,13 +96,13 @@ class AbstractActive(object):
             split_between += value
         for type, value in self.damage_distribution.items():
             self.damages[type] = total / split_between * value
-    
+
     def total_dmg(self):
         ret = 0
         for damage in self.damages.values():
             ret += damage
         return ret
-    
+
     def display_data(self):
         self.init_for_battle()
         Op.add(self.name)
@@ -125,7 +125,7 @@ class AbstractActive(object):
     def __str__(self):
         #improve me later?
         return self.name
-    
+
     def can_use(self):
         return self.user.energy >= self.energy_cost
 
@@ -134,7 +134,7 @@ class AbstractActive(object):
         Used to calculate hit type
         """
         ret = 1.0
-	
+
         if (self.miss > 0 and self.crit > 0):
             rand = roll_perc(self.user.get_stat("luck"))
             Dp.add(["rand in calc_MHC: " + str(rand), "Crit: " + str(100 - self.crit), "Miss: " + str(self.miss)])
@@ -142,25 +142,25 @@ class AbstractActive(object):
             if rand <= self.miss:
                 Op.add("A glancing blow!")
                 ret = self.miss_mult
-            
+
             elif rand >= 100 - self.crit:
                 Op.add("A critical hit!")
                 ret = self.crit_mult
-            
+
         return ret
-    
+
     def apply_side_effects_to(self, target):
         for side_effect in self.side_effects:
             rand = roll_perc(self.user.get_stat("luck"))
-            
+
             Dp.add("Rolling for side effect...")
             Dp.add("Rolled: " + str(rand))
             Dp.add("Minimum to activate: " + str(side_effect["chance"]))
             Dp.dp()
-            
+
             if rand > 100 - side_effect["chance"]:
                 side_effect["effect"]()
-            
+
     def use(self):
         self.user.lose_energy(self.energy_cost)
         if self.dmg_mult is not 0:
@@ -171,7 +171,7 @@ class AbstractActive(object):
                 if enemy is not self.user.team.enemy.active:
                     enemy.direct_dmg(self.total_dmg() * self.cleave)
                     self.apply_side_effects_to(enemy)
-    
+
     def generate_save_code(self):
         ret = ["<ACTIVE>: " + self.name]
         ret.append("*" + str(self.dmg_mult))
@@ -186,11 +186,11 @@ class AbstractActive(object):
         for status in self.side_effects:
             ret.append(status["effect"].generate_save_code() + ": " + str(status["chance"]) + "%")
         return ret
-    
+
     @staticmethod
     def read_save_code(code):
         ret = None
-        
+
         # start with the name
         name = ignore_text(code[0], "<ACTIVE>:").strip()
         dmg_mult = float(ignore_text(code[1], "*"))
@@ -205,25 +205,25 @@ class AbstractActive(object):
         miss_m = float(ignore_text(code[10], "m*:"))
         crit_m = float(ignore_text(code[11], "c*:"))
         cost = int(float(ignore_text(code[12], "ENE: ")))
-        
+
         #boosts...
         boosts = dict()
         boost_codes = code[13:]
-        
+
         for boost_code in boost_codes:
             line = boost_code.split(":")
             boosts[Boost.read_save_code(line[0])] = int(float(ignore_text(line[1], "%")))
-        
+
         if crit_c is not 0:
             ret = MeleeAttack(name, dmg_mult, miss_c, crit_c, miss_m, crit_m, cleave)
-        
+
         else:
             ret = AbstractActive(name, dmg_mult, cleave, cost)
-        
+
         ret.set_damage_distributions(new_dist)
         for boost, chance in boosts.items():
             ret.add_side_effect(boost, chance)
-        
+
         return ret
 
 class MeleeAttack(AbstractActive):
