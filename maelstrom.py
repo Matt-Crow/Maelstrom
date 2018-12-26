@@ -1,5 +1,5 @@
 """
-Copyright (c) 2015 Matt Crow 
+Copyright (c) 2015 Matt Crow
 """
 
 """
@@ -9,7 +9,7 @@ dd/mm/yyyy
 Week 2: Revised/improved/reordered functions
 23/11/2015 - 27/11/2015: Implemented Battle
 30/11/2015 - 4/12/2015: Finished most of PvP
-7/12/2015 - 11/12/2015: Implemented Weather, redid stat boosts 
+7/12/2015 - 11/12/2015: Implemented Weather, redid stat boosts
 14/12/2015 - 18/12/2015: Added data files
 31/12/2015 - 1/1/2016: Worked on Special file reading
 
@@ -37,12 +37,16 @@ Week 2: Revised/improved/reordered functions
 9/12/2017 - 11/12/2017 : Split files, working on campagne
 12/12/2017: Working on save file
 
+edit using atom, run using IDLE or command prompt
+
 need set attack to not default
 
 Version 0.9
 """
 from navigate import *
+from battle import Battle
 from file import *
+from area import Area
 
 c1 = Battle("Stone Rising", ("stone soldier"), 1)
 caves = Location("Ancient library caverns")
@@ -51,8 +55,8 @@ lib_cav = Area("Ancient caverns", caves, c1)
 if __name__ == "__main__":
     data = PlayerSaveFile("player_data.txt")
     player = PlayerTeam("Player team", {"name": "Alexandre", "data": ((0, 0, 0, 0, 0), "lightning"), "level": 1})
-    
+
     player.team[0].read_save_code(data.raw_data)
     lib_cav.display_data(player)
-    
+
     data.save_data_from(player.team[0])

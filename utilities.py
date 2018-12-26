@@ -17,7 +17,7 @@ def get_hit_perc(lv):
 def contains(string, search):
     ret = False
     letters_found = 0
-    
+
     # go through the word...
     for letter in range(0, len(string)):
         # is the current letter equal to the next letter in ignore?
@@ -40,7 +40,7 @@ def ignore_text(word, ignore):
     ret = ""
     letters_found = 0
     found_so_far = ""
-    
+
     # go through the word...
     for letter in range(0, len(word)):
         # is the current letter equal to the next letter in ignore?
@@ -81,7 +81,7 @@ def roll_perc(base = 0):
     """
     Chooses a random number
     between base and 100,
-    use 
+    use
     roll_perc(self.get_stat("luck"))
     """
     ret = 100
@@ -93,7 +93,7 @@ def roll_perc(base = 0):
         ret = random.randint(base, 100)
         Dp.add("Rolling between " + str(base) + " and 100")
         Dp.add("Rolled " + str(ret))
-    Dp.dp() 
+    Dp.dp()
     return ret
 
 def choose(question, options):
@@ -106,7 +106,7 @@ def choose(question, options):
     names = get_names_str(options)
     ret = options[0]
     """
-    only bother asking if there 
+    only bother asking if there
     is more than one option
     """
     if len(options) != 1:
@@ -115,7 +115,7 @@ def choose(question, options):
         for num in range(0, len(options)):
             Op.add(str(num + 1) + ": " + names[num])
         Op.dp()
-        
+
         #get their input
         Ip.askInt("Enter a number: ") # automatically checks for number
         ret = options[set_in_bounds(Ip.getInt() - 1, 0, len(options) - 1)]
@@ -126,10 +126,15 @@ def choose(question, options):
         """
     return ret
 
+"""
+Converts an object into a List.
+If the object is iterable, adds each element to the new List.
+Else, just chucks it on the end of the list.
+"""
 def to_list(change):
     r = []
-    if type(change) == type([1, 2, 3]) or type(change) == type((1, 2, 3)):
-        for item in change:
+    if type(change) == type([1, 2, 3]) or type(change) == type((1, 2, 3) or type(change) == type({"k1":"v1", "k2":"v2"})):
+        for item in list(change):
             r.append(item)
     else:
         r.append(change)
@@ -154,7 +159,7 @@ class Ip:
     """
     strings = []
     ints = []
-    
+
     @staticmethod
     def askStr(msg):
         Ip.strings.append(raw_input(msg))
@@ -171,14 +176,14 @@ class Ip:
             except:
                 print("Invalid input: Enter an integer:") #avoid clashing with Op
         Ip.ints.append(inp)
-    
+
     @staticmethod
     def getStr():
         ret = "ERROR"
         if len(Ip.strings) != 0:
             ret = Ip.strings.pop(0)
         return ret
-    
+
     @staticmethod
     def getInt():
         ret = -1
@@ -194,21 +199,21 @@ class AbstractOutput:
     """
     msgs = []
     indentation = " "
-    
+
     @classmethod
     def indent(op):
         op.indentation += "    "
-    
+
     @classmethod
     def unindent(op):
         op.indentation = " "
-    
+
     @classmethod
     def add(op, msg):
         msg = to_list(msg)
         for line in msg:
             op.msgs.append(op.indentation + str(line))
-    
+
     @classmethod
     def reset(op):
         op.msgs = []

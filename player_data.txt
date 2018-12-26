@@ -1,6 +1,6 @@
 <NAME>: Alexandre
 <LEVEL>: 4
-<XP>: 0
+<XP>: 30.0
 <STATS>: /0.0/0.0/0.0/0.0/0.0
 <CP> attack customization points: 2
 <CP> passive customization points: 3
