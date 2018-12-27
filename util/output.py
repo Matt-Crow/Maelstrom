@@ -45,7 +45,8 @@ class Op:
     @staticmethod
     def display():
         try:
-            works = subprocess.call("cls", shell=True)
+            pass
+            #works = subprocess.call("cls", shell=True)
         except:
             print("cls no work in output.py display method!")
         print(Op.border_pattern * 10)

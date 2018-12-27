@@ -7,14 +7,24 @@ class File(object):
     script_key = "<script>"
     def __init__(self, file_name):
         self.file = file_name
+        self.error = False
         self.load()
     
     def load(self):
         self.raw_data = []
-        file = open(self.file, 'r')
-        for line in file:
-            self.raw_data.append(line)
-        file.close()
+        try:
+            file = open(self.file, 'r')
+            for line in file:
+                self.raw_data.append(line.strip())
+            file.close()
+        except:
+            self.error = True
+    
+    def get_lines(self):
+        """
+        Gets the raw data from this file
+        """
+        return self.raw_data.copy()
     
     def create_dict(self, split):
         """

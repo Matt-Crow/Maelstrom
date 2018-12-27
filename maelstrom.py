@@ -48,13 +48,16 @@ from battle.teams import PlayerTeam
 from file import *
 from area import Area
 from location import Location
+from game import Game
 
 c1 = Battle("Stone Rising", ("stone soldier"), 1)
 caves = Location("Ancient library caverns")
 lib_cav = Area("Ancient caverns", caves, c1)
 
 if __name__ == "__main__":
-    data = PlayerSaveFile("users/player_data.txt")
+    Game().run()
+    
+    data = PlayerSaveFile("users/test_player.txt")
     player = PlayerTeam("Player team", {"name": "Alexandre", "data": ((0, 0, 0, 0, 0), "lightning"), "level": 1})
 
     player.team[0].read_save_code(data.raw_data)
