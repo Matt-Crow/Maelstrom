@@ -4,5 +4,5 @@ class Game:
     so this way, there don't have to be any globals.
     """
     def __init__(self):
-        #player
+        self.player = None
         #gameType (Maelstrom, or other rpg)

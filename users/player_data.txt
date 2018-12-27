@@ -1,11 +1,11 @@
 <NAME>: Alexandre
 <LEVEL>: 6
-<XP>: 10.0
+<XP>: 30.0
 <STATS>: /0.0/0.0/0.0/0.0/0.0
 <CP> attack customization points: 3
 <CP> passive customization points: 4
 <CP> stat customization points: 4
-<CP> item customization points: 4
+<CP> item customization points: 3
 <PASSIVE>: Threshhold test
 thresh: 95
 b Threshhold test/resistance/0.25/1
@@ -73,6 +73,7 @@ desc: It looks incredible fun to play with.
 set: Test item
 b Testitem 1/hail damage multiplier/0.1/-1
 b Testitem 1/energy/0.1/-1
+b Testitem 1/lightning damage reduction/0.1/-1
 <ITEM>: Testitem 2
 type: gem
 desc: It holds a secret power.

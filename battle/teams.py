@@ -1,5 +1,6 @@
-from utilities import *
+from utilities import Dp
 from battle.characters import *
+from util.output import Op
 
 """
 Teams
@@ -30,7 +31,7 @@ class AbstractTeam(object):
                 member.update()
             else:
                 Op.add(member.name + " is out of the game!")
-                Op.dp()
+                Op.display()
         self.members_rem = new_members_rem
 
     def is_up(self):
@@ -69,7 +70,7 @@ class AbstractTeam(object):
         of the team
         """
         Op.add(self.name)
-        Op.dp()
+        Op.display()
         for member in self.team:
             member.display_data()
 
@@ -84,7 +85,7 @@ class AbstractTeam(object):
         self.active.display_mutable_stats()
         Op.add(self.active.name + "'s Energy: " + str(self.active.energy))
         Op.add("Active enemy: " + self.enemy.active.name + " " + str(int(self.enemy.active.HP_rem)) + "/" + str(int(self.enemy.active.get_stat("HP"))))
-        Op.dp()
+        Op.display()
 
     def __str__(self):
         return self.name
@@ -123,7 +124,7 @@ class PlayerTeam(AbstractTeam):
         self.switch(choose("Who do you want to bring in?", choices))
 
         Op.add(self.active.name + " up!")
-        Op.dp()
+        Op.display()
 
     def choose_action(self):
         """
@@ -239,7 +240,7 @@ class EnemyTeam(AbstractTeam):
         self.switch(self.who_switch())
 
         Op.add(self.active.name + " up!")
-        Op.dp()
+        Op.display()
 
     def choose_action(self):
         """
