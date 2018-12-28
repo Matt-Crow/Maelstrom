@@ -62,12 +62,18 @@ class Battle(object):
         self.forecast = to_list(forecast)
 
     def display_data(self):
-        Op.add([self.name, self.description])
-
+        Op.add(self.get_data())
+        Op.display()
+    
+    def get_data(self):
+        """
+        gets data for outputting
+        """
+        ret = [self.name, self.description]
         for member in self.enemy_team.team:
-            Op.add("* " + member.name + " LV " + str(member.level) + " " + member.element)
-        Op.dp()
-
+            ret.append("* " + member.get_short_desc())
+        return ret
+    
     def __str__(self):
         return self.name
 

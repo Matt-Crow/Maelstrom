@@ -49,6 +49,7 @@ from util.path import add_subdir
 
 add_subdir("battle")
 add_subdir("util")
+add_subdir("story")
 
 from battle import Battle
 from teams import PlayerTeam
@@ -63,7 +64,7 @@ lib_cav = Area("Ancient caverns", caves, c1)
 
 if __name__ == "__main__":
     
-    Game().run()
+    #Game().run()
     
     data = PlayerSaveFile("users/test_player.txt")
     player = PlayerTeam("Player team", {"name": "Alexandre", "data": ((0, 0, 0, 0, 0), "lightning"), "level": 1})

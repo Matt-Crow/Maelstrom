@@ -98,6 +98,7 @@ class AbstractTeam(object):
         if self.active.check_if_KOed():
             self.choose_switchin()
         self.switched_in = False
+        self.display_data()
         self.choose_action()
         pause()
 

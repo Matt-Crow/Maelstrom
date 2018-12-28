@@ -1,8 +1,9 @@
 from characters import AbstractCharacter
-from utilities import contains, ignore_text
+from utilities import contains, ignore_text, choose, STATS
 from passives import AbstractPassive
 from attacks import AbstractActive
 from item import Item
+from output import Op
 
 class PlayerCharacter(AbstractCharacter):
     """
@@ -44,7 +45,7 @@ class PlayerCharacter(AbstractCharacter):
         self.XP = self.XP + amount
         while self.XP >= self.level * 10:
             Op.add(self.name + " leveled up!")
-            Op.dp()
+            Op.display()
             self.level_up()
 
     def level_up(self):

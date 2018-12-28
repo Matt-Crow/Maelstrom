@@ -1,5 +1,4 @@
 import random
-from utilities import Op
 from stat_classes import Boost
 
 class Weather(object):
@@ -55,13 +54,12 @@ class Weather(object):
             for person in affected:
                 person.heal(self.intensity * 3)
 
-    def disp_msg(self):
+    def get_msg(self):
         """
-        Print a message showing
+        returns a message showing
         the weather condition
         """
-        Op.add(self.msg)
-        Op.dp()
+        return self.msg.copy()
 
     @staticmethod
     def generate_random():

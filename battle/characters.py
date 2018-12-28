@@ -249,14 +249,20 @@ class AbstractCharacter(object):
 
         Op.add(str(self.XP) + "/" + str(self.level * 10))
         Op.display()
-
+    
+    def get_short_desc(self):
+        """
+        returns a short description of the character
+        """
+        return self.name + " Lv " + str(self.level) + " " + self.element
+    
     def __str__(self):
         return self.name
 
     def display_mutable_stats(self):
         for stat_name in STATS:
             Op.add(stat_name + ": " + str(int(self.get_stat(stat_name))))
-        Op.display()
+        #Op.display()
 
     def display_items(self):
         for item in self.equipped_items:
@@ -297,7 +303,7 @@ class AbstractCharacter(object):
         self.HP_rem = self.HP_rem + healing * mult
 
         Op.add(self.name + " healed " + str(int(healing)) + " HP!")
-        Op.display()
+        #Op.display()
 
         if self.HP_rem > self.get_stat("HP"):
             self.HP_rem = self.get_stat("HP")
@@ -307,7 +313,7 @@ class AbstractCharacter(object):
         harming = self.get_stat("HP") * (float(percent) / 100)
         self.direct_dmg(harming * mult)
         Op.add(self.name + " took " + str(int(harming * mult)) + " damage!")
-        Op.display()
+        #Op.display()
 
     def direct_dmg(self, dmg):
         self.HP_rem -= dmg
@@ -368,7 +374,7 @@ class AbstractCharacter(object):
         Op.add(attacker.name + " struck " + self.name)
         Op.add("for " + str(int(dmg)) + " damage")
         Op.add("using " + attack_used.name + "!")
-        Op.display()
+        #Op.display()
 
         event = OnHitEvent("Attack", attacker, self, attack_used, dmg)
         event.display_data()

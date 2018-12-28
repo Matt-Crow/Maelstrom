@@ -45,12 +45,14 @@ class Op:
     @staticmethod
     def display():
         try:
-            pass
-            #works = subprocess.call("cls", shell=True)
+            works = subprocess.call("cls", shell=True)
+            if works == 1: #is false, didn't run
+                subprocess.call("clear", shell=True)
         except:
-            print("cls no work in output.py display method!")
+            print("no work in output.py display method!")
         print(Op.border_pattern * 10)
         for msg in Op.msgs:
             print(msg)
         print(Op.border_pattern * 10)
         Op.reset()
+        input("Press enter or return to continue")
