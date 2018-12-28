@@ -1,8 +1,8 @@
 from utilities import *
-from battle.enemies import *
-from battle.stat_classes import *
-from battle.attacks import *
-from battle.passives import *
+from enemies import *
+from stat_classes import *
+from attacks import *
+from passives import *
 from item import *
 from events import *
 

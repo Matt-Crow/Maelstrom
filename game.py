@@ -1,6 +1,6 @@
 from util.output import Op
 from file import File, PlayerSaveFile
-from battle.teams import PlayerTeam
+from teams import PlayerTeam
 from utilities import choose
 
 class Game:

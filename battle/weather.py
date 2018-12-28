@@ -1,6 +1,6 @@
 import random
 from utilities import Op
-from battle.stat_classes import Boost
+from stat_classes import Boost
 
 class Weather(object):
     """

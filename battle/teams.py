@@ -1,6 +1,6 @@
 from utilities import Dp
-from battle.characters import *
-from util.output import Op
+from characters import *
+from output import Op
 
 """
 Teams

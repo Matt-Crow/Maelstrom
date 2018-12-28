@@ -1,11 +1,11 @@
 <NAME>: Alexandre
-<LEVEL>: 6
-<XP>: 50
+<LEVEL>: 7
+<XP>: 10.0
 <STATS>: /0.0/0.0/0.0/0.0/0.0
-<CP> attack customization points: 3
-<CP> passive customization points: 4
-<CP> stat customization points: 4
-<CP> item customization points: 3
+<CP> attack customization points: 4
+<CP> passive customization points: 5
+<CP> stat customization points: 5
+<CP> item customization points: 4
 <PASSIVE>: Threshhold test
 thresh: 95
 b Threshhold test/resistance/0.25/1

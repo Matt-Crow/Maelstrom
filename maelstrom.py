@@ -43,8 +43,15 @@ need set attack to not default
 
 Version 0.9
 """
-from battle.battle import Battle
-from battle.teams import PlayerTeam
+
+#having stuff above the import statements is usually not good, but this cleans up my import statements
+from util.path import add_subdir
+
+add_subdir("battle")
+add_subdir("util")
+
+from battle import Battle
+from teams import PlayerTeam
 from file import *
 from area import Area
 from location import Location
@@ -55,6 +62,7 @@ caves = Location("Ancient library caverns")
 lib_cav = Area("Ancient caverns", caves, c1)
 
 if __name__ == "__main__":
+    
     Game().run()
     
     data = PlayerSaveFile("users/test_player.txt")

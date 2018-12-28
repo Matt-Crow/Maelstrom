@@ -1,5 +1,5 @@
 from utilities import *
-from battle.stat_classes import *
+from stat_classes import *
 
 """
 needs work
