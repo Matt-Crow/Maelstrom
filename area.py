@@ -12,27 +12,26 @@ class Area:
         self.levels = to_list(levels)
         self.levels.append(Battle.generate_random())
 
-    def display_data(self, player):
-        Op.add("Area: " + self.name)
-        Op.indent(4)
-        Op.add(self.description)
-        Op.indent(-4)
-        Op.add("Locations:")
-        Op.indent(4)
+    def get_data(self):
+        ret = []
+        ret.append("Area: " + self.name)
+        ret.append("\t" + self.description)
+        ret.append("Locations:")
         for loc in self.locations:
-            Op.add(loc.get_data())
-        Op.indent(-4)
-        Op.add("Levels:")
-        Op.indent(4)
+            for line in loc.get_data():
+                ret.append("\t" + line)
+        ret.append("Levels:")
         for level in self.levels:
-            Op.add(level.get_data())
-        Op.indent(-4)
-        Op.display()
-        self.trav_or_play(player)
+            for line in level.get_data():
+                ret.append("\t" + line)
+        return ret
+    
     def __str__(self):
         return self.name
 
     def trav_or_play(self, player):
+        Op.add(self.get_data())
+        Op.display()
         choice = choose("What do you wish to do?", ("Location", "Level", "Customize", "Quit"))
         if choice == "Level":
             level_to_play = choose("Which level do you want to play?", self.levels)
@@ -47,4 +46,4 @@ class Area:
             place_to_go.travel_to(player)
 
         if choice != "Quit":
-            self.display_data(player)
+            self.trav_or_play(player)

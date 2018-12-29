@@ -37,10 +37,6 @@ class Location:
 
             if len(script_list) is not 0:
                 self.script = Story(script_list)
-
-    def display_data(self):
-        Op.add(self.get_data())
-        Op.display()
     
     def get_data(self):
         """

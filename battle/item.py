@@ -94,15 +94,16 @@ class Item(object):
         for enh in self.enhancements:
             self.user.boost(enh)
 
-    def display_data(self):
-        Op.add(self.name + ":")
-        Op.add(self.type)
+    def get_data(self):
+        ret = [
+            self.name + ":",
+            "\t" + self.type
+        ]
         for enhancement in self.enhancements:
-            Op.indent()
-            enhancement.display_data()
-        Op.unindent()
-        Op.add(self.desc)
-        Op.dp()
+            for line in enhancement.get_data():
+                ret.append("\t" + line)
+        ret.append("\t" + self.desc)
+        return ret
 
     def __str__(self):
         return self.name

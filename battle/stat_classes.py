@@ -71,13 +71,16 @@ class Boost(object):
     def reset(self):
         self.duration = self.base_duration
     
-    def display_data(self):
-        Op.add("Boost: " + self.id)
-        Op.add("+" + str(int(self.amount * 100)) + "% to")
-        Op.add(self.stat_name + " stat")
+    def get_data(self):
+        ret = [
+            "Boost: " + self.id,
+            "\t+" + str(int(self.amount * 100)) + "% to",
+            "\t" + self.stat_name + " stat"
+        ]
+        
         if self.duration > 0:
-            Op.add("for " + str(self.duration) + " turns")
-        Op.dp()
+            ret.append("\tfor " + str(self.duration) + " turns")
+        return ret
     
     def generate_save_code(self):
         """

@@ -59,7 +59,7 @@ class Weather(object):
         returns a message showing
         the weather condition
         """
-        return self.msg.copy()
+        return self.msg
 
     @staticmethod
     def generate_random():

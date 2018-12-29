@@ -70,6 +70,6 @@ if __name__ == "__main__":
     player = PlayerTeam("Player team", {"name": "Alexandre", "data": ((0, 0, 0, 0, 0), "lightning"), "level": 1})
 
     player.team[0].read_save_code(data.raw_data)
-    lib_cav.display_data(player)
+    lib_cav.trav_or_play(player)
 
     data.save_data_from(player.team[0])

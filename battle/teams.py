@@ -98,9 +98,7 @@ class AbstractTeam(object):
         if self.active.check_if_KOed():
             self.choose_switchin()
         self.switched_in = False
-        self.display_data()
         self.choose_action()
-        pause()
 
 class PlayerTeam(AbstractTeam):
     def __init__(self, name, member):
@@ -122,9 +120,9 @@ class PlayerTeam(AbstractTeam):
         for member in self.members_rem:
             if member != self.active:
                 choices.append(member)
-
+        self.display_data()
         self.switch(choose("Who do you want to bring in?", choices))
-
+        
         Op.add(self.active.name + " up!")
         Op.display()
 
@@ -157,6 +155,7 @@ class PlayerTeam(AbstractTeam):
         return new_array
 
     def customize(self):
+        self.team[0].display_data()
         self.team[0].customize()
 
 class EnemyTeam(AbstractTeam):

@@ -117,7 +117,8 @@ class PlayerCharacter(AbstractCharacter):
 
     def choose_item_to_customize(self):
         for item in self.team.inventory:
-            item.display_data()
+            Op.add(item.get_data())
+        Op.display()
         choose("Which item do you want to modify?", self.team.inventory).generate_random_enh()
         self.custom_points["item"] -= 1
 

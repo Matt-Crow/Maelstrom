@@ -5,6 +5,7 @@ from weather import Weather
 from teams import EnemyTeam
 from enemies import *
 from story import Story
+from output import Op
 
 class Battle(object):
     """
@@ -60,18 +61,14 @@ class Battle(object):
         so here it is
         """
         self.forecast = to_list(forecast)
-
-    def display_data(self):
-        Op.add(self.get_data())
-        Op.display()
     
     def get_data(self):
         """
         gets data for outputting
         """
-        ret = [self.name, self.description]
+        ret = [self.name, "\t" + self.description]
         for member in self.enemy_team.team:
-            ret.append("* " + member.get_short_desc())
+            ret.append("\t* " + member.get_short_desc())
         return ret
     
     def __str__(self):
@@ -93,7 +90,7 @@ class Battle(object):
         """
         if self.player_team.is_up():
             Op.add(self.player_team.name + " won!")
-            Op.dp()
+            Op.display()
 
             self.final_act.print_story()
             for reward in self.rewards:
@@ -112,18 +109,19 @@ class Battle(object):
 
         self.player_team.initialize()
         self.player_team.enemy = self.enemy_team
-
+        
         self.enemy_team.display_data()
         self.player_team.display_data()
-
+        
         self.weather = Weather.generate_random()
-
+        
         if self.forecast[0] is not None:
             num = 0
             if len(self.forecast) > 1:
                 num = random.randrange(0, len(self.forecast) - 1)
             self.weather = self.forecast[num]
-        self.weather.disp_msg()
+        Op.add(self.weather.get_msg())
+        Op.display()
 
     def end(self):
         """
