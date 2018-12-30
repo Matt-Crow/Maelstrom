@@ -35,7 +35,7 @@ class Op:
                     Op.add(str(msg))
             except:
                 #nope, not iterable, so recursive
-                Op.msgs.add(str(msgs))
+                Op.add(str(msgs))
 
     @staticmethod
     def reset():

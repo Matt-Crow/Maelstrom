@@ -1,20 +1,29 @@
 from utilities import *
 from stat_classes import *
 
+
+from upgradable import AbstractUpgradable
 # TODO: add ability to customize side effects
 
 """
 Actives:
 """
-class AbstractActive(object):
+class AbstractActive(AbstractUpgradable):
     """
     The attacks all characters can use
     """
-    def __init__(self, name, mult, cleave_perc, energy_cost):
+    def mult_f(base: int) -> float:
+        """
+        The formula used to calculate damage multipliers
+        """
+        return 1.0 + base * 0.025
+
+    def __init__(self, name: str, mult: int, cleave_perc: float, energy_cost: int):
         """
         """
-        self.name = name
-        self.dmg_mult = mult
+        super(AbstractActive, self).__init__(name)
+
+        self.add_attr("damage multiplier", Stat("damage multiplier", AbstractActive.mult_f, mult))
 
         self.damages = {}
         self.damage_distribution = {"physical":50}
@@ -89,7 +98,7 @@ class AbstractActive(object):
         self.set_damage_distributions(new_data)
 
     def distribute_damage(self):
-        total = get_hit_perc(self.user.level) * self.dmg_mult
+        total = get_hit_perc(self.user.level) * self.get_stat("damage multiplier")
         split_between = 0
         self.damages = {}
         for value in self.damage_distribution.values():
@@ -121,10 +130,6 @@ class AbstractActive(object):
             Op.add(str(side_effect["chance"]) + "% chance to inflict")
             side_effect["effect"].display_data()
         Op.dp()
-
-    def __str__(self):
-        #improve me later?
-        return self.name
 
     def can_use(self):
         return self.user.energy >= self.energy_cost
@@ -163,7 +168,7 @@ class AbstractActive(object):
 
     def use(self):
         self.user.lose_energy(self.energy_cost)
-        if self.dmg_mult is not 0:
+        if self.get_stat("damage multiplier") is not 0:
             self.user.team.enemy.active.take_DMG(self.user, self)
             self.apply_side_effects_to(self.user.team.enemy.active)
         if self.cleave is not 0:
@@ -174,7 +179,7 @@ class AbstractActive(object):
 
     def generate_save_code(self):
         ret = ["<ACTIVE>: " + self.name]
-        ret.append("*" + str(self.dmg_mult))
+        ret.append("*" + str(self.get_stat("damage multiplier")))
         ret.append(str(self.cleave) + "%")
         for k, v in self.damage_distribution.items():
             ret.append(k + ": " + str(v))
@@ -225,6 +230,9 @@ class AbstractActive(object):
             ret.add_side_effect(boost, chance)
 
         return ret
+
+
+
 
 class MeleeAttack(AbstractActive):
     def __init__(self, name, dmg, miss, crit, miss_mult, crit_mult, cleave):

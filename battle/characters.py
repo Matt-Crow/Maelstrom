@@ -16,25 +16,42 @@ class AbstractCharacter(object):
     A Class containing all the info for a character
     """
 
+    @staticmethod
+    def mult_red_stat(base: int) -> float:
+        """
+        passed in as the formula for multiplication and reduction stats
+        """
+        return (0.5 + 0.05 * base)
+
+    @staticmethod
+    def battle_stat(base: int) -> float:
+        """
+        passed in as the formula for battle stats
+        (damage reduction, multiplication, etc)
+        """
+        return 10.0 + float(base)
+
     """
     Initializers:
     Used to 'build' the characters
     """
+
     def __init__(self, name, data, level):
         """
         """
         self.name = name
-        self.stats = [Stat("HP", 100)]
+        self.max_hp = 100
 
+        self.stats = []
         self.set_stat_bases(data[0])
 
-        self.stats.append(Stat("Physical damage multiplier", 100))
+        self.stats.append(Stat("Physical damage multiplier", AbstractCharacter.mult_red_stat, 10))
 
-        self.stats.append(Stat("Physical damage reduction", 100))
+        self.stats.append(Stat("Physical damage reduction", AbstractCharacter.mult_red_stat, 10))
 
         for element in ELEMENTS:
-            self.stats.append(Stat(element + " damage multiplier", 100))
-            self.stats.append(Stat(element + " damage reduction", 100))
+            self.stats.append(Stat(element + " damage multiplier", AbstractCharacter.mult_red_stat, 10))
+            self.stats.append(Stat(element + " damage reduction", AbstractCharacter.mult_red_stat, 10))
 
         self.element = data[1]
         self.level = level
@@ -53,7 +70,7 @@ class AbstractCharacter(object):
         # we'll go through 5 stats
         stat_num = 0
         while stat_num < 5:
-            val = Stat(STATS[stat_num], 20 + set_in_bounds(bases[stat_num], -5, 5), True)
+            val = Stat(STATS[stat_num], AbstractCharacter.battle_stat, bases[stat_num])
             # check all of my existing stats...
             found = False
             search_num = 0
@@ -126,7 +143,7 @@ class AbstractCharacter(object):
                 ItemSet.get_set_bonus(check_set).f(self)
 
         self.calc_stats()
-        self.HP_rem = self.get_stat("HP")
+        self.HP_rem = self.max_hp
         self.energy = int(self.get_stat("energy") / 2.0)
 
     # action register class?
@@ -187,7 +204,7 @@ class AbstractCharacter(object):
         """
         Returns as a value between 0 and 100
         """
-        return int((float(self.HP_rem) / float(self.get_stat("HP"))) * 100.0)
+        return int((float(self.HP_rem) / float(self.max_hp) * 100.0))
 
     def get_stat(self, name):
         """
@@ -249,13 +266,13 @@ class AbstractCharacter(object):
 
         Op.add(str(self.XP) + "/" + str(self.level * 10))
         Op.display()
-    
+
     def get_short_desc(self):
         """
         returns a short description of the character
         """
         return self.name + " Lv " + str(self.level) + " " + self.element
-    
+
     def __str__(self):
         return self.name
 
@@ -299,18 +316,18 @@ class AbstractCharacter(object):
         to a percentage.
         """
         mult = 1 + self.get_stat("potency") / 100
-        healing = self.get_stat("HP") * (float(percent) / 100)
+        healing = self.max_hp * (float(percent) / 100)
         self.HP_rem = self.HP_rem + healing * mult
 
         Op.add(self.name + " healed " + str(int(healing)) + " HP!")
         Op.display()
 
-        if self.HP_rem > self.get_stat("HP"):
-            self.HP_rem = self.get_stat("HP")
+        if self.HP_rem > self.max_hp:
+            self.HP_rem = self.max_hp
 
     def harm(self, percent):
         mult = 1 - self.get_stat("potency") / 100
-        harming = self.get_stat("HP") * (float(percent) / 100)
+        harming = self.max_hp * (float(percent) / 100)
         self.direct_dmg(harming * mult)
         Op.add(self.name + " took " + str(int(harming * mult)) + " damage!")
         Op.display()
@@ -361,11 +378,12 @@ class AbstractCharacter(object):
         damage = 0
         for damage_type, value in attack_used.damages.items():
             damage += value * (attacker.get_stat(damage_type + " damage multiplier") / self.get_stat(damage_type + " damage reduction"))
+            Op.add(value)
         damage *= attacker.get_stat("control") / self.get_stat("resistance")
 
         if attacker.team.switched_in:
             damage = damage * 0.75
-
+        Op.display()
         return damage
 
     def take_DMG(self, attacker, attack_used):

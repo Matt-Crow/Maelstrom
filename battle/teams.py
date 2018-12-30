@@ -81,11 +81,11 @@ class AbstractTeam(object):
         """
         Op.add(self.name)
         for member in self.members_rem:
-            Op.add("* " + member.name + " " + str(int(member.HP_rem)) + "/" + str(int(member.get_stat("HP"))))
+            Op.add("* " + member.name + " " + str(int(member.HP_rem)) + "/" + str(int(member.max_hp)))
         Op.add("Currently active: " + self.active.name)
         self.active.display_mutable_stats()
         Op.add(self.active.name + "'s Energy: " + str(self.active.energy))
-        Op.add("Active enemy: " + self.enemy.active.name + " " + str(int(self.enemy.active.HP_rem)) + "/" + str(int(self.enemy.active.get_stat("HP"))))
+        Op.add("Active enemy: " + self.enemy.active.name + " " + str(int(self.enemy.active.HP_rem)) + "/" + str(int(self.enemy.active.max_hp)))
         Op.display()
 
     def __str__(self):
@@ -122,7 +122,7 @@ class PlayerTeam(AbstractTeam):
                 choices.append(member)
         self.display_data()
         self.switch(choose("Who do you want to bring in?", choices))
-        
+
         Op.add(self.active.name + " up!")
         Op.display()
 

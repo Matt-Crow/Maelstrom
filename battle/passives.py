@@ -1,6 +1,8 @@
 from utilities import *
 from stat_classes import *
 
+from upgradable import AbstractUpgradable
+
 """
 needs work
 """
@@ -9,7 +11,7 @@ needs work
 Passives
 """
 # work on negative boosts
-class AbstractPassive(object):
+class AbstractPassive(AbstractUpgradable):
     """
     HOW TO ADD A PASSIVE TO A CHARACTER:
     1. define the passive:
@@ -20,7 +22,7 @@ class AbstractPassive(object):
     * pas.set_user(character)
     """
     def __init__(self, name, boosts):
-        self.name = name
+        super(AbstractPassive, self).__init__(name)
         self.boosts = to_list(boosts)
 
     def set_user(self, user):
@@ -37,9 +39,6 @@ class AbstractPassive(object):
     def display_data(self):
         Op.add("TODO: " + self.name + " display_data")
         Op.dp()
-
-    def __str__(self):
-        return self.name
 
     @staticmethod
     def read_save_code(code):
@@ -66,6 +65,8 @@ class AbstractPassive(object):
             ret = OnHitTaken(name, chance, boosts)
 
         return ret
+
+
 
 
 class Threshhold(AbstractPassive):
