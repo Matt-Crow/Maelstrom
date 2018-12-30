@@ -3,6 +3,7 @@ from stat_classes import *
 
 
 from upgradable import AbstractUpgradable
+from output import Op
 # TODO: add ability to customize side effects
 
 """
@@ -15,8 +16,21 @@ class AbstractActive(AbstractUpgradable):
     def mult_f(base: int) -> float:
         """
         The formula used to calculate damage multipliers
+
+        Min : 0  : 1.0
+        Mid : 10 : 1.25
+        Max : 20 : 1.5
+
+        will balance later
         """
         return 1.0 + base * 0.025
+
+
+    def dmg_weight(base: int) -> float:
+        """
+        The formula for damage weight
+        """
+        return base #very simple
 
     def __init__(self, name: str, mult: int, cleave_perc: float, energy_cost: int):
         """
@@ -25,10 +39,8 @@ class AbstractActive(AbstractUpgradable):
 
         self.add_attr("damage multiplier", Stat("damage multiplier", AbstractActive.mult_f, mult))
 
-        self.damages = {}
-        self.damage_distribution = {"physical":50}
         for element in ELEMENTS:
-            self.damage_distribution[element] = 12.5
+            self.add_attr(element + " damage weight", Stat(element + " damage weight", AbstractActive.dmg_weight, 10))
 
         self.cleave = float(cleave_perc) / 100
 
@@ -39,12 +51,14 @@ class AbstractActive(AbstractUpgradable):
         self.energy_cost = energy_cost
 
         self.side_effects = []
+        self.damages = {}
 
-    def set_damage_distributions(self, new_dist):
+    def set_damage_distributions(self, new_dists: dict):
         """
-        new_dist should be a dictionary
+        new_dist should be a dict
         """
-        self.damage_distribution = new_dist
+        for k, v in new_dists.items():
+            self.set_base(k, v)
 
     def add_side_effect(self, boost, chance = 100):
         """
@@ -53,10 +67,11 @@ class AbstractActive(AbstractUpgradable):
         self.side_effects.append({"effect": boost, "chance":chance})
 
     def set_user(self, user):
-        self.user = user
+        super(AbstractActive, self).set_user(user)
         self.distribute_damage()
 
     def init_for_battle(self):
+        self.calc_all()
         self.distribute_damage()
         for side_effect in self.side_effects:
             side_effect["effect"].reset()
@@ -98,13 +113,14 @@ class AbstractActive(AbstractUpgradable):
         self.set_damage_distributions(new_data)
 
     def distribute_damage(self):
+        self.calc_all()
         total = get_hit_perc(self.user.level) * self.get_stat("damage multiplier")
         split_between = 0
         self.damages = {}
-        for value in self.damage_distribution.values():
-            split_between += value
-        for type, value in self.damage_distribution.items():
-            self.damages[type] = total / split_between * value
+        for element in ELEMENTS:
+            split_between += self.get_stat(element + " damage weight")
+        for element in ELEMENTS:
+            self.damages[element] = total / split_between * self.get_stat(element + " damage weight")
 
     def total_dmg(self):
         ret = 0
@@ -129,7 +145,7 @@ class AbstractActive(AbstractUpgradable):
         for side_effect in self.side_effects:
             Op.add(str(side_effect["chance"]) + "% chance to inflict")
             side_effect["effect"].display_data()
-        Op.dp()
+        Op.display()
 
     def can_use(self):
         return self.user.energy >= self.energy_cost
@@ -151,6 +167,7 @@ class AbstractActive(AbstractUpgradable):
             elif rand >= 100 - self.crit:
                 Op.add("A critical hit!")
                 ret = self.crit_mult
+            Op.display()
 
         return ret
 

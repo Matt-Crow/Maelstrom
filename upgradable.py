@@ -1,4 +1,5 @@
 from stat_classes import Stat
+#from characters import AbstractCharacter
 """
 An AbstractUpgradable is anything that the player can change as their characters level up.
 
@@ -19,6 +20,22 @@ class AbstractUpgradable(object):
         self.level = 0
         self.customization_points = 0
 
+        self.user = None
+
+    def set_user(self, user):#: AbstractCharacter):
+        """
+        Sets this' user, so that this can use their
+        level in stat calculation
+        """
+        self.user = user
+
+    def calc_all(self):
+        """
+        Calculates all this' stats
+        """
+        for stat in self.attributes.values():
+            stat.calc(self.user.level)
+
     def add_attr(self, attr_id: str, value: Stat):
         """
         Sets an attribute for this upgradable.
@@ -35,6 +52,12 @@ class AbstractUpgradable(object):
             ret = self.attributes[attr_id].get()
 
         return ret
+
+    def set_base(self, stat_name: str, base: int):
+        """
+        Re-sets a stat's base calculation value
+        """
+        self.attributes[stat_name].set_base(base)
 
     def __str__(self) -> str:
         return self.name

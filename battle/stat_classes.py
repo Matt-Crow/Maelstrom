@@ -24,11 +24,14 @@ class Stat(object):
 
         min_base is the lowest base value this stat can have,
         and max_base functions similarly.
+
+        TODO: add min max
         """
         self.name = name
         self.formula = formula
-        self.base = base
         self.boosts = []
+
+        self.set_base(base)
         self.value = 0
 
     def calc(self, level = 0):
@@ -50,6 +53,12 @@ class Stat(object):
         for boost in self.boosts:
             mult += boost.amount
         return self.value * mult
+
+    def set_base(self, base: int):
+        """
+        Sets this' base to the given value
+        """
+        self.base = base
 
     def get_base(self) -> int:
         """

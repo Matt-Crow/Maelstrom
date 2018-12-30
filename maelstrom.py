@@ -63,13 +63,13 @@ caves = Location("Ancient library caverns")
 lib_cav = Area("Ancient caverns", caves, c1)
 
 if __name__ == "__main__":
-    
+
     #Game().run()
-    
-    data = PlayerSaveFile("users/test_player.txt")
+
+    #data = PlayerSaveFile("users/test_player.txt")
     player = PlayerTeam("Player team", {"name": "Alexandre", "data": ((0, 0, 0, 0, 0), "lightning"), "level": 1})
 
-    player.team[0].read_save_code(data.raw_data)
+    #player.team[0].read_save_code(data.raw_data)
     lib_cav.trav_or_play(player)
 
-    data.save_data_from(player.team[0])
+    #data.save_data_from(player.team[0])
