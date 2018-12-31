@@ -6,14 +6,11 @@ from upgradable import AbstractUpgradable
 from output import Op
 # TODO: add ability to customize side effects
 
-"""
-Actives:
-"""
+
 class AbstractActive(AbstractUpgradable):
     """
     The attacks all characters can use
     """
-
 
     #these are the formulae used by stat calculations
     def mult_f(base: int) -> float:
@@ -88,7 +85,7 @@ class AbstractActive(AbstractUpgradable):
         """
         """
         super(AbstractActive, self).__init__(name)
-
+        self.set_type("Active")
         self.add_attr("damage multiplier", Stat("damage multiplier", AbstractActive.mult_f, mult))
 
         for element in ELEMENTS:

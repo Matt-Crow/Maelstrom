@@ -1,4 +1,5 @@
 from stat_classes import Stat
+import json
 #from characters import AbstractCharacter
 """
 An AbstractUpgradable is anything that the player can change as their characters level up.
@@ -21,6 +22,16 @@ class AbstractUpgradable(object):
         self.customization_points = 0
 
         self.user = None
+        self.type = "AbstractUpgradable" # used when decoding JSON
+
+
+    def set_type(self, type: str):
+        """
+        Set what will prefix this' JSON output,
+        allowing the program's JSON readers to
+        reconvert the JSON to an object
+        """
+        self.type = type
 
     def set_user(self, user):#: AbstractCharacter):
         """
@@ -64,11 +75,31 @@ class AbstractUpgradable(object):
     def get_save_code(self) -> str:
         """
         returns a save code,
-        which can be used to reconstuct this object
+        which can be used to reconstuct this object.
         """
-        ret = self.name + "{"
-        for k, v in self.attributes.items():
-            ret += '\t\"' + k + '\" : \"' + str(v.get_base()) + '\"\n'
-        ret += "}"
+        """
+        ret = "{\n"
+        ret += '\t\"type\" : \"' + self.type + '\", \n'
+        ret += '\t\"name\" : \"' + self.name + '\", \n'
 
-        return ret
+        item_num = 0
+        total_items = len(self.attributes)
+        for k, v in self.attributes.items():
+            ret += '\t\"' + k + '\" : \"' + str(v.get_base()) + '\"'
+            item_num += 1
+            if item_num < total_items:
+                #don't put a comma after the last item
+                ret += ","
+            ret += '\n'
+        ret += "}"
+        """
+        def f(value):
+            ret = value
+            if type(value) == type(Stat):
+                ret = str(value.get_base())
+            return ret
+
+        serialize = self.attributes.copy()
+        serialize["type"] = self.type
+        serialize["name"] = self.name
+        return json.dumps(serialize, default=f)

@@ -23,6 +23,7 @@ class AbstractPassive(AbstractUpgradable):
     """
     def __init__(self, name, boosts):
         super(AbstractPassive, self).__init__(name)
+        self.set_type("Passive")
         self.boosts = to_list(boosts)
 
     def set_user(self, user):
