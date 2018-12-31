@@ -34,16 +34,13 @@ class Stat(object):
         self.set_base(base)
         self.value = 0
 
-    def calc(self, level = 0):
+    def calc(self):
         """
         Calulates what value this should have.
-        level is usually the level of the user of this stat.
-        i.e. if this is used for an attack, the user of the attack's
-        level is passed in.
-
+        
         Note that this does not return anything
         """
-        self.value = self.formula(self.base) * (1 + 0.2 * level)
+        self.value = self.formula(self.base)
 
     def boost(self, boost):
         self.boosts.append(boost)

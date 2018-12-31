@@ -67,7 +67,7 @@ if __name__ == "__main__":
     #Game().run()
 
     #data = PlayerSaveFile("users/test_player.txt")
-    player = PlayerTeam("Player team", {"name": "Alexandre", "data": ((0, 0, 0, 0, 0), "lightning"), "level": 1})
+    player = PlayerTeam("Player team", {"name": "Alexandre", "data": ((10, 10, 10, 10, 10), "lightning"), "level": 1})
 
     #player.team[0].read_save_code(data.raw_data)
     lib_cav.trav_or_play(player)

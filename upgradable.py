@@ -24,8 +24,7 @@ class AbstractUpgradable(object):
 
     def set_user(self, user):#: AbstractCharacter):
         """
-        Sets this' user, so that this can use their
-        level in stat calculation
+        Sets this' user
         """
         self.user = user
 
@@ -34,7 +33,7 @@ class AbstractUpgradable(object):
         Calculates all this' stats
         """
         for stat in self.attributes.values():
-            stat.calc(self.user.level)
+            stat.calc()
 
     def add_attr(self, attr_id: str, value: Stat):
         """

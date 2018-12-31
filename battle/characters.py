@@ -57,7 +57,7 @@ class AbstractCharacter(object):
         self.level = level
         self.XP = 0
 
-        self.attacks = [AbstractActive(self.element + " bolt", 17, 25, 5)]
+        self.attacks = [AbstractActive(self.element + " bolt", 17, 25)]
         self.add_default_actives()
         self.set_passives_to_defaults()
 
@@ -87,11 +87,12 @@ class AbstractCharacter(object):
 
     #temporary
     def add_default_actives(self):
-        self.attacks.append(MeleeAttack("slash", 10, 15, 15, 0.75, 1.5, 50))
-        self.attacks.append(MeleeAttack("jab", 5, 10, 40, 0.5, 2.0, 0))
-        self.attacks.append(MeleeAttack("slam", 15, 30, 15, 0.5, 1.35, 67))
-        for attack in self.attacks:
-            attack.set_user(self)
+        for active in AbstractActive.get_defaults():
+            self.attacks.append(active)
+            active.set_user(self)
+        #self.attacks.append(MeleeAttack("slash", 10, 15, 15, 0.75, 1.5, 50))
+        #self.attacks.append(MeleeAttack("jab", 5, 10, 40, 0.5, 2.0, 0))
+        #self.attacks.append(MeleeAttack("slam", 15, 30, 15, 0.5, 1.35, 67))
 
     #temporary
     def set_passives_to_defaults(self):
@@ -112,9 +113,11 @@ class AbstractCharacter(object):
     def calc_stats(self):
         """
         Calculate a character's stats
+
+        note that the user's level does not effect this
         """
         for stat in self.stats:
-            stat.calc(self.level)
+            stat.calc()
 
     # HP defined here
     def init_for_battle(self):
@@ -126,6 +129,7 @@ class AbstractCharacter(object):
         for stat in self.stats:
             stat.reset_boosts()
         for attack in self.attacks:
+            attack.set_user(self)
             attack.init_for_battle()
         for passive in self.passives:
             passive.init_for_battle()

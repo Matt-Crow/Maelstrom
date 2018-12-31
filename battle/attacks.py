@@ -13,6 +13,9 @@ class AbstractActive(AbstractUpgradable):
     """
     The attacks all characters can use
     """
+
+
+    #these are the formulae used by stat calculations
     def mult_f(base: int) -> float:
         """
         The formula used to calculate damage multipliers
@@ -29,10 +32,59 @@ class AbstractActive(AbstractUpgradable):
     def dmg_weight(base: int) -> float:
         """
         The formula for damage weight
+
+        Damage weight is how much of the attack's total damage will be devoted to
+        a specific element.
+        For example,
+        by default, the weights are 10 for each element, so the total damage would be evenly divided.
+        But, if their were 4 elements, weighted at 10, 10, 10, and 20; 20% of the total damage would go to each of the first 3,
+        and the remaining 40% would go to the last
         """
         return base #very simple
 
-    def __init__(self, name: str, mult: int, cleave_perc: float, energy_cost: int):
+
+    def cleave_form(base: int) -> float:
+        """
+        The formula used to calculate "cleave damage":
+        whenever you attack an enemy, the attack will
+        deal some percentage of that damage to each other
+        enemy.
+
+        Note that this does not decrease the damage of the initial hit
+        """
+        return base * 0.05
+
+
+    def crit_form(base: int) -> float:
+        """
+        Used to calculate the chance of a critical hit based on the given base
+        """
+        return 2 * base
+
+
+    def miss_form(base: int) -> float:
+        """
+        Used to calculate the chance of a miss based on the given base
+        """
+        return 40 - 2 * base
+
+
+    def crit_mult_form(base: int) -> float:
+        """
+        Used to calculate the multiplier for critical hits
+        """
+        return 1.0 + 0.05 * base
+
+
+    def miss_mult_form(base: int) -> float:
+        """
+        Used to calculate the multiplier for misses
+        """
+        return 0.5 + 0.025 * base
+
+
+    # will make this able to generate from JSON soon
+    def __init__(self, name: str, mult: int, energy_cost: int):
         """
         """
         super(AbstractActive, self).__init__(name)
@@ -42,12 +94,12 @@ class AbstractActive(AbstractUpgradable):
         for element in ELEMENTS:
             self.add_attr(element + " damage weight", Stat(element + " damage weight", AbstractActive.dmg_weight, 10))
 
-        self.cleave = float(cleave_perc) / 100
+        self.add_attr("cleave", Stat("cleave", AbstractActive.cleave_form, 0)) #default to no cleave
 
-        self.miss = 0
-        self.crit = 0
-        self.miss_mult = 1.0
-        self.crit_mult = 1.0
+        self.add_attr("miss chance", Stat("miss chance", AbstractActive.miss_form, 10))
+        self.add_attr("crit chance", Stat("crit chance", AbstractActive.crit_form, 10))
+        self.add_attr("miss mult", Stat("miss mult", AbstractActive.miss_mult_form, 10))
+        self.add_attr("crit mult", Stat("crit mult", AbstractActive.crit_mult_form, 10))
         self.energy_cost = energy_cost
 
         self.side_effects = []
@@ -65,6 +117,12 @@ class AbstractActive(AbstractUpgradable):
         Add a boost to inflict upon hitting
         """
         self.side_effects.append({"effect": boost, "chance":chance})
+
+    def set_cleave(self, base: int):
+        """
+        Sets the cleave base for this
+        """
+        self.set_base("cleave", base)
 
     def set_user(self, user):
         super(AbstractActive, self).set_user(user)
@@ -156,18 +214,17 @@ class AbstractActive(AbstractUpgradable):
         """
         ret = 1.0
 
-        if (self.miss > 0 and self.crit > 0):
-            rand = roll_perc(self.user.get_stat("luck"))
-            Dp.add(["rand in calc_MHC: " + str(rand), "Crit: " + str(100 - self.crit), "Miss: " + str(self.miss)])
-            Dp.dp()
-            if rand <= self.miss:
-                Op.add("A glancing blow!")
-                ret = self.miss_mult
+        rand = roll_perc(self.user.get_stat("luck"))
+        Dp.add(["rand in calc_MHC: " + str(rand), "Crit: " + str(100 - self.get_stat("crit chance")), "Miss: " + str(self.get_stat("miss chance"))])
+        Dp.dp()
+        if rand <= self.get_stat("miss chance"):
+            Op.add("A glancing blow!")
+            ret = self.get_stat("miss mult")
 
-            elif rand >= 100 - self.crit:
-                Op.add("A critical hit!")
-                ret = self.crit_mult
-            Op.display()
+        elif rand >= 100 - self.get_stat("crit chance"):
+            Op.add("A critical hit!")
+            ret = self.get_stat("crit mult")
+        Op.display()
 
         return ret
 
@@ -188,10 +245,10 @@ class AbstractActive(AbstractUpgradable):
         if self.get_stat("damage multiplier") is not 0:
             self.user.team.enemy.active.take_DMG(self.user, self)
             self.apply_side_effects_to(self.user.team.enemy.active)
-        if self.cleave is not 0:
+        if self.get_stat("cleave") is not 0.0:
             for enemy in self.user.team.enemy.members_rem:
                 if enemy is not self.user.team.enemy.active:
-                    enemy.direct_dmg(self.total_dmg() * self.cleave)
+                    enemy.direct_dmg(self.total_dmg() * self.get_stat("cleave"))
                     self.apply_side_effects_to(enemy)
 
     def generate_save_code(self):
@@ -249,12 +306,24 @@ class AbstractActive(AbstractUpgradable):
         return ret
 
 
+    @staticmethod
+    def get_defaults() -> list:
+        """
+        Returns the default attacks that every character can use
+        """
+        slash = MeleeAttack("Slash", 10, 10, 10, 10, 10)
+        slash.set_cleave(10)
+
+        jab = MeleeAttack("Jab", 5, 5, 15, 5, 15)
+        slam = MeleeAttack("Slam", 15, 15, 5, 5, 5)
+
+        return [slash, jab, slam]
 
 
 class MeleeAttack(AbstractActive):
-    def __init__(self, name, dmg, miss, crit, miss_mult, crit_mult, cleave):
-        super(MeleeAttack, self).__init__(name, dmg, cleave, 0)
-        self.miss = miss
-        self.crit = crit
-        self.miss_mult = miss_mult
-        self.crit_mult = crit_mult
+    def __init__(self, name, dmg, miss, crit, miss_mult, crit_mult):
+        super(MeleeAttack, self).__init__(name, dmg, 0)
+        self.set_base("miss chance", miss)
+        self.set_base("crit chance", crit)
+        self.set_base("miss mult", miss_mult)
+        self.set_base("crit mult", crit_mult)
