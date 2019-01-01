@@ -122,6 +122,22 @@ class PlayerCharacter(AbstractCharacter):
         choose("Which item do you want to modify?", self.team.inventory).generate_random_enh()
         self.custom_points["item"] -= 1
 
+
+    def manage(self):
+        """
+        This will replace customize
+        """
+        options = ["Quit"]
+        for attack in self.attacks:
+            attack.display_data()
+            options.append(attack)
+        options.reverse()
+
+        customize = choose("What do you want to customize?", options)
+        if customize != "Quit":
+            customize.customize()
+
+
     def customize(self):
         options = ["Quit"]
 

@@ -92,9 +92,6 @@ class AbstractCharacter(object):
         for active in AbstractActive.get_defaults():
             self.attacks.append(active)
             active.set_user(self)
-        #self.attacks.append(MeleeAttack("slash", 10, 15, 15, 0.75, 1.5, 50))
-        #self.attacks.append(MeleeAttack("jab", 5, 10, 40, 0.5, 2.0, 0))
-        #self.attacks.append(MeleeAttack("slam", 15, 30, 15, 0.5, 1.35, 67))
 
     #temporary
     def set_passives_to_defaults(self):

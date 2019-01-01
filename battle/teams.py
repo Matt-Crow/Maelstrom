@@ -1,4 +1,4 @@
-from utilities import Dp
+from utilities import Dp, choose
 from characters import *
 from output import Op
 from player_character import PlayerCharacter
@@ -153,6 +153,21 @@ class PlayerTeam(AbstractTeam):
             if not item.equipped:
                 new_array.append(item)
         return new_array
+
+
+    def manage(self):
+        """
+        Displays the team management menu
+        """
+        options = ["Exit"]
+        for member in self.team:
+            member.display_data()
+            options.append(member)
+
+        options.reverse()
+        managing = choose("Who do you wish to manage?", options)
+        if choose is not "Exit":
+            managing.manage()
 
     def customize(self):
         self.team[0].display_data()

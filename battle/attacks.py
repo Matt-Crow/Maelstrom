@@ -169,41 +169,6 @@ class AbstractActive(AbstractUpgradable):
         for side_effect in self.side_effects:
             side_effect["effect"].reset()
 
-    def customize(self):
-        """
-        Start by showing what the attack's
-        stats are
-        """
-        self.init_for_battle()
-        self.display_data()
-        """
-        choice = choose("Do you want to change these damage stats, add a side effect, or change an existing one?", ("stats", "add effect", "change effect"))
-        if choice == "stat":
-            self.customize_damages()
-        elif choice == "add effect":
-            self.choose_effect_to_add()
-        """
-        self.customize_damages()
-        # and display again
-        self.init_for_battle()
-        self.display_data()
-
-    def customize_damages(self):
-        # copy the old attack data into new data
-        new_data = {}
-        for k, v in self.damage_distribution.items():
-            new_data[k] = v
-
-        can_down = []
-        # make sure it would not be decreased past 0
-        #(base 12.5 system, can't be between 0 and 12.5)
-        for k, v in self.damage_distribution.items():
-            if v > 0:
-                can_down.append(k)
-
-        new_data[choose("Which damage stat do you want to increase by 12.5% of total damage?", list(new_data.keys()))] += 12.5
-        new_data[choose("Which damage stat do you want to decrease by 12.5%? of total damage", can_down)] -= 12.5
-        self.set_damage_distributions(new_data)
 
     def distribute_damage(self):
         self.calc_all()

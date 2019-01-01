@@ -30,6 +30,8 @@ class Stat(object):
         self.name = name
         self.formula = formula
         self.boosts = []
+        self.max_base = max_base
+        self.min_base = min_base
 
         self.set_base(base)
         self.value = 0
@@ -37,11 +39,28 @@ class Stat(object):
     def calc(self):
         """
         Calulates what value this should have.
-        
+
         Note that this does not return anything
         """
         self.value = self.formula(self.base)
 
+
+    def is_max(self) -> bool:
+        """
+        Returns whether or not this' base
+        is the maximum base allowed for this Stat
+        """
+        return self.base >= self.max_base
+
+
+    def is_min(self) -> bool:
+        """
+        Returns whether or not this' base
+        is the minimum base allowed for this Stat
+        """
+        return self.base <= self.min_base
+
+        
     def boost(self, boost):
         self.boosts.append(boost)
 

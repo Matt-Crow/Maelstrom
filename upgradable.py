@@ -1,4 +1,5 @@
 from stat_classes import Stat
+from utilities import choose
 import json
 #from characters import AbstractCharacter
 """
@@ -18,8 +19,9 @@ class AbstractUpgradable(object):
         AbstractUpgradable.next_id += 1
 
         self.attributes = {} #what can be customized
+        # str : Stat
         self.level = 0
-        self.customization_points = 0
+        self.customization_points = 5 #need to save to JSON. Currently is test value
 
         self.user = None
         self.type = "AbstractUpgradable" # used when decoding JSON
@@ -33,7 +35,7 @@ class AbstractUpgradable(object):
         """
         self.type = type
 
-    def set_user(self, user):#: AbstractCharacter):
+    def set_user(self, user: 'AbstractCharacter'):
         """
         Sets this' user
         """
@@ -68,6 +70,57 @@ class AbstractUpgradable(object):
         Re-sets a stat's base calculation value
         """
         self.attributes[stat_name].set_base(base)
+
+
+    def customize(self):
+        """
+        Provides a menu, so the player can customize this
+        """
+        done = False
+
+        while not done and self.customization_points > 0:
+            self.display_data()
+            options = ["Save changes and quit"]
+            can_up = []
+            can_down = []
+            for k, v in self.attributes.items():
+                if not v.is_max():
+                    can_up.append(k)
+                if not v.is_min():
+                    can_down.append(k)
+
+            options.extend(can_up) #work on increase first
+            options.reverse()
+
+            up = choose("Which do you want to increase?", options)
+
+            if up == "Save changes and quit":
+                done = True
+                break
+            #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! BREAK HERE
+
+
+            options = ["Save changes and quit"]
+            options.extend(can_down)
+            options.reverse()
+
+            if up in options:
+                options.remove(up)
+
+            down = choose("Which do you want to decrease?", options)
+
+            if down == "Save changes and quit":
+                done = True
+                break
+            #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! BREAK HERE
+
+            self.attributes[up].set_base(self.attributes[up].get_base() + 1)
+            self.attributes[down].set_base(self.attributes[down].get_base() - 1)
+            self.calc_all()
+            self.customization_points -= 1
+
+
+
 
     def __str__(self) -> str:
         return self.name

@@ -25,14 +25,14 @@ class Area:
             for line in level.get_data():
                 ret.append("\t" + line)
         return ret
-    
+
     def __str__(self):
         return self.name
 
     def trav_or_play(self, player):
         Op.add(self.get_data())
         Op.display()
-        choice = choose("What do you wish to do?", ("Location", "Level", "Customize", "Quit"))
+        choice = choose("What do you wish to do?", ("Location", "Level", "Customize", "Manage", "Quit"))
         if choice == "Level":
             level_to_play = choose("Which level do you want to play?", self.levels)
             level_to_play.load_team(player)
@@ -40,7 +40,8 @@ class Area:
 
         elif choice == "Customize":
             player.customize()
-
+        elif choice == "Manage":
+            player.manage()
         elif choice == "Location":
             place_to_go = choose("Where do you want to go?", self.locations)
             place_to_go.travel_to(player)
