@@ -1,7 +1,7 @@
 from stat_classes import Stat
 from utilities import choose
 import json
-#from characters import AbstractCharacter
+from output import Op
 """
 An AbstractUpgradable is anything that the player can change as their characters level up.
 
@@ -72,6 +72,28 @@ class AbstractUpgradable(object):
         self.attributes[stat_name].set_base(base)
 
 
+    def get_data(self) -> list:
+        """
+        Returns a list of strings:
+        a text representation of this object.
+        Each subclass may want to override this
+        """
+        ret = [self.type + " " + self.name + ":"]
+        for k, v in self.attributes.items():
+            ret.append('\t' + k + ": " + v)
+        return ret
+
+
+    def display_data(self):
+        """
+        Prints the result of self.get_data()
+
+        Note that subclasses don't have to override this
+        """
+        Op.add(self.get_data())
+        Op.display()
+
+        
     def customize(self):
         """
         Provides a menu, so the player can customize this

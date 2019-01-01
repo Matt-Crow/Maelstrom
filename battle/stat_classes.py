@@ -4,7 +4,7 @@ from utilities import *
 Stat stuff
 """
 
-#TODO: make this used like Orpheus stat, saving the base value
+#TODO: add a display function parameter which will convert it to a text representation that shows how it works?
 class Stat(object):
     """
     A class used to store
@@ -60,7 +60,7 @@ class Stat(object):
         """
         return self.base <= self.min_base
 
-        
+
     def boost(self, boost):
         self.boosts.append(boost)
 

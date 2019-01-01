@@ -1,10 +1,8 @@
-#from utilities import *
 from stat_classes import *
 import pprint
 
 from upgradable import AbstractUpgradable
 from output import Op
-# TODO: add ability to customize side effects
 
 
 class AbstractActive(AbstractUpgradable):
@@ -12,91 +10,26 @@ class AbstractActive(AbstractUpgradable):
     The attacks all characters can use
     """
 
-    #these are the formulae used by stat calculations
-    def mult_f(base: int) -> float:
-        """
-        The formula used to calculate damage multipliers
 
-        Min : 0  : 1.0
-        Mid : 10 : 1.25
-        Max : 20 : 1.5
-
-        will balance later
-        """
-        return 1.0 + base * 0.025
-
-
-    def dmg_weight(base: int) -> float:
-        """
-        The formula for damage weight
-
-        Damage weight is how much of the attack's total damage will be devoted to
-        a specific element.
-        For example,
-        by default, the weights are 10 for each element, so the total damage would be evenly divided.
-        But, if their were 4 elements, weighted at 10, 10, 10, and 20; 20% of the total damage would go to each of the first 3,
-        and the remaining 40% would go to the last
-        """
-        return base #very simple
-
-
-    def cleave_form(base: int) -> float:
-        """
-        The formula used to calculate "cleave damage":
-        whenever you attack an enemy, the attack will
-        deal some percentage of that damage to each other
-        enemy.
-
-        Note that this does not decrease the damage of the initial hit
-        """
-        return base * 0.05
-
-
-    def crit_form(base: int) -> float:
-        """
-        Used to calculate the chance of a critical hit based on the given base
-        """
-        return 2 * base
-
-
-    def miss_form(base: int) -> float:
-        """
-        Used to calculate the chance of a miss based on the given base
-        """
-        return 40 - 2 * base
-
-
-    def crit_mult_form(base: int) -> float:
-        """
-        Used to calculate the multiplier for critical hits
-        """
-        return 1.0 + 0.05 * base
-
-
-    def miss_mult_form(base: int) -> float:
-        """
-        Used to calculate the multiplier for misses
-        """
-        return 0.5 + 0.025 * base
-
-
-    # will make this able to generate from JSON soon
+    # formula functions are given at the end of this file
     def __init__(self, name: str, energy_cost = 5):
         """
+        Don't invoke this, instead call AbstractActive.read_json
+        on a dictionary containing the Active's data
         """
         super(AbstractActive, self).__init__(name)
         self.set_type("AbstractActive")
-        self.add_attr("damage multiplier", Stat("damage multiplier", AbstractActive.mult_f, 10))
+        self.add_attr("damage multiplier", Stat("damage multiplier", mult_f, 10))
 
         for element in ELEMENTS:
-            self.add_attr(element + " damage weight", Stat(element + " damage weight", AbstractActive.dmg_weight, 10))
+            self.add_attr(element + " damage weight", Stat(element + " damage weight", dmg_weight, 10))
 
-        self.add_attr("cleave", Stat("cleave", AbstractActive.cleave_form, 0)) #default to no cleave
+        self.add_attr("cleave", Stat("cleave", cleave_form, 0)) #default to no cleave
 
-        self.add_attr("miss chance", Stat("miss chance", AbstractActive.miss_form, 10))
-        self.add_attr("crit chance", Stat("crit chance", AbstractActive.crit_form, 10))
-        self.add_attr("miss mult", Stat("miss mult", AbstractActive.miss_mult_form, 10))
-        self.add_attr("crit mult", Stat("crit mult", AbstractActive.crit_mult_form, 10))
+        self.add_attr("miss chance", Stat("miss chance", miss_form, 10))
+        self.add_attr("crit chance", Stat("crit chance", crit_form, 10))
+        self.add_attr("miss mult", Stat("miss mult", miss_mult_form, 10))
+        self.add_attr("crit mult", Stat("crit mult", crit_mult_form, 10))
         self.energy_cost = energy_cost
 
         self.side_effects = []
@@ -123,20 +56,6 @@ class AbstractActive(AbstractUpgradable):
         for k, v in json.items():
             if k not in ["name", "type"]:
                 ret.set_base(k, int(v))
-
-        """
-        dmg = int(json.get("damage multiplier", 10))
-
-        weights = {}
-        for element in ELEMENTS:
-            weights[element] = json.get(element + " damage weight", 10)
-
-        cleave = int(json.get("cleave", 0))
-        miss_chance = int(json.get("miss chance", 10))
-        crit_chance = int(json.get("crit chance", 10))
-        miss_mult = int(json.get("miss mult", 10))
-        crit_mult = int(json.get("crit mult", 10))
-        """
 
         return ret
 
@@ -186,24 +105,25 @@ class AbstractActive(AbstractUpgradable):
             ret += damage
         return ret
 
-    def display_data(self):
+    def get_data(self):
         self.init_for_battle()
-        Op.add(self.name)
-        Op.indent()
+        ret = [self.type + " " + self.name]
+
         for type, value in self.damages.items():
-            Op.add(type + " damage: " + str(int(value)))
-        Op.unindent()
-        Op.add("Critical hit chance: " + str(self.get_stat("crit chance")) + "%")
-        Op.add("Miss chance: " + str(self.get_stat("miss chance")) + "%")
-        Op.add("Critical hit multiplier: " + str(int(self.get_stat("crit mult") * 100)) + "%")
-        Op.add("Miss multiplier: " + str(int(self.get_stat("miss mult") * 100)) + "%")
-        Op.add("Cleave damage: " + str(int(self.get_stat("cleave") * 100)) + "% of damage from initial hit")
-        Op.add("SIDE EFFECTS:")
-        Op.indent()
+            ret.append('\t' + type + " damage: " + str(int(value)))
+
+        ret.append("\tCritical hit chance: " + str(self.get_stat("crit chance")) + "%")
+        ret.append("\tMiss chance: " + str(self.get_stat("miss chance")) + "%")
+        ret.append("\tCritical hit multiplier: " + str(int(self.get_stat("crit mult") * 100)) + "%")
+        ret.append("\tMiss multiplier: " + str(int(self.get_stat("miss mult") * 100)) + "%")
+        ret.append("\tCleave damage: " + str(int(self.get_stat("cleave") * 100)) + "% of damage from initial hit")
+        ret.append("\tSIDE EFFECTS:")
         for side_effect in self.side_effects:
-            Op.add(str(side_effect["chance"]) + "% chance to inflict")
-            side_effect["effect"].display_data()
-        Op.display()
+            ret.append('\t\t' + str(side_effect["chance"]) + "% chance to inflict")
+            for line in side_effect["effect"].get_data():
+                ret.append('\t\t' + line)
+
+        return ret
 
     def can_use(self):
         return self.user.energy >= self.energy_cost
@@ -284,3 +204,71 @@ class MeleeAttack(AbstractActive):
     def __init__(self, name):
         super(MeleeAttack, self).__init__(name, 0)
         self.set_type("MeleeAttack")
+
+
+#these are the formulae used by stat calculations
+def mult_f(base: int) -> float:
+    """
+    The formula used to calculate damage multipliers
+
+    Min : 0  : 1.0
+    Mid : 10 : 1.25
+    Max : 20 : 1.5
+
+    will balance later
+    """
+    return 1.0 + base * 0.025
+
+
+def dmg_weight(base: int) -> float:
+    """
+    The formula for damage weight
+
+    Damage weight is how much of the attack's total damage will be devoted to
+    a specific element.
+    For example,
+    by default, the weights are 10 for each element, so the total damage would be evenly divided.
+    But, if their were 4 elements, weighted at 10, 10, 10, and 20; 20% of the total damage would go to each of the first 3,
+    and the remaining 40% would go to the last
+    """
+    return base #very simple
+
+
+def cleave_form(base: int) -> float:
+    """
+    The formula used to calculate "cleave damage":
+    whenever you attack an enemy, the attack will
+    deal some percentage of that damage to each other
+    enemy.
+
+    Note that this does not decrease the damage of the initial hit
+    """
+    return base * 0.05
+
+
+def crit_form(base: int) -> float:
+    """
+    Used to calculate the chance of a critical hit based on the given base
+    """
+    return 2 * base
+
+
+def miss_form(base: int) -> float:
+    """
+    Used to calculate the chance of a miss based on the given base
+    """
+    return 40 - 2 * base
+
+
+def crit_mult_form(base: int) -> float:
+    """
+    Used to calculate the multiplier for critical hits
+    """
+    return 1.0 + 0.05 * base
+
+
+def miss_mult_form(base: int) -> float:
+    """
+    Used to calculate the multiplier for misses
+    """
+    return 0.5 + 0.025 * base
