@@ -57,10 +57,12 @@ class AbstractCharacter(object):
         self.level = level
         self.XP = 0
 
-        self.attacks = [AbstractActive(self.element + " bolt", 17, 25)]
+        self.attacks = [AbstractActive(self.element + " bolt", 25)]
+        self.attacks[0].set_base("damage multiplier", 17)
         self.add_default_actives()
         self.set_passives_to_defaults()
-
+        for attack in self.attacks:
+            attack.set_user(self)
         self.equipped_items = []
 
     def set_stat_bases(self, bases):

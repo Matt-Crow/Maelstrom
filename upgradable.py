@@ -72,34 +72,22 @@ class AbstractUpgradable(object):
     def __str__(self) -> str:
         return self.name
 
-    def get_save_code(self) -> str:
+    def get_as_json(self) -> str:
         """
-        returns a save code,
+        returns a JSON representation of this object,
         which can be used to reconstuct this object.
         """
-        """
-        ret = "{\n"
-        ret += '\t\"type\" : \"' + self.type + '\", \n'
-        ret += '\t\"name\" : \"' + self.name + '\", \n'
-
-        item_num = 0
-        total_items = len(self.attributes)
-        for k, v in self.attributes.items():
-            ret += '\t\"' + k + '\" : \"' + str(v.get_base()) + '\"'
-            item_num += 1
-            if item_num < total_items:
-                #don't put a comma after the last item
-                ret += ","
-            ret += '\n'
-        ret += "}"
-        """
-        def f(value):
-            ret = value
-            if type(value) == type(Stat):
-                ret = str(value.get_base())
-            return ret
-
         serialize = self.attributes.copy()
         serialize["type"] = self.type
         serialize["name"] = self.name
-        return json.dumps(serialize, default=f)
+        return json.dumps(serialize, cls=UpgradableEncoder)
+
+
+class UpgradableEncoder(json.JSONEncoder):
+    def default(self, obj):
+        ret = None
+        if isinstance(obj, Stat):
+            ret = obj.get_base()
+        else:
+            ret = json.JSONEncoder.default(self, obj)
+        return ret

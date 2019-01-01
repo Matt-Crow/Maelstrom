@@ -18,6 +18,16 @@ class Op:
         """
         Op.indentation_level += lv
 
+
+    @staticmethod
+    def unindent(lv=4):
+        """
+        Decreases the indentation level,
+        defaults to 4
+        """
+        Op.indentation_level -= lv
+
+    
     @staticmethod
     def set_indentation(lv):
         Op.indentation_level = lv

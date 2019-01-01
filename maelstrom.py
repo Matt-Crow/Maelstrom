@@ -70,9 +70,7 @@ if __name__ == "__main__":
 
     #data = PlayerSaveFile("users/test_player.txt")
     player = PlayerTeam("Player team", {"name": "Alexandre", "data": ((10, 10, 10, 10, 10), "lightning"), "level": 1})
-    print(player.team[0].attacks[0].get_save_code())
-    print(json.loads(player.team[0].attacks[0].get_save_code()))
     #player.team[0].read_save_code(data.raw_data)
-    #lib_cav.trav_or_play(player)
+    lib_cav.trav_or_play(player)
 
     #data.save_data_from(player.team[0])

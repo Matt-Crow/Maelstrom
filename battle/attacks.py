@@ -1,6 +1,6 @@
-from utilities import *
+#from utilities import *
 from stat_classes import *
-
+import pprint
 
 from upgradable import AbstractUpgradable
 from output import Op
@@ -81,12 +81,12 @@ class AbstractActive(AbstractUpgradable):
 
 
     # will make this able to generate from JSON soon
-    def __init__(self, name: str, mult: int, energy_cost: int):
+    def __init__(self, name: str, energy_cost = 5):
         """
         """
         super(AbstractActive, self).__init__(name)
-        self.set_type("Active")
-        self.add_attr("damage multiplier", Stat("damage multiplier", AbstractActive.mult_f, mult))
+        self.set_type("AbstractActive")
+        self.add_attr("damage multiplier", Stat("damage multiplier", AbstractActive.mult_f, 10))
 
         for element in ELEMENTS:
             self.add_attr(element + " damage weight", Stat(element + " damage weight", AbstractActive.dmg_weight, 10))
@@ -101,6 +101,44 @@ class AbstractActive(AbstractUpgradable):
 
         self.side_effects = []
         self.damages = {}
+
+
+    @staticmethod
+    def read_json(json: dict):
+        """
+        Reads a JSON object as a dictionary, then converts it to an Active
+        """
+        print("JSON:")
+        pprint.pprint(json)
+
+        name = json.get("name", "NAME NOT FOUND")
+        type = json.get("type", "TYPE NOT FOUND")
+
+        ret = None
+        if type == "AbstractActive":
+            ret = AbstractActive(name)
+        else:
+            ret = MeleeAttack(name)
+
+        for k, v in json.items():
+            if k not in ["name", "type"]:
+                ret.set_base(k, int(v))
+
+        """
+        dmg = int(json.get("damage multiplier", 10))
+
+        weights = {}
+        for element in ELEMENTS:
+            weights[element] = json.get(element + " damage weight", 10)
+
+        cleave = int(json.get("cleave", 0))
+        miss_chance = int(json.get("miss chance", 10))
+        crit_chance = int(json.get("crit chance", 10))
+        miss_mult = int(json.get("miss mult", 10))
+        crit_mult = int(json.get("crit mult", 10))
+        """
+
+        return ret
 
     def set_damage_distributions(self, new_dists: dict):
         """
@@ -190,12 +228,12 @@ class AbstractActive(AbstractUpgradable):
         for type, value in self.damages.items():
             Op.add(type + " damage: " + str(int(value)))
         Op.unindent()
-        Op.add("Critical hit chance: " + str(self.crit) + "%")
-        Op.add("Miss chance: " + str(self.miss) + "%")
-        Op.add("Critical hit multiplier: " + str(int(self.crit_mult * 100)) + "%")
-        Op.add("Miss multiplier: " + str(int(self.miss_mult * 100)) + "%")
-        Op.add("Cleave damage: " + str(int(self.cleave * 100)) + "% of damage from initial hit")
-        #Op.add("SIDE EFFECTS:")
+        Op.add("Critical hit chance: " + str(self.get_stat("crit chance")) + "%")
+        Op.add("Miss chance: " + str(self.get_stat("miss chance")) + "%")
+        Op.add("Critical hit multiplier: " + str(int(self.get_stat("crit mult") * 100)) + "%")
+        Op.add("Miss multiplier: " + str(int(self.get_stat("miss mult") * 100)) + "%")
+        Op.add("Cleave damage: " + str(int(self.get_stat("cleave") * 100)) + "% of damage from initial hit")
+        Op.add("SIDE EFFECTS:")
         Op.indent()
         for side_effect in self.side_effects:
             Op.add(str(side_effect["chance"]) + "% chance to inflict")
@@ -248,79 +286,36 @@ class AbstractActive(AbstractUpgradable):
                     enemy.direct_dmg(self.total_dmg() * self.get_stat("cleave"))
                     self.apply_side_effects_to(enemy)
 
-    def generate_save_code(self):
-        ret = ["<ACTIVE>: " + self.name]
-        ret.append("*" + str(self.get_stat("damage multiplier")))
-        ret.append(str(self.cleave) + "%")
-        for k, v in self.damage_distribution.items():
-            ret.append(k + ": " + str(v))
-        ret.append("m%: " + str(self.miss))
-        ret.append("c%: " + str(self.crit))
-        ret.append("m*: " + str(self.miss_mult))
-        ret.append("c*: " + str(self.crit_mult))
-        ret.append("ENE: " + str(self.energy_cost))
-        for status in self.side_effects:
-            ret.append(status["effect"].generate_save_code() + ": " + str(status["chance"]) + "%")
-        return ret
-
-    @staticmethod
-    def read_save_code(code):
-        ret = None
-
-        # start with the name
-        name = ignore_text(code[0], "<ACTIVE>:").strip()
-        dmg_mult = float(ignore_text(code[1], "*"))
-        cleave = int(float(ignore_text(code[2], "%")) * 100)
-        # * 100 is to counteract initializer
-        new_dist = dict()
-        for i in range(3, 8):
-            line = code[i].split(":")
-            new_dist[line[0].strip()] = int(float(line[1]))
-        miss_c = int(float(ignore_text(code[8], "m%:")))
-        crit_c = int(float(ignore_text(code[9], "c%:")))
-        miss_m = float(ignore_text(code[10], "m*:"))
-        crit_m = float(ignore_text(code[11], "c*:"))
-        cost = int(float(ignore_text(code[12], "ENE: ")))
-
-        #boosts...
-        boosts = dict()
-        boost_codes = code[13:]
-
-        for boost_code in boost_codes:
-            line = boost_code.split(":")
-            boosts[Boost.read_save_code(line[0])] = int(float(ignore_text(line[1], "%")))
-
-        if crit_c is not 0:
-            ret = MeleeAttack(name, dmg_mult, miss_c, crit_c, miss_m, crit_m, cleave)
-
-        else:
-            ret = AbstractActive(name, dmg_mult, cleave, cost)
-
-        ret.set_damage_distributions(new_dist)
-        for boost, chance in boosts.items():
-            ret.add_side_effect(boost, chance)
-
-        return ret
-
-
     @staticmethod
     def get_defaults() -> list:
         """
         Returns the default attacks that every character can use
-        """
-        slash = MeleeAttack("Slash", 10, 10, 10, 10, 10)
-        slash.set_cleave(10)
 
-        jab = MeleeAttack("Jab", 5, 5, 15, 5, 15)
-        slam = MeleeAttack("Slam", 15, 15, 5, 5, 5)
+        TODO: make this read from a file
+        """
+        slash = MeleeAttack("Slash")
+        slash.set_cleave(10)
+        jab = AbstractActive.read_json({
+            "name" : "Jab",
+            "type" : "MeleeAttack",
+            "damage multiplier" : 5,
+            "miss chance" : 5,
+            "crit chance" : 15,
+            "miss mult" : 5,
+            "crit mult" : 15
+        })
+        slam = AbstractActive.read_json({
+            "name" : "Slam",
+            "type" : "MeleeAttack",
+            "damage multiplier" : 15,
+            "miss chance" : 15,
+            "crit chance" : 5
+        })
 
         return [slash, jab, slam]
 
 
 class MeleeAttack(AbstractActive):
-    def __init__(self, name, dmg, miss, crit, miss_mult, crit_mult):
-        super(MeleeAttack, self).__init__(name, dmg, 0)
-        self.set_base("miss chance", miss)
-        self.set_base("crit chance", crit)
-        self.set_base("miss mult", miss_mult)
-        self.set_base("crit mult", crit_mult)
+    def __init__(self, name):
+        super(MeleeAttack, self).__init__(name, 0)
+        self.set_type("MeleeAttack")
