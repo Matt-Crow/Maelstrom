@@ -1,16 +1,24 @@
 from utilities import *
-from stat_classes import *
+from stat_classes import Stat, Boost
 
 from upgradable import AbstractUpgradable
 
+from output import Op
+
+
 """
 needs work
+
+Make able to target enemy
 """
+
+
 
 """
 Passives
 """
-# work on negative boosts
+
+
 class AbstractPassive(AbstractUpgradable):
     """
     HOW TO ADD A PASSIVE TO A CHARACTER:
@@ -21,21 +29,49 @@ class AbstractPassive(AbstractUpgradable):
     3. set the user:
     * pas.set_user(character)
     """
-    def __init__(self, name, boosts):
+    def __init__(self, name: str):
         super(AbstractPassive, self).__init__(name)
         self.set_type("Passive")
-        self.boosts = to_list(boosts)
+        
+        self.boosted_stat = None
+        self.add_attr("status level", Stat("status level", status_level_form, 4)) #default to 20%
+        self.add_attr("status duration", Stat("status duration", status_dur_form, 12)) #defaults to 3 turns
+        
 
-    def set_user(self, user):
-        self.user = user
-
+    def set_boosted_stat(self, stat: str):
+        """
+        Temporary
+        """
+        self.boosted_stat = stat
+        
+        
+    def set_lv(self, lv: int):
+        """
+        Also temp
+        """
+        self.set_base("status level", lv)
+        
+        
+    def set_dur(self, dur: int):
+        """
+        Temp again
+        """
+        self.set_base("status duration", dur)
+        
+    
+    def get_boost(self) -> 'Boost':
+    	"""
+    	Returns the Boost this will inflict
+    	"""
+    	return Boost(self.boosted_stat, self.get_stat("status level"), self.get_stat("status duration"), self.name)
+    	
+    
     def f(self):
-        for boost in self.boosts:
-            # if it's possitive, affect the user
-            if boost.amount > 0:
-                self.user.boost(boost)
-            else:
-                self.user.team.enemy.active.boost(boost)
+        """
+        Applies this' boost
+        """
+        self.user.boost(self.get_boost())
+        
 
     def display_data(self):
         Op.add("TODO: " + self.name + " display_data")
@@ -66,6 +102,29 @@ class AbstractPassive(AbstractUpgradable):
             ret = OnHitTaken(name, chance, boosts)
 
         return ret
+    
+    
+    @staticmethod
+    def get_defaults() -> list:
+        """
+        Returns the default passives
+        """
+        p = Threshhold("Threshhold test", 100)
+        p.set_boosted_stat("resistance")
+        p.set_lv(4)
+        p.set_dur(4)
+
+        o = OnHitGiven("OnHitGivenTest", 25)
+        o.set_boosted_stat("luck")
+        o.set_lv(4)
+        o.set_dur(20)
+
+        h = OnHitTaken("OnHitTakenTest", 25)
+        h.set_boosted_stat("control")
+        h.set_lv(4)
+        h.set_dur(4)
+        
+        return [p, o, h]
 
 
 
@@ -74,9 +133,10 @@ class Threshhold(AbstractPassive):
     """
     Automatically invoked at the end of every turn
     """
-    def __init__(self, name, threshhold, boosts):
-        super(self.__class__, self).__init__(name, boosts)
+    def __init__(self, name, threshhold):
+        super(self.__class__, self).__init__(name)
         self.threshhold = threshhold
+        
 
     def init_for_battle(self):
         self.user.add_on_update_action(self.check_trigger)
@@ -139,12 +199,10 @@ class Threshhold(AbstractPassive):
     def display_data(self):
         Op.add(self.name + ":")
         Op.add("Inflicts user with:")
-        for boost in self.boosts:
-            Op.indent()
-            boost.display_data()
+        Op.add(self.get_boost().get_data())
         Op.add("when at or below")
         Op.add(str(self.threshhold) + "% maximum Hit Points")
-        Op.dp()
+        Op.display()
 
     def generate_save_code(self):
         """
@@ -161,8 +219,8 @@ class Threshhold(AbstractPassive):
 
 
 class OnHitGiven(AbstractPassive):
-    def __init__(self, name, chance, boosts):
-        super(self.__class__, self).__init__(name, boosts)
+    def __init__(self, name, chance):
+        super(self.__class__, self).__init__(name)
         self.chance = chance
 
     def init_for_battle(self):
@@ -234,8 +292,8 @@ class OnHitGiven(AbstractPassive):
         return ret
 
 class OnHitTaken(AbstractPassive):
-    def __init__(self, name, chance, boosts):
-        super(self.__class__, self).__init__(name, boosts)
+    def __init__(self, name, chance):
+        super(self.__class__, self).__init__(name)
         self.chance = chance
 
     def init_for_battle(self):
@@ -305,3 +363,17 @@ class OnHitTaken(AbstractPassive):
         for boost in self.boosts:
             ret.append(boost.generate_save_code())
         return ret
+
+
+def status_level_form(self, base: int) -> float:
+    """
+    Calculates the boost from statuses
+    """
+    return 0.05 * base
+    
+    
+def status_dur_form(self, base: int) -> int:
+    """
+    Calculates the number of turns a status lasts
+    """
+    return int(float(base) / 4)

@@ -58,6 +58,8 @@ class AbstractCharacter(object):
         self.XP = 0
 
         self.attacks = [AbstractActive(self.element + " bolt", 25)]
+        self.passives = []
+        
         self.attacks[0].set_base("damage multiplier", 17)
         self.add_default_actives()
         self.set_passives_to_defaults()
@@ -95,19 +97,10 @@ class AbstractCharacter(object):
 
     #temporary
     def set_passives_to_defaults(self):
-        self.passives = []
-
-        p = Threshhold("Threshhold test", 100, Boost("resistance", 20, 1, "Threshhold test"))
-        self.passives.append(p)
-        p.set_user(self)
-
-        o = OnHitGiven("OnHitGivenTest", 25, Boost("luck", 20, 5, "OnHitGivenTest"))
-        self.passives.append(o)
-        o.set_user(self)
-
-        h = OnHitTaken("OnHitTakenTest", 25, Boost("control", -20, 1, "OnHitTakenTest"))
-        self.passives.append(h)
-        h.set_user(self)
+        for passive in AbstractPassive.get_defaults():
+            self.passives.append(passive)
+            passive.set_user(self)
+    
 
     def calc_stats(self):
         """

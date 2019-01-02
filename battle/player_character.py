@@ -128,9 +128,15 @@ class PlayerCharacter(AbstractCharacter):
         This will replace customize
         """
         options = ["Quit"]
+        
+        for passive in self.passives:
+            passive.display_data()
+            options.append(passive)
+            
         for attack in self.attacks:
             attack.display_data()
             options.append(attack)
+        
         options.reverse()
 
         customize = choose("What do you want to customize?", options)
