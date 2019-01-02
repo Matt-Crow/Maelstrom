@@ -20,11 +20,17 @@ class AbstractUpgradable(object):
 
         self.attributes = {} #what can be customized
         # str : Stat
-        self.level = 0
         self.customization_points = 5 #need to save to JSON. Currently is test value
 
         self.user = None
         self.type = "AbstractUpgradable" # used when decoding JSON
+
+        self.track = [
+            'name',
+            'type',
+            'customization_points'
+        ] #extra properties that need to be put into JSON
+        #note that these must match the attributes of this object EXACTLY
 
 
     def set_type(self, type: str):
@@ -72,6 +78,17 @@ class AbstractUpgradable(object):
         self.attributes[stat_name].set_base(base)
 
 
+    def track_attr(self, attr_name: str):
+        """
+        adds attr_name to the list of attributes to be recorded in JSON
+        """
+        if attr_name not in self.track:
+            if attr_name not in self.__dict__:
+                raise ValueError('Key not found for ' + str(self.__dict__) + ': ' + attr_name)
+            else:
+                self.track.append(attr_name)
+
+
     def get_data(self) -> list:
         """
         Returns a list of strings:
@@ -81,6 +98,9 @@ class AbstractUpgradable(object):
         ret = [self.type + " " + self.name + ":"]
         for k, v in self.attributes.items():
             ret.append('\t' + k + ": " + v)
+
+        for t in self.track:
+            ret.append('\t' + t + ': ' + self.__dict__[t])
         return ret
 
 
@@ -93,7 +113,7 @@ class AbstractUpgradable(object):
         Op.add(self.get_data())
         Op.display()
 
-        
+
     def customize(self):
         """
         Provides a menu, so the player can customize this
@@ -142,8 +162,6 @@ class AbstractUpgradable(object):
             self.customization_points -= 1
 
 
-
-
     def __str__(self) -> str:
         return self.name
 
@@ -153,8 +171,9 @@ class AbstractUpgradable(object):
         which can be used to reconstuct this object.
         """
         serialize = self.attributes.copy()
-        serialize["type"] = self.type
-        serialize["name"] = self.name
+        for t in self.track:
+            serialize[t] = self.__dict__[t]
+        
         return json.dumps(serialize, cls=UpgradableEncoder)
 
 

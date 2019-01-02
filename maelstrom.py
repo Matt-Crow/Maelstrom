@@ -59,6 +59,7 @@ from location import Location
 from game import Game
 
 import json
+import pprint
 
 c1 = Battle("Stone Rising", ("stone soldier"), 1)
 caves = Location("Ancient library caverns")
@@ -71,6 +72,9 @@ if __name__ == "__main__":
     #data = PlayerSaveFile("users/test_player.txt")
     player = PlayerTeam("Player team", {"name": "Alexandre", "data": ((10, 10, 10, 10, 10), "lightning"), "level": 1})
     #player.team[0].read_save_code(data.raw_data)
-    lib_cav.trav_or_play(player)
-
+    #lib_cav.trav_or_play(player)
+    for active in player.team[0].attacks:
+        pprint.pprint(json.loads(active.get_as_json()))
+    for passive in player.team[0].passives:
+        pprint.pprint(json.loads(passive.get_as_json()))
     #data.save_data_from(player.team[0])

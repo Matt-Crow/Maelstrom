@@ -7,14 +7,6 @@ from output import Op
 
 
 """
-needs work
-
-Make able to target enemy
-"""
-
-
-
-"""
 Passives
 """
 
@@ -32,50 +24,65 @@ class AbstractPassive(AbstractUpgradable):
     def __init__(self, name: str):
         super(AbstractPassive, self).__init__(name)
         self.set_type("Passive")
-        
+
         self.boosted_stat = None
+        self.targets_user = True
+
+        self.track_attr('targets_user')
         self.add_attr("status level", Stat("status level", status_level_form, 4)) #default to 20%
         self.add_attr("status duration", Stat("status duration", status_dur_form, 12)) #defaults to 3 turns
-        
+
+
+    def target_enemy(self):
+        """
+        Causes this' boosts to apply to the active enemy instead of the user
+        """
+        self.targets_user = False
+
 
     def set_boosted_stat(self, stat: str):
         """
         Temporary
         """
         self.boosted_stat = stat
-        
-        
+
+
     def set_lv(self, lv: int):
         """
         Also temp
         """
         self.set_base("status level", lv)
-        
-        
+
+
     def set_dur(self, dur: int):
         """
         Temp again
         """
         self.set_base("status duration", dur)
-        
-    
+
+
     def get_boost(self) -> 'Boost':
-    	"""
-    	Returns the Boost this will inflict
-    	"""
-    	return Boost(self.boosted_stat, self.get_stat("status level"), self.get_stat("status duration"), self.name)
-    	
-    
+        """
+        Returns the Boost this will inflict
+        """
+        boost = self.get_stat("status level")
+        if not self.targets_user:
+            boost = -boost
+
+        return Boost(self.boosted_stat, boost, self.get_stat("status duration"), self.name)
+
+
     def f(self):
         """
         Applies this' boost
         """
-        self.user.boost(self.get_boost())
-        
+        target = self.user
 
-    def display_data(self):
-        Op.add("TODO: " + self.name + " display_data")
-        Op.dp()
+        if not self.targets_user:
+            target = self.user.team.enemy_team.active
+
+        target.boost(self.get_boost())
+
 
     @staticmethod
     def read_save_code(code):
@@ -102,28 +109,29 @@ class AbstractPassive(AbstractUpgradable):
             ret = OnHitTaken(name, chance, boosts)
 
         return ret
-    
-    
+
+
     @staticmethod
     def get_defaults() -> list:
         """
         Returns the default passives
         """
-        p = Threshhold("Threshhold test", 100)
+        p = Threshhold("Threshhold test", 10)
         p.set_boosted_stat("resistance")
-        p.set_lv(4)
-        p.set_dur(4)
+        p.set_lv(20)
+        p.set_dur(5)
 
-        o = OnHitGiven("OnHitGivenTest", 25)
+        o = OnHitGiven("OnHitGivenTest", 10)
         o.set_boosted_stat("luck")
         o.set_lv(4)
         o.set_dur(20)
 
-        h = OnHitTaken("OnHitTakenTest", 25)
+        h = OnHitTaken("OnHitTakenTest", 10)
         h.set_boosted_stat("control")
         h.set_lv(4)
-        h.set_dur(4)
-        
+        h.set_dur(5)
+        h.target_enemy()
+
         return [p, o, h]
 
 
@@ -135,245 +143,135 @@ class Threshhold(AbstractPassive):
     """
     def __init__(self, name, threshhold):
         super(self.__class__, self).__init__(name)
-        self.threshhold = threshhold
-        
+        self.set_type("Threshhold Passive")
+        self.add_attr("threshhold", Stat("threshhold", thresh_form, threshhold))
+
 
     def init_for_battle(self):
         self.user.add_on_update_action(self.check_trigger)
 
+
     def check_trigger(self):
         Dp.add("Checking trigger for " + self.name)
-        Dp.add(str(self.threshhold) + "% threshhold")
+        Dp.add(str(self.get_stat("threshhold") * 100) + "% threshhold")
         Dp.add(str(self.user.hp_perc()) + "% user health")
-        if self.user.hp_perc() <= self.threshhold:
+        if self.user.hp_perc() <= self.get_stat("threshhold"):
             Dp.add("activated")
             self.f()
         Dp.dp()
 
-    # add checks for all boosts undurationed
-    def customize(self):
-        self.display_data()
-        options = ["Potency", "Duration"]
-        if self.threshhold <= 95:
-            options.append("Threshhold")
 
-        choice = choose("What do you want to improve?", options)
-
-        if choice == "Threshhold":
-            self.threshhold += 5
-        elif choice == "Potency":
-            for boost in self.boosts:
-                boost.amount += 0.05
-        else:
-            for boost in self.boosts:
-                boost.base_duration += 1
-
-        options = []
-        if self.threshhold > 5:
-            options.append("Threshhold")
-        can_pot = True
-        can_dur = True
-
-        for boost in self.boosts:
-            if abs(boost.amount) <= 5:
-                can_pot = False
-            if boost.base_duration <= 1:
-                can_dur = False
-        if can_pot:
-            options.append("Potency")
-        if can_dur:
-            options.append("Duration")
-
-        choice = choose("Which stat do you want to decrease?", options)
-        if choice == "Threshhold":
-            self.threshhold -= 5
-        elif choice == "Potency":
-            for boost in self.boosts:
-                boost.amount -= 0.05
-        else:
-            for boost in self.boosts:
-                boost.base_duration -= 1
-
-        self.display_data()
-
-    def display_data(self):
-        Op.add(self.name + ":")
-        Op.add("Inflicts user with:")
-        Op.add(self.get_boost().get_data())
-        Op.add("when at or below")
-        Op.add(str(self.threshhold) + "% maximum Hit Points")
-        Op.display()
-
-    def generate_save_code(self):
+    def get_data(self) -> list:
         """
-        Returns a sequence used
-        to save data across multiple
-        play sessions with help from
-        save file
+        returns a text representation of this object
         """
-        ret = ["<PASSIVE>: " + self.name]
-        ret.append("thresh: " + str(self.threshhold))
-        for boost in self.boosts:
-            ret.append(boost.generate_save_code())
-        return ret
+        target = 'user' if self.targets_user else 'active enemy'
+        return [
+            self.name + ':',
+            '\tInflicts ' + target + ' with a ' + str(self.get_stat('status level') * 100) + '% bonus',
+            '\tto their ' + self.boosted_stat + ' stat',
+            '\tfor ' + str(self.get_stat('status duration')) + ' turns',
+            '\twhen the user is at or below ' + str(self.get_stat('threshhold') * 100) + '% of their maximum hit points.'
+        ]
 
 
 class OnHitGiven(AbstractPassive):
     def __init__(self, name, chance):
         super(self.__class__, self).__init__(name)
-        self.chance = chance
+        self.set_type('On Hit Given Passive')
+        self.add_attr('chance', Stat('chance', chance_form, chance))
+
 
     def init_for_battle(self):
         self.user.add_on_hit_given_action(self.check_trigger)
 
+
     def check_trigger(self, onHitEvent):
         rand = roll_perc(self.user.get_stat("luck"))
         Dp.add("Checking trigger for " + self.name)
-        Dp.add("Need to roll " + str(100 - self.chance) + " or higher to activate")
+        Dp.add("Need to roll " + str(100 - self.get_stat('chance')) + " or higher to activate")
         Dp.add("Rolled " + str(rand))
-        if rand > 100 - self.chance:
+        if rand > 100 - self.get_stat('chance'):
             Dp.add("activated")
             self.f()
         Dp.dp()
 
-    def customize(self):
-        self.display_data()
 
-        options = ["Chance", "Potency", "Duration"]
-
-        choice = choose("Which stat do you want to increase?", options)
-
-        if choice == "Chance":
-            self.chance += 5
-        elif choice == "Potency":
-            for boost in self.boosts:
-                boost.amount += 5
-        else:
-            for boost in self.boosts:
-                boost.base_duration += 1
-
-
-        choice = choose("Which stat do you want to decrease?", options)
-        if choice == "Chance":
-            self.chance += 5
-        elif choice == "Potency":
-            for boost in self.boosts:
-                boost.amount -= 5
-        else:
-            for boost in self.boosts:
-                boost.base_duration -= 1
-
-        self.display_data()
-
-    def display_data(self):
-        Op.add(self.name + ":")
-        Op.add("Whenever the user strikes an opponent, ")
-        Op.add("there is a " + str(self.chance) + "% chance that the")
-        for boost in self.boosts:
-            if boost.amount > 0:
-                Op.add("user")
-            else:
-                Op.add("target")
-            Op.add("will be inflicted with:")
-            Op.indent()
-            boost.display_data()
-
-    def generate_save_code(self):
+    def get_data(self) -> list:
         """
-        Returns a sequence used
-        to save data across multiple
-        play sessions with help from
-        save file
+        returns a text representation of this object
         """
-        ret = ["<PASSIVE>: " + self.name]
-        ret.append("given: " + str(self.chance))
-        for boost in self.boosts:
-            ret.append(boost.generate_save_code())
-        return ret
+        target = 'user' if self.targets_user else 'that opponent'
+        return [
+            self.name + ':',
+            '\tWhenever the user strikes an opponent, has a ' + str(self.get_stat('chance')) + '% chance to',
+            '\tinflict ' + target + ' with a ' + str(self.get_stat('status level') * 100) + '% bonus',
+            '\tto their ' + self.boosted_stat + ' stat',
+            '\tfor ' + str(self.get_stat('status duration')) + ' turns'
+        ]
+
 
 class OnHitTaken(AbstractPassive):
     def __init__(self, name, chance):
         super(self.__class__, self).__init__(name)
-        self.chance = chance
+        self.set_type('On Hit Taken Passive')
+        self.add_attr('chance', Stat('chance', chance_form, chance))
+
 
     def init_for_battle(self):
         self.user.add_on_hit_taken_action(self.check_trigger)
 
+
     def check_trigger(self, onHitEvent):
         rand = roll_perc(self.user.get_stat("luck"))
         Dp.add("Checking trigger for " + self.name)
-        Dp.add("Need to roll " + str(100 - self.chance) + " or higher to activate")
+        Dp.add("Need to roll " + str(100 - self.get_stat('chance')) + " or higher to activate")
         Dp.add("Rolled " + str(rand))
-        if rand > 100 - self.chance:
+        if rand > 100 - self.get_stat('chance'):
             Dp.add("activated")
             self.f()
         Dp.dp()
 
-    def customize(self):
-        self.display_data()
 
-        options = ["Chance", "Potency", "Duration"]
-
-        choice = choose("Which stat do you want to increase?", options)
-
-        if choice == "Chance":
-            self.chance += 5
-        elif choice == "Potency":
-            for boost in self.boosts:
-                boost.amount += 5
-        else:
-            for boost in self.boosts:
-                boost.base_duration += 1
-
-
-        choice = choose("Which stat do you want to decrease?", options)
-        if choice == "Chance":
-            self.chance += 5
-        elif choice == "Potency":
-            for boost in self.boosts:
-                boost.amount -= 5
-        else:
-            for boost in self.boosts:
-                boost.base_duration -= 1
-
-        self.display_data()
-
-    def display_data(self):
-        Op.add(self.name + ":")
-        Op.add("Whenever the user is struck by an opponent, ")
-        Op.add("there is a " + str(self.chance) + "% chance that the")
-        for boost in self.boosts:
-            if boost.amount > 0:
-                Op.add("user")
-            else:
-                Op.add("attacker")
-            Op.add("will be inflicted with:")
-            Op.indent()
-            boost.display_data()
-
-    def generate_save_code(self):
+    def get_data(self) -> list:
         """
-        Returns a sequence used
-        to save data across multiple
-        play sessions with help from
-        save file
+        returns a text representation of this object
         """
-        ret = ["<PASSIVE>: " + self.name]
-        ret.append("taken: " + str(self.chance))
-        for boost in self.boosts:
-            ret.append(boost.generate_save_code())
-        return ret
+        target = 'user' if self.targets_user else 'the attacker'
+        return [
+            self.name + ':',
+            '\tWhenever the user is struck by an opponent, has a ' + str(self.get_stat('chance')) + '% chance to',
+            '\tinflict ' + target + ' with a ' + str(self.get_stat('status level') * 100) + '% bonus',
+            '\tto their ' + self.boosted_stat + ' stat',
+            '\tfor ' + str(self.get_stat('status duration')) + ' turns'
+        ]
 
 
-def status_level_form(self, base: int) -> float:
+def status_level_form(base: int) -> float:
     """
     Calculates the boost from statuses
     """
     return 0.05 * base
-    
-    
-def status_dur_form(self, base: int) -> int:
+
+
+def status_dur_form(base: int) -> int:
     """
     Calculates the number of turns a status lasts
     """
-    return int(float(base) / 4)
+    return 1 + int(float(base) / 5)
+
+
+def thresh_form(base: int) -> float:
+    """
+    Calculates the HP threshhold that a passive
+    should activate under (as a percentage)
+    """
+    return base * 0.05
+
+
+def chance_form(base: int) -> int:
+    """
+    Calculates what the activation chance for this should be,
+    from 0 to 100
+    """
+    return base * 5

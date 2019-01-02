@@ -41,8 +41,8 @@ class AbstractActive(AbstractUpgradable):
         """
         Reads a JSON object as a dictionary, then converts it to an Active
         """
-        print("JSON:")
-        pprint.pprint(json)
+        #print("JSON:")
+        #pprint.pprint(json)
 
         name = json.get("name", "NAME NOT FOUND")
         type = json.get("type", "TYPE NOT FOUND")

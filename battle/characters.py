@@ -59,7 +59,7 @@ class AbstractCharacter(object):
 
         self.attacks = [AbstractActive(self.element + " bolt", 25)]
         self.passives = []
-        
+
         self.attacks[0].set_base("damage multiplier", 17)
         self.add_default_actives()
         self.set_passives_to_defaults()
@@ -94,13 +94,15 @@ class AbstractCharacter(object):
         for active in AbstractActive.get_defaults():
             self.attacks.append(active)
             active.set_user(self)
+            active.calc_all()
 
     #temporary
     def set_passives_to_defaults(self):
         for passive in AbstractPassive.get_defaults():
             self.passives.append(passive)
             passive.set_user(self)
-    
+            passive.calc_all()
+
 
     def calc_stats(self):
         """
