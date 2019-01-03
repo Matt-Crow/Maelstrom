@@ -1,6 +1,9 @@
-from utilities import *
+from utilities import STATS, ELEMENTS
 from stat_classes import *
 import random
+
+from output import Op
+from upgradable import AbstractUpgradable
 
 class ItemSet(object):
     """
@@ -32,7 +35,7 @@ class ItemSet(object):
 """
 Items need weather specific, stat codes
 """
-class Item(object):
+class Item(AbstractUpgradable):
     types = {
         "ring": "We wants it.",
         "trinket": "Fresh from the street vendor.",
@@ -40,47 +43,56 @@ class Item(object):
         "gear": "It comes from another dimension.",
         "greeble": "It looks incredible fun to play with."
     }
-    def __init__(self, name, type = None, enhancements = None, desc = None, set_name = None):
-        self.name = name
-        if type not in Item.types.keys():
-            self.randomize_type()
-        else:
-            self.type = type
+    def __init__(self, name: str):
+        super(Item, self).__init__(name)
+        self.set_type('Item')
 
-        if desc == None:
-            self.generate_desc()
-        else:
-            self.desc = desc
+        self.randomize_type()
+        self.generate_random_enh()
 
-        if enhancements == None:
-            self.enhancements = []
-            self.generate_random_enh()
-        else:
-            self.enhancements = to_list(enhancements)
-
-        self.set_name = set_name
+        self.set_name = None
         self.equipped = False
 
-    def randomize_type(self):
-        self.type = random.choice(list(Item.types.keys()))
+        self.add_attr('boost', Stat('boost', boost_form, 10))
+        self.track_attr('item_type')
+        self.track_attr('desc')
+        self.track_attr('set_name')
+        self.track_attr('boosted_stat')
 
-    def generate_desc(self):
-        self.desc = Item.types[self.type]
+
+    def randomize_type(self):
+        """
+        Sets this to a random item type
+        and sets its description appropriately
+        Has no impact on this, just flavor
+        """
+        self.item_type = random.choice(list(Item.types.keys()))
+        self.desc = Item.types[self.item_type]
+
 
     def generate_random_enh(self):
         """
-        Applies a random enhancement
+        randomizes this' enhancement
         """
         enh_type = random.choice(("element+", "element-", "stat*"))
         if enh_type == "element+":
             boosted_element = random.choice(ELEMENTS)
-            self.enhancements.append(Boost(boosted_element + " damage multiplier", 10, -1, self.name))
+            self.boosted_stat = boosted_element + ' damage multiplier'
+
         elif enh_type == "element-":
             boosted_element = random.choice(ELEMENTS)
-            self.enhancements.append(Boost(boosted_element + " damage reduction", 10, -1, self.name))
+            self.boosted_stat = boosted_element + ' damage reduction'
+
         else:
-            boosted_stat = random.choice(STATS)
-            self.enhancements.append(Boost(boosted_stat, 10, -1, self.name))
+            self.boosted_stat = random.choice(STATS)
+
+
+    def get_boost(self) -> 'Boost':
+        """
+        Returns the boost this will provide when equipped
+        """
+        return Boost(self.boosted_stat, self.get_stat('boost'), -1, self.name)
+
 
     def equip(self, user):
         self.user = user
@@ -91,45 +103,53 @@ class Item(object):
         self.equipped = False
 
     def apply_boosts(self):
-        for enh in self.enhancements:
-            self.user.boost(enh)
+        self.user.boost(self.get_boost())
 
     def get_data(self):
         ret = [
             self.name + ":",
             "\t" + self.type
         ]
-        for enhancement in self.enhancements:
-            for line in enhancement.get_data():
-                ret.append("\t" + line)
+        for line in self.get_boost().get_data():
+            ret.append("\t" + line)
         ret.append("\t" + self.desc)
         return ret
 
-    def __str__(self):
-        return self.name
-
-    def generate_save_code(self):
-        ret = ["<ITEM>: " + self.name]
-        ret.append("type: " + self.type)
-        ret.append("desc: " + self.desc)
-        ret.append("set: " + self.set_name)
-        for enh in self.enhancements:
-            ret.append(enh.generate_save_code())
-        return ret
 
     @staticmethod
-    def read_save_code(code):
-        ret = None
-        name = ignore_text(code[0], "<ITEM>:").strip()
-        type = ignore_text(code[1], "type: ").strip()
-        desc = ignore_text(code[2], "desc: ").strip()
-        set = ignore_text(code[3], "set: ").strip()
-        enh = []
-        enh_codes = code[4:]
-        for enh_code in enh_codes:
-            enh.append(Boost.read_save_code(enh_code))
-        ret = Item(name, type, enh, desc, set)
+    def read_json(json: dict) -> 'Item':
+        """
+        Reads a JSON object as a dictionary, then converts it to an Item
+        """
+        #some way to auto-do this?
+        name = json.get("name", "NAME NOT FOUND")
+        custom_points = int(json.get('customization_points', 0))
+
+        ret = Item(name)
+        ret.boosted_stat = json.get('boosted_stat', 'potency')
+        ret.item_type = json.get('item_type', 'ITEM TYPE NOT FOUND')
+        ret.desc = json.get('desc', 'DESCRIPTION NOT FOUND')
+        ret.set_base('boost', int(json.get('boost', 10)))
+        ret.set_name = json.get('set_name', None)
+        ret.customization_points = custom_points
         return ret
+
+
+    @staticmethod
+    def get_defaults() -> list:
+        """
+        """
+        i1 = Item.read_json({
+        'name' : 'Item 1',
+        'boost' : 20,
+        'boosted_stat' : 'luck',
+        'item_type' : 'TEST',
+        'desc' : 'test item 1',
+        'set_name' : 'Test item set'
+        })
+
+        return [i1]
+
 
 def test_set_f(user):
     def f(event):
@@ -137,12 +157,18 @@ def test_set_f(user):
         Dp.dp()
     user.add_on_hit_taken_action(f)
 
-#tuples with one item are converted to that one item
-sets = (
-    ItemSet("Test item set", test_set_f),
-    ItemSet("noexist", test_set_f)
-)
+sets = [
+    ItemSet("Test item set", test_set_f)
+]
 
-t1 = Item("Testitem 1", None, None, None, "Test item set")
-t2 = Item("Testitem 2", None, None, None, "Test item set")
-t3 = Item("Testitem 3", None, None, None, "Test item set")
+
+def boost_form(base: int) -> float:
+    """
+    Calculate how much the should boost a stat by
+    """
+    return 0.025 * base
+
+
+t1 = Item("Testitem 1")
+t2 = Item("Testitem 2")
+t3 = Item("Testitem 3")

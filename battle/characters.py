@@ -67,6 +67,9 @@ class AbstractCharacter(object):
             attack.set_user(self)
         self.equipped_items = []
 
+        self.equip_default_items()
+
+
     def set_stat_bases(self, bases):
         """
         Set the base stat shifts
@@ -102,6 +105,13 @@ class AbstractCharacter(object):
             self.passives.append(passive)
             passive.set_user(self)
             passive.calc_all()
+
+    def equip_default_items(self):
+        for item in Item.get_defaults():
+            self.equipped_items.append(item)
+            item.set_user(self)
+            item.equip(self)
+            item.calc_all()
 
 
     def calc_stats(self):

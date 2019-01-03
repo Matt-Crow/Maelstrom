@@ -9,8 +9,6 @@ from output import Op
 """
 Passives
 """
-
-
 class AbstractPassive(AbstractUpgradable):
     """
     HOW TO ADD A PASSIVE TO A CHARACTER:
@@ -88,7 +86,7 @@ class AbstractPassive(AbstractUpgradable):
         target = self.user
 
         if not self.targets_user:
-            target = self.user.team.enemy_team.active
+            target = self.user.team.enemy.active
 
         target.boost(self.get_boost())
 
