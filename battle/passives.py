@@ -29,36 +29,45 @@ class AbstractPassive(AbstractUpgradable):
         self.targets_user = True
 
         self.track_attr('targets_user')
+        self.track_attr('boosted_stat')
         self.add_attr("status level", Stat("status level", status_level_form, 4)) #default to 20%
         self.add_attr("status duration", Stat("status duration", status_dur_form, 12)) #defaults to 3 turns
 
 
-    def target_enemy(self):
+    @staticmethod
+    def read_json(json: dict) -> 'AbstractPassive':
         """
-        Causes this' boosts to apply to the active enemy instead of the user
+        Reads a JSON object as a dictionary, then converts it to a passive
         """
-        self.targets_user = False
+        #some way to auto-do this?
+        name = json.get("name", "NAME NOT FOUND")
+        ptype = json.get("type", "TYPE NOT FOUND")
+        custom_points = int(json.get('customization_points', 0))
+        targ = True if json.get('targets_user', 'True').upper() == 'TRUE' else False
 
+        ret = None
 
-    def set_boosted_stat(self, stat: str):
-        """
-        Temporary
-        """
-        self.boosted_stat = stat
+        if ptype == 'Threshhold Passive':
+            ret = Threshhold(name)
+            ret.set_base('threshhold', int(json.get('threshhold', 4)))
+        elif ptype == 'On Hit Given Passive':
+            ret = OnHitGiven(name)
+            ret.set_base('chance', int(json.get('chance', 4)))
+        elif ptype == 'On Hit Taken Passive':
+            ret = OnHitTaken(name)
+            ret.set_base('chance', int(json.get('chance', 4)))
+        else:
+            raise Exception('Type not found for AbstractActive: ' + ptype)
 
+        for k, v in json.items():
+            if k not in ['name', 'type', 'customization_points', 'targets_user', 'boosted_stat']:
+                ret.set_base(k, int(v))
 
-    def set_lv(self, lv: int):
-        """
-        Also temp
-        """
-        self.set_base("status level", lv)
+        ret.customization_points = custom_points
+        ret.boosted_stat = json.get('boosted_stat', None)
+        ret.targets_user = targ
 
-
-    def set_dur(self, dur: int):
-        """
-        Temp again
-        """
-        self.set_base("status duration", dur)
+        return ret
 
 
     def get_boost(self) -> 'Boost':
@@ -85,52 +94,41 @@ class AbstractPassive(AbstractUpgradable):
 
 
     @staticmethod
-    def read_save_code(code):
-        ret = None
-
-        #generate the name...
-        name = ignore_text(code[0], "<PASSIVE>: ").strip()
-
-        #boosts...
-        boosts = []
-        boost_codes = code[2:]
-        for boost_code in boost_codes:
-            boosts.append(Boost.read_save_code(boost_code))
-
-        # and passive, can improve though
-        if contains(code[1], "thresh:"):
-            thresh = int(float(ignore_text(code[1], "thresh:")))
-            ret = Threshhold(name, thresh, boosts)
-        elif contains(code[1], "given:"):
-            chance = int(float(ignore_text(code[1], "given:")))
-            ret = OnHitGiven(name, chance, boosts)
-        elif contains(code[1], "taken:"):
-            chance = int(float(ignore_text(code[1], "taken:")))
-            ret = OnHitTaken(name, chance, boosts)
-
-        return ret
-
-
-    @staticmethod
     def get_defaults() -> list:
         """
         Returns the default passives
+
+        todo: make this read from a file
         """
-        p = Threshhold("Threshhold test", 10)
-        p.set_boosted_stat("resistance")
-        p.set_lv(20)
-        p.set_dur(5)
+        p = AbstractPassive.read_json({
+            'name': 'Threshhold test',
+            'type': 'Threshhold Passive',
+            'boosted_stat' : 'resistance',
+            'threshhold' : 10,
+            'status level' : 20,
+            'status duration' : 5,
+            'targets_user' : 'True'
+        })
 
-        o = OnHitGiven("OnHitGivenTest", 10)
-        o.set_boosted_stat("luck")
-        o.set_lv(4)
-        o.set_dur(20)
+        o = AbstractPassive.read_json({
+            'name': 'On Hit Given Test',
+            'type': 'On Hit Given Passive',
+            'boosted_stat' : 'luck',
+            'chance' : 10,
+            'status level' : 4,
+            'status duration' : 20,
+            'targets_user' : 'True'
+        })
 
-        h = OnHitTaken("OnHitTakenTest", 10)
-        h.set_boosted_stat("control")
-        h.set_lv(4)
-        h.set_dur(5)
-        h.target_enemy()
+        h = AbstractPassive.read_json({
+            'name': 'On Hit Taken Test',
+            'type': 'On Hit Taken Passive',
+            'boosted_stat' : 'control',
+            'chance' : 10,
+            'status level' : 4,
+            'status duration' : 5,
+            'targets_user' : 'False'
+        })
 
         return [p, o, h]
 
@@ -141,10 +139,10 @@ class Threshhold(AbstractPassive):
     """
     Automatically invoked at the end of every turn
     """
-    def __init__(self, name, threshhold):
+    def __init__(self, name):
         super(self.__class__, self).__init__(name)
         self.set_type("Threshhold Passive")
-        self.add_attr("threshhold", Stat("threshhold", thresh_form, threshhold))
+        self.add_attr("threshhold", Stat("threshhold", thresh_form, 4))
 
 
     def init_for_battle(self):
@@ -176,10 +174,10 @@ class Threshhold(AbstractPassive):
 
 
 class OnHitGiven(AbstractPassive):
-    def __init__(self, name, chance):
+    def __init__(self, name):
         super(self.__class__, self).__init__(name)
         self.set_type('On Hit Given Passive')
-        self.add_attr('chance', Stat('chance', chance_form, chance))
+        self.add_attr('chance', Stat('chance', chance_form, 4))
 
 
     def init_for_battle(self):
@@ -212,10 +210,10 @@ class OnHitGiven(AbstractPassive):
 
 
 class OnHitTaken(AbstractPassive):
-    def __init__(self, name, chance):
+    def __init__(self, name):
         super(self.__class__, self).__init__(name)
         self.set_type('On Hit Taken Passive')
-        self.add_attr('chance', Stat('chance', chance_form, chance))
+        self.add_attr('chance', Stat('chance', chance_form, 4))
 
 
     def init_for_battle(self):

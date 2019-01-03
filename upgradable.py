@@ -5,7 +5,7 @@ from output import Op
 """
 An AbstractUpgradable is anything that the player can change as their characters level up.
 
-TODO: make player characters, attacks, passives, and items extend this
+TODO: make player characters, passives, and items extend this
 """
 
 class AbstractUpgradable(object):
@@ -173,7 +173,7 @@ class AbstractUpgradable(object):
         serialize = self.attributes.copy()
         for t in self.track:
             serialize[t] = self.__dict__[t]
-        
+
         return json.dumps(serialize, cls=UpgradableEncoder)
 
 

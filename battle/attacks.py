@@ -37,15 +37,17 @@ class AbstractActive(AbstractUpgradable):
 
 
     @staticmethod
-    def read_json(json: dict):
+    def read_json(json: dict) -> 'AbstractActive':
         """
         Reads a JSON object as a dictionary, then converts it to an Active
         """
         #print("JSON:")
         #pprint.pprint(json)
 
+        #some way to auto-do this?
         name = json.get("name", "NAME NOT FOUND")
         type = json.get("type", "TYPE NOT FOUND")
+        custom_points = int(json.get('customization_points', 0))
 
         ret = None
         if type == "AbstractActive":
@@ -54,8 +56,10 @@ class AbstractActive(AbstractUpgradable):
             ret = MeleeAttack(name)
 
         for k, v in json.items():
-            if k not in ["name", "type"]:
+            if k not in ['name', 'type', 'customization_points']:
                 ret.set_base(k, int(v))
+
+        ret.customization_points = custom_points
 
         return ret
 
