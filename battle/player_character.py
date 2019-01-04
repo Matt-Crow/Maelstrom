@@ -1,4 +1,4 @@
-from characters import AbstractCharacter
+from character import AbstractCharacter
 from utilities import contains, ignore_text, choose, STATS
 from passives import AbstractPassive
 from attacks import AbstractActive
@@ -54,28 +54,21 @@ class PlayerCharacter(AbstractCharacter):
         """
         self.XP = 0
         self.level += 1
-        for type in self.custom_points.keys():
-            self.custom_points[type] += 1
-        self.calc_stats()
-        self.HP_rem = self.get_stat("HP")
+        self.customization_points += 1
+        for active in self.attacks:
+            active.customization_points += 1
+        for passive in self.passives:
+            passive.customization_points += 1
+        for item in self.equipped_items:
+            item.customization_points += 1
+
+        self.calc_all()
+        self.HP_rem = self.max_hp
         self.display_data()
 
     """
     Character management
     """
-
-    def modify_stats(self):
-        for stat in self.stats:
-            stat.reset_boosts()
-        self.calc_stats()
-        self.display_mutable_stats()
-
-        self.get_stat_data(choose("Which stat do you want to increase by 5%?", STATS)).base_value += 1
-        self.get_stat_data(choose("Which stat do you want to decrease by 5%?", STATS)).base_value -= 1
-
-        self.calc_stats()
-        self.display_mutable_stats()
-        self.custom_points["stat"] -= 1
 
     def choose_items(self):
         self.display_items()
@@ -102,26 +95,6 @@ class PlayerCharacter(AbstractCharacter):
                 items = self.team.get_available_items()
 
             self.display_items()
-
-    def choose_passive_to_customize(self):
-        for passive in self.passives:
-            passive.display_data()
-        choose("Which passive do you want to modify?", self.passives).customize()
-        self.custom_points["passive"] -= 1
-
-    def choose_attack_to_customize(self):
-        for attack in self.attacks:
-            attack.display_data()
-        choose("Which attack do you want to modify?", self.attacks).customize()
-        self.custom_points["attack"] -= 1
-
-    def choose_item_to_customize(self):
-        for item in self.team.inventory:
-            Op.add(item.get_data())
-        Op.display()
-        choose("Which item do you want to modify?", self.team.inventory).generate_random_enh()
-        self.custom_points["item"] -= 1
-
 
     def manage(self):
         """
@@ -154,10 +127,6 @@ class PlayerCharacter(AbstractCharacter):
         if len(self.team.inventory) > 0:
             options.append("Equipped items")
 
-        for type, points in self.custom_points.items():
-            if points > 0:
-                options.append(type)
-
         options.reverse()
 
         choice = choose("What do you want to modify?", options)
@@ -165,17 +134,6 @@ class PlayerCharacter(AbstractCharacter):
         if choice == "Equipped items":
             self.choose_items()
 
-        elif choice == "passive":
-            self.choose_passive_to_customize()
-
-        elif choice == "attack":
-            self.choose_attack_to_customize()
-
-        elif choice == "stat":
-            self.modify_stats()
-
-        elif choice == "item":
-            self.choose_item_to_customize()
 
     def generate_stat_code(self):
         """

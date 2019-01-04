@@ -47,12 +47,15 @@ class AbstractUpgradable(object):
         """
         self.user = user
 
+
     def calc_all(self):
         """
         Calculates all this' stats
         """
         for stat in self.attributes.values():
+            stat.reset_boosts()
             stat.calc()
+
 
     def add_attr(self, attr_id: str, value: Stat):
         """
@@ -97,10 +100,10 @@ class AbstractUpgradable(object):
         """
         ret = [self.type + " " + self.name + ":"]
         for k, v in self.attributes.items():
-            ret.append('\t' + k + ": " + v)
+            ret.append('\t' + k + ": " + str(v.get()))
 
         for t in self.track:
-            ret.append('\t' + t + ': ' + self.__dict__[t])
+            ret.append('\t' + t + ': ' + str(self.__dict__[t]))
         return ret
 
 
@@ -182,6 +185,8 @@ class UpgradableEncoder(json.JSONEncoder):
         ret = None
         if isinstance(obj, Stat):
             ret = obj.get_base()
+        elif isinstance(obj, AbstractUpgradable):
+            ret = obj.get_as_json()
         else:
             ret = json.JSONEncoder.default(self, obj)
         return ret

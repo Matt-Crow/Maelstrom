@@ -1,6 +1,6 @@
-from stat_classes import *
+from stat_classes import Stat, Boost
 import pprint
-
+from utilities import STATS, ELEMENTS, get_hit_perc, roll_perc, Dp
 from upgradable import AbstractUpgradable
 from output import Op
 
@@ -202,6 +202,18 @@ class AbstractActive(AbstractUpgradable):
         })
 
         return [slash, jab, slam]
+
+
+    @staticmethod
+    def get_default_bolt(element: str) -> 'AbstractActive':
+        """
+        Returns the default 'elemental' active each character gets
+        """
+        return AbstractActive.read_json({
+            'name' : element + ' bolt',
+            'type' : 'AbstractActive',
+            'damage multiplier' : 17
+        })
 
 
 class MeleeAttack(AbstractActive):

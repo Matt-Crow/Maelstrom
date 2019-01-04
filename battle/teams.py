@@ -1,7 +1,7 @@
-from utilities import Dp, choose
-from characters import *
+from utilities import Dp, choose, to_list
 from output import Op
 from player_character import PlayerCharacter
+from enemy_character import EnemyCharacter
 
 """
 Teams
@@ -83,7 +83,7 @@ class AbstractTeam(object):
         for member in self.members_rem:
             Op.add("* " + member.name + " " + str(int(member.HP_rem)) + "/" + str(int(member.max_hp)))
         Op.add("Currently active: " + self.active.name)
-        self.active.display_mutable_stats()
+        Op.add(self.active.get_data())
         Op.add(self.active.name + "'s Energy: " + str(self.active.energy))
         Op.add("Active enemy: " + self.enemy.active.name + " " + str(int(self.enemy.active.HP_rem)) + "/" + str(int(self.enemy.active.max_hp)))
         Op.display()

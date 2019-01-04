@@ -1,66 +1,46 @@
 from utilities import ELEMENTS, STATS
-from enemies import *
-from stat_classes import *
-from attacks import *
-from passives import *
-from item import *
+from stat_classes import Stat
+from attacks import AbstractActive
+from passives import AbstractPassive
+from item import Item, ItemSet
 from events import *
-
+from upgradable import AbstractUpgradable
 from output import Op
 
 """
 Characters
 """
-class AbstractCharacter(object):
+class AbstractCharacter(AbstractUpgradable):
     """
     A Class containing all the info for a character
     """
 
-    @staticmethod
-    def mult_red_stat(base: int) -> float:
-        """
-        passed in as the formula for multiplication and reduction stats
-        """
-        return (0.5 + 0.05 * base)
-
-    @staticmethod
-    def battle_stat(base: int) -> float:
-        """
-        passed in as the formula for battle stats
-        (damage reduction, multiplication, etc)
-        """
-        return 10.0 + float(base)
 
     """
     Initializers:
     Used to 'build' the characters
     """
-
     def __init__(self, name, data, level):
         """
         """
-        self.name = name
+        super(AbstractCharacter, self).__init__(name)
         self.max_hp = 100
 
         self.stats = []
         self.set_stat_bases(data[0])
 
-        self.stats.append(Stat("Physical damage multiplier", AbstractCharacter.mult_red_stat, 10))
-
-        self.stats.append(Stat("Physical damage reduction", AbstractCharacter.mult_red_stat, 10))
 
         for element in ELEMENTS:
-            self.stats.append(Stat(element + " damage multiplier", AbstractCharacter.mult_red_stat, 10))
-            self.stats.append(Stat(element + " damage reduction", AbstractCharacter.mult_red_stat, 10))
+            self.add_attr(element + " damage multiplier", Stat(element + " damage multiplier", mult_red_stat, 10))
+            self.add_attr(element + " damage reduction", Stat(element + " damage reduction", mult_red_stat, 10))
 
         self.element = data[1]
         self.level = level
         self.XP = 0
 
-        self.attacks = [AbstractActive(self.element + " bolt", 25)]
+        self.attacks = [AbstractActive.get_default_bolt(self.element)]
         self.passives = []
 
-        self.attacks[0].set_base("damage multiplier", 17)
         self.add_default_actives()
         self.set_passives_to_defaults()
         for attack in self.attacks:
@@ -68,6 +48,10 @@ class AbstractCharacter(object):
         self.equipped_items = []
 
         self.equip_default_items()
+
+        self.track_attr('attacks')
+        self.track_attr('passives')
+        self.track_attr('equipped_items')
 
 
     def set_stat_bases(self, bases):
@@ -77,20 +61,9 @@ class AbstractCharacter(object):
         # we'll go through 5 stats
         stat_num = 0
         while stat_num < 5:
-            val = Stat(STATS[stat_num], AbstractCharacter.battle_stat, bases[stat_num])
-            # check all of my existing stats...
-            found = False
-            search_num = 0
-            while search_num < len(self.stats) and not found:
-                # to see if the stat I'm asigning already exists
-                if self.stats[search_num].name == STATS[stat_num]:
-                    found = True
-                    self.stats[search_num] = val
-                search_num += 1
-            if not found:
-                self.stats.append(val)
+            self.add_attr(STATS[stat_num], Stat(STATS[stat_num], battle_stat, bases[stat_num]))
             stat_num += 1
-        self.stat_bases = bases
+
 
     #temporary
     def add_default_actives(self):
@@ -114,15 +87,6 @@ class AbstractCharacter(object):
             item.calc_all()
 
 
-    def calc_stats(self):
-        """
-        Calculate a character's stats
-
-        note that the user's level does not effect this
-        """
-        for stat in self.stats:
-            stat.calc()
-
     # HP defined here
     def init_for_battle(self):
         """
@@ -130,18 +94,24 @@ class AbstractCharacter(object):
         """
         self.reset_action_registers()
 
-        for stat in self.stats:
-            stat.reset_boosts()
+        self.calc_all()
+
         for attack in self.attacks:
             attack.set_user(self)
             attack.init_for_battle()
+
         for passive in self.passives:
+            passive.set_user(self)
             passive.init_for_battle()
 
+        for item in self.equipped_items:
+            item.set_user(self)
+            item.apply_boosts()
+
+        # this part down here checks if we should get the 3-piece set bonus from our items
         check_set = None
         set_total = 0
         for item in self.equipped_items:
-            item.apply_boosts()
             if item.set_name != None:
                 if check_set == None:
                     check_set = item.set_name
@@ -150,7 +120,6 @@ class AbstractCharacter(object):
             if set_total == 3:
                 ItemSet.get_set_bonus(check_set).f(self)
 
-        self.calc_stats()
         self.HP_rem = self.max_hp
         self.energy = int(self.get_stat("energy") / 2.0)
 
@@ -214,51 +183,12 @@ class AbstractCharacter(object):
         """
         return int((float(self.HP_rem) / float(self.max_hp) * 100.0))
 
-    def get_stat(self, name):
-        """
-        Returns the calculated
-        value of a given stat.
-        If it is not found,
-        notify Dp, and return -1
-        """
-        ret = -1
-        for stat in self.stats:
-            if stat.name.upper() == name.upper():
-                ret = stat.get()
-
-        if ret == -1:
-            Dp.add("Stat not found: " + name)
-            Dp.dp()
-
-        return ret
-
-    def get_stat_data(self, name):
-        """
-        Returns the stat object which
-        matches name
-        """
-        def err_form(base: int):
-            """
-            Error stat calculator
-            """
-            return 0
-
-        ret = Stat("ERROR", err_form, 0)
-        for stat in self.stats:
-            if stat.name.upper() == name.upper():
-                ret = stat
-
-        if ret.name == "ERROR":
-            Dp.add("Stat not found: " + name)
-            Dp.dp()
-
-        return ret
 
     def display_data(self):
         """
         Print info on a character
         """
-        self.calc_stats()
+        self.calc_all()
         Op.add("Lv. " + str(self.level) + " " + self.name)
         Op.add(self.element)
 
@@ -281,23 +211,13 @@ class AbstractCharacter(object):
         Op.add(str(self.XP) + "/" + str(self.level * 10))
         Op.display()
 
+
     def get_short_desc(self):
         """
         returns a short description of the character
         """
         return self.name + " Lv " + str(self.level) + " " + self.element
 
-    def __str__(self):
-        return self.name
-
-    def display_mutable_stats(self):
-        for stat_name in STATS:
-            Op.add(stat_name + ": " + str(int(self.get_stat(stat_name))))
-        #Op.display()
-
-    def display_items(self):
-        for item in self.equipped_items:
-            item.display_data()
 
     """
     Battle functions:
@@ -311,17 +231,8 @@ class AbstractCharacter(object):
         20 translates to 20%
         """
         mult = 1 + self.get_stat("potency") / 100
+        self.attributes[boost.stat_name].boost(boost)
 
-        found = False
-        statNum = 0
-        while statNum < len(self.stats) and not found:
-            if self.stats[statNum].name == boost.stat_name:
-                found = True
-                self.stats[statNum].boost(boost)
-            statNum += 1
-        if not found:
-            Dp.add("STAT NOT FOUND: " + name)
-            Dp.dp()
 
     def heal(self, percent):
         """
@@ -418,74 +329,30 @@ class AbstractCharacter(object):
 
         self.direct_dmg(dmg)
 
+
     def check_if_KOed(self):
         """
         Am I dead yet?
         """
         return self.HP_rem <= 0
 
-class EnemyCharacter(AbstractCharacter):
-    def __init__(self, name, level):
-        super(self.__class__, self).__init__(name, enemies[name], level)
 
+"""
+Stat formulae,
+used to calculate stat values
+"""
+
+
+def mult_red_stat(base: int) -> float:
     """
-    AI stuff
+    passed in as the formula for multiplication and reduction stats
     """
-    def best_attack(self):
-        best = self.attacks[0]
-        highest_dmg = 0
-        Dp.add("----------")
-        for attack in self.attacks:
-            if attack.can_use():
-                dmg = self.team.enemy.active.calc_DMG(self, attack)
-                if dmg > highest_dmg:
-                    best = attack
-                    highest_dmg = dmg
-                Dp.add("Damge with " + attack.name + ": " + str(dmg))
-        Dp.add("----------")
-        Dp.dp()
-        return best
+    return (0.5 + 0.05 * base)
 
-    def what_attack(self):
-        """
-        Used to help the AI
-        choose what attack
-        to use
-        """
-        if self.team.switched_in:
-            sw = 0.75
-        else:
-            sw = 1.0
 
-        """
-        Can you get multiple KOes?
-        """
-        """
-        for attack in self.attacks:
-            if not attack.can_use(self) or not type(attack) == type(AllAttack("test", 0)):
-                continue
-            koes = 0
-            for member in self.team.enemy.members_rem:
-                if member.calc_DMG(self, attack) * sw >= member.HP_rem:
-                    koes += 1
-            if koes >= 2:
-                return attack
-        """
-        """
-        Can you get a KO?
-        """
-        can_ko = []
-        for attack in self.attacks:
-            if attack.can_use():
-                if self.team.enemy.active.calc_DMG(self, attack) * sw >= self.team.enemy.active.HP_rem:
-                    can_ko.append(attack)
-
-        if len(can_ko) == 1:
-            return can_ko[0]
-        """
-        If you cannot KO...
-        """
-        return self.best_attack()
-
-    def choose_attack(self):
-        self.what_attack().use()
+def battle_stat(base: int) -> float:
+    """
+    passed in as the formula for battle stats
+    (damage reduction, multiplication, etc)
+    """
+    return 10.0 + float(base)
