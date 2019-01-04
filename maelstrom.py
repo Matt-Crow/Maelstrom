@@ -57,13 +57,13 @@ from file import *
 from area import Area
 from location import Location
 from game import Game
-
+from character import AbstractCharacter
 from item import t1
 
 import json
 import pprint
 
-c1 = Battle("Stone Rising", ("stone soldier"), 1)
+c1 = Battle("Stone Rising", ["stone soldier"], 1)
 caves = Location("Ancient library caverns")
 lib_cav = Area("Ancient caverns", caves, c1)
 
@@ -75,6 +75,7 @@ if __name__ == "__main__":
     player = PlayerTeam("Player team", {"name": "Alexandre", "data": ((10, 10, 10, 10, 10), "lightning"), "level": 1})
     #player.team[0].read_save_code(data.raw_data)
     #lib_cav.trav_or_play(player)
-    
+    player.team[0].add_default_actives()
     pprint.pprint(json.loads(player.team[0].get_as_json()))
+    print(AbstractCharacter.read_json(json.loads(player.team[0].get_as_json())))
     #data.save_data_from(player.team[0])

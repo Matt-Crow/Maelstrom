@@ -1,7 +1,6 @@
 from utilities import Dp, choose, to_list
 from output import Op
-from player_character import PlayerCharacter
-from enemy_character import EnemyCharacter
+from character import PlayerCharacter, EnemyCharacter
 
 """
 Teams
@@ -104,7 +103,7 @@ class PlayerTeam(AbstractTeam):
     def __init__(self, name, member):
         self.team = []
         self.name = name
-        self.team.append(PlayerCharacter(member["name"], member["data"], member["level"]))
+        self.team.append(PlayerCharacter(member["name"]))
         self.inventory = []
         for member in self.team:
             member.team = self
@@ -180,7 +179,7 @@ class EnemyTeam(AbstractTeam):
 
         members = to_list(members)
         for new_member in members:
-            self.team.append(EnemyCharacter(new_member, level))
+            self.team.append(EnemyCharacter(new_member))
         for member in self.team:
             member.team = self
 
