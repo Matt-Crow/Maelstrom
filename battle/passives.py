@@ -41,7 +41,7 @@ class AbstractPassive(AbstractUpgradable):
         name = json.get("name", "NAME NOT FOUND")
         ptype = json.get("type", "TYPE NOT FOUND")
         custom_points = int(json.get('customization_points', 0))
-        targ = True if json.get('targets_user', 'True').upper() == 'TRUE' else False
+        targ = json.get('targets_user', True)
 
         ret = None
 

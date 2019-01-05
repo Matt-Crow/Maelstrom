@@ -7,7 +7,8 @@ from events import *
 from upgradable import AbstractUpgradable
 from output import Op
 from enemies import enemies
-
+import json
+import pprint
 
 """
 Characters.
@@ -44,16 +45,9 @@ class AbstractCharacter(AbstractUpgradable):
         self.level = 1
         self.XP = 0
 
-        self.attacks = [AbstractActive.get_default_bolt(self.element)]
+        self.attacks = []
         self.passives = []
-
-        #self.add_default_actives()
-        self.set_passives_to_defaults()
-        for attack in self.attacks:
-            attack.set_user(self)
         self.equipped_items = []
-
-        self.equip_default_items()
 
         self.track_attr('element')
         self.track_attr('XP')
@@ -64,16 +58,16 @@ class AbstractCharacter(AbstractUpgradable):
 
 
     @staticmethod
-    def read_json(json: dict) -> 'AbstractCharacter':
+    def read_json(jdict: dict) -> 'AbstractCharacter':
         """
         Reads a JSON object as a dictionary, then converts it to an AbstractCharacter
         """
-        name = json.get('name', 'NAME NOT FOUND')
-        custom_points = int(json.get('customization_points', 0))
-        rtype = json.get('type', 'TYPE NOT FOUND')
-        element = json.get('element', 'ELEMENT NOT FOUND')
-        level = int(json.get('level', 1))
-        xp = int(json.get('XP', 0))
+        name = jdict.get('name', 'NAME NOT FOUND')
+        custom_points = int(jdict.get('customization_points', 0))
+        rtype = jdict.get('type', 'TYPE NOT FOUND')
+        element = jdict.get('element', 'ELEMENT NOT FOUND')
+        level = int(jdict.get('level', 1))
+        xp = int(jdict.get('XP', 0))
 
         ret = None
 
@@ -89,13 +83,18 @@ class AbstractCharacter(AbstractUpgradable):
         ret.level = level
         ret.XP = xp
 
-        for k, v in json.items():
+        for k, v in jdict.items():
             if k not in ret.track and type(v) not in (type([]), type({})):
                 ret.set_base(k, int(v))
 
-        for active in json.get('attacks', []):
-            print(active)
-            ret.add_active(AbstractActive.read_json(active))
+        for active in jdict.get('attacks', []):
+            #for some reason, I have to reconver to a dictionary,
+            #because active is a string
+            ret.add_active(AbstractActive.read_json(json.loads(active)))
+        for passive in jdict.get('passives', []):
+            ret.add_passive(AbstractPassive.read_json(json.loads(passive)))
+        for item in jdict.get('equipped_items', []):
+            ret.equip_item(Item.read_json(json.loads(item)))
 
         return ret
 
@@ -111,24 +110,37 @@ class AbstractCharacter(AbstractUpgradable):
 
     #temporary
     def add_default_actives(self):
+        self.add_active(AbstractActive.get_default_bolt(self.element))
         for active in AbstractActive.get_defaults():
-            self.attacks.append(active)
-            active.set_user(self)
-            active.calc_all()
+            self.add_active(active)
+
+
+    def add_passive(self, passive: 'AbstractPassive'):
+        """
+        """
+        self.passives.append(passive)
+        passive.set_user(self)
+        passive.calc_all()
+
 
     #temporary
-    def set_passives_to_defaults(self):
+    def add_default_passives(self):
         for passive in AbstractPassive.get_defaults():
-            self.passives.append(passive)
-            passive.set_user(self)
-            passive.calc_all()
+            self.add_passive(passive)
+
+
+    def equip_item(self, item: 'Item'):
+        """
+        """
+        self.equipped_items.append(item)
+        item.set_user(self)
+        item.equip(self)
+        item.calc_all()
+
 
     def equip_default_items(self):
         for item in Item.get_defaults():
-            self.equipped_items.append(item)
-            item.set_user(self)
-            item.equip(self)
-            item.calc_all()
+            self.equip_item(item)
 
 
     # HP defined here
