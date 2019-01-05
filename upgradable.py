@@ -168,16 +168,16 @@ class AbstractUpgradable(object):
     def __str__(self) -> str:
         return self.name
 
-    def get_as_json(self) -> str:
+    def get_as_json(self) -> dict:
         """
-        returns a JSON representation of this object,
+        returns a JSON representation of this object as a dictionary,
         which can be used to reconstuct this object.
         """
         serialize = self.attributes.copy()
         for t in self.track:
             serialize[t] = self.__dict__[t]
 
-        return json.dumps(serialize, cls=UpgradableEncoder)
+        return json.loads(json.dumps(serialize, cls=UpgradableEncoder))
 
 
 class UpgradableEncoder(json.JSONEncoder):

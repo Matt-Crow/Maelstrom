@@ -168,9 +168,8 @@ class PlayerTeam(AbstractTeam):
         if choose is not "Exit":
             managing.manage()
 
-    def customize(self):
-        self.team[0].display_data()
-        self.team[0].customize()
+
+
 
 class EnemyTeam(AbstractTeam):
     def __init__(self, members, level):

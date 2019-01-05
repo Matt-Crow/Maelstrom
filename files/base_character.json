@@ -1,7 +1,7 @@
 {
-  'XP': 0,
-  'attacks': [
-    '{
+  "XP": 0,
+  "attacks": [
+    {
       "damage multiplier": 17,
       "lightning damage weight": 10,
       "rain damage weight": 10,
@@ -12,11 +12,11 @@
       "crit chance": 10,
       "miss mult": 10,
       "crit mult": 10,
-      "name": "lightning bolt",
+      "name": "NO ELEMENT bolt",
       "type": "AbstractActive",
       "customization_points": 0
-      }',
-     '{
+      },
+     {
        "damage multiplier": 10,
        "lightning damage weight": 10,
        "rain damage weight": 10,
@@ -30,8 +30,8 @@
        "name": "Slash",
        "type": "MeleeAttack",
        "customization_points": 5
-      }',
-      '{
+      },
+      {
         "damage multiplier": 5,
         "lightning damage weight": 10,
         "rain damage weight": 10,
@@ -45,8 +45,8 @@
         "name": "Jab",
         "type": "MeleeAttack",
         "customization_points": 0
-       }',
-       '{
+       },
+       {
           "damage multiplier": 15,
           "lightning damage weight": 10,
           "rain damage weight": 10,
@@ -60,14 +60,14 @@
           "name": "Slam",
           "type": "MeleeAttack",
           "customization_points": 0
-         }'
+         }
     ],
-    'control': 10,
-    'customization_points': 5,
-    'element': 'lightning',
-    'energy': 10,
-    'equipped_items': [
-      '{
+    "control": 10,
+    "customization_points": 5,
+    "element": "NO ELEMENT",
+    "energy": 10,
+    "equipped_items": [
+      {
         "boost": 20,
         "name": "Item 1",
         "type": "Item",
@@ -76,17 +76,17 @@
         "desc": "test item 1",
         "set_name": "Test item set",
         "boosted_stat": "luck"
-       }'
+       }
     ],
-    'hail damage multiplier': 10,
-    'hail damage reduction': 10,
-    'level': 1,
-    'lightning damage multiplier': 10,
-    'lightning damage reduction': 10,
-    'luck': 10,
-    'name': 'Alexandre',
-    'passives': [
-      '{
+    "hail damage multiplier": 10,
+    "hail damage reduction": 10,
+    "level": 1,
+    "lightning damage multiplier": 10,
+    "lightning damage reduction": 10,
+    "luck": 10,
+    "name": "NO NAME",
+    "passives": [
+      {
         "status level": 20,
         "status duration": 5,
         "threshhold": 10,
@@ -95,8 +95,8 @@
         "customization_points": 0,
         "targets_user": "True",
         "boosted_stat": "resistance"
-       }',
-       '{
+       },
+       {
          "status level": 4,
          "status duration": 20,
          "chance": 10,
@@ -105,8 +105,8 @@
          "customization_points": 0,
          "targets_user": "True",
          "boosted_stat": "luck"
-       }',
-       '{
+       },
+       {
          "status level": 4,
          "status duration": 5,
          "chance": 10,
@@ -115,13 +115,13 @@
          "customization_points": 0,
          "targets_user": "False",
          "boosted_stat": "control"
-       }'
+       }
      ],
-     'potency': 10,
-     'rain damage multiplier': 10,
-     'rain damage reduction': 10,
-     'resistance': 10,
-     'type': 'PlayerCharacter',
-     'wind damage multiplier': 10,
-     'wind damage reduction': 10
+     "potency": 10,
+     "rain damage multiplier": 10,
+     "rain damage reduction": 10,
+     "resistance": 10,
+     "type": "PlayerCharacter",
+     "wind damage multiplier": 10,
+     "wind damage reduction": 10
    }

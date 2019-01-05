@@ -27,7 +27,7 @@ class Op:
         """
         Op.indentation_level -= lv
 
-    
+
     @staticmethod
     def set_indentation(lv):
         Op.indentation_level = lv
@@ -56,9 +56,9 @@ class Op:
     def display():
         try:
             works = subprocess.call("cls", shell=True)
-            print(works)
+            #print(works)
             if works != 0: #is false, didn't run
-                subprocess.call("clear", shell=True)
+                works = subprocess.call("clear", shell=True)
         except:
             print("no work in output.py display method!")
         print(Op.border_pattern * 10)

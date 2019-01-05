@@ -32,14 +32,11 @@ class Area:
     def trav_or_play(self, player):
         Op.add(self.get_data())
         Op.display()
-        choice = choose("What do you wish to do?", ("Location", "Level", "Customize", "Manage", "Quit"))
+        choice = choose("What do you wish to do?", ("Location", "Level", "Manage", "Quit"))
         if choice == "Level":
             level_to_play = choose("Which level do you want to play?", self.levels)
             level_to_play.load_team(player)
             level_to_play.play()
-
-        elif choice == "Customize":
-            player.customize()
         elif choice == "Manage":
             player.manage()
         elif choice == "Location":
