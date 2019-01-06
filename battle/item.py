@@ -53,7 +53,7 @@ class Item(AbstractUpgradable):
         self.set_name = None
         self.equipped = False
 
-        self.add_attr('boost', Stat('boost', boost_form, 10))
+        self.add_attr('boost', Stat('boost', boost_form, 0))
         self.track_attr('item_type')
         self.track_attr('desc')
         self.track_attr('set_name')
@@ -141,7 +141,7 @@ class Item(AbstractUpgradable):
         """
         i1 = Item.read_json({
         'name' : 'Item 1',
-        'boost' : 20,
+        'boost' : 10,
         'boosted_stat' : 'luck',
         'item_type' : 'TEST',
         'desc' : 'test item 1',
@@ -166,7 +166,7 @@ def boost_form(base: int) -> float:
     """
     Calculate how much the should boost a stat by
     """
-    return 0.025 * base
+    return 0.1 + 0.025 * base
 
 
 t1 = Item("Testitem 1")

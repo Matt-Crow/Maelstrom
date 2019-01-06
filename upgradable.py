@@ -20,7 +20,7 @@ class AbstractUpgradable(object):
 
         self.attributes = {} #what can be customized
         # str : Stat
-        self.customization_points = 5 #need to save to JSON. Currently is test value
+        self.customization_points = 0
 
         self.user = None
         self.type = "AbstractUpgradable" # used when decoding JSON

@@ -19,17 +19,17 @@ class AbstractActive(AbstractUpgradable):
         """
         super(AbstractActive, self).__init__(name)
         self.set_type("AbstractActive")
-        self.add_attr("damage multiplier", Stat("damage multiplier", mult_f, 10))
+        self.add_attr("damage multiplier", Stat("damage multiplier", mult_f, 0))
 
         for element in ELEMENTS:
-            self.add_attr(element + " damage weight", Stat(element + " damage weight", dmg_weight, 10))
+            self.add_attr(element + " damage weight", Stat(element + " damage weight", dmg_weight, 0))
 
-        self.add_attr("cleave", Stat("cleave", cleave_form, 0)) #default to no cleave
+        self.add_attr("cleave", Stat("cleave", cleave_form, 0))
 
-        self.add_attr("miss chance", Stat("miss chance", miss_form, 10))
-        self.add_attr("crit chance", Stat("crit chance", crit_form, 10))
-        self.add_attr("miss mult", Stat("miss mult", miss_mult_form, 10))
-        self.add_attr("crit mult", Stat("crit mult", crit_mult_form, 10))
+        self.add_attr("miss chance", Stat("miss chance", miss_form, 0))
+        self.add_attr("crit chance", Stat("crit chance", crit_form, 0))
+        self.add_attr("miss mult", Stat("miss mult", miss_mult_form, 0))
+        self.add_attr("crit mult", Stat("crit mult", crit_mult_form, 0))
         self.energy_cost = energy_cost
 
         self.side_effects = []
@@ -183,22 +183,19 @@ class AbstractActive(AbstractUpgradable):
         TODO: make this read from a file
         """
         slash = MeleeAttack("Slash")
-        slash.set_cleave(10)
         jab = AbstractActive.read_json({
             "name" : "Jab",
             "type" : "MeleeAttack",
-            "damage multiplier" : 5,
-            "miss chance" : 5,
-            "crit chance" : 15,
-            "miss mult" : 5,
-            "crit mult" : 15
+            "miss chance" : -5,
+            "crit chance" : 5,
+            "miss mult" : -5,
+            "crit mult" : 5
         })
         slam = AbstractActive.read_json({
             "name" : "Slam",
             "type" : "MeleeAttack",
-            "damage multiplier" : 15,
-            "miss chance" : 15,
-            "crit chance" : 5
+            "damage multiplier" : 5,
+            "miss chance" : -5
         })
 
         return [slash, jab, slam]
@@ -212,7 +209,9 @@ class AbstractActive(AbstractUpgradable):
         return AbstractActive.read_json({
             'name' : element + ' bolt',
             'type' : 'AbstractActive',
-            'damage multiplier' : 17
+            'cleave' : -5,
+            'crit chance' : -2,
+            'damage multiplier' : 7
         })
 
 
@@ -227,13 +226,9 @@ def mult_f(base: int) -> float:
     """
     The formula used to calculate damage multipliers
 
-    Min : 0  : 1.0
-    Mid : 10 : 1.25
-    Max : 20 : 1.5
-
     will balance later
     """
-    return 1.0 + base * 0.025
+    return 1.0 + base * 0.05
 
 
 def dmg_weight(base: int) -> float:
@@ -247,7 +242,7 @@ def dmg_weight(base: int) -> float:
     But, if their were 4 elements, weighted at 10, 10, 10, and 20; 20% of the total damage would go to each of the first 3,
     and the remaining 40% would go to the last
     """
-    return base #very simple
+    return 11 + base #minimum that doesn't have divide by zero
 
 
 def cleave_form(base: int) -> float:
@@ -259,32 +254,32 @@ def cleave_form(base: int) -> float:
 
     Note that this does not decrease the damage of the initial hit
     """
-    return base * 0.05
+    return 0.25 + base * 0.05
 
 
-def crit_form(base: int) -> float:
+def crit_form(base: int) -> int:
     """
     Used to calculate the chance of a critical hit based on the given base
     """
-    return 2 * base
+    return 10 + base
 
 
-def miss_form(base: int) -> float:
+def miss_form(base: int) -> int:
     """
     Used to calculate the chance of a miss based on the given base
     """
-    return 40 - 2 * base
+    return 10 - base
 
 
 def crit_mult_form(base: int) -> float:
     """
     Used to calculate the multiplier for critical hits
     """
-    return 1.0 + 0.05 * base
+    return 1.5 + 0.05 * base
 
 
 def miss_mult_form(base: int) -> float:
     """
     Used to calculate the multiplier for misses
     """
-    return 0.5 + 0.025 * base
+    return 0.5 + 0.05 * base

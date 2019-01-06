@@ -1,7 +1,6 @@
 enemies = dict()
 elemental_enemies = ("Lightning Entity", "Rain Entity", "Hail Entity", "Wind Entity")
 
-enemies["MAX"] = ((20, 20, 20, 20, 20), "stone")
 enemies["MIN"] = ((0, 0, 0, 0, 0), "stone")
 
 enemies["Lightning Entity"] = ((0, 15, 15, 10, 10), "lightning")

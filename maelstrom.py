@@ -50,6 +50,7 @@ from util.path import add_subdir
 add_subdir("battle")
 add_subdir("util")
 add_subdir("story")
+add_subdir('management')
 
 from battle import Battle
 from teams import PlayerTeam
@@ -60,7 +61,7 @@ from game import Game
 from character import AbstractCharacter
 from attacks import AbstractActive
 from item import t1
-
+from load_characters import save_base, generate_enemies
 import json
 import pprint
 
@@ -76,16 +77,21 @@ if __name__ == "__main__":
     player = PlayerTeam("Player team", {"name": "Alexandre", "data": ((10, 10, 10, 10, 10), "lightning"), "level": 1})
     #player.team[0].read_save_code(data.raw_data)
 
+    with open('files/base_character.json', 'rt') as file:
+        AbstractCharacter.read_json(json.loads(file.read())).display_data()
+
     player.team[0].element = 'lightning'
     player.team[0].add_default_actives()
     player.team[0].add_default_passives()
     player.team[0].equip_default_items()
-    lib_cav.trav_or_play(player)
-    
-    #pprint.pprint(player.team[0].get_as_json())
-    #with open('files/test.json', 'wt') as file:
-        #file.write(json.dumps(player.team[0].get_as_json()))
+    #lib_cav.trav_or_play(player)
+    #save_base()
+    generate_enemies()
+    AbstractCharacter.read_default_player().display_data()
 
-    #with open('files/base_character.json', 'rt') as file:
-        #AbstractCharacter.read_json(json.loads(file.read())).display_data()
+    #pprint.pprint(player.team[0].get_as_json())
+    with open('files/enemy_characters/MAX.json', 'rt') as file:
+        AbstractCharacter.read_json(json.loads(file.read())).display_data()
+
+
     #data.save_data_from(player.team[0])

@@ -7,7 +7,7 @@ from events import *
 from upgradable import AbstractUpgradable
 from output import Op
 from enemies import enemies
-
+import json
 
 """
 Characters.
@@ -34,11 +34,11 @@ class AbstractCharacter(AbstractUpgradable):
         self.max_hp = 100
 
         for stat in STATS:
-            self.add_attr(stat, Stat(stat, battle_stat, 10))
+            self.add_attr(stat, Stat(stat, battle_stat, 0))
 
         for element in ELEMENTS:
-            self.add_attr(element + " damage multiplier", Stat(element + " damage multiplier", mult_red_stat, 10))
-            self.add_attr(element + " damage reduction", Stat(element + " damage reduction", mult_red_stat, 10))
+            self.add_attr(element + " damage multiplier", Stat(element + " damage multiplier", mult_red_stat, 0))
+            self.add_attr(element + " damage reduction", Stat(element + " damage reduction", mult_red_stat, 0))
 
         self.element = 'NO ELEMENT'
         self.level = 1
@@ -95,6 +95,30 @@ class AbstractCharacter(AbstractUpgradable):
         for item in jdict.get('equipped_items', []):
             ret.equip_item(Item.read_json(item))
 
+        return ret
+
+
+    @staticmethod
+    def read_default_player() -> 'AbstractCharacter':
+        """
+        reads the data from files/base_character, then converts it to a character
+        """
+        ret = AbstractCharacter.create_default_player()
+        with open('files/base_character.json') as file:
+            ret = AbstractCharacter.read_json(json.loads(file.read()))
+
+        return ret
+
+
+    @staticmethod
+    def create_default_player() -> 'AbstractCharacter':
+        """
+        Used to create a default character to use as a base for all other characters
+        """
+        ret = PlayerCharacter('NO NAME')
+        ret.add_default_actives()
+        ret.add_default_passives()
+        ret.equip_default_items()
         return ret
 
 
@@ -595,11 +619,11 @@ used to calculate stat values
 """
 
 
-def mult_red_stat(base: int) -> float:
+def mult_red_stat(base: int) -> int:
     """
     passed in as the formula for multiplication and reduction stats
     """
-    return (0.5 + 0.05 * base)
+    return (100 + 5 * base)
 
 
 def battle_stat(base: int) -> float:
@@ -607,4 +631,4 @@ def battle_stat(base: int) -> float:
     passed in as the formula for battle stats
     (damage reduction, multiplication, etc)
     """
-    return 10.0 + float(base)
+    return 20.0 + float(base)

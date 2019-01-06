@@ -12,7 +12,7 @@ class Stat(object):
     making it easier to keep
     track of values
     """
-    def __init__(self, name, formula, base: int, min_base = 0, max_base = 20):
+    def __init__(self, name, formula, base: int, min_base = -10, max_base = 10):
         """
         Creates a new stat.
         Forumula is a function that takes an integer as a parameter,

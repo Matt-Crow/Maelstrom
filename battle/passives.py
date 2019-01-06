@@ -102,9 +102,9 @@ class AbstractPassive(AbstractUpgradable):
             'name': 'Threshhold test',
             'type': 'Threshhold Passive',
             'boosted_stat' : 'resistance',
-            'threshhold' : 10,
-            'status level' : 20,
-            'status duration' : 5,
+            'threshhold' : 0,
+            'status level' : 0,
+            'status duration' : 0,
             'targets_user' : 'True'
         })
 
@@ -112,9 +112,9 @@ class AbstractPassive(AbstractUpgradable):
             'name': 'On Hit Given Test',
             'type': 'On Hit Given Passive',
             'boosted_stat' : 'luck',
-            'chance' : 10,
-            'status level' : 4,
-            'status duration' : 20,
+            'chance' : 0,
+            'status level' : 0,
+            'status duration' : 0,
             'targets_user' : 'True'
         })
 
@@ -122,9 +122,9 @@ class AbstractPassive(AbstractUpgradable):
             'name': 'On Hit Taken Test',
             'type': 'On Hit Taken Passive',
             'boosted_stat' : 'control',
-            'chance' : 10,
-            'status level' : 4,
-            'status duration' : 5,
+            'chance' : 0,
+            'status level' : 0,
+            'status duration' : 0,
             'targets_user' : 'False'
         })
 
@@ -247,14 +247,14 @@ def status_level_form(base: int) -> float:
     """
     Calculates the boost from statuses
     """
-    return 0.05 * base
+    return 0.2 + 0.025 * base
 
 
 def status_dur_form(base: int) -> int:
     """
     Calculates the number of turns a status lasts
     """
-    return 1 + int(float(base) / 5)
+    return 3 + int(float(base) / 5)
 
 
 def thresh_form(base: int) -> float:
@@ -262,7 +262,7 @@ def thresh_form(base: int) -> float:
     Calculates the HP threshhold that a passive
     should activate under (as a percentage)
     """
-    return base * 0.05
+    return 0.2 + base * 0.025
 
 
 def chance_form(base: int) -> int:
@@ -270,4 +270,4 @@ def chance_form(base: int) -> int:
     Calculates what the activation chance for this should be,
     from 0 to 100
     """
-    return base * 5
+    return 20 + int(base * 2.5)
