@@ -5,6 +5,8 @@ from weather import Weather
 from teams import EnemyTeam
 from story import Story
 from output import Op
+from character import EnemyCharacter, ENEMY_CACHE
+import random
 
 class Battle(object):
     """
@@ -157,7 +159,10 @@ class Battle(object):
         """
         enemy_names = []
         num_enemies = random.randint(1, 4)
+        
+        EnemyCharacter.load_enemy(all=True)
+        
         for i in range(0, num_enemies):
-            pass
-            #enemy_names.append(elemental_enemies[random.randint(0, len(elemental_enemies) - 1 )])
+            enemy_names.append(random.choice(list(ENEMY_CACHE.keys())))
+        
         return Battle("Random encounter", enemy_names, 1)

@@ -9,6 +9,7 @@ from output import Op
 import json
 
 from pathlib import Path
+import os
 
 """
 Characters.
@@ -60,6 +61,13 @@ class AbstractCharacter(AbstractUpgradable):
         self.track_attr('equipped_items')
 
 
+    def copy(self) -> 'AbstractCharacter':
+        """
+        Returns a deep copy of this character
+        """
+        return AbstractCharacter.read_json(self.get_as_json())
+    
+    
     @staticmethod
     def read_json(jdict: dict) -> 'AbstractCharacter':
         """
@@ -115,7 +123,7 @@ class AbstractCharacter(AbstractUpgradable):
 
 
     @staticmethod
-    def create_default_player() -> 'AbstractCharacter':
+    def create_default_player() -> 'PlayerCharacter':
         """
         Used to create a default character to use as a base for all other characters
         """
@@ -147,7 +155,6 @@ class AbstractCharacter(AbstractUpgradable):
         active.calc_all()
 
 
-    #temporary
     def add_default_actives(self):
         self.add_active(AbstractActive.get_default_bolt(self.element))
         for active in AbstractActive.get_defaults():
@@ -162,7 +169,6 @@ class AbstractCharacter(AbstractUpgradable):
         passive.calc_all()
 
 
-    #temporary
     def add_default_passives(self):
         for passive in AbstractPassive.get_defaults():
             self.add_passive(passive)
@@ -445,6 +451,24 @@ class AbstractCharacter(AbstractUpgradable):
             Op.add('Could not find directory ' + directory)
             Op.add(str(ex))
             Op.display()
+    
+    
+    @staticmethod
+    def load_from_file(file_path: str) -> 'AbstractCharacter':
+        """
+        Reads a json file, then returns the character contained in that file
+        """
+        ret = None
+        
+        try:
+            with open(file_path, 'rt') as file:
+                ret = AbstractCharacter.read_json(json.loads(file.read()))
+        except FileNotFoundError as ex:
+            Op.add('Could not find file ' + file_path)
+            Op.add(str(ex))
+            Op.display()
+        
+        return ret
 
 
 
@@ -647,7 +671,7 @@ class EnemyCharacter(AbstractCharacter):
         
         
     @staticmethod
-    def load_enemy(name: str, force=False) -> 'EnemyCharacter':
+    def load_enemy(name=' ', force=False, all=False) -> 'EnemyCharacter':
         """
         Reads an enemy file, if it exists.
         If force is True, searches through the enemy directory for
@@ -657,8 +681,26 @@ class EnemyCharacter(AbstractCharacter):
         If force is False, will first check if the enemy has already been
         cached.
         """
-        for filename in Path(ENEMY_DIRECTORY).iterdir():
-            print(filename)
+        ret = None
+        
+        if not force and name.title in ENEMY_CACHE:
+            ret = ENEMY_CACHE[name.title]
+        else:
+            for path in Path(ENEMY_DIRECTORY).iterdir():
+                print(str(path))
+                file_name = str(path).split(os.sep)[-1]
+                print(file_name)
+                char_name = file_name.split('.')[0].replace('_', ' ').title() # get rid of file extention
+                print(char_name)
+                if all or name.title().replace('_', ' ') == char_name:
+                    ret = AbstractCharacter.load_from_file(str(path))
+                    ENEMY_CACHE[char_name] = ret
+        
+        if ret is None:
+            raise FileNotFoundError('Enemy not found in ' + ENEMY_DIRECTORY + ': ' + name + ' Did you forget to call .save() on that enemy?')
+                    
+        return ret.copy()
+
 
 
 """

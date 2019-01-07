@@ -162,13 +162,14 @@ class PlayerTeam(AbstractTeam):
 
 
 class EnemyTeam(AbstractTeam):
-    def __init__(self, members, level):
+    def __init__(self, member_names, level):
         self.team = []
         self.name = "Enemy team"
 
-        members = to_list(members)
-        for new_member in members:
-            self.team.append(EnemyCharacter(new_member))
+        member_names = to_list(member_names)
+        for name in member_names:
+            self.team.append(EnemyCharacter.load_enemy(name))
+            self.team[-1].level = level
         for member in self.team:
             member.team = self
 

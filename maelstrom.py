@@ -58,23 +58,23 @@ from file import *
 from area import Area
 from location import Location
 from game import Game
-from character import AbstractCharacter, EnemyCharacter
+from character import AbstractCharacter, EnemyCharacter, ENEMY_CACHE
 from attacks import AbstractActive
 from item import t1
 from load_characters import save_base, generate_enemies
 import json
 import pprint
 
-"""
+
 c1 = Battle("Stone Rising", ["stone soldier"], 1)
 caves = Location("Ancient library caverns")
 lib_cav = Area("Ancient caverns", caves, c1)
-"""
+
 
 if __name__ == "__main__":
 
     #Game().run()
-    """
+    
     player = PlayerTeam("Player team", {"name": "Alexandre", "data": ((10, 10, 10, 10, 10), "lightning"), "level": 1})
 
     player.team[0].element = 'lightning'
@@ -82,7 +82,7 @@ if __name__ == "__main__":
     player.team[0].add_default_passives()
     player.team[0].equip_default_items()
     lib_cav.trav_or_play(player)
-    """
     #generate_enemies()
-    EnemyCharacter.load_enemy('stone soldier')
+    #EnemyCharacter.load_enemy(all=True, force=True)
+    pprint.pprint(ENEMY_CACHE)
     
