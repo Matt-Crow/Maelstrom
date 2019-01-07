@@ -3,7 +3,6 @@ from utilities import *
 from file import File
 from weather import Weather
 from teams import EnemyTeam
-from enemies import *
 from story import Story
 from output import Op
 

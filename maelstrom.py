@@ -58,7 +58,7 @@ from file import *
 from area import Area
 from location import Location
 from game import Game
-from character import AbstractCharacter
+from character import AbstractCharacter, EnemyCharacter
 from attacks import AbstractActive
 from item import t1
 from load_characters import save_base, generate_enemies
@@ -83,4 +83,6 @@ if __name__ == "__main__":
     player.team[0].equip_default_items()
     lib_cav.trav_or_play(player)
     """
-    generate_enemies()
+    #generate_enemies()
+    EnemyCharacter.load_enemy('stone soldier')
+    

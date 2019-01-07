@@ -8,6 +8,8 @@ from upgradable import AbstractUpgradable
 from output import Op
 import json
 
+from pathlib import Path
+
 """
 Characters.
 
@@ -642,6 +644,21 @@ class EnemyCharacter(AbstractCharacter):
         Saves this enemy's data to the enemy directory
         """
         self.save_to_dir(ENEMY_DIRECTORY)
+        
+        
+    @staticmethod
+    def load_enemy(name: str, force=False) -> 'EnemyCharacter':
+        """
+        Reads an enemy file, if it exists.
+        If force is True, searches through the enemy directory for
+        that enemy's save file, then loads that enemy, caching it in the
+        enemy cache.
+        
+        If force is False, will first check if the enemy has already been
+        cached.
+        """
+        for filename in Path(ENEMY_DIRECTORY).iterdir():
+            print(filename)
 
 
 """
