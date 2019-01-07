@@ -6,7 +6,6 @@ from item import Item, ItemSet
 from events import *
 from upgradable import AbstractUpgradable
 from output import Op
-from enemies import enemies
 import json
 
 """
@@ -16,6 +15,8 @@ Have to keep all 3 classes in one file because of circular depenancy
 
 CLEAN UP THIS MESS
 """
+ENEMY_DIRECTORY = 'files/enemy_characters'
+
 class AbstractCharacter(AbstractUpgradable):
     """
     A Class containing all the info for a character
@@ -78,7 +79,7 @@ class AbstractCharacter(AbstractUpgradable):
             raise Exception('Type not found! ' + rtype)
 
         ret.customization_points = custom_points
-        ret.element = element
+        ret.set_element(element)
         ret.level = level
         ret.XP = xp
 
@@ -122,6 +123,18 @@ class AbstractCharacter(AbstractUpgradable):
         return ret
 
 
+    def set_element(self, element: str):
+        """
+        Shortens the process of setting
+        a character's element, so I don't
+        have to manually edit each active
+        """
+        for active in self.attacks:
+            if self.element in active.name:
+                active.name.replace(self.element, element)
+        self.element = element
+        
+        
     def add_active(self, active: 'AbstractActive'):
         """
 
@@ -416,7 +429,19 @@ class AbstractCharacter(AbstractUpgradable):
         return self.HP_rem <= 0
 
 
-
+    def save_to_dir(self, directory: str):
+        """
+        Save this character's data to a specified directory.
+        The name of the file will be this' name, but with spaces 
+        replaced by underscores.
+        """
+        try:
+            with open(directory + '/' + self.name.replace(' ', '_').lower() + '.json', 'wt') as file:
+                file.write(json.dumps(self.get_as_json()))
+        except FileNotFoundError as ex:
+            Op.add('Could not find directory ' + directory)
+            Op.add(str(ex))
+            Op.display()
 
 
 
@@ -611,6 +636,11 @@ class EnemyCharacter(AbstractCharacter):
         self.what_attack().use()
 
 
+    def save(self):
+        """
+        Saves this enemy's data to the enemy directory
+        """
+        self.save_to_dir(ENEMY_DIRECTORY)
 
 
 """

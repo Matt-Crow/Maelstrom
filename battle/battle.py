@@ -159,5 +159,6 @@ class Battle(object):
         enemy_names = []
         num_enemies = random.randint(1, 4)
         for i in range(0, num_enemies):
-            enemy_names.append(elemental_enemies[random.randint(0, len(elemental_enemies) - 1 )])
+            pass
+            #enemy_names.append(elemental_enemies[random.randint(0, len(elemental_enemies) - 1 )])
         return Battle("Random encounter", enemy_names, 1)

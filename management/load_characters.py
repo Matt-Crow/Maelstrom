@@ -55,21 +55,108 @@ def generate_enemies():
     set_all_attr_to(max, 10)
     set_all_attr_to(min, -10)
 
-    with open('files/enemy_characters/MAX.json', 'wt') as file:
-        file.write(json.dumps(max.get_as_json()))
-    with open('files/enemy_characters/MIN.json', 'wt') as file:
-        file.write(json.dumps(min.get_as_json()))
+    max.save()
+    min.save()
 
-    lj = base.get_as_json()
-    lj['name'] = 'Lightning Entity'
-    lj['element'] = 'lightning'
 
-    lightning = AbstractCharacter.read_json(lj)
-
-    for k, v in {
-        'control' : 10,
+    lightning = AbstractCharacter.read_json({
+        'name' : 'Lightning Entity',
+        'type' : 'EnemyCharacter',
+        'element' : 'lightning',
+        'energy' : 10,
         'resistance' : -10,
         'lightning damage multiplier' : 10,
-        'wind damage reduction' : -10
-        }.items():
-        lightning.set_base(k, v)
+        'wind damage reduction' : -10,
+        'attacks' : [
+            {
+                'name' : 'Plasma Bolt',
+                'type' : 'AbstractActive',
+                'lightning damage weight' : 10,
+                'miss chance' : -10
+            }
+        ]
+    })
+    lightning.add_default_actives()
+    lightning.add_default_passives()
+    lightning.save()
+        
+    
+    rain = AbstractCharacter.read_json({
+        'name' : 'Rain Entity',
+        'type' : 'EnemyCharacter',
+        'element' : 'rain',
+        'potency' : 10,
+        'control' : -10,
+        'rain damage multiplier' : 10,
+        'lightning damage reduction' : -10,
+        'attacks' : [
+            {
+                'name' : 'Eroding Rain',
+                'type' : 'AbstractActive',
+                'cleave' : 10,
+                'damage multiplier' : -10
+            }
+        ]
+    })
+    rain.add_default_actives()
+    rain.add_default_passives()
+    rain.save()
+    
+    
+    hail = AbstractCharacter.read_json({
+        'name' : 'Hail Entity',
+        'type' : 'EnemyCharacter',
+        'element' : 'hail',
+        'resistance' : 10,
+        'luck' : -10,
+        'hail damage multiplier' : 10,
+        'rain damage reduction' : -10,
+        'attacks' : [
+            {
+                'name' : 'Icicle Jab',
+                'type' : 'AbstractActive',
+                'crit chance' : 10,
+                'cleave' : -10
+            }
+        ]
+    })
+    hail.add_default_actives()
+    hail.add_default_passives()
+    hail.save()
+    
+    
+    wind = AbstractCharacter.read_json({
+        'name' : 'Wind Entity',
+        'type' : 'EnemyCharacter',
+        'element' : 'wind',
+        'luck' : 10,
+        'potency' : -10,
+        'wind damage multiplier' : 10,
+        'hail damage reduction' : -10,
+        'attacks' : [
+            {
+                'name' : 'Tornado',
+                'type' : 'AbstractActive',
+                'crit mult' : 10,
+                'miss mult' : -10
+            }
+        ]
+    })
+    wind.add_default_actives()
+    wind.add_default_passives()
+    wind.save()
+
+
+    stone = AbstractCharacter.read_json({
+        'name' : 'Stone Soldier',
+        'type' : 'EnemyCharacter',
+        'element' : 'stone',
+        'control' : 5,
+        'resistance' : 10,
+        'luck' : -5,
+        'energy' : -5,
+        'potency' : -5
+    })
+    stone.add_default_actives()
+    stone.add_default_passives()
+    stone.save()
