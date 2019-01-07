@@ -16,6 +16,7 @@ Have to keep all 3 classes in one file because of circular depenancy
 CLEAN UP THIS MESS
 """
 ENEMY_DIRECTORY = 'files/enemy_characters'
+ENEMY_CACHE = {} #cached results of loading enemy files
 
 class AbstractCharacter(AbstractUpgradable):
     """
