@@ -62,17 +62,7 @@ class AbstractTeam(object):
             member.init_for_battle()
             self.members_rem.append(member)
         self.active = self.members_rem[0]
-
-    def list_members(self):
-        """
-        Display the data
-        of each member
-        of the team
-        """
-        Op.add(self.name)
-        Op.display()
-        for member in self.team:
-            member.display_data()
+        
 
     def display_data(self):
         """

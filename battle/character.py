@@ -40,7 +40,7 @@ class AbstractCharacter(AbstractUpgradable):
             self.add_attr(element + " damage multiplier", Stat(element + " damage multiplier", mult_red_stat, 0))
             self.add_attr(element + " damage reduction", Stat(element + " damage reduction", mult_red_stat, 0))
 
-        self.element = 'NO ELEMENT'
+        self.element = 'NO ELEMENT SET'
         self.level = 1
         self.XP = 0
 
@@ -367,7 +367,7 @@ class AbstractCharacter(AbstractUpgradable):
             action["function"]()
 
         self.gain_energy(self.get_stat("energy") * 0.15)
-        for stat in self.stats:
+        for stat in self.attributes.values():
             stat.update()
             #stat.display_data();
 

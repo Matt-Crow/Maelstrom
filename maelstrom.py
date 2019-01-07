@@ -73,25 +73,11 @@ if __name__ == "__main__":
 
     #Game().run()
 
-    #data = PlayerSaveFile("users/test_player.txt")
     player = PlayerTeam("Player team", {"name": "Alexandre", "data": ((10, 10, 10, 10, 10), "lightning"), "level": 1})
-    #player.team[0].read_save_code(data.raw_data)
-
-    with open('files/base_character.json', 'rt') as file:
-        AbstractCharacter.read_json(json.loads(file.read())).display_data()
 
     player.team[0].element = 'lightning'
     player.team[0].add_default_actives()
     player.team[0].add_default_passives()
     player.team[0].equip_default_items()
-    #lib_cav.trav_or_play(player)
-    #save_base()
-    generate_enemies()
-    AbstractCharacter.read_default_player().display_data()
-
-    #pprint.pprint(player.team[0].get_as_json())
-    with open('files/enemy_characters/MAX.json', 'rt') as file:
-        AbstractCharacter.read_json(json.loads(file.read())).display_data()
-
-
-    #data.save_data_from(player.team[0])
+    lib_cav.trav_or_play(player)
+    #generate_enemies()
