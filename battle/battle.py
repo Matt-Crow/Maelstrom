@@ -68,7 +68,7 @@ class Battle(object):
         gets data for outputting
         """
         ret = [self.name, "\t" + self.description]
-        for member in self.enemy_team.team:
+        for member in self.enemy_team.members:
             ret.append("\t* " + member.get_short_desc())
         return ret
     
@@ -129,7 +129,7 @@ class Battle(object):
         The stuff that takes place after battle
         """
         xp = self.enemy_team.xp_given()
-        for member in self.player_team.team:
+        for member in self.player_team.members:
             member.gain_XP(xp)
 
     def play(self):

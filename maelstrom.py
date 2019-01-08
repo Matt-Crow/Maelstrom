@@ -75,14 +75,7 @@ if __name__ == "__main__":
 
     #Game().run()
     
-    player = PlayerTeam("Player team", {"name": "Alexandre", "data": ((10, 10, 10, 10, 10), "lightning"), "level": 1})
+    player = PlayerTeam("Player team", AbstractCharacter.create_default_player())
 
-    player.team[0].element = 'lightning'
-    player.team[0].add_default_actives()
-    player.team[0].add_default_passives()
-    player.team[0].equip_default_items()
     lib_cav.trav_or_play(player)
-    #generate_enemies()
-    #EnemyCharacter.load_enemy(all=True, force=True)
-    pprint.pprint(ENEMY_CACHE)
     

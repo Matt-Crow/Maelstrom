@@ -11,6 +11,27 @@ class AbstractTeam(object):
     together so that the program knows
     who are enemies, and who are allies.
     """
+    
+    def __init__(self, name: str, members=[]):
+        """
+        Members is a list of AbstractCharacters
+        """
+        self.name = name
+        self.members = []
+        for member in members:
+            self.add_member(member)
+        
+        
+    def add_member(self, member: 'AbstractCharacter'):
+        """
+        Adds a character to this' team, if they are not
+        already on the team
+        """
+        if member not in self.members:
+            self.members.append(member)
+            member.team = self
+        
+        
     # balance this later
     def xp_given(self):
         """
@@ -19,9 +40,10 @@ class AbstractTeam(object):
         defeated.
         """
         xp = 0
-        for member in self.team:
+        for member in self.members:
             xp += member.level * 10
-        return xp / len(self.team)
+        return xp / len(self.members)
+
 
     def update_members_rem(self):
         new_members_rem = []
@@ -34,6 +56,7 @@ class AbstractTeam(object):
                 Op.display()
         self.members_rem = new_members_rem
 
+
     def is_up(self):
         """
         Use to see if your team still exists
@@ -41,24 +64,20 @@ class AbstractTeam(object):
 
         return len(self.members_rem) != 0
 
+
     def one_left(self):
         """
         Detects when you have only one member left
         """
         return len(self.members_rem) == 1
 
-    def switch(self, member):
-        """
-        You're up!
-        """
-        self.active = member
 
     def initialize(self):
         """
         Ready the troops!
         """
         self.members_rem = []
-        for member in self.team:
+        for member in self.members:
             member.init_for_battle()
             self.members_rem.append(member)
         self.active = self.members_rem[0]
@@ -77,30 +96,63 @@ class AbstractTeam(object):
         Op.add("Active enemy: " + self.enemy.active.name + " " + str(int(self.enemy.active.HP_rem)) + "/" + str(int(self.enemy.active.max_hp)))
         Op.display()
 
+
     def __str__(self):
         return self.name
+
 
     def do_turn(self):
         """
         This is where stuff happens
         """
         if self.active.check_if_KOed():
-            self.choose_switchin()
+            self.active = self.choose_switchin()
         self.switched_in = False
-        self.choose_action()
+        
+        self.display_data()
+        if self.should_switch():
+            self.active = self.choose_switchin()
+            self.switched_in = True
+        self.active.choose_attack()
+    
+    
+    
+    def should_switch(self) -> bool:
+        """
+        Returns whether or not this team
+        should change who is active
+        """
+        raise NotImplementedError('Team method should_switch is abstract')
+        
+        
+    def choose_switchin(self) -> 'AbstractCharacter':
+        """
+        This is abstract: each subclass should implement it
+        """
+        raise NotImplementedError('Team method choose_switchin is abstract')
+        
+
 
 class PlayerTeam(AbstractTeam):
     def __init__(self, name, member):
-        self.team = []
-        self.name = name
-        self.team.append(PlayerCharacter(member["name"]))
+        super(self.__class__, self).__init__(name, [member])
         self.inventory = []
-        for member in self.team:
-            member.team = self
+    
+    
 
     """
     Choices are made using these functions
     """
+    def should_switch(self) -> bool:
+        """
+        Asks the user if they want to
+        switch before attacking
+        """
+        self.display_data()
+        
+        return len(self.members) > 1 and choose('Do you want to switch your active character?', ['Yes', 'No']) == 'Yes' 
+    
+    
     def choose_switchin(self):
         """
         Who will fight?
@@ -111,24 +163,7 @@ class PlayerTeam(AbstractTeam):
                 choices.append(member)
         self.display_data()
         self.switch(choose("Who do you want to bring in?", choices))
-
-        Op.add(self.active.name + " up!")
-        Op.display()
-
-    def choose_action(self):
-        """
-        What to do, what to do...
-        """
-        self.display_data()
-        choices = ["Attack"]
-
-        if not self.one_left():
-            choices.append("Switch")
-
-        if choose("What do you wish to do?", choices) == "Switch":
-            self.choose_switchin()
-            self.switched_in = True
-        self.active.choose_attack()
+        
 
     """
     Customization options
@@ -149,29 +184,30 @@ class PlayerTeam(AbstractTeam):
         Displays the team management menu
         """
         options = ["Exit"]
-        for member in self.team:
+        for member in self.members:
             member.display_data()
             options.append(member)
 
         options.reverse()
         managing = choose("Who do you wish to manage?", options)
-        if choose is not "Exit":
+        
+        if managing is not "Exit":
             managing.manage()
 
 
 
 
 class EnemyTeam(AbstractTeam):
-    def __init__(self, member_names, level):
-        self.team = []
-        self.name = "Enemy team"
+    def __init__(self, member_names: list, level: int):
+        super(self.__class__, self).__init__('Enemy Team')
 
         member_names = to_list(member_names)
         for name in member_names:
-            self.team.append(EnemyCharacter.load_enemy(name))
-            self.team[-1].level = level
-        for member in self.team:
-            member.team = self
+            member = EnemyCharacter.load_enemy(name)
+            member.level = level
+            self.add_member(member)
+            
+            
 
     """
     AI stuff
@@ -182,22 +218,24 @@ class EnemyTeam(AbstractTeam):
         """
         First, check if our active can KO
         """
-        if self.one_left():
-            return "Attack"
-        if self.enemy.active.calc_DMG(self.active, self.active.best_attack()) >= self.enemy.active.HP_rem:
-            return "Attack"
+        if self.one_left() or self.enemy.active.calc_DMG(self.active, self.active.best_attack()) >= self.enemy.active.HP_rem:
+            return False
+        
+        
         """
         Second, check if an ally can KO
         """
         for member in self.members_rem:
             if self.enemy.active.calc_DMG(member, member.best_attack()) * 0.75 >= self.enemy.active.HP_rem:
-                return "Switch"
+                return True
 
+        
         # Default
-        return "Attack"
+        return False
+
 
     # comment
-    def who_switch(self):
+    def choose_switchin(self):
         """
         Used to help the AI
         decide who to switch in
@@ -234,31 +272,3 @@ class EnemyTeam(AbstractTeam):
 
         rand = random.randint(0, len(array) - 1)
         return array[rand]
-
-    """
-    Choices are made using these functions
-    """
-    def choose_switchin(self):
-        """
-        Who will fight?
-        """
-        self.switch(self.who_switch())
-
-        Op.add(self.active.name + " up!")
-        Op.display()
-
-    def choose_action(self):
-        """
-        What to do, what to do...
-        """
-        self.display_data()
-
-        choices = ["Attack"]
-
-        if not self.one_left():
-            choices.append("Switch")
-
-        if self.should_switch() == "Switch":
-            self.choose_switchin()
-            self.switched_in = True
-        self.active.choose_attack()
