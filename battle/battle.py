@@ -1,6 +1,5 @@
-from navigate import *
 from utilities import *
-from file import File
+from item import Item
 from weather import Weather
 from teams import EnemyTeam
 from output import Op
@@ -14,45 +13,54 @@ class Battle(object):
     initializing them
     and the weather.
     """
-    def __init__(self, name, enemy_names, enemy_levels, rewards = None):
+    def __init__(self, name, enemy_names, level, rewards = []):
         self.name = name
-        self.all_text = script_file.grab_key(name)
-
+        
         self.description = " "
+        self.level = level #the level of enemies
         self.script = []
         self.final_act = []
+        
+        self.forecast = []
 
-        script_list = list()
-        final_act_list = list()
-
-        mode = None
-        for line in self.all_text:
-            if contains(line, File.description_key):
-                self.description = ignore_text(line, File.description_key)
-
-            if contains(line, File.prescript_key):
-                mode = "pre"
-
-            if contains(line, File.postscript_key):
-                mode = "post"
-
-            if mode == "pre":
-                script_list.append(ignore_text(line, File.prescript_key))
-
-            elif mode == "post":
-                final_act_list.append(ignore_text(line, File.postscript_key))
-
-            
-        for line in script_list:
-            self.script.append(line)
-        for line in final_act_list:
-            self.final_act.append(line)
-
-        self.forecast = to_list(None)
-
-        self.enemy_team = EnemyTeam(enemy_names, enemy_levels)
+        self.enemy_team = EnemyTeam(enemy_names, level)
 
         self.rewards = to_list(rewards)
+
+
+    @staticmethod
+    def read_json(json: dict) -> 'Battle':
+        """
+        Move into constructor some other time?
+        or, keep normal constructor so it's easier to make new ones?
+        """
+        ret = Battle(
+            json.get('name', 'NO NAME'),
+            json.get('enemies', []),
+            json.get('level', 1),
+            [Item.read_json(data) for data in json.get('rewards', [])]
+        )
+        ret.desc = json.get('desc', 'NO DESCRIPTION')
+        ret.script = json.get('script', ['NO SCRIPT'])
+        ret.final_act = json.get('final act', ['NO FINAL ACT'])
+        return ret
+        
+    
+    def get_as_json(self) -> dict:
+        """
+        Returns a dictionary version of this battle
+        """
+        return {
+            'name' : self.name,
+            'enemies' : [enemy.name for enemy in self.enemy_team.members],
+            'level' : self.level,
+            'desc' : self.description,
+            'script' : self.script,
+            'final act' : self.final_act,
+            'forecast' : 'TODO',
+            'rewards' : [item.get_as_json() for item in self.rewards]
+        }
+
 
     def restrict_weather(self, forecast):
         """
@@ -121,7 +129,7 @@ class Battle(object):
         
         self.weather = Weather.generate_random()
         
-        if self.forecast[0] is not None:
+        if len(self.forecast) > 0:
             num = 0
             if len(self.forecast) > 1:
                 num = random.randrange(0, len(self.forecast) - 1)

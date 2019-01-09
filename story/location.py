@@ -1,35 +1,18 @@
-from utilities import contains, ignore_text
-from navigate import script_file
 from output import Op
-from file import File
-import json
-import os
 
-LOCATION_DIRECTORY = 'maelstrom_story/locations'
 
 class Location:
     """
     Locations are used to store text descriptions of an area,
     providing a bit of atmosphere
     """
-    def __init__(self, name):
+    def __init__(self, json: dict):
         """
-        Creates a location with the given name.
-        If the name exists in the location directory,
-        reads that json file, then loads this with that data
+        Reads a dictionary, taking specific attributes from it
         """
-        self.name = name
-        
-        j = {}
-        try:
-            with open(LOCATION_DIRECTORY + os.sep + self.name.replace(' ', '_').lower() + '.json', 'rt') as file:
-                j = json.loads(file.read())
-        except FileNotFoundError:
-            Op.add(name + ' doesn\'t have an associated file in ' + LOCATION_DIRECTORY)
-            Op.display()
-        
-        self.description = j.get('desc', 'NO DESCRIPTION')
-        self.script = j.get('script', [])
+        self.name = json.get('name', 'NO NAME SET')
+        self.description = json.get('desc', 'NO DESCRIPTION')
+        self.script = json.get('script', ['NO SCRIPT'])
 
 
     def get_as_json(self) -> dict:
@@ -51,6 +34,7 @@ class Location:
         """
         return [self.name, "\t" + self.description]
     
+    
     def travel_to(self, player):
         """
         Prints this location's story,
@@ -70,11 +54,3 @@ class Location:
         location.
         """
         return False
-        
-        
-    def save(self):
-        """
-        Saves this location's data to a json file in the given directory
-        """
-        with open(LOCATION_DIRECTORY + os.sep + self.name.replace(' ', '_').lower() + '.json', 'wt') as file:
-            file.write(json.dumps(self.get_as_json()))

@@ -1,0 +1,56 @@
+{
+    "name": "Ancient caverns", 
+    "type": "area", 
+    "desc": " What once lay forgoten now lies renewed", 
+    "locations": [
+        {
+            "name": "Ancient library caverns", 
+            "type": "location", 
+            "desc": "These caves seem as old as time itself.", 
+            "script": [
+                "LIBRARIAN: These caves have only recently by our scholars.", 
+                "Everything here is estimated to be ancient", 
+                "perhaps even older than Altostromia itself!", 
+                "But what concerns me are these statues...", 
+                "...hundreds of them..."
+            ]
+        }
+    ], 
+    "levels": [
+        {
+            "name": "Origin Beaches",
+            "enemies": [
+                "Rain Entity"
+            ],
+            "level": 1,
+            "desc": "All heroes have to start somewhere",
+            "script": [
+                "Encounter! Rain Entity",
+                "Quick! Knock its hit points down to zero and escape!"
+            ],
+            "final act": [
+                "Congradulations!",
+                "The Entity dissipates into a cloud of smoke"
+            ],
+            "forecast": "TODO",
+            "rewards": []
+        },
+        {
+            "name": "Stone Rising", 
+            "enemies": [
+                "Stone Soldier"
+            ], 
+            "level": 1, 
+            "desc": " An ancient threat arises", 
+            "script": [
+                "STONE SOLDIER Foolish ones seek to take our land", 
+                "when we ourselves are imbued with its very power!"
+            ], 
+            "final act": [
+                "The stone soldier shatters into dust"
+            ], 
+            "forecast": "TODO", 
+            "rewards": []
+        }
+    ]
+}

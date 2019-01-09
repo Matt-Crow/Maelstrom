@@ -1,16 +1,24 @@
 from utilities import *
-from navigate import script_file
+from location import Location
 from battle import Battle
-from file import File
 from output import Op
+import json
 
+AREA_DIRECTORY = 'maelstrom_story/areas'
 class Area:
     def __init__(self, name, locations=[], levels=[]):
         self.name = name
-        self.description = ignore_text(script_file.grab_key(name)[0], File.description_key)
         self.locations = to_list(locations)
         self.levels = to_list(levels)
-        self.levels.append(Battle.generate_random())
+        
+        with open(AREA_DIRECTORY + '/' + name.lower().replace(' ', '_') + '.json', 'rt') as file:
+            jdict = json.loads(file.read())
+            self.description = jdict.get('desc', 'NO DESCRIPTION')
+            self.locations = [Location(data) for data in jdict.get('locations', [])]
+            self.levels = [Battle.read_json(data) for data in jdict.get('levels', [])]
+        
+        #self.levels.append(Battle.generate_random())
+
 
     def get_data(self):
         ret = []
@@ -25,7 +33,31 @@ class Area:
             for line in level.get_data():
                 ret.append("\t" + line)
         return ret
+        
+        
+    def get_as_json(self) -> dict:
+        """
+        Gets this as a dictionary that
+        can be converted to JSON
+        """
+        return {
+            'name' : self.name,
+            'type' : 'area',
+            'desc' : self.description,
+            'locations' : [loc.get_as_json() for loc in self.locations],
+            'levels' : [battle.get_as_json() for battle in self.levels]
+        }
 
+
+    def save(self):
+        """
+        Saves this' JSON to a file in
+        the area directory
+        """
+        with open(AREA_DIRECTORY + '/' + self.name.lower().replace(' ', '_') + '.json', 'wt') as file:
+            file.write(json.dumps(self.get_as_json()))
+        
+        
     def __str__(self):
         return self.name
 

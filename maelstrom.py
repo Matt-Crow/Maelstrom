@@ -39,8 +39,6 @@ Week 2: Revised/improved/reordered functions
 
 edit using atom, run using IDLE or command prompt
 
-need set attack to not default
-
 Version 0.9
 """
 
@@ -66,10 +64,8 @@ import json
 import pprint
 
 
-c1 = Battle("Stone Rising", ["stone soldier"], 1)
-caves = Location("Ancient library caverns")
-lib_cav = Area("Ancient caverns", caves, c1)
 
+lib_cave = Area('Ancient caverns')
 
 if __name__ == "__main__":
 
@@ -77,6 +73,4 @@ if __name__ == "__main__":
     
     player = PlayerTeam("Player team", AbstractCharacter.create_default_player())
 
-    lib_cav.trav_or_play(player)
-    
-    #caves.save()
+    lib_cave.trav_or_play(player)
