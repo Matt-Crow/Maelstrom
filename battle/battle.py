@@ -3,7 +3,6 @@ from utilities import *
 from file import File
 from weather import Weather
 from teams import EnemyTeam
-from story import Story
 from output import Op
 from character import EnemyCharacter, ENEMY_CACHE
 import random
@@ -20,8 +19,8 @@ class Battle(object):
         self.all_text = script_file.grab_key(name)
 
         self.description = " "
-        self.script = Story(" ")
-        self.final_act = Story(" ")
+        self.script = []
+        self.final_act = []
 
         script_list = list()
         final_act_list = list()
@@ -43,10 +42,11 @@ class Battle(object):
             elif mode == "post":
                 final_act_list.append(ignore_text(line, File.postscript_key))
 
-            if len(script_list) is not 0:
-                self.script = Story(script_list)
-            if len(final_act_list) is not 0:
-                self.final_act = Story(final_act_list)
+            
+        for line in script_list:
+            self.script.append(line)
+        for line in final_act_list:
+            self.final_act.append(line)
 
         self.forecast = to_list(None)
 
@@ -92,8 +92,11 @@ class Battle(object):
         if self.player_team.is_up():
             Op.add(self.player_team.name + " won!")
             Op.display()
-
-            self.final_act.print_story()
+            
+            for line in self.final_act:
+                Op.add(line)
+                Op.display()
+            
             for reward in self.rewards:
                 if reward != None:
                     reward.give(self.player_team)
@@ -103,7 +106,9 @@ class Battle(object):
         Prepare both teams
         for the match.
         """
-        self.script.print_story()
+        for line in self.script:
+            Op.add(line)
+            Op.display()
 
         self.enemy_team.initialize()
         self.enemy_team.enemy = self.player_team

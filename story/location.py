@@ -1,8 +1,11 @@
 from utilities import contains, ignore_text
 from navigate import script_file
-from story import Story
 from output import Op
 from file import File
+import json
+import os
+
+LOCATION_DIRECTORY = 'maelstrom_story/locations'
 
 class Location:
     """
@@ -12,31 +15,35 @@ class Location:
     def __init__(self, name):
         """
         Creates a location with the given name.
-        If the name exists in script.txt, will add
-        this' description and story automatically.
-        Will change how script works later.
+        If the name exists in the location directory,
+        reads that json file, then loads this with that data
         """
         self.name = name
+        
+        j = {}
+        try:
+            with open(LOCATION_DIRECTORY + os.sep + self.name.replace(' ', '_').lower() + '.json', 'rt') as file:
+                j = json.loads(file.read())
+        except FileNotFoundError:
+            Op.add(name + ' doesn\'t have an associated file in ' + LOCATION_DIRECTORY)
+            Op.display()
+        
+        self.description = j.get('desc', 'NO DESCRIPTION')
+        self.script = j.get('script', [])
 
-        self.all_text = script_file.grab_key(name)
-        self.description = " "
-        self.script = Story(" ")
 
-        script_list = list()
-
-        mode = None
-        for line in self.all_text:
-            if contains(line, File.description_key):
-                self.description = ignore_text(line, File.description_key)
-
-            if contains(line, File.script_key):
-                mode = "script"
-
-            if mode == "script" and (not line.isspace()):
-                script_list.append(ignore_text(line, File.script_key))
-
-            if len(script_list) is not 0:
-                self.script = Story(script_list)
+    def get_as_json(self) -> dict:
+        """
+        Returns this as a dictionary,
+        so it can be saved to a json file
+        """
+        return {
+            'name' : self.name,
+            'type' : 'location',
+            'desc' : self.description,
+            'script' : self.script
+        }
+        
     
     def get_data(self):
         """
@@ -50,8 +57,11 @@ class Location:
         then calls this' action method,
         passing in the given player
         """
-        self.script.print_story()
+        for line in self.script:
+            Op.add(line)
+            Op.display()
         self.action(player)
+
 
     def action(self, player):
         """
@@ -60,3 +70,11 @@ class Location:
         location.
         """
         return False
+        
+        
+    def save(self):
+        """
+        Saves this location's data to a json file in the given directory
+        """
+        with open(LOCATION_DIRECTORY + os.sep + self.name.replace(' ', '_').lower() + '.json', 'wt') as file:
+            file.write(json.dumps(self.get_as_json()))

@@ -58,7 +58,7 @@ class Game:
         """
         Play a game as the given user
         """
-        data = PlayerSaveFile("users/" + user_name.replace(" ", "_") + ".txt")
+        data = PlayerSaveFile("users/" + user_name.replace(" ", "_").lower() + ".txt")
         if data.error:
             print("cannot find save file for " + user_name)
         else:

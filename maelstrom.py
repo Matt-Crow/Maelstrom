@@ -79,3 +79,4 @@ if __name__ == "__main__":
 
     lib_cav.trav_or_play(player)
     
+    #caves.save()

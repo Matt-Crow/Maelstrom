@@ -1,0 +1,12 @@
+{
+    "name": "Ancient library caverns", 
+    "type": "location", 
+    "desc": "These caves seem as old as time itself.", 
+    "script": [
+        "LIBRARIAN: These caves have only recently by our scholars.", 
+        "Everything here is estimated to be ancient",
+        "perhaps even older than Altostromia itself!",
+        "But what concerns me are these statues...",
+        "...hundreds of them..."
+    ]
+}
