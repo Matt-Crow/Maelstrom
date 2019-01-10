@@ -109,16 +109,40 @@ def generate_enemies():
         'name' : 'Rain Entity',
         'type' : 'EnemyCharacter',
         'element' : 'rain',
-        'potency' : 10,
-        'control' : -10,
-        'rain damage multiplier' : 10,
-        'lightning damage reduction' : -10,
+        'potency' : {
+            'type': 'Stat',
+            'value': 10,
+            'name': 'potency'
+        },
+        'control' : {
+            'type': 'Stat',
+            'value': -10,
+            'name': 'control'
+        },
+        'rain damage multiplier' : {
+            'type': 'Stat',
+            'value': 10,
+            'name': 'rain damage multiplier'
+        },
+        'lightning damage reduction' : {
+            'type': 'Stat',
+            'value': -10,
+            'name': 'lightning damage reduction'
+        },
         'attacks' : [
             {
                 'name' : 'Eroding Rain',
                 'type' : 'AbstractActive',
-                'cleave' : 10,
-                'damage multiplier' : -10
+                'cleave' : {
+                    'type': 'Stat',
+                    'value': 10,
+                    'name': 'cleave'
+                },
+                'damage multiplier' : {
+                    'type': 'Stat',
+                    'value': -10,
+                    'name': 'damage multiplier'
+                }
             }
         ]
     })
@@ -131,16 +155,40 @@ def generate_enemies():
         'name' : 'Hail Entity',
         'type' : 'EnemyCharacter',
         'element' : 'hail',
-        'resistance' : 10,
-        'luck' : -10,
-        'hail damage multiplier' : 10,
-        'rain damage reduction' : -10,
+        'resistance' : {
+            'type': 'Stat',
+            'value': 10,
+            'name': 'resistance'
+        },
+        'luck' : {
+            'type': 'Stat',
+            'value': -10,
+            'name': 'luck'
+        },
+        'hail damage multiplier' : {
+            'type': 'Stat',
+            'value': 10,
+            'name': 'hail damage multiplier'
+        },
+        'rain damage reduction' : {
+            'type': 'Stat',
+            'value': -10,
+            'name': 'rain damage reduction'
+        },
         'attacks' : [
             {
                 'name' : 'Icicle Jab',
                 'type' : 'AbstractActive',
-                'crit chance' : 10,
-                'cleave' : -10
+                'crit chance' : {
+                    'type': 'Stat',
+                    'value': 10,
+                    'name': 'crit chance'
+                },
+                'cleave' : {
+                    'type': 'Stat',
+                    'value': -10,
+                    'name': 'cleave'
+                }
             }
         ]
     })
