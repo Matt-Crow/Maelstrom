@@ -152,9 +152,9 @@ class AbstractUpgradable(JsonAble):
         returns a JSON representation of this object as a dictionary,
         which can be used to reconstuct this object.
         """
-        serialize = self.attributes.copy()
-        for t in self.to_serialize:
-            serialize[t] = self.__dict__[t]
+        serialize = super(AbstractUpgradable, self).get_as_json()
+        for attr, val in self.attributes.items():
+            serialize[attr] = val
 
         return json.loads(json.dumps(serialize, cls=UpgradableEncoder))
 
@@ -162,9 +162,7 @@ class AbstractUpgradable(JsonAble):
 class UpgradableEncoder(json.JSONEncoder):
     def default(self, obj):
         ret = None
-        if isinstance(obj, Stat):
-            ret = obj.get_base()
-        elif isinstance(obj, AbstractUpgradable):
+        if callable(getattr(obj, 'get_as_json', None)):
             ret = obj.get_as_json()
         else:
             ret = json.JSONEncoder.default(self, obj)

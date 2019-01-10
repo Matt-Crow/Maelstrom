@@ -41,23 +41,23 @@ class AbstractActive(AbstractUpgradable):
         """
         Reads a JSON object as a dictionary, then converts it to an Active
         """
-        #print("JSON:")
-        #pprint.pprint(json)
+        print("JSON:")
+        pprint.pprint(json)
 
         #some way to auto-do this?
         name = json.get("name", "NAME NOT FOUND")
-        type = json.get("type", "TYPE NOT FOUND")
+        rtype = json.get("type", "TYPE NOT FOUND")
         custom_points = int(json.get('customization_points', 0))
 
         ret = None
-        if type == "AbstractActive":
+        if rtype == "AbstractActive":
             ret = AbstractActive(name)
         else:
             ret = MeleeAttack(name)
 
         for k, v in json.items():
-            if k not in ['name', 'type', 'customization_points']:
-                ret.set_base(k, int(v))
+            if type(v) == type({}) and v.get('type', 'NO TYPE') == 'Stat':
+                ret.set_base(k, int(v.get('base', 0)))
 
         ret.customization_points = custom_points
 
@@ -95,7 +95,8 @@ class AbstractActive(AbstractUpgradable):
 
     def distribute_damage(self):
         self.calc_all()
-        total = get_hit_perc(self.user.level) * self.get_stat("damage multiplier")
+        lv = 1 if self.user is None else self.user.level
+        total = get_hit_perc(lv) * self.get_stat("damage multiplier")
         split_between = 0
         self.damages = {}
         for element in ELEMENTS:
@@ -186,16 +187,40 @@ class AbstractActive(AbstractUpgradable):
         jab = AbstractActive.read_json({
             "name" : "Jab",
             "type" : "MeleeAttack",
-            "miss chance" : -5,
-            "crit chance" : 5,
-            "miss mult" : -5,
-            "crit mult" : 5
+            "miss chance" : {
+                'type': 'Stat',
+                'base': -5,
+                'name': 'miss chance'
+            },
+            "crit chance" : {
+                'type': 'Stat',
+                'base': 5,
+                'name': 'crit chance'
+            },
+            "miss mult" : {
+                'type': 'Stat',
+                'base': -5,
+                'name': 'miss mult'
+            },
+            "crit mult" : {
+                'type': 'Stat',
+                'base': 5,
+                'name': 'crit mult'
+            }
         })
         slam = AbstractActive.read_json({
             "name" : "Slam",
             "type" : "MeleeAttack",
-            "damage multiplier" : 5,
-            "miss chance" : -5
+            "damage multiplier" : {
+                'type': 'Stat',
+                'base': 5,
+                'name': 'damage multiplier'
+            },
+            "miss chance" : {
+                'type': 'Stat',
+                'base': -5,
+                'name': 'miss chance'
+            }
         })
 
         return [slash, jab, slam]

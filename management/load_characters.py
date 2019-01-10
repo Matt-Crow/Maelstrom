@@ -63,24 +63,48 @@ def generate_enemies():
         'name' : 'Lightning Entity',
         'type' : 'EnemyCharacter',
         'element' : 'lightning',
-        'energy' : 10,
-        'resistance' : -10,
-        'lightning damage multiplier' : 10,
-        'wind damage reduction' : -10,
+        'energy' : {
+            'type': 'Stat',
+            'base': 10,
+            'name': 'energy'
+        },
+        'resistance' : {
+            'type': 'Stat',
+            'base': -10,
+            'name': 'resistance'
+        },
+        'lightning damage multiplier' : {
+            'type': 'Stat',
+            'base': 10,
+            'name': 'lightning damage multiplier'
+        },
+        'wind damage reduction' : {
+            'type': 'Stat',
+            'base': -10,
+            'name': 'wind damage reduction'
+        },
         'attacks' : [
             {
                 'name' : 'Plasma Bolt',
                 'type' : 'AbstractActive',
-                'lightning damage weight' : 10,
-                'miss chance' : -10
+                'lightning damage weight' : {
+                    'type': 'Stat',
+                    'base': 10,
+                    'name': 'lightning damage weight'
+                },
+                'miss chance' : {
+                    'type': 'Stat',
+                    'base': -10,
+                    'name': 'miss chance'
+                }
             }
         ]
     })
     lightning.add_default_actives()
     lightning.add_default_passives()
     lightning.save()
-        
-    
+
+
     rain = AbstractCharacter.read_json({
         'name' : 'Rain Entity',
         'type' : 'EnemyCharacter',
@@ -101,8 +125,8 @@ def generate_enemies():
     rain.add_default_actives()
     rain.add_default_passives()
     rain.save()
-    
-    
+
+
     hail = AbstractCharacter.read_json({
         'name' : 'Hail Entity',
         'type' : 'EnemyCharacter',
@@ -123,8 +147,8 @@ def generate_enemies():
     hail.add_default_actives()
     hail.add_default_passives()
     hail.save()
-    
-    
+
+
     wind = AbstractCharacter.read_json({
         'name' : 'Wind Entity',
         'type' : 'EnemyCharacter',

@@ -1,11 +1,12 @@
 from utilities import *
+from serialize import JsonAble
 
 """
 Stat stuff
 """
 
 #TODO: add a display function parameter which will convert it to a text representation that shows how it works?
-class Stat(object):
+class Stat(JsonAble):
     """
     A class used to store
     information about a stat,
@@ -27,14 +28,17 @@ class Stat(object):
 
         TODO: add min max
         """
-        self.name = name
+        super(Stat, self).__init__(name)
+        self.set_type('Stat')
         self.formula = formula
         self.boosts = []
         self.max_base = max_base
         self.min_base = min_base
 
         self.set_base(base)
-        self.value = 0
+        self.value = None
+
+        self.track_attr('base')
 
     def calc(self):
         """
@@ -66,6 +70,9 @@ class Stat(object):
 
     def get(self):
         mult = 1.0
+        if self.value is None:
+            self.calc()
+            
         for boost in self.boosts:
             mult += boost.amount
         return self.value * mult

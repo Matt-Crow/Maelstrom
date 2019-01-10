@@ -15,8 +15,6 @@ import os
 Characters.
 
 Have to keep all 3 classes in one file because of circular depenancy
-
-CLEAN UP THIS MESS
 """
 ENEMY_DIRECTORY = 'files/enemy_characters'
 ENEMY_CACHE = {} #cached results of loading enemy files
@@ -95,8 +93,8 @@ class AbstractCharacter(AbstractUpgradable):
         ret.XP = xp
 
         for k, v in jdict.items():
-            if k not in ret.to_serialize and type(v) not in (type([]), type({})):
-                ret.set_base(k, int(v))
+            if type(v) == type({}) and v.get('type', 'NO TYPE') == 'Stat':
+                ret.set_base(k, int(v.get('base', 0)))
 
         for active in jdict.get('attacks', []):
             #for some reason, I have to reconver to a dictionary,
@@ -438,21 +436,6 @@ class AbstractCharacter(AbstractUpgradable):
         return self.HP_rem <= 0
 
 
-    def save_to_dir(self, directory: str):
-        """
-        Save this character's data to a specified directory.
-        The name of the file will be this' name, but with spaces
-        replaced by underscores.
-        """
-        try:
-            with open(directory + '/' + self.name.replace(' ', '_').lower() + '.json', 'wt') as file:
-                file.write(json.dumps(self.get_as_json()))
-        except FileNotFoundError as ex:
-            Op.add('Could not find directory ' + directory)
-            Op.add(str(ex))
-            Op.display()
-
-
     @staticmethod
     def load_from_file(file_path: str) -> 'AbstractCharacter':
         """
@@ -599,6 +582,7 @@ class EnemyCharacter(AbstractCharacter):
     def __init__(self, name):
         super(self.__class__, self).__init__(name)
         self.set_type('EnemyCharacter')
+        self.set_save_directory(ENEMY_DIRECTORY)
 
     """
     AI stuff
@@ -661,13 +645,6 @@ class EnemyCharacter(AbstractCharacter):
 
     def choose_attack(self):
         self.what_attack().use()
-
-
-    def save(self):
-        """
-        Saves this enemy's data to the enemy directory
-        """
-        self.save_to_dir(ENEMY_DIRECTORY)
 
 
     @staticmethod

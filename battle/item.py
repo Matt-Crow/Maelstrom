@@ -129,7 +129,7 @@ class Item(AbstractUpgradable):
         ret.boosted_stat = json.get('boosted_stat', 'potency')
         ret.item_type = json.get('item_type', 'ITEM TYPE NOT FOUND')
         ret.desc = json.get('desc', 'DESCRIPTION NOT FOUND')
-        ret.set_base('boost', int(json.get('boost', 10)))
+        ret.set_base('boost', int(json.get('boost', {'base': 0}).get('base', 0))) #since stat is stored in json now
         ret.set_name = json.get('set_name', None)
         ret.customization_points = custom_points
         return ret
@@ -141,7 +141,11 @@ class Item(AbstractUpgradable):
         """
         i1 = Item.read_json({
         'name' : 'Item 1',
-        'boost' : 10,
+        'boost' : {
+            'type': 'Stat',
+            'base': 10,
+            'name': 'boost'
+        },
         'boosted_stat' : 'luck',
         'item_type' : 'TEST',
         'desc' : 'test item 1',

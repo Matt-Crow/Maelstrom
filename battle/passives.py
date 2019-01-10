@@ -47,19 +47,20 @@ class AbstractPassive(AbstractUpgradable):
 
         if ptype == 'Threshhold Passive':
             ret = Threshhold(name)
-            ret.set_base('threshhold', int(json.get('threshhold', 4)))
+            ret.set_base('threshhold', int(json.get('threshhold', {'base':4}).get('base', 4)))
         elif ptype == 'On Hit Given Passive':
             ret = OnHitGiven(name)
-            ret.set_base('chance', int(json.get('chance', 4)))
+            ret.set_base('chance', int(json.get('chance', {'base':4}).get('base', 4)))
         elif ptype == 'On Hit Taken Passive':
             ret = OnHitTaken(name)
-            ret.set_base('chance', int(json.get('chance', 4)))
+            ret.set_base('chance', int(json.get('chance', {'base':4}).get('base', 4)))
         else:
             raise Exception('Type not found for AbstractActive: ' + ptype)
 
+
         for k, v in json.items():
-            if k not in ['name', 'type', 'customization_points', 'targets_user', 'boosted_stat']:
-                ret.set_base(k, int(v))
+            if type(v) == type({}) and v.get('type', 'NO TYPE') == 'Stat':
+                ret.set_base(k, int(v.get('base', 0)))
 
         ret.customization_points = custom_points
         ret.boosted_stat = json.get('boosted_stat', None)
@@ -102,9 +103,21 @@ class AbstractPassive(AbstractUpgradable):
             'name': 'Threshhold test',
             'type': 'Threshhold Passive',
             'boosted_stat' : 'resistance',
-            'threshhold' : 0,
-            'status level' : 0,
-            'status duration' : 0,
+            'threshhold' : {
+                'type' : 'Stat',
+                'base' : 10,
+                'name' : 'threshhold'
+            },
+            'status level' : {
+                'type': 'Stat',
+                'base': 5,
+                'name': 'status level'
+            },
+            'status duration' : {
+                'type': 'Stat',
+                'base': 0,
+                'name': 'status duration'
+            },
             'targets_user' : 'True'
         })
 
@@ -112,9 +125,21 @@ class AbstractPassive(AbstractUpgradable):
             'name': 'On Hit Given Test',
             'type': 'On Hit Given Passive',
             'boosted_stat' : 'luck',
-            'chance' : 0,
-            'status level' : 0,
-            'status duration' : 0,
+            'chance' : {
+                'type': 'Stat',
+                'base': 5,
+                'name': 'chance'
+            },
+            'status level' : {
+                'type': 'Stat',
+                'base': 0,
+                'name': 'status level'
+            },
+            'status duration' : {
+                'type': 'Stat',
+                'base': 10,
+                'name': 'status duration'
+            },
             'targets_user' : 'True'
         })
 
@@ -122,9 +147,21 @@ class AbstractPassive(AbstractUpgradable):
             'name': 'On Hit Taken Test',
             'type': 'On Hit Taken Passive',
             'boosted_stat' : 'control',
-            'chance' : 0,
-            'status level' : 0,
-            'status duration' : 0,
+            'chance' : {
+                'type': 'Stat',
+                'base': 0,
+                'name': 'chance'
+            },
+            'status level' : {
+                'type': 'Stat',
+                'base': 10,
+                'name': 'status level'
+            },
+            'status duration' : {
+                'type': 'Stat',
+                'base': 5,
+                'name': 'status duration'
+            },
             'targets_user' : 'False'
         })
 

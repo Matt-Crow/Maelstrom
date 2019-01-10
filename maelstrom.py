@@ -57,20 +57,22 @@ from area import Area
 from location import Location
 from game import Game
 from character import AbstractCharacter, EnemyCharacter, ENEMY_CACHE
-from attacks import AbstractActive
-from item import t1
 from load_characters import save_base, generate_enemies
 import json
 import pprint
 
 
 
-lib_cave = Area('Ancient caverns')
+#lib_cave = Area('Ancient caverns')
 
 if __name__ == "__main__":
 
     #Game().run()
-    
+    save_base()
+    generate_enemies()
     player = PlayerTeam("Player team", AbstractCharacter.create_default_player())
-
-    lib_cave.trav_or_play(player)
+    
+    EnemyCharacter.load_enemy(all=True)
+    for enemy in ENEMY_CACHE.values():
+        enemy.display_data()
+    #lib_cave.trav_or_play(player)

@@ -49,18 +49,34 @@ class JsonAble(object):
         self.directory = dir
 
 
+    def get_as_json(self) -> dict:
+        """
+        returns this' attributes to serialize,
+        as a json dictionary.
+        Subclasses will likely want to add keys to what this returns.
+        """
+        return {attr: self.__dict__[attr] for attr in self.to_serialize}
+
+
     def save(self):
         """
         Converts this' data to a json file,
         then saves it to its directory, if one was given
         """
-        if self.directory is None:
-            raise Error('No save directory was given for class ' + str(self.__class__))
         try:
-            with open(self.directory + os.sep + self.name.replace(' ', '_').lower() + '.json', 'wt') as file:
+            with open(self.get_file_path(), 'wt') as file:
                 file.write(json.dumps(self.get_as_json()))
         except Error as err:
             raise(err) #want the warning to get through
+
+
+    def get_file_path(self) -> str:
+        """
+        Returns the path to this' save file
+        """
+        if self.directory is None:
+            raise AttributeError('No save directory was given for class ' + str(self.__class__))
+        return self.directory + os.sep + self.name.replace(' ', '_').lower() + '.json'
 
 
 def decode_json(json: dict) -> object:
