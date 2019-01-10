@@ -2,19 +2,23 @@ from stat_classes import Stat
 from utilities import choose
 import json
 from output import Op
+from serialize import JsonAble
+
+
 """
 An AbstractUpgradable is anything that the player can change as their characters level up.
-
-TODO: make player characters, passives, and items extend this
 """
 
-class AbstractUpgradable(object):
+class AbstractUpgradable(JsonAble):
     """
     The abstract base class for anything that the player can customize as they level up
     """
     next_id = 0
     def __init__(self, name: str):
-        self.name = name
+        super(AbstractUpgradable, self).__init__(name)
+
+        self.set_type('AbstractUpgradable')
+
         self.id = AbstractUpgradable.next_id
         AbstractUpgradable.next_id += 1
 
@@ -23,23 +27,9 @@ class AbstractUpgradable(object):
         self.customization_points = 0
 
         self.user = None
-        self.type = "AbstractUpgradable" # used when decoding JSON
 
-        self.track = [
-            'name',
-            'type',
-            'customization_points'
-        ] #extra properties that need to be put into JSON
-        #note that these must match the attributes of this object EXACTLY
+        self.track_attr('customization_points')
 
-
-    def set_type(self, type: str):
-        """
-        Set what will prefix this' JSON output,
-        allowing the program's JSON readers to
-        reconvert the JSON to an object
-        """
-        self.type = type
 
     def set_user(self, user: 'AbstractCharacter'):
         """
@@ -81,17 +71,6 @@ class AbstractUpgradable(object):
         self.attributes[stat_name].set_base(base)
 
 
-    def track_attr(self, attr_name: str):
-        """
-        adds attr_name to the list of attributes to be recorded in JSON
-        """
-        if attr_name not in self.track:
-            if attr_name not in self.__dict__:
-                raise ValueError('Key not found for ' + str(self.__dict__) + ': ' + attr_name)
-            else:
-                self.track.append(attr_name)
-
-
     def get_data(self) -> list:
         """
         Returns a list of strings:
@@ -102,7 +81,7 @@ class AbstractUpgradable(object):
         for k, v in self.attributes.items():
             ret.append('\t' + k + ": " + str(v.get()))
 
-        for t in self.track:
+        for t in self.to_serialize:
             ret.append('\t' + t + ': ' + str(self.__dict__[t]))
         return ret
 
@@ -174,7 +153,7 @@ class AbstractUpgradable(object):
         which can be used to reconstuct this object.
         """
         serialize = self.attributes.copy()
-        for t in self.track:
+        for t in self.to_serialize:
             serialize[t] = self.__dict__[t]
 
         return json.loads(json.dumps(serialize, cls=UpgradableEncoder))

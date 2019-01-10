@@ -66,8 +66,8 @@ class AbstractCharacter(AbstractUpgradable):
         Returns a deep copy of this character
         """
         return AbstractCharacter.read_json(self.get_as_json())
-    
-    
+
+
     @staticmethod
     def read_json(jdict: dict) -> 'AbstractCharacter':
         """
@@ -95,7 +95,7 @@ class AbstractCharacter(AbstractUpgradable):
         ret.XP = xp
 
         for k, v in jdict.items():
-            if k not in ret.track and type(v) not in (type([]), type({})):
+            if k not in ret.to_serialize and type(v) not in (type([]), type({})):
                 ret.set_base(k, int(v))
 
         for active in jdict.get('attacks', []):
@@ -144,8 +144,8 @@ class AbstractCharacter(AbstractUpgradable):
             if self.element in active.name:
                 active.name.replace(self.element, element)
         self.element = element
-        
-        
+
+
     def add_active(self, active: 'AbstractActive'):
         """
 
@@ -441,7 +441,7 @@ class AbstractCharacter(AbstractUpgradable):
     def save_to_dir(self, directory: str):
         """
         Save this character's data to a specified directory.
-        The name of the file will be this' name, but with spaces 
+        The name of the file will be this' name, but with spaces
         replaced by underscores.
         """
         try:
@@ -451,15 +451,15 @@ class AbstractCharacter(AbstractUpgradable):
             Op.add('Could not find directory ' + directory)
             Op.add(str(ex))
             Op.display()
-    
-    
+
+
     @staticmethod
     def load_from_file(file_path: str) -> 'AbstractCharacter':
         """
         Reads a json file, then returns the character contained in that file
         """
         ret = None
-        
+
         try:
             with open(file_path, 'rt') as file:
                 ret = AbstractCharacter.read_json(json.loads(file.read()))
@@ -467,7 +467,7 @@ class AbstractCharacter(AbstractUpgradable):
             Op.add('Could not find file ' + file_path)
             Op.add(str(ex))
             Op.display()
-        
+
         return ret
 
 
@@ -668,8 +668,8 @@ class EnemyCharacter(AbstractCharacter):
         Saves this enemy's data to the enemy directory
         """
         self.save_to_dir(ENEMY_DIRECTORY)
-        
-        
+
+
     @staticmethod
     def load_enemy(name=' ', force=False, all=False) -> 'EnemyCharacter':
         """
@@ -677,12 +677,12 @@ class EnemyCharacter(AbstractCharacter):
         If force is True, searches through the enemy directory for
         that enemy's save file, then loads that enemy, caching it in the
         enemy cache.
-        
+
         If force is False, will first check if the enemy has already been
         cached.
         """
         ret = None
-        
+
         if not force and name.title in ENEMY_CACHE:
             ret = ENEMY_CACHE[name.title]
         else:
@@ -695,10 +695,10 @@ class EnemyCharacter(AbstractCharacter):
                 if all or name.title().replace('_', ' ') == char_name:
                     ret = AbstractCharacter.load_from_file(str(path))
                     ENEMY_CACHE[char_name] = ret
-        
+
         if ret is None:
             raise FileNotFoundError('Enemy not found in ' + ENEMY_DIRECTORY + ': ' + name + ' Did you forget to call .save() on that enemy?')
-                    
+
         return ret.copy()
 
 
