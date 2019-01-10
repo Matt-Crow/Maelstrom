@@ -67,7 +67,7 @@ class JsonAble(object):
             with open(self.get_file_path(), 'wt') as file:
                 file.write(json.dumps(self.get_as_json()))
         except Error as err:
-            raise(err) #want the warning to get through
+            print(err) #want the warning to get through
 
 
     def get_file_path(self) -> str:

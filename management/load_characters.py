@@ -111,22 +111,22 @@ def generate_enemies():
         'element' : 'rain',
         'potency' : {
             'type': 'Stat',
-            'value': 10,
+            'base': 10,
             'name': 'potency'
         },
         'control' : {
             'type': 'Stat',
-            'value': -10,
+            'base': -10,
             'name': 'control'
         },
         'rain damage multiplier' : {
             'type': 'Stat',
-            'value': 10,
+            'base': 10,
             'name': 'rain damage multiplier'
         },
         'lightning damage reduction' : {
             'type': 'Stat',
-            'value': -10,
+            'base': -10,
             'name': 'lightning damage reduction'
         },
         'attacks' : [
@@ -135,12 +135,12 @@ def generate_enemies():
                 'type' : 'AbstractActive',
                 'cleave' : {
                     'type': 'Stat',
-                    'value': 10,
+                    'base': 10,
                     'name': 'cleave'
                 },
                 'damage multiplier' : {
                     'type': 'Stat',
-                    'value': -10,
+                    'base': -10,
                     'name': 'damage multiplier'
                 }
             }
@@ -157,22 +157,22 @@ def generate_enemies():
         'element' : 'hail',
         'resistance' : {
             'type': 'Stat',
-            'value': 10,
+            'base': 10,
             'name': 'resistance'
         },
         'luck' : {
             'type': 'Stat',
-            'value': -10,
+            'base': -10,
             'name': 'luck'
         },
         'hail damage multiplier' : {
             'type': 'Stat',
-            'value': 10,
+            'base': 10,
             'name': 'hail damage multiplier'
         },
         'rain damage reduction' : {
             'type': 'Stat',
-            'value': -10,
+            'base': -10,
             'name': 'rain damage reduction'
         },
         'attacks' : [
@@ -181,12 +181,12 @@ def generate_enemies():
                 'type' : 'AbstractActive',
                 'crit chance' : {
                     'type': 'Stat',
-                    'value': 10,
+                    'base': 10,
                     'name': 'crit chance'
                 },
                 'cleave' : {
                     'type': 'Stat',
-                    'value': -10,
+                    'base': -10,
                     'name': 'cleave'
                 }
             }
@@ -201,16 +201,40 @@ def generate_enemies():
         'name' : 'Wind Entity',
         'type' : 'EnemyCharacter',
         'element' : 'wind',
-        'luck' : 10,
-        'potency' : -10,
-        'wind damage multiplier' : 10,
-        'hail damage reduction' : -10,
+        'luck' : {
+            'type': 'Stat',
+            'base': 10,
+            'name': 'luck'
+        },
+        'potency' : {
+            'type': 'Stat',
+            'base': -10,
+            'name': 'potency'
+        },
+        'wind damage multiplier' : {
+            'type': 'Stat',
+            'base': 10,
+            'name': 'wind damage multiplier'
+        },
+        'hail damage reduction' : {
+            'type': 'Stat',
+            'base': -10,
+            'name': 'hail damage reduction'
+        },
         'attacks' : [
             {
                 'name' : 'Tornado',
                 'type' : 'AbstractActive',
-                'crit mult' : 10,
-                'miss mult' : -10
+                'crit mult' : {
+                    'type': 'Stat',
+                    'base': 10,
+                    'name': 'crit mult'
+                },
+                'miss mult' : {
+                    'type': 'Stat',
+                    'base': -10,
+                    'name': 'miss mult'
+                }
             }
         ]
     })
@@ -223,11 +247,31 @@ def generate_enemies():
         'name' : 'Stone Soldier',
         'type' : 'EnemyCharacter',
         'element' : 'stone',
-        'control' : 5,
-        'resistance' : 10,
-        'luck' : -5,
-        'energy' : -5,
-        'potency' : -5
+        'control' : {
+            'type': 'Stat',
+            'base': 5,
+            'name': 'control'
+        },
+        'resistance' : {
+            'type': 'Stat',
+            'base': 10,
+            'name': 'resistance'
+        },
+        'luck' : {
+            'type': 'Stat',
+            'base': -5,
+            'name': 'luck'
+        },
+        'energy' : {
+            'type': 'Stat',
+            'base': -5,
+            'name': 'energy'
+        },
+        'potency' : {
+            'type': 'Stat',
+            'base': -5,
+            'name': 'potency'
+        }
     })
     stone.add_default_actives()
     stone.add_default_passives()
