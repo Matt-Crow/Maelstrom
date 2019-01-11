@@ -1,11 +1,14 @@
 from utilities import Dp, choose, to_list
 from output import Op
-from character import PlayerCharacter, EnemyCharacter
+from character import PlayerCharacter, EnemyCharacter, AbstractCharacter
+from item import Item
+from serialize import Jsonable
 
+PLAYER_TEAM_DIRECTORY = 'users'
 """
 Teams
 """
-class AbstractTeam(object):
+class AbstractTeam(Jsonable):
     """
     Teams are used to group characters
     together so that the program knows
@@ -16,10 +19,36 @@ class AbstractTeam(object):
         """
         Members is a list of AbstractCharacters
         """
-        self.name = name
+        super(AbstractTeam, self).__init__(name)
+        self.set_type('AbstractTeam')
         self.members = []
         for member in members:
             self.add_member(member)
+        self.enemy = None
+        self.track_attr('members')
+    
+    
+    @staticmethod
+    def load_team(path: str) -> 'AbstractTeam':
+        """
+        Reads a json file, then returns the team contained in that file
+        
+        may raise a FileNotFoundError
+        """
+        ret = None
+        
+        dict = Jsonable.load_json(path)
+        if dict.get('type', 'TYPE NOT FOUND') == 'PlayerTeam':
+            character = AbstractCharacter.read_json(dict.get('members', [PlayerCharacter('NoExist')])[0])
+            ret = PlayerTeam(dict.get('name', 'NAME NOT FOUND'), character)
+            for item in dict.get('inventory', []):
+                ret.obtain(Item.read_json(item))
+        elif dict.get('type', 'TYPE NOT FOUND') == 'EnemyTeam':
+            ret = EnemyTeam([member['name'] for member in dict.get('members', [])], dict.get('members', [])[0].level)
+        else:
+            raise Error('Type not found: ' + dict.get('type'))
+        
+        return ret
         
         
     def add_member(self, member: 'AbstractCharacter'):
@@ -93,7 +122,8 @@ class AbstractTeam(object):
         Op.add("Currently active: " + self.active.name)
         Op.add(self.active.get_data())
         Op.add(self.active.name + "'s Energy: " + str(self.active.energy))
-        Op.add("Active enemy: " + self.enemy.active.name + " " + str(int(self.enemy.active.HP_rem)) + "/" + str(int(self.enemy.active.max_hp)))
+        if self.enemy:
+            Op.add("Active enemy: " + self.enemy.active.name + " " + str(int(self.enemy.active.HP_rem)) + "/" + str(int(self.enemy.active.max_hp)))
         Op.display()
 
 
@@ -130,14 +160,16 @@ class AbstractTeam(object):
         This is abstract: each subclass should implement it
         """
         raise NotImplementedError('Team method choose_switchin is abstract')
-        
+
 
 
 class PlayerTeam(AbstractTeam):
     def __init__(self, name, member):
         super(self.__class__, self).__init__(name, [member])
+        self.set_type('PlayerTeam')
         self.inventory = []
-    
+        self.track_attr('inventory')
+        self.set_save_directory(PLAYER_TEAM_DIRECTORY)
     
 
     """
@@ -200,7 +232,7 @@ class PlayerTeam(AbstractTeam):
 class EnemyTeam(AbstractTeam):
     def __init__(self, member_names: list, level: int):
         super(self.__class__, self).__init__('Enemy Team')
-
+        self.set_type('EnemyTeam')
         member_names = to_list(member_names)
         for name in member_names:
             member = EnemyCharacter.load_enemy(name)

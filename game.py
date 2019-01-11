@@ -1,7 +1,9 @@
-from util.output import Op
+from output import Op
 from file import File, PlayerSaveFile
-from teams import PlayerTeam
-from utilities import choose
+from teams import PlayerTeam, AbstractTeam
+from character import AbstractCharacter
+from utilities import choose, ELEMENTS
+import json
 
 class Game:
     """
@@ -50,20 +52,58 @@ class Game:
         action = choose("Do you wish to load a game, or start a new one?", ["Create game", "Load game"])
         if action == "Load game":
             user_name = choose("Which user are you?", options)
-        #TODO: how to add user?
+            if user_name == 'None of these':
+                self.new_user_menu()
+                self.login_menu()
+            else:
+                self.login_user(user_name)
+        else:
+            self.new_user_menu()
+            self.login_menu()
         
-        self.login_user(user_name)
     
     def login_user(self, user_name):
         """
         Play a game as the given user
         """
         data = PlayerSaveFile("users/" + user_name.replace(" ", "_").lower() + ".txt")
-        if data.error:
-            print("cannot find save file for " + user_name)
-        else:
-            #change this later
-            self.player = PlayerTeam("Player team", {"name": "Alexandre", "data": ((0, 0, 0, 0, 0), "lightning"), "level": 1})
-            self.player.team[0].read_save_code(data.get_lines())
-            self.player.initialize()
-            self.player.list_members()
+        
+        self.player = AbstractTeam.load_team('users/' + user_name.replace(" ", "_").lower() + '.json')
+        self.player.initialize()
+        self.player.display_data()
+            
+    
+    def new_user_menu(self):
+        """
+        Creates the menu for creating a new user
+        """
+        name = input('What do you want your character\'s name to be? ')
+        element = choose('Each character has elemental powers, what element do you want yours to control?', ELEMENTS)
+        print(self.create_user(name, element))
+        self.login_user(name)
+        
+                
+    def create_user(self, user_name: str, element: str) -> str:
+        """
+        Adds a user.
+        Returns a message based on if the profile creation was successful
+        """
+        ret = 'User added successfully!'
+        success = True
+        
+        with open('users/users.txt', 'rt') as file:
+            if user_name in file.read():
+                ret = 'The name ' + user_name + ' is already taken.'
+                success = False
+                
+        
+        if success:
+            character = AbstractCharacter.create_default_player()
+            character.name = user_name
+            character.set_element(element)
+            PlayerTeam(user_name, character).save()
+            
+            with open('users/users.txt', 'a') as file:
+                file.write(user_name + '\n')
+            
+        return ret

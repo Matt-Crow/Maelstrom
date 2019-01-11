@@ -70,6 +70,22 @@ class Jsonable(object):
                 file.write(json.dumps(self.get_as_json()))
         except Error as err:
             print(err) #want the warning to get through
+            
+    
+    @staticmethod
+    def load_json(path: str) -> dict:
+        """
+        Change to class method?
+        
+        parses a json file to a dictionary,
+        then returns the result.
+        
+        Note that this may raise a FileNotFoundError
+        """
+        ret = {}
+        with open(path, 'rt') as file:
+            ret = json.loads(file.read())
+        return ret
 
 
     def get_file_path(self) -> str:
