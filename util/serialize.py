@@ -6,7 +6,7 @@ A JSONable is any object that can be stored as a json file.
 Maelstrom uses json files to store most of the data used by the program.
 """
 
-class JsonAble(object):
+class Jsonable(object):
     def __init__(self, name: str):
         """
         name is used for creating the save file
@@ -55,7 +55,9 @@ class JsonAble(object):
         as a json dictionary.
         Subclasses will likely want to add keys to what this returns.
         """
-        return {attr: self.__dict__[attr] for attr in self.to_serialize}
+        return json.loads(json.dumps({attr: self.__dict__[attr] for attr in self.to_serialize}, cls=CustomJsonEncoder))
+        
+        #return {attr: self.__dict__[attr] for attr in self.to_serialize}
 
 
     def save(self):
@@ -79,5 +81,12 @@ class JsonAble(object):
         return self.directory + os.sep + self.name.replace(' ', '_').lower() + '.json'
 
 
-def decode_json(json: dict) -> object:
-    pass
+class CustomJsonEncoder(json.JSONEncoder):
+    def default(self, obj):
+        ret = None
+        if callable(getattr(obj, 'get_as_json', None)):
+            ret = obj.get_as_json()
+        else:
+            ret = json.JSONEncoder.default(self, obj)
+        return ret
+

@@ -71,3 +71,4 @@ if __name__ == "__main__":
     player = PlayerTeam("Player team", AbstractCharacter.create_default_player())
 
     lib_cave.trav_or_play(player)
+    pprint.pprint(lib_cave.get_as_json())

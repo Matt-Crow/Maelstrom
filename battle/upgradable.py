@@ -2,14 +2,14 @@ from stat_classes import Stat
 from utilities import choose
 import json
 from output import Op
-from serialize import JsonAble
+from serialize import Jsonable
 
 
 """
 An AbstractUpgradable is anything that the player can change as their characters level up.
 """
 
-class AbstractUpgradable(JsonAble):
+class AbstractUpgradable(Jsonable):
     """
     The abstract base class for anything that the player can customize as they level up
     """
@@ -151,6 +151,8 @@ class AbstractUpgradable(JsonAble):
         """
         returns a JSON representation of this object as a dictionary,
         which can be used to reconstuct this object.
+        
+        need to override this manually, as jsonable can't track self.attributes
         """
         serialize = super(AbstractUpgradable, self).get_as_json()
         for attr, val in self.attributes.items():

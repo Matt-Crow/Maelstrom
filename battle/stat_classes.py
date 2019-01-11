@@ -1,12 +1,12 @@
 from utilities import *
-from serialize import JsonAble
+from serialize import Jsonable
 
 """
 Stat stuff
 """
 
 #TODO: add a display function parameter which will convert it to a text representation that shows how it works?
-class Stat(JsonAble):
+class Stat(Jsonable):
     """
     A class used to store
     information about a stat,
