@@ -50,23 +50,7 @@ add_subdir("util")
 add_subdir("story")
 add_subdir('management')
 
-from battle import Battle
-from teams import PlayerTeam
-from file import *
-from area import Area
-from location import Location
 from game import Game
-from character import AbstractCharacter, EnemyCharacter, ENEMY_CACHE
-from load_characters import save_base, generate_enemies
-import json
-import pprint
-
-
-
-lib_cave = Area('Ancient caverns')
 
 if __name__ == "__main__":
     Game().run()
-    #player = PlayerTeam("Player team", AbstractCharacter.create_default_player())
-
-    #lib_cave.trav_or_play(player)

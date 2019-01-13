@@ -139,8 +139,13 @@ class AbstractCharacter(AbstractUpgradable):
         have to manually edit each active
         """
         for active in self.attacks:
-            if self.element in active.name:
-                active.name.replace(self.element, element)
+            print(active.name)
+            print(element)
+            print(self.element)
+            if self.element.lower() in active.name.lower():
+                active.name = active.name.lower()
+                print(active.name)
+                active.name = active.name.replace(self.element.lower(), element.lower())
         self.element = element
 
 
