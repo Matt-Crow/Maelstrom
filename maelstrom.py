@@ -37,8 +37,6 @@ Week 2: Revised/improved/reordered functions
 9/12/2017 - 11/12/2017 : Split files, working on campagne
 12/12/2017: Working on save file
 
-edit using atom, run using IDLE or command prompt
-
 Version 0.9
 """
 

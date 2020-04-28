@@ -30,8 +30,6 @@ class AbstractCharacter(AbstractUpgradable):
     Used to 'build' the characters
     """
     def __init__(self, name):
-        """
-        """
         super(AbstractCharacter, self).__init__(name)
         self.set_type('AbstractCharacter')
         self.max_hp = 100
