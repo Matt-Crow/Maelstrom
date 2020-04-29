@@ -2,30 +2,31 @@ from utilities import *
 from location import Location
 from battle import Battle
 from output import Op
-from serialize import Jsonable
+from serialize import Jsonable, AbstractJsonSerialable
 import json
+import os
 
 AREA_DIRECTORY = 'maelstrom_story/areas'
-class Area(Jsonable):
+class Area(AbstractJsonSerialable):
     def __init__(self, name, locations=[], levels=[]):
-        super(Area, self).__init__(name)
-        self.set_type('Area')
-        self.set_save_directory(AREA_DIRECTORY)
-        
+        super(Area, self).__init__("Area")
+        self.name = name
+        self.addSerializedAttribute("name")
+
         self.desc = 'NO DESCRIPTION'
         self.locations = to_list(locations)
         self.levels = to_list(levels)
-        
-        self.track_attr('desc')
-        self.track_attr('locations')
-        self.track_attr('levels')
-        
-        with open(self.get_file_path(), 'rt') as file:
+
+        self.addSerializedAttribute("desc")
+        self.addSerializedAttribute("locations")
+        self.addSerializedAttribute("levels")
+
+        with open(os.path.join(AREA_DIRECTORY, name.replace(" ", "_") + ".json"), 'rt') as file:
             jdict = json.loads(file.read())
             self.desc = jdict.get('desc', 'NO DESCRIPTION')
             self.locations = [Location(data) for data in jdict.get('locations', [])]
             self.levels = [Battle.read_json(data) for data in jdict.get('levels', [])]
-        
+
         #self.levels.append(Battle.generate_random())
 
 
@@ -42,8 +43,8 @@ class Area(Jsonable):
             for line in level.get_data():
                 ret.append("\t" + line)
         return ret
-        
-        
+
+
     def __str__(self):
         return self.name
 
