@@ -1,6 +1,35 @@
 import json
 import os
 
+class AbstractJsonSerialable(object):
+    def __init__(self):
+        pass
+
+    # json.loads(json.dumps(dict, cls=CustomJsonEncoder))
+    def toJsonDict(self)->dict:
+        raise ValueError("Subclasses must override toJsonDict()")
+
+    """
+    Converts this' data to a json file,
+    then saves it to a file
+    """
+    def writeToFile(self, filePath: str):
+        with open(filePath, "w") as file:
+            file.write(json.dumps(self.toJsonDict()))
+
+    """
+    Change to class method?
+    Reads a JSON file, returning
+    its content as a dictionary.
+    """
+    @staticmethod
+    def readFile(filePath: str)->dict:
+        ret = {}
+        with open(filePath, "r") as file:
+            ret = json.loads(file.read())
+        return ret
+
+
 """
 A JSONable is any object that can be stored as a json file.
 Maelstrom uses json files to store most of the data used by the program.
@@ -21,7 +50,6 @@ class Jsonable(object):
         self.to_serialize = ['name', 'type'] #the list of attributes that need to be serialized.
         #note that these must match this object's attribute names exactly.
 
-
     def set_type(self, type: str):
         """
         Set what will prefix this' JSON output,
@@ -29,7 +57,6 @@ class Jsonable(object):
         reconvert the JSON to an object
         """
         self.type = type
-
 
     def track_attr(self, attr_name: str):
         """
@@ -48,7 +75,7 @@ class Jsonable(object):
         """
         self.directory = dir
 
-
+    # look at this
     def get_as_json(self) -> dict:
         """
         returns this' attributes to serialize,
@@ -56,9 +83,6 @@ class Jsonable(object):
         Subclasses will likely want to add keys to what this returns.
         """
         return json.loads(json.dumps({attr: self.__dict__[attr] for attr in self.to_serialize}, cls=CustomJsonEncoder))
-
-        #return {attr: self.__dict__[attr] for attr in self.to_serialize}
-
 
     def save(self):
         """
@@ -102,6 +126,8 @@ class CustomJsonEncoder(json.JSONEncoder):
         ret = None
         if callable(getattr(obj, 'get_as_json', None)):
             ret = obj.get_as_json()
+        elif isinstance(obj, AbstractJsonSerialable):
+            ret = obj.toJsonDict()
         else:
             ret = json.JSONEncoder.default(self, obj)
         return ret
