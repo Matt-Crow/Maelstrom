@@ -2,12 +2,28 @@ import json
 import os
 
 class AbstractJsonSerialable(object):
-    def __init__(self):
-        pass
+    """
+    type is used to load after serializing
+    """
+    def __init__(self, type: str):
+        self.type = type
+        self.serializedAttributes = ["type"]
+        # the list of attributes this object has that should be written to this' JSON file.
 
-    # json.loads(json.dumps(dict, cls=CustomJsonEncoder))
+    def addSerializedAttribute(self, attrName: str):
+        if attrName not in self.serializedAttributes:
+            if attrName not in self.__dict__:
+                raise ValueError("Key \"{0}\" not found for {1}".format(attrName, str(self.__dict__)))
+            else:
+                self.serializedAttributes.append(attrName)
+
+    """
+    returns this' attributes to serialize,
+    as a json dictionary.
+    Subclasses will likely want to add keys to what this returns.
+    """
     def toJsonDict(self)->dict:
-        raise ValueError("Subclasses must override toJsonDict()")
+        return json.loads(json.dumps({attr: self.__dict__[attr] for attr in self.serializedAttributes}, cls=CustomJsonEncoder))
 
     """
     Converts this' data to a json file,
@@ -75,7 +91,6 @@ class Jsonable(object):
         """
         self.directory = dir
 
-    # look at this
     def get_as_json(self) -> dict:
         """
         returns this' attributes to serialize,
