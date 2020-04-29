@@ -11,6 +11,9 @@ import json
 from pathlib import Path
 import os
 
+
+from file import writeCsvFile
+
 """
 Characters.
 
@@ -55,7 +58,6 @@ class AbstractCharacter(AbstractUpgradable):
         self.track_attr('attacks')
         self.track_attr('passives')
         self.track_attr('equipped_items')
-
 
     def copy(self) -> 'AbstractCharacter':
         """

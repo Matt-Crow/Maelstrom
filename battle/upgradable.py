@@ -151,7 +151,7 @@ class AbstractUpgradable(Jsonable):
         """
         returns a JSON representation of this object as a dictionary,
         which can be used to reconstuct this object.
-        
+
         need to override this manually, as jsonable can't track self.attributes
         """
         serialize = super(AbstractUpgradable, self).get_as_json()

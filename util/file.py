@@ -1,4 +1,5 @@
-import os
+# https://docs.python.org/3/library/csv.html
+import csv
 from utilities import *
 
 """
@@ -7,19 +8,22 @@ the aweful JSON and XML
 stuff the project currently
 uses.
 """
-def writeCsvFile(filePath, headers, lineSupplier):
+def writeCsvFile(filePath, headers, objects):
     with open(filePath, "w") as file:
-        file.write(", ".join((header.lower() for header in headers)))
-        for line in lineSupplier:
-            file.write("\n" + line.strip())
+        writer = csv.DictWriter(file, fieldnames=[header.lower() for header in headers])
+        writer.writeheader()
+        for obj in objects:
+            d = {}
+            for header in headers:
+                d[header] = obj[header]
+            writer.writerow(d)
 
 def readCsvFile(filePath, requiredHeaders, lineConsumer):
     with open(filePath, "r") as file:
         for line in file:
             print(line)
 
-if __name__ == "__main__":
-    writeCsvFile("C:\\Users\\Matt\\Desktop\\test.csv", ["a", "b", "c"], ["1,2,3", "4,5,6"])
+
 
 
 # Oof. Redo all of this... stuff.

@@ -56,7 +56,7 @@ class Jsonable(object):
         Subclasses will likely want to add keys to what this returns.
         """
         return json.loads(json.dumps({attr: self.__dict__[attr] for attr in self.to_serialize}, cls=CustomJsonEncoder))
-        
+
         #return {attr: self.__dict__[attr] for attr in self.to_serialize}
 
 
@@ -70,16 +70,16 @@ class Jsonable(object):
                 file.write(json.dumps(self.get_as_json()))
         except Error as err:
             print(err) #want the warning to get through
-            
-    
+
+
     @staticmethod
     def load_json(path: str) -> dict:
         """
         Change to class method?
-        
+
         parses a json file to a dictionary,
         then returns the result.
-        
+
         Note that this may raise a FileNotFoundError
         """
         ret = {}
@@ -105,4 +105,3 @@ class CustomJsonEncoder(json.JSONEncoder):
         else:
             ret = json.JSONEncoder.default(self, obj)
         return ret
-

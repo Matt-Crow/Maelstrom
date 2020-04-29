@@ -1,6 +1,6 @@
 from stat_classes import Stat, Boost
 import pprint
-from utilities import STATS, ELEMENTS, get_hit_perc, roll_perc, Dp
+from utilities import ELEMENTS, get_hit_perc, roll_perc, Dp
 from upgradable import AbstractUpgradable
 from output import Op
 
