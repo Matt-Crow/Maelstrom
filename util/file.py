@@ -7,6 +7,7 @@ This will replace all of
 the aweful JSON and XML
 stuff the project currently
 uses.
+Or maybe not all of it
 """
 def writeCsvFile(filePath, headers, objects):
     with open(filePath, "w") as file:
