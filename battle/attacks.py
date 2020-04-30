@@ -110,7 +110,7 @@ class AbstractActive(AbstractUpgradable):
             ret += damage
         return ret
 
-    def get_data(self):
+    def getDisplayData(self):
         self.init_for_battle()
         ret = [self.type + " " + self.name]
 
@@ -125,7 +125,7 @@ class AbstractActive(AbstractUpgradable):
         ret.append("\tSIDE EFFECTS:")
         for side_effect in self.side_effects:
             ret.append('\t\t' + str(side_effect["chance"]) + "% chance to inflict")
-            for line in side_effect["effect"].get_data():
+            for line in side_effect["effect"].getDisplayData():
                 ret.append('\t\t' + line)
 
         return ret

@@ -132,7 +132,7 @@ class Boost(object):
     def reset(self):
         self.duration = self.base_duration
 
-    def get_data(self):
+    def getDisplayData(self):
         ret = [
             "Boost: " + self.id,
             "\t+" + str(int(self.amount * 100)) + "% to",

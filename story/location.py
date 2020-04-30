@@ -1,56 +1,40 @@
+from serialize import AbstractJsonSerialable
 from output import Op
 
 
-class Location:
+class Location(AbstractJsonSerialable):
     """
     Locations are used to store text descriptions of an area,
     providing a bit of atmosphere
     """
-    def __init__(self, json: dict):
-        """
-        Reads a dictionary, taking specific attributes from it
-        """
-        self.name = json.get('name', 'NO NAME SET')
-        self.description = json.get('desc', 'NO DESCRIPTION')
-        self.script = json.get('script', ['NO SCRIPT'])
+    def __init__(self, name: str, desc: str, script: list):
+        super(Location, self).__init__("Location")
+        self.name = name
+        self.desc = desc
+        self.script = script
+        self.addSerializedAttributes(
+            "name",
+            "desc",
+            "script"
+        )
+
+    @staticmethod
+    def loadJson(jdict: dict):
+        return Location(jdict["name"], jdict["desc"], jdict["script"])
+
+    """
+    Get data for outputting
+    """
+    def getDisplayData(self):
+        return [self.name, "\t" + self.desc]
 
 
-    def get_as_json(self) -> dict:
-        """
-        Returns this as a dictionary,
-        so it can be saved to a json file
-        """
-        return {
-            'name' : self.name,
-            'type' : 'location',
-            'desc' : self.description,
-            'script' : self.script
-        }
-        
-    
-    def get_data(self):
-        """
-        Get data for outputting
-        """
-        return [self.name, "\t" + self.description]
-    
-    
-    def travel_to(self, player):
-        """
-        Prints this location's story,
-        then calls this' action method,
-        passing in the given player
-        """
+    """
+    Prints this location's story,
+    then calls this' action method,
+    passing in the given player
+    """
+    def travelTo(self):
         for line in self.script:
             Op.add(line)
             Op.display()
-        self.action(player)
-
-
-    def action(self, player):
-        """
-        Can be overrided to allow
-        players to interact with this
-        location.
-        """
-        return False

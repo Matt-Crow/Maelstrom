@@ -24,23 +24,23 @@ class Area(AbstractJsonSerialable):
         with open(os.path.join(AREA_DIRECTORY, name.replace(" ", "_") + ".json"), 'rt') as file:
             jdict = json.loads(file.read())
             self.desc = jdict.get('desc', 'NO DESCRIPTION')
-            self.locations = [Location(data) for data in jdict.get('locations', [])]
+            self.locations = [Location.loadJson(data) for data in jdict.get('locations', [])]
             self.levels = [Battle.read_json(data) for data in jdict.get('levels', [])]
 
         #self.levels.append(Battle.generate_random())
 
 
-    def get_data(self):
+    def getDisplayData(self):
         ret = []
         ret.append("Area: " + self.name)
         ret.append("\t" + self.desc)
         ret.append("Locations:")
         for loc in self.locations:
-            for line in loc.get_data():
+            for line in loc.getDisplayData():
                 ret.append("\t" + line)
         ret.append("Levels:")
         for level in self.levels:
-            for line in level.get_data():
+            for line in level.getDisplayData():
                 ret.append("\t" + line)
         return ret
 
@@ -50,7 +50,7 @@ class Area(AbstractJsonSerialable):
 
 
     def trav_or_play(self, player):
-        Op.add(self.get_data())
+        Op.add(self.getDisplayData())
         Op.display()
         choice = choose("What do you wish to do?", ("Location", "Level", "Manage", "Quit"))
         if choice == "Level":
@@ -61,7 +61,10 @@ class Area(AbstractJsonSerialable):
             player.manage()
         elif choice == "Location":
             place_to_go = choose("Where do you want to go?", self.locations)
-            place_to_go.travel_to(player)
+            place_to_go.travelTo()
 
         if choice != "Quit":
             self.trav_or_play(player)
+
+def generateDefaultAreas():
+    pass

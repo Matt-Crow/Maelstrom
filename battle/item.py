@@ -105,12 +105,12 @@ class Item(AbstractUpgradable):
     def apply_boosts(self):
         self.user.boost(self.get_boost())
 
-    def get_data(self):
+    def getDisplayData(self):
         ret = [
             self.name + ":",
             "\t" + self.type
         ]
-        for line in self.get_boost().get_data():
+        for line in self.get_boost().getDisplayData():
             ret.append("\t" + line)
         ret.append("\t" + self.desc)
         return ret

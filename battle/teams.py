@@ -120,7 +120,7 @@ class AbstractTeam(Jsonable):
         for member in self.members_rem:
             Op.add("* " + member.name + " " + str(int(member.HP_rem)) + "/" + str(int(member.max_hp)))
         Op.add("Currently active: " + self.active.name)
-        Op.add(self.active.get_data())
+        Op.add(self.active.getDisplayData())
         Op.add(self.active.name + "'s Energy: " + str(self.active.energy))
         if self.enemy:
             Op.add("Active enemy: " + self.enemy.active.name + " " + str(int(self.enemy.active.HP_rem)) + "/" + str(int(self.enemy.active.max_hp)))

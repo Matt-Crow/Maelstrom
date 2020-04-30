@@ -71,7 +71,7 @@ class AbstractUpgradable(Jsonable):
         self.attributes[stat_name].set_base(base)
 
 
-    def get_data(self) -> list:
+    def getDisplayData(self) -> list:
         """
         Returns a list of strings:
         a text representation of this object.
@@ -88,11 +88,11 @@ class AbstractUpgradable(Jsonable):
 
     def display_data(self):
         """
-        Prints the result of self.get_data()
+        Prints the result of self.getDisplayData()
 
         Note that subclasses don't have to override this
         """
-        Op.add(self.get_data())
+        Op.add(self.getDisplayData())
         Op.display()
 
 

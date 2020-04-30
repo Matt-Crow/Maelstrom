@@ -194,7 +194,7 @@ class Threshhold(AbstractPassive):
         Dp.dp()
 
 
-    def get_data(self) -> list:
+    def getDisplayData(self) -> list:
         """
         returns a text representation of this object
         """
@@ -230,7 +230,7 @@ class OnHitGiven(AbstractPassive):
         Dp.dp()
 
 
-    def get_data(self) -> list:
+    def getDisplayData(self) -> list:
         """
         returns a text representation of this object
         """
@@ -266,7 +266,7 @@ class OnHitTaken(AbstractPassive):
         Dp.dp()
 
 
-    def get_data(self) -> list:
+    def getDisplayData(self) -> list:
         """
         returns a text representation of this object
         """

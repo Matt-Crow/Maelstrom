@@ -17,6 +17,10 @@ class AbstractJsonSerialable(object):
             else:
                 self.serializedAttributes.append(attrName)
 
+    def addSerializedAttributes(self, *attrNames: list):
+        for attr in attrNames:
+            self.addSerializedAttribute(attr)
+
     """
     returns this' attributes to serialize,
     as a json dictionary.

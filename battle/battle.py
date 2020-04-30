@@ -71,7 +71,7 @@ class Battle(object):
         """
         self.forecast = to_list(forecast)
     
-    def get_data(self):
+    def getDisplayData(self):
         """
         gets data for outputting
         """
