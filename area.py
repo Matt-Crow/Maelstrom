@@ -2,33 +2,43 @@ from utilities import *
 from location import Location
 from battle import Battle
 from output import Op
-from serialize import Jsonable, AbstractJsonSerialable
+from serialize import AbstractJsonSerialable
 import json
 import os
 
 AREA_DIRECTORY = 'maelstrom_story/areas'
 class Area(AbstractJsonSerialable):
-    def __init__(self, name, locations=[], levels=[]):
+    def __init__(self, name, desc, locations=[], levels=[]):
         super(Area, self).__init__("Area")
         self.name = name
-        self.addSerializedAttribute("name")
 
-        self.desc = 'NO DESCRIPTION'
+        self.desc = desc
         self.locations = to_list(locations)
         self.levels = to_list(levels)
 
-        self.addSerializedAttribute("desc")
-        self.addSerializedAttribute("locations")
-        self.addSerializedAttribute("levels")
-
-        with open(os.path.join(AREA_DIRECTORY, name.replace(" ", "_") + ".json"), 'rt') as file:
-            jdict = json.loads(file.read())
-            self.desc = jdict.get('desc', 'NO DESCRIPTION')
-            self.locations = [Location.loadJson(data) for data in jdict.get('locations', [])]
-            self.levels = [Battle.read_json(data) for data in jdict.get('levels', [])]
-
+        self.addSerializedAttributes(
+            "name",
+            "desc",
+            "locations",
+            "levels"
+        )
         #self.levels.append(Battle.generate_random())
 
+    @staticmethod
+    def loadDefault():
+        jdict = {}
+        with open(os.path.join(AREA_DIRECTORY, "Ancient caverns".replace(" ", "_") + ".json"), 'rt') as file:
+            jdict = json.loads(file.read())
+        return Area.loadJson(jdict)
+
+    @staticmethod
+    def loadJson(jdict: dict):
+        return Area(
+            jdict["name"],
+            jdict["desc"],
+            [Location.loadJson(j) for j in jdict["locations"]],
+            [Battle.read_json(j) for j in jdict["levels"]]
+        )
 
     def getDisplayData(self):
         ret = []
@@ -49,22 +59,25 @@ class Area(AbstractJsonSerialable):
         return self.name
 
 
-    def trav_or_play(self, player):
+    def chooseAction(self, player):
         Op.add(self.getDisplayData())
         Op.display()
+
+        #                                                                 Move this to Game
         choice = choose("What do you wish to do?", ("Location", "Level", "Manage", "Quit"))
         if choice == "Level":
-            level_to_play = choose("Which level do you want to play?", self.levels)
-            level_to_play.load_team(player)
-            level_to_play.play()
+            lvChoice = choose("Which level do you want to play?", self.levels)
+            lvChoice.load_team(player)
+            lvChoice.play()
         elif choice == "Manage":
             player.manage()
         elif choice == "Location":
-            place_to_go = choose("Where do you want to go?", self.locations)
-            place_to_go.travelTo()
+            travelChoice = choose("Where do you want to go?", self.locations)
+            travelChoice.travelTo()
 
+        # will want to move this somewhere else.
         if choice != "Quit":
-            self.trav_or_play(player)
+            self.chooseAction(player)
 
 def generateDefaultAreas():
     pass

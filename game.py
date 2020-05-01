@@ -14,7 +14,6 @@ class Game:
     def __init__(self):
         self.player = None
         self.exit = False
-        #gameType (Maelstrom, or other rpg)
 
     def run(self):
         """
@@ -24,7 +23,8 @@ class Game:
             if self.player == None:
                 self.main_menu()
             else:
-                Area('Ancient caverns').trav_or_play(self.player)
+
+                Area.loadDefault().chooseAction(self.player)
                 self.exit = True #since Area will run until the user chooses to quit.
                 self.player.save()
 

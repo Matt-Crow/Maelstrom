@@ -1,12 +1,11 @@
 from serialize import AbstractJsonSerialable
 from output import Op
 
-
+"""
+Locations are used to store text descriptions of an area,
+providing a bit of atmosphere
+"""
 class Location(AbstractJsonSerialable):
-    """
-    Locations are used to store text descriptions of an area,
-    providing a bit of atmosphere
-    """
     def __init__(self, name: str, desc: str, script: list):
         super(Location, self).__init__("Location")
         self.name = name
