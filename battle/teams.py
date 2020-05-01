@@ -2,55 +2,51 @@ from utilities import Dp, choose, to_list
 from output import Op
 from character import PlayerCharacter, EnemyCharacter, AbstractCharacter
 from item import Item
-from serialize import Jsonable
+from serialize import AbstractJsonSerialable
+import os
 
 PLAYER_TEAM_DIRECTORY = 'users'
+
 """
-Teams
+Teams are used to group characters
+together so that the program knows
+who are enemies, and who are allies.
 """
-class AbstractTeam(Jsonable):
-    """
-    Teams are used to group characters
-    together so that the program knows
-    who are enemies, and who are allies.
-    """
-    
-    def __init__(self, name: str, members=[]):
-        """
-        Members is a list of AbstractCharacters
-        """
-        super(AbstractTeam, self).__init__(name)
-        self.set_type('AbstractTeam')
+class AbstractTeam(AbstractJsonSerialable):
+    def __init__(self, type: str, name: str, members=[]):
+        super(AbstractTeam, self).__init__(type)
+        self.name = name
         self.members = []
         for member in members:
             self.add_member(member)
         self.enemy = None
-        self.track_attr('members')
-    
-    
+        self.addSerializedAttributes(
+            "name",
+            "members"
+        )
+
     @staticmethod
     def load_team(path: str) -> 'AbstractTeam':
         """
         Reads a json file, then returns the team contained in that file
-        
+
         may raise a FileNotFoundError
         """
         ret = None
-        
-        dict = Jsonable.load_json(path)
-        if dict.get('type', 'TYPE NOT FOUND') == 'PlayerTeam':
-            character = AbstractCharacter.read_json(dict.get('members', [PlayerCharacter('NoExist')])[0])
-            ret = PlayerTeam(dict.get('name', 'NAME NOT FOUND'), character)
+
+        dict = AbstractJsonSerialable.readFile(path)
+        if dict["type"] == "PlayerTeam":
+            character = AbstractCharacter.read_json(dict["members"][0])
+            ret = PlayerTeam(dict["name"], character)
             for item in dict.get('inventory', []):
                 ret.obtain(Item.read_json(item))
-        elif dict.get('type', 'TYPE NOT FOUND') == 'EnemyTeam':
-            ret = EnemyTeam([member['name'] for member in dict.get('members', [])], dict.get('members', [])[0].level)
+        elif dict["type"] == "EnemyTeam":
+            ret = EnemyTeam([member['name'] for member in dict["members"]], dict["members"][0].level)
         else:
-            raise Error('Type not found: ' + dict.get('type'))
-        
+            raise Error('Type not found: ' + dict["type"])
+
         return ret
-        
-        
+
     def add_member(self, member: 'AbstractCharacter'):
         """
         Adds a character to this' team, if they are not
@@ -59,8 +55,7 @@ class AbstractTeam(Jsonable):
         if member not in self.members:
             self.members.append(member)
             member.team = self
-        
-        
+
     # balance this later
     def xp_given(self):
         """
@@ -73,7 +68,6 @@ class AbstractTeam(Jsonable):
             xp += member.level * 10
         return xp / len(self.members)
 
-
     def update_members_rem(self):
         new_members_rem = []
         for member in self.members_rem:
@@ -85,7 +79,6 @@ class AbstractTeam(Jsonable):
                 Op.display()
         self.members_rem = new_members_rem
 
-
     def is_up(self):
         """
         Use to see if your team still exists
@@ -93,13 +86,11 @@ class AbstractTeam(Jsonable):
 
         return len(self.members_rem) != 0
 
-
     def one_left(self):
         """
         Detects when you have only one member left
         """
         return len(self.members_rem) == 1
-
 
     def initialize(self):
         """
@@ -110,7 +101,6 @@ class AbstractTeam(Jsonable):
             member.init_for_battle()
             self.members_rem.append(member)
         self.active = self.members_rem[0]
-        
 
     def display_data(self):
         """
@@ -126,10 +116,8 @@ class AbstractTeam(Jsonable):
             Op.add("Active enemy: " + self.enemy.active.name + " " + str(int(self.enemy.active.HP_rem)) + "/" + str(int(self.enemy.active.max_hp)))
         Op.display()
 
-
     def __str__(self):
         return self.name
-
 
     def do_turn(self):
         """
@@ -138,23 +126,20 @@ class AbstractTeam(Jsonable):
         if self.active.check_if_KOed():
             self.active = self.choose_switchin()
         self.switched_in = False
-        
+
         self.display_data()
         if self.should_switch():
             self.active = self.choose_switchin()
             self.switched_in = True
         self.active.choose_attack()
-    
-    
-    
+
     def should_switch(self) -> bool:
         """
         Returns whether or not this team
         should change who is active
         """
         raise NotImplementedError('Team method should_switch is abstract')
-        
-        
+
     def choose_switchin(self) -> 'AbstractCharacter':
         """
         This is abstract: each subclass should implement it
@@ -165,12 +150,10 @@ class AbstractTeam(Jsonable):
 
 class PlayerTeam(AbstractTeam):
     def __init__(self, name, member):
-        super(self.__class__, self).__init__(name, [member])
-        self.set_type('PlayerTeam')
+        super(PlayerTeam, self).__init__("PlayerTeam", name, [member])
         self.inventory = []
-        self.track_attr('inventory')
-        self.set_save_directory(PLAYER_TEAM_DIRECTORY)
-    
+        self.addSerializedAttribute("inventory")
+        #self.set_save_directory(PLAYER_TEAM_DIRECTORY)
 
     """
     Choices are made using these functions
@@ -181,10 +164,9 @@ class PlayerTeam(AbstractTeam):
         switch before attacking
         """
         self.display_data()
-        
-        return len(self.members) > 1 and choose('Do you want to switch your active character?', ['Yes', 'No']) == 'Yes' 
-    
-    
+
+        return len(self.members) > 1 and choose('Do you want to switch your active character?', ['Yes', 'No']) == 'Yes'
+
     def choose_switchin(self):
         """
         Who will fight?
@@ -195,7 +177,6 @@ class PlayerTeam(AbstractTeam):
                 choices.append(member)
         self.display_data()
         self.switch(choose("Who do you want to bring in?", choices))
-        
 
     """
     Customization options
@@ -210,7 +191,6 @@ class PlayerTeam(AbstractTeam):
                 new_array.append(item)
         return new_array
 
-
     def manage(self):
         """
         Displays the team management menu
@@ -222,24 +202,24 @@ class PlayerTeam(AbstractTeam):
 
         options.reverse()
         managing = choose("Who do you wish to manage?", options)
-        
+
         if managing is not "Exit":
             managing.manage()
 
-
+    def save(self):
+        self.writeToFile(os.path.join(PLAYER_TEAM_DIRECTORY, self.name.replace(" ", "_").lower() + ".json"))
 
 
 class EnemyTeam(AbstractTeam):
     def __init__(self, member_names: list, level: int):
-        super(self.__class__, self).__init__('Enemy Team')
-        self.set_type('EnemyTeam')
+        super(self.__class__, self).__init__("EnemyTeam", "Enemy Team")
         member_names = to_list(member_names)
         for name in member_names:
             member = EnemyCharacter.load_enemy(name)
             member.level = level
             self.add_member(member)
-            
-            
+
+
 
     """
     AI stuff
@@ -252,8 +232,8 @@ class EnemyTeam(AbstractTeam):
         """
         if self.one_left() or self.enemy.active.calc_DMG(self.active, self.active.best_attack()) >= self.enemy.active.HP_rem:
             return False
-        
-        
+
+
         """
         Second, check if an ally can KO
         """
@@ -261,7 +241,7 @@ class EnemyTeam(AbstractTeam):
             if self.enemy.active.calc_DMG(member, member.best_attack()) * 0.75 >= self.enemy.active.HP_rem:
                 return True
 
-        
+
         # Default
         return False
 
