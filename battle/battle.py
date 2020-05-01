@@ -4,48 +4,47 @@ from weather import Weather
 from teams import EnemyTeam
 from output import Op
 from character import EnemyCharacter, ENEMY_CACHE
+from serialize import AbstractJsonSerialable
 import random
 
-class Battle(object):
-    """
-    The Battle class pits 2 teams
-    against eachother,
-    initializing them
-    and the weather.
-    """
-    def __init__(self, name, enemy_names, level, rewards = []):
+"""
+The Battle class pits 2 teams
+against eachother,
+initializing them
+and the weather.
+"""
+class Battle(AbstractJsonSerialable):
+    def __init__(self, name: str, desc: str, script: list, finalAct: list, level: int, enemyNames: list, rewards = []):
+        super(Battle, self).__init__("Battle")
         self.name = name
-        
-        self.description = " "
+        self.desc = desc
         self.level = level #the level of enemies
-        self.script = []
-        self.final_act = []
-        
+        self.script = script
+        self.final_act = finalAct
+
+
+
         self.forecast = []
 
-        self.enemy_team = EnemyTeam(enemy_names, level)
+        self.enemy_team = EnemyTeam(enemyNames, level)
 
         self.rewards = to_list(rewards)
 
 
     @staticmethod
-    def read_json(json: dict) -> 'Battle':
-        """
-        Move into constructor some other time?
-        or, keep normal constructor so it's easier to make new ones?
-        """
-        ret = Battle(
-            json.get('name', 'NO NAME'),
-            json.get('enemies', []),
-            json.get('level', 1),
-            [Item.read_json(data) for data in json.get('rewards', [])]
+    def loadJson(jdict: dict) -> "Battle":
+        return Battle(
+            jdict["name"],
+            jdict["desc"],
+            jdict["script"],
+            jdict["final act"],
+            jdict["level"],
+            jdict.get('enemies', []),
+            [Item.read_json(data) for data in jdict.get('rewards', [])]
         )
-        ret.desc = json.get('desc', 'NO DESCRIPTION')
-        ret.script = json.get('script', ['NO SCRIPT'])
-        ret.final_act = json.get('final act', ['NO FINAL ACT'])
         return ret
-        
-    
+
+
     def get_as_json(self) -> dict:
         """
         Returns a dictionary version of this battle
@@ -54,7 +53,7 @@ class Battle(object):
             'name' : self.name,
             'enemies' : [enemy.name for enemy in self.enemy_team.members],
             'level' : self.level,
-            'desc' : self.description,
+            'desc' : self.desc,
             'script' : self.script,
             'final act' : self.final_act,
             'forecast' : 'TODO',
@@ -70,16 +69,16 @@ class Battle(object):
         so here it is
         """
         self.forecast = to_list(forecast)
-    
+
     def getDisplayData(self):
         """
         gets data for outputting
         """
-        ret = [self.name, "\t" + self.description]
+        ret = [self.name, "\t" + self.desc]
         for member in self.enemy_team.members:
             ret.append("\t* " + member.get_short_desc())
         return ret
-    
+
     def __str__(self):
         return self.name
 
@@ -100,11 +99,11 @@ class Battle(object):
         if self.player_team.is_up():
             Op.add(self.player_team.name + " won!")
             Op.display()
-            
+
             for line in self.final_act:
                 Op.add(line)
                 Op.display()
-            
+
             for reward in self.rewards:
                 if reward != None:
                     reward.give(self.player_team)
@@ -123,12 +122,12 @@ class Battle(object):
 
         self.player_team.initialize()
         self.player_team.enemy = self.enemy_team
-        
+
         self.enemy_team.display_data()
         self.player_team.display_data()
-        
+
         self.weather = Weather.generate_random()
-        
+
         if len(self.forecast) > 0:
             num = 0
             if len(self.forecast) > 1:
@@ -172,10 +171,10 @@ class Battle(object):
         """
         enemy_names = []
         num_enemies = random.randint(1, 4)
-        
+
         EnemyCharacter.load_enemy(all=True)
-        
+
         for i in range(0, num_enemies):
             enemy_names.append(random.choice(list(ENEMY_CACHE.keys())))
-        
+
         return Battle("Random encounter", enemy_names, 1)

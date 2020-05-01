@@ -37,7 +37,7 @@ class Area(AbstractJsonSerialable):
             jdict["name"],
             jdict["desc"],
             [Location.loadJson(j) for j in jdict["locations"]],
-            [Battle.read_json(j) for j in jdict["levels"]]
+            [Battle.loadJson(j) for j in jdict["levels"]]
         )
 
     def getDisplayData(self):
