@@ -7,11 +7,8 @@ from events import *
 from customizable import AbstractCustomizable
 from output import Op
 import json
-
 from pathlib import Path
 import os
-
-
 from file import writeCsvFile
 
 """
@@ -50,9 +47,16 @@ class AbstractCharacter(AbstractCustomizable):
         self.level = kwargs["level"]
         self.XP = kwargs["XP"]
 
-        self.attacks = kwargs["attacks"]
-        self.passives = kwargs["passives"]
-        self.equipped_items = kwargs["equipped_items"]
+        self.attacks = []
+        self.passives = []
+        self.equipped_items = []
+        for attack in kwargs["attacks"]:
+            self.addActive(attack)
+        for passive in kwargs["passives"]:
+            self.addPassive(passive)
+        for item in kwargs["equipped_items"]:
+            self.equipItem(item)
+
         for stat in STATS:
             self.addStat(Stat(stat, lambda base: 20.0 + float(base), kwargs["stats"][stat]))
         self.addSerializedAttributes(
@@ -76,7 +80,7 @@ class AbstractCharacter(AbstractCustomizable):
     @staticmethod
     def loadJson(jdict) -> 'AbstractCharacter':
         ctype = jdict["type"]
-
+        jdict["attacks"] = [AbstractActive.read_json(data) for data in jdict["attacks"]]
         #name = jdict["name"]
         #element = jdict["element"]
         #level = int(jdict["level"])
@@ -97,7 +101,6 @@ class AbstractCharacter(AbstractCustomizable):
 
         # oh, this is so horrible!!!
         #ret.customPoints = custom_points
-        #ret.set_element(element)
         #ret.level = level
         #ret.XP = xp
         """
@@ -108,11 +111,11 @@ class AbstractCharacter(AbstractCustomizable):
         for active in jdict.get('attacks', []):
             #for some reason, I have to reconver to a dictionary,
             #because active is a string
-            ret.add_active(AbstractActive.read_json(active))
+            ret.addActive(AbstractActive.read_json(active))
         for passive in jdict.get('passives', []):
             ret.add_passive(AbstractPassive.read_json(passive))
         for item in jdict.get('equipped_items', []):
-            ret.equip_item(Item.read_json(item))
+            ret.equipItem(Item.read_json(item))
         """
         return ret
 
@@ -122,7 +125,7 @@ class AbstractCharacter(AbstractCustomizable):
         """
         reads the data from files/base_character, then converts it to a character
         """
-        ret = AbstractCharacter.create_default_player()
+        ret = AbstractCharacter.createDefaultPlayer()
         with open('files/base_character.json') as file:
             ret = AbstractCharacter.read_json(json.loads(file.read()))
 
@@ -132,11 +135,11 @@ class AbstractCharacter(AbstractCustomizable):
     The new default method.
     """
     @staticmethod
-    def createDefaultPlayer()->"PlayerCharacter":
+    def createDefaultPlayer(name="Name not set", element=ELEMENTS[0])->"PlayerCharacter":
         attacks = AbstractActive.get_defaults()
-        attacks.append(AbstractActive.get_default_bolt("lightning"))
+        attacks.append(AbstractActive.get_default_bolt(element))
         dict = {
-            "name" : "Default Player Character",
+            "name" : name,
             "customPoints" : 0,
             "element" : "lightning",
             "level" : 1,
@@ -150,35 +153,7 @@ class AbstractCharacter(AbstractCustomizable):
         player = PlayerCharacter(**dict)
         return player
 
-    # old method
-    @staticmethod
-    def create_default_player() -> 'PlayerCharacter':
-        """
-        Used to create a default character to use as a base for all other characters
-        """
-        ret = PlayerCharacter('NO NAME')
-        ret.add_default_actives()
-        ret.add_default_passives()
-        ret.equip_default_items()
-        return ret
-
-    def set_element(self, element: str):
-        """
-        Shortens the process of setting
-        a character's element, so I don't
-        have to manually edit each active
-        """
-        for active in self.attacks:
-            print(active.name)
-            print(element)
-            print(self.element)
-            if self.element.lower() in active.name.lower():
-                active.name = active.name.lower()
-                print(active.name)
-                active.name = active.name.replace(self.element.lower(), element.lower())
-        self.element = element
-
-    def add_active(self, active: 'AbstractActive'):
+    def addActive(self, active: 'AbstractActive'):
         """
 
         """
@@ -186,33 +161,20 @@ class AbstractCharacter(AbstractCustomizable):
         active.set_user(self)
         active.calc_all()
 
-    def add_default_actives(self):
-        self.add_active(AbstractActive.get_default_bolt(self.element))
-        for active in AbstractActive.get_defaults():
-            self.add_active(active)
-
-    def add_passive(self, passive: 'AbstractPassive'):
+    def addPassive(self, passive: 'AbstractPassive'):
         """
         """
         self.passives.append(passive)
         passive.set_user(self)
         passive.calc_all()
 
-    def add_default_passives(self):
-        for passive in AbstractPassive.get_defaults():
-            self.add_passive(passive)
-
-    def equip_item(self, item: 'Item'):
+    def equipItem(self, item: 'Item'):
         """
         """
         self.equipped_items.append(item)
         item.set_user(self)
         item.equip(self)
         item.calc_all()
-
-    def equip_default_items(self):
-        for item in Item.get_defaults():
-            self.equip_item(item)
 
     # HP defined here
     def init_for_battle(self):

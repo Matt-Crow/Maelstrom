@@ -107,9 +107,7 @@ class Game:
 
 
         if success:
-            character = AbstractCharacter.create_default_player()
-            character.name = user_name
-            character.set_element(element)
+            character = AbstractCharacter.createDefaultPlayer(user_name, element)
             PlayerTeam(user_name, character).save()
 
             with open('users/users.txt', 'a') as file:

@@ -1,6 +1,8 @@
 from character import AbstractCharacter
 import json
 
+raise Eexception("This file is outdated: redo it!")
+
 #this file is for management purposes ONLY.
 #use it if the data in files gets corrupted or needs to be reset
 #TODO: add CLI for creating enemies
@@ -10,7 +12,7 @@ def save_base():
     Saves the base character to its proper file under the files directory
     """
     with open('files/base_character.json', 'wt') as file:
-        file.write(json.dumps(AbstractCharacter.create_default_player().get_as_json()))
+        file.write(json.dumps(AbstractCharacter.createDefaultPlayer().get_as_json()))
 
 
 def generate_enemies():
@@ -101,7 +103,7 @@ def generate_enemies():
         ]
     })
     lightning.add_default_actives()
-    lightning.add_default_passives()
+    lightning.addPassives()
     lightning.save()
 
 
@@ -147,7 +149,7 @@ def generate_enemies():
         ]
     })
     rain.add_default_actives()
-    rain.add_default_passives()
+    rain.addPassives()
     rain.save()
 
 
@@ -193,7 +195,7 @@ def generate_enemies():
         ]
     })
     hail.add_default_actives()
-    hail.add_default_passives()
+    hail.addPassives()
     hail.save()
 
 
@@ -239,7 +241,7 @@ def generate_enemies():
         ]
     })
     wind.add_default_actives()
-    wind.add_default_passives()
+    wind.addPassives()
     wind.save()
 
 
@@ -274,5 +276,5 @@ def generate_enemies():
         }
     })
     stone.add_default_actives()
-    stone.add_default_passives()
+    stone.addPassives()
     stone.save()
