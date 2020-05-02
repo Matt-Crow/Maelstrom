@@ -10,17 +10,24 @@ sometime in the future
 class AbstractCustomizable(AbstractJsonSerialable):
     nextId = 0
     """
-    type is used when decoding its JSON file.
+    Required kwargs:
+    - type : str
+    - name : str
+    - customPoints : int
+    - stats : dict
     """
-    def __init__(self, type: str, name: str, customPoints: int):
-        super(AbstractCustomizable, self).__init__()
-        self.name = name
-        self.type = type
-        self.customizationPoints = customPoints
+    def __init__(self, **kwargs):
+        super(AbstractCustomizable, self).__init__(**kwargs)
+        self.name = kwargs["name"]
+        self.type = kwargs["type"]
+        self.customizationPoints = kwargs["customPoints"]
         self.id = AbstractCustomizable.nextId
         # Key: attr name, value: Stat.
         # attributes which to player can customize.
         self.stats = {}
+        for k, v in kwargs["stats"].items():
+            pass
+            self.addStat()
         AbstractCustomizable.nextId += 1
         self.addSerializedAttributes(
             "name",

@@ -9,7 +9,7 @@ import os
 AREA_DIRECTORY = 'maelstrom_story/areas'
 class Area(AbstractJsonSerialable):
     def __init__(self, name, desc, locations=[], levels=[]):
-        super(Area, self).__init__("Area")
+        super(Area, self).__init__(type="Area")
         self.name = name
 
         self.desc = desc

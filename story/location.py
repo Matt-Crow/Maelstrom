@@ -7,7 +7,7 @@ providing a bit of atmosphere
 """
 class Location(AbstractJsonSerialable):
     def __init__(self, name: str, desc: str, script: list):
-        super(Location, self).__init__("Location")
+        super(Location, self).__init__(type="Location")
         self.name = name
         self.desc = desc
         self.script = script

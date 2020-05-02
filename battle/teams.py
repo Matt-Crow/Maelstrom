@@ -14,7 +14,7 @@ who are enemies, and who are allies.
 """
 class AbstractTeam(AbstractJsonSerialable):
     def __init__(self, type: str, name: str, members=[]):
-        super(AbstractTeam, self).__init__(type)
+        super(AbstractTeam, self).__init__(type=type)
         self.name = name
         self.members = []
         for member in members:

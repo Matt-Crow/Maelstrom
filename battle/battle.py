@@ -15,7 +15,7 @@ and the weather.
 """
 class Battle(AbstractJsonSerialable):
     def __init__(self, name: str, desc: str, script: list, finalAct: list, level: int, enemyNames: list, rewards = []):
-        super(Battle, self).__init__("Battle")
+        super(Battle, self).__init__(type="Battle")
         self.name = name
         self.desc = desc
         self.level = level #the level of enemies

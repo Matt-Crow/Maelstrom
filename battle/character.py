@@ -39,7 +39,7 @@ class AbstractCharacter(AbstractCustomizable):
     - attacks : list
     - passives : list
     - equipped_items : list
-    - control : Stat
+    - control : Stat (change this later)
     - resistance : Stat
     - potency : Stat
     - luck : Stat

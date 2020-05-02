@@ -3,10 +3,11 @@ import os
 
 class AbstractJsonSerialable(object):
     """
-    type is used to load after serializing
+    Required kwargs:
+    - type : str (used for deserializing)
     """
-    def __init__(self, type: str):
-        self.type = type
+    def __init__(self, **kwargs):
+        self.type = kwargs["type"]
         self.serializedAttributes = ["type"]
         # the list of attributes this object has that should be written to this' JSON file.
 
