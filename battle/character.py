@@ -54,7 +54,7 @@ class AbstractCharacter(AbstractCustomizable):
         self.passives = kwargs["passives"]
         self.equipped_items = kwargs["equipped_items"]
         for stat in STATS:
-            self.addStat(Stat(stat, lambda base: 20.0 + float(base), kwargs[stat].base))
+            self.addStat(Stat(stat, lambda base: 20.0 + float(base), kwargs["stats"][stat]))
         self.addSerializedAttributes(
             "element",
             "XP",

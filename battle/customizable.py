@@ -15,7 +15,7 @@ class AbstractCustomizable(AbstractJsonSerialable):
     - type : str
     - name : str
     - customPoints : int
-    - stats : dict{ str : int }
+    - stats : dict{ str : int } this currently doesn't work
     """
     def __init__(self, **kwargs):
         super(AbstractCustomizable, self).__init__(**kwargs)
@@ -26,8 +26,8 @@ class AbstractCustomizable(AbstractJsonSerialable):
         # Key: attr name, value: Stat.
         # attributes which to player can customize.
         self.stats = {}
-        for k, v in kwargs["stats"].items():
-            self.addStat(k, v)
+        #for k, v in kwargs["stats"].items():
+        #    self.addStat(k, v)
         AbstractCustomizable.nextId += 1
         self.addSerializedAttributes(
             "name",
@@ -35,8 +35,10 @@ class AbstractCustomizable(AbstractJsonSerialable):
             "stats"
         )
 
-    def addStat(self, name, base):
-        self.stats[name.lower()] = Stat(name, base)
+    #def addStat(self, name, base):
+    #    self.stats[name.lower()] = Stat(name, base)
+    def addStat(self, stat):
+        self.stats[stat.name.lower] = stat
 
     """
     Re-sets a stat's base calculation value

@@ -72,7 +72,7 @@ class Stat(Jsonable):
         mult = 1.0
         if self.value is None:
             self.calc()
-            
+
         for boost in self.boosts:
             mult += boost.amount
         return self.value * mult
