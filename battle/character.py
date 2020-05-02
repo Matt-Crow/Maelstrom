@@ -22,16 +22,20 @@ ENEMY_CACHE = {} #cached results of loading enemy files
 
 """
 A Class containing all the info for a character
+May move the inheritance from AbstractCustomizable up to PlayerCharacter,
+and make this instead inherit from AbstractJsonSerialable
 """
 class AbstractCharacter(AbstractCustomizable):
     """
     Initializers:
     Used to 'build' the characters
 
-    Yeah, totally need to use kwargs here
+    required kwargs:
+    - name : str
+    - customPoints : int
     """
-    def __init__(self, type: str, name: str, element, lv: int, xp: int, actives: list, passives: list, items: list, customPoints: int):
-        super(AbstractCharacter, self).__init__(type, name, customPoints)
+    def __init__(self, type: str, **kwargs):
+        super(AbstractCharacter, self).__init__(type, kwargs["name"], kwargs["customPoints"])
         self.max_hp = 100
 
         for stat in STATS:
@@ -462,20 +466,14 @@ class AbstractCharacter(AbstractCustomizable):
 
 
 
-
+"""
+A PlayerCharacter is a Character controlled by a player.
+Currently, each player has only one character, but I will
+leave that open to adjustment
+"""
 class PlayerCharacter(AbstractCharacter):
-    """
-    A PlayerCharacter is a Character controlled by a player.
-    Currently, each player has only one character, but I will
-    leave that open to adjustment
-    """
-    def __init__(self, name):
-        """
-        name is the name of the Player character.
-        """
-        super(self.__class__, self).__init__(name)
-        self.set_type('PlayerCharacter')
-
+    def __init__(self, **kwargs):
+        super(self.__class__, self).__init__("PlayerCharacter", kwargs)
 
     def choose_attack(self):
         attack_options = []
@@ -577,7 +575,6 @@ class PlayerCharacter(AbstractCharacter):
             if customize == 'Equipped items':
                 self.choose_items()
             customize.customize()
-
 
 
 
