@@ -35,7 +35,7 @@ class AbstractCharacter(AbstractCustomizable):
         self.max_hp = 100
 
         for stat in STATS:
-            self.addStat(Stat(stat, battle_stat, 0))
+            self.addStat(Stat(stat, lambda base: 20.0 + float(base), 0))
 
         self.element = element
         self.level = lv
@@ -582,10 +582,8 @@ class PlayerCharacter(AbstractCharacter):
 
 
 class EnemyCharacter(AbstractCharacter):
-    def __init__(self, name):
-        super(self.__class__, self).__init__(name)
-        self.set_type('EnemyCharacter')
-        self.set_save_directory(ENEMY_DIRECTORY)
+    def __init__(self, **kwargs):
+        super(self.__class__, self).__init__("EnemyCharacter", kwargs)
 
     """
     AI stuff
@@ -649,18 +647,17 @@ class EnemyCharacter(AbstractCharacter):
     def choose_attack(self):
         self.what_attack().use()
 
+    """
+    Reads an enemy file, if it exists.
+    If force is True, searches through the enemy directory for
+    that enemy's save file, then loads that enemy, caching it in the
+    enemy cache.
 
+    If force is False, will first check if the enemy has already been
+    cached.
+    """
     @staticmethod
     def load_enemy(name=' ', force=False, all=False) -> 'EnemyCharacter':
-        """
-        Reads an enemy file, if it exists.
-        If force is True, searches through the enemy directory for
-        that enemy's save file, then loads that enemy, caching it in the
-        enemy cache.
-
-        If force is False, will first check if the enemy has already been
-        cached.
-        """
         ret = None
 
         if not force and name.title in ENEMY_CACHE:
@@ -681,24 +678,5 @@ class EnemyCharacter(AbstractCharacter):
 
         return ret.copy()
 
-
-
-"""
-Stat formulae,
-used to calculate stat values
-"""
-
-
-def mult_red_stat(base: int) -> int:
-    """
-    passed in as the formula for multiplication and reduction stats
-    """
-    return (100 + 5 * base)
-
-
-def battle_stat(base: int) -> float:
-    """
-    passed in as the formula for battle stats
-    (damage reduction, multiplication, etc)
-    """
-    return 20.0 + float(base)
+if __name__ == "__main__":
+    pass
