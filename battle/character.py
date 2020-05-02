@@ -31,6 +31,7 @@ class AbstractCharacter(AbstractCustomizable):
     Used to 'build' the characters
 
     required kwargs:
+    - type : str
     - name : str
     - customPoints : int
     - element : str
@@ -39,14 +40,10 @@ class AbstractCharacter(AbstractCustomizable):
     - attacks : list
     - passives : list
     - equipped_items : list
-    - control : Stat (change this later)
-    - resistance : Stat
-    - potency : Stat
-    - luck : Stat
-    - energy : Stat
+    - stats: object
     """
-    def __init__(self, type: str, **kwargs):
-        super(AbstractCharacter, self).__init__(type, kwargs["name"], kwargs["customPoints"])
+    def __init__(self, **kwargs):
+        super(AbstractCharacter, self).__init__(**kwargs)
         self.max_hp = 100
 
         self.element = kwargs["element"]
@@ -131,7 +128,27 @@ class AbstractCharacter(AbstractCustomizable):
 
         return ret
 
+    """
+    The new default method.
+    """
+    @staticmethod
+    def createDefaultPlayer()->"PlayerCharacter":
+        dict = {
+            "name" : "Default Player Character",
+            "customPoints" : 0,
+            "element" : "lightning",
+            "level" : 1,
+            "XP" : 0,
+            "attacks" : AbstractActive.get_defaults().append(AbstractActive.get_default_bolt("lightning")),
+            "passives" : AbstractPassive.get_defaults(),
+            "equipped_items" : [],
+            "stats" : {stat: 0 for stat in STATS}
+        }
 
+        player = PlayerCharacter(**dict)
+        return player
+
+    # old method
     @staticmethod
     def create_default_player() -> 'PlayerCharacter':
         """
@@ -142,7 +159,6 @@ class AbstractCharacter(AbstractCustomizable):
         ret.add_default_passives()
         ret.equip_default_items()
         return ret
-
 
     def set_element(self, element: str):
         """
@@ -160,7 +176,6 @@ class AbstractCharacter(AbstractCustomizable):
                 active.name = active.name.replace(self.element.lower(), element.lower())
         self.element = element
 
-
     def add_active(self, active: 'AbstractActive'):
         """
 
@@ -169,12 +184,10 @@ class AbstractCharacter(AbstractCustomizable):
         active.set_user(self)
         active.calc_all()
 
-
     def add_default_actives(self):
         self.add_active(AbstractActive.get_default_bolt(self.element))
         for active in AbstractActive.get_defaults():
             self.add_active(active)
-
 
     def add_passive(self, passive: 'AbstractPassive'):
         """
@@ -183,11 +196,9 @@ class AbstractCharacter(AbstractCustomizable):
         passive.set_user(self)
         passive.calc_all()
 
-
     def add_default_passives(self):
         for passive in AbstractPassive.get_defaults():
             self.add_passive(passive)
-
 
     def equip_item(self, item: 'Item'):
         """
@@ -197,11 +208,9 @@ class AbstractCharacter(AbstractCustomizable):
         item.equip(self)
         item.calc_all()
 
-
     def equip_default_items(self):
         for item in Item.get_defaults():
             self.equip_item(item)
-
 
     # HP defined here
     def init_for_battle(self):
@@ -292,13 +301,11 @@ class AbstractCharacter(AbstractCustomizable):
     Data obtaining functions:
     Used to get data about a character
     """
-
     def hp_perc(self):
         """
         Returns as a value between 0 and 100
         """
         return int((float(self.HP_rem) / float(self.max_hp) * 100.0))
-
 
     def displayData(self):
         """
@@ -327,13 +334,11 @@ class AbstractCharacter(AbstractCustomizable):
         Op.add(str(self.XP) + "/" + str(self.level * 10))
         Op.display()
 
-
     def get_short_desc(self):
         """
         returns a short description of the character
         """
         return self.name + " Lv " + str(self.level) + " " + self.element
-
 
     """
     Battle functions:
@@ -348,7 +353,6 @@ class AbstractCharacter(AbstractCustomizable):
         """
         mult = 1 + self.get_stat("potency") / 100
         self.attributes[boost.stat_name].boost(boost)
-
 
     def heal(self, percent):
         """
@@ -445,7 +449,6 @@ class AbstractCharacter(AbstractCustomizable):
 
         self.direct_dmg(dmg)
 
-
     def check_if_KOed(self):
         """
         Am I dead yet?
@@ -468,11 +471,6 @@ class AbstractCharacter(AbstractCustomizable):
             Op.display()
 
         return ret
-
-
-
-
-
 
 
 """

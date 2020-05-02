@@ -6,24 +6,27 @@ from utilities import choose, ELEMENTS
 from area import Area
 import json
 
+"""
+The Game class is used to store data on the game the user is currently playing,
+so this way, there don't have to be any globals.
+"""
 class Game:
-    """
-    The Game class is used to store data on the game the user is currently playing,
-    so this way, there don't have to be any globals.
-    """
     def __init__(self):
         self.player = None
         self.exit = False
 
+    def test(self):
+        defaultPlayer = AbstractCharacter.createDefaultPlayer()
+        print(str(defaultPlayer))
+
+    """
+    Begins the program
+    """
     def run(self):
-        """
-        Begins the program
-        """
         while not self.exit:
             if self.player == None:
                 self.main_menu()
             else:
-
                 Area.loadDefault().chooseAction(self.player)
                 self.exit = True #since Area will run until the user chooses to quit.
                 self.player.save()

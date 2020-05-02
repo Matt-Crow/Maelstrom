@@ -36,6 +36,7 @@ Week 2: Revised/improved/reordered functions
 30/11/2017 - 7/12/2017 : Improved Area, Levels, Weather, and Files
 9/12/2017 - 11/12/2017 : Split files, working on campagne
 12/12/2017: Working on save file
+May 2020: Working on lots of cleanup and redoing serialization
 
 Version 0.9
 """
@@ -51,4 +52,6 @@ add_subdir('management')
 from game import Game
 
 if __name__ == "__main__":
-    Game().run()
+    input("Calling test from Maelstrom.py")
+    Game().test()
+    #Game().run()

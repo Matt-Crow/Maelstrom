@@ -1,5 +1,6 @@
 from output import Op
 from serialize import AbstractJsonSerialable
+from stat_classes import Stat
 
 """
 This will replace the old AbstractUpgradable class,
@@ -14,7 +15,7 @@ class AbstractCustomizable(AbstractJsonSerialable):
     - type : str
     - name : str
     - customPoints : int
-    - stats : dict
+    - stats : dict{ str : int }
     """
     def __init__(self, **kwargs):
         super(AbstractCustomizable, self).__init__(**kwargs)
@@ -26,8 +27,7 @@ class AbstractCustomizable(AbstractJsonSerialable):
         # attributes which to player can customize.
         self.stats = {}
         for k, v in kwargs["stats"].items():
-            pass
-            self.addStat()
+            self.addStat(k, v)
         AbstractCustomizable.nextId += 1
         self.addSerializedAttributes(
             "name",
@@ -35,8 +35,8 @@ class AbstractCustomizable(AbstractJsonSerialable):
             "stats"
         )
 
-    def addStat(self, stat):
-        self.stats[stat.name.lower()] = stat
+    def addStat(self, name, base):
+        self.stats[name.lower()] = Stat(name, base)
 
     """
     Re-sets a stat's base calculation value
