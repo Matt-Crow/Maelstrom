@@ -133,13 +133,15 @@ class AbstractCharacter(AbstractCustomizable):
     """
     @staticmethod
     def createDefaultPlayer()->"PlayerCharacter":
+        attacks = AbstractActive.get_defaults()
+        attacks.append(AbstractActive.get_default_bolt("lightning"))
         dict = {
             "name" : "Default Player Character",
             "customPoints" : 0,
             "element" : "lightning",
             "level" : 1,
             "XP" : 0,
-            "attacks" : AbstractActive.get_defaults().append(AbstractActive.get_default_bolt("lightning")),
+            "attacks" : attacks,
             "passives" : AbstractPassive.get_defaults(),
             "equipped_items" : [],
             "stats" : {stat: 0 for stat in STATS}
@@ -246,7 +248,7 @@ class AbstractCharacter(AbstractCustomizable):
                 ItemSet.get_set_bonus(check_set).f(self)
 
         self.HP_rem = self.max_hp
-        self.energy = int(self.get_stat("energy") / 2.0)
+        self.energy = int(self.getStatValue("energy") / 2.0)
 
     # action register class?
     def reset_action_registers(self):
@@ -311,13 +313,13 @@ class AbstractCharacter(AbstractCustomizable):
         """
         Print info on a character
         """
-        self.calc_all()
+        self.calcStats()
         Op.add("Lv. " + str(self.level) + " " + self.name)
         Op.add(self.element)
 
         Op.add("STATS:")
         for stat in STATS:
-            Op.add(stat + ": " + str(int(self.get_stat(stat))))
+            Op.add(stat + ": " + str(int(self.getStatValue(stat))))
 
         Op.add("ACTIVES:")
         for attack in self.attacks:
@@ -351,7 +353,7 @@ class AbstractCharacter(AbstractCustomizable):
         amount will be an integeral amount
         20 translates to 20%
         """
-        mult = 1 + self.get_stat("potency") / 100
+        mult = 1 + self.getStatValue("potency") / 100
         self.attributes[boost.stat_name].boost(boost)
 
     def heal(self, percent):
@@ -360,7 +362,7 @@ class AbstractCharacter(AbstractCustomizable):
         Converts an INTEGER
         to a percentage.
         """
-        mult = 1 + self.get_stat("potency") / 100
+        mult = 1 + self.getStatValue("potency") / 100
         healing = self.max_hp * (float(percent) / 100)
         self.HP_rem = self.HP_rem + healing * mult
 
@@ -371,7 +373,7 @@ class AbstractCharacter(AbstractCustomizable):
             self.HP_rem = self.max_hp
 
     def harm(self, percent):
-        mult = 1 - self.get_stat("potency") / 100
+        mult = 1 - self.getStatValue("potency") / 100
         harming = self.max_hp * (float(percent) / 100)
         self.direct_dmg(harming * mult)
         Op.add(self.name + " took " + str(int(harming * mult)) + " damage!")
@@ -388,8 +390,8 @@ class AbstractCharacter(AbstractCustomizable):
         """
         self.energy = self.energy + amount
 
-        if self.energy > self.get_stat("energy"):
-            self.energy = self.get_stat("energy")
+        if self.energy > self.getStatValue("energy"):
+            self.energy = self.getStatValue("energy")
 
         self.energy = int(self.energy)
 
@@ -407,7 +409,7 @@ class AbstractCharacter(AbstractCustomizable):
         for action in self.on_update_actions:
             action["function"]()
 
-        self.gain_energy(self.get_stat("energy") * 0.15)
+        self.gain_energy(self.getStatValue("energy") * 0.15)
         for stat in self.attributes.values():
             stat.update()
             #stat.displayData();
@@ -422,8 +424,8 @@ class AbstractCharacter(AbstractCustomizable):
         """
         damage = 0
         for damage_type, value in attack_used.damages.items():
-            damage += value * (attacker.get_stat(damage_type + " damage multiplier") / self.get_stat(damage_type + " damage reduction"))
-        damage *= attacker.get_stat("control") / self.get_stat("resistance")
+            damage += value
+        damage *= attacker.getStatValue("control") / self.getStatValue("resistance")
 
         if attacker.team.switched_in:
             damage = damage * 0.75

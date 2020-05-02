@@ -38,16 +38,16 @@ class AbstractCustomizable(AbstractJsonSerialable):
     #def addStat(self, name, base):
     #    self.stats[name.lower()] = Stat(name, base)
     def addStat(self, stat):
-        self.stats[stat.name.lower] = stat
+        self.stats[stat.name.lower()] = stat
 
     """
     Re-sets a stat's base calculation value
     """
     def setStatBase(self, statName: str, newBase: int):
-        self.stats[statName.lower].set_base(newBase)
+        self.stats[statName.lower()].set_base(newBase)
 
     def getStatValue(self, statName: str)->float:
-        return self.stats[statName.lower()]
+        return self.stats[statName.lower()].get()
 
     def __str__(self):
         return "AbstractCustomizable#{0}: {1}".format(self.id, self.name)

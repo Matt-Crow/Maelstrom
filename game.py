@@ -17,7 +17,7 @@ class Game:
 
     def test(self):
         defaultPlayer = AbstractCharacter.createDefaultPlayer()
-        print(str(defaultPlayer))
+        defaultPlayer.displayData()
 
     """
     Begins the program
