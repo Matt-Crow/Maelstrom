@@ -288,7 +288,7 @@ class AbstractCharacter(AbstractUpgradable):
         return int((float(self.HP_rem) / float(self.max_hp) * 100.0))
 
 
-    def display_data(self):
+    def displayData(self):
         """
         Print info on a character
         """
@@ -364,7 +364,7 @@ class AbstractCharacter(AbstractUpgradable):
     def direct_dmg(self, dmg):
         self.HP_rem -= dmg
         self.HP_rem = int(self.HP_rem)
-        self.team.update_members_rem()
+        self.team.updateMembersRem()
 
     def gain_energy(self, amount):
         """
@@ -385,7 +385,7 @@ class AbstractCharacter(AbstractUpgradable):
         if self.energy < 0:
             self.energy = 0
 
-    # stat.display_data in here
+    # stat.displayData in here
     def update(self):
         self.update_action_registers()
         for action in self.on_update_actions:
@@ -394,7 +394,7 @@ class AbstractCharacter(AbstractUpgradable):
         self.gain_energy(self.get_stat("energy") * 0.15)
         for stat in self.attributes.values():
             stat.update()
-            #stat.display_data();
+            #stat.displayData();
 
     """
     Damage calculation
@@ -423,7 +423,7 @@ class AbstractCharacter(AbstractUpgradable):
         Op.display()
 
         event = OnHitEvent("Attack", attacker, self, attack_used, dmg)
-        event.display_data()
+        event.displayData()
 
         for passive in self.on_hit_taken_actions:
             passive["function"](event)
@@ -519,7 +519,7 @@ class PlayerCharacter(AbstractCharacter):
 
         self.calc_all()
         self.HP_rem = self.max_hp
-        self.display_data()
+        self.displayData()
 
     """
     Character management
@@ -540,7 +540,7 @@ class PlayerCharacter(AbstractCharacter):
                     self.equipped_items.append(item)
             else:
                 for item in items:
-                    item.display_data()
+                    item.displayData()
 
             items = self.team.get_available_items()
             while (len(self.equipped_items) < 3) and (len(items) is not 0):
@@ -561,15 +561,15 @@ class PlayerCharacter(AbstractCharacter):
             options.append("Equipped items")
 
         for item in self.equipped_items:
-            item.display_data()
+            item.displayData()
             options.append(item)
 
         for passive in self.passives:
-            passive.display_data()
+            passive.displayData()
             options.append(passive)
 
         for attack in self.attacks:
-            attack.display_data()
+            attack.displayData()
             options.append(attack)
 
         options.reverse()

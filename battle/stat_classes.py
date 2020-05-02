@@ -108,12 +108,12 @@ class Stat(Jsonable):
                 boost.duration -= 1
         self.boosts = new_boosts
 
-    def display_data(self):
+    def displayData(self):
         Dp.add(self.name);
         Dp.add("Raw: " + str(self.base_value))
         Dp.add("Boosts:")
         for boost in self.boosts:
-            boost.display_data()
+            boost.displayData()
         Dp.add("Calculated: " + str(self.value))
         Dp.dp()
 

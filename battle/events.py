@@ -28,7 +28,7 @@ class OnHitEvent(AbstractEvent):
         self.hit_by = hit_by
         self.damage = damage
         
-    def display_data(self):
+    def displayData(self):
         Dp.add("OnHitEvent " + self.id)
         Dp.add(self.hitter.name + " struck " + self.hitee.name)
         Dp.add("using " + self.hit_by.name)

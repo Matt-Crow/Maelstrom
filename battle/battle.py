@@ -123,8 +123,8 @@ class Battle(AbstractJsonSerialable):
         self.player_team.initialize()
         self.player_team.enemy = self.enemy_team
 
-        self.enemy_team.display_data()
-        self.player_team.display_data()
+        self.enemy_team.displayData()
+        self.player_team.displayData()
 
         self.weather = Weather.generate_random()
 
@@ -140,7 +140,7 @@ class Battle(AbstractJsonSerialable):
         """
         The stuff that takes place after battle
         """
-        xp = self.enemy_team.xp_given()
+        xp = self.enemy_team.getXpGiven()
         for member in self.player_team.members:
             member.gain_XP(xp)
 
@@ -155,12 +155,12 @@ class Battle(AbstractJsonSerialable):
             self.weather.do_effect(self.enemy_team.members_rem)
             # did the weather defeat them?
             if self.enemy_team.is_up():
-                self.enemy_team.do_turn()
+                self.enemy_team.doTurn()
                 # only bother doing player turn if enemy survives
                 # so this way we don't get 'ghost rounds'
                 self.weather.do_effect(self.player_team.members_rem)
                 if self.player_team.is_up():
-                    self.player_team.do_turn()
+                    self.player_team.doTurn()
         self.check_winner()
         self.end()
 

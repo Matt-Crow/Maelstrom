@@ -18,22 +18,19 @@ class AbstractTeam(AbstractJsonSerialable):
         self.name = name
         self.members = []
         for member in members:
-            self.add_member(member)
+            self.addMember(member)
         self.enemy = None
         self.addSerializedAttributes(
             "name",
             "members"
         )
 
+    """
+    Reads a json file, then returns the team contained in that file
+    """
     @staticmethod
-    def load_team(path: str) -> 'AbstractTeam':
-        """
-        Reads a json file, then returns the team contained in that file
-
-        may raise a FileNotFoundError
-        """
+    def loadTeam(path: str) -> 'AbstractTeam':
         ret = None
-
         dict = AbstractJsonSerialable.readFile(path)
         if dict["type"] == "PlayerTeam":
             character = AbstractCharacter.read_json(dict["members"][0])
@@ -47,7 +44,7 @@ class AbstractTeam(AbstractJsonSerialable):
 
         return ret
 
-    def add_member(self, member: 'AbstractCharacter'):
+    def addMember(self, member: 'AbstractCharacter'):
         """
         Adds a character to this' team, if they are not
         already on the team
@@ -57,7 +54,7 @@ class AbstractTeam(AbstractJsonSerialable):
             member.team = self
 
     # balance this later
-    def xp_given(self):
+    def getXpGiven(self):
         """
         How much xp will be given
         once this team is
@@ -68,16 +65,16 @@ class AbstractTeam(AbstractJsonSerialable):
             xp += member.level * 10
         return xp / len(self.members)
 
-    def update_members_rem(self):
-        new_members_rem = []
+    def updateMembersRem(self):
+        newMembersRem = []
         for member in self.members_rem:
             if not member.check_if_KOed():
-                new_members_rem.append(member)
+                newMembersRem.append(member)
                 member.update()
             else:
                 Op.add(member.name + " is out of the game!")
                 Op.display()
-        self.members_rem = new_members_rem
+        self.members_rem = newMembersRem
 
     def is_up(self):
         """
@@ -96,13 +93,14 @@ class AbstractTeam(AbstractJsonSerialable):
         """
         Ready the troops!
         """
+        # I will definitely want to add a forEach sort of method
         self.members_rem = []
         for member in self.members:
             member.init_for_battle()
             self.members_rem.append(member)
         self.active = self.members_rem[0]
 
-    def display_data(self):
+    def displayData(self):
         """
         Show info for a team
         """
@@ -119,32 +117,32 @@ class AbstractTeam(AbstractJsonSerialable):
     def __str__(self):
         return self.name
 
-    def do_turn(self):
+    def doTurn(self):
         """
         This is where stuff happens
         """
         if self.active.check_if_KOed():
-            self.active = self.choose_switchin()
+            self.active = self.chooseSwitchin()
         self.switched_in = False
 
-        self.display_data()
-        if self.should_switch():
-            self.active = self.choose_switchin()
+        self.displayData()
+        if self.shouldSwitch():
+            self.active = self.chooseSwitchin()
             self.switched_in = True
         self.active.choose_attack()
 
-    def should_switch(self) -> bool:
+    def shouldSwitch(self) -> bool:
         """
         Returns whether or not this team
         should change who is active
         """
-        raise NotImplementedError('Team method should_switch is abstract')
+        raise NotImplementedError('Team method shouldSwitch is abstract')
 
-    def choose_switchin(self) -> 'AbstractCharacter':
+    def chooseSwitchin(self) -> 'AbstractCharacter':
         """
         This is abstract: each subclass should implement it
         """
-        raise NotImplementedError('Team method choose_switchin is abstract')
+        raise NotImplementedError('Team method chooseSwitchin is abstract')
 
 
 
@@ -153,21 +151,20 @@ class PlayerTeam(AbstractTeam):
         super(PlayerTeam, self).__init__("PlayerTeam", name, [member])
         self.inventory = []
         self.addSerializedAttribute("inventory")
-        #self.set_save_directory(PLAYER_TEAM_DIRECTORY)
 
     """
     Choices are made using these functions
     """
-    def should_switch(self) -> bool:
+    def shouldSwitch(self) -> bool:
         """
         Asks the user if they want to
         switch before attacking
         """
-        self.display_data()
+        self.displayData()
 
         return len(self.members) > 1 and choose('Do you want to switch your active character?', ['Yes', 'No']) == 'Yes'
 
-    def choose_switchin(self):
+    def chooseSwitchin(self):
         """
         Who will fight?
         """
@@ -175,7 +172,7 @@ class PlayerTeam(AbstractTeam):
         for member in self.members_rem:
             if member != self.active:
                 choices.append(member)
-        self.display_data()
+        self.displayData()
         self.switch(choose("Who do you want to bring in?", choices))
 
     """
@@ -197,7 +194,7 @@ class PlayerTeam(AbstractTeam):
         """
         options = ["Exit"]
         for member in self.members:
-            member.display_data()
+            member.displayData()
             options.append(member)
 
         options.reverse()
@@ -217,16 +214,14 @@ class EnemyTeam(AbstractTeam):
         for name in member_names:
             member = EnemyCharacter.load_enemy(name)
             member.level = level
-            self.add_member(member)
-
-
+            self.addMember(member)
 
     """
     AI stuff
     BENCHIT NEEDS FIX
     general improvements needed
     """
-    def should_switch(self):
+    def shouldSwitch(self):
         """
         First, check if our active can KO
         """
@@ -247,7 +242,7 @@ class EnemyTeam(AbstractTeam):
 
 
     # comment
-    def choose_switchin(self):
+    def chooseSwitchin(self):
         """
         Used to help the AI
         decide who to switch in

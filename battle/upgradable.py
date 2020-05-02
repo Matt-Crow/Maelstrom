@@ -86,7 +86,7 @@ class AbstractUpgradable(Jsonable):
         return ret
 
 
-    def display_data(self):
+    def displayData(self):
         """
         Prints the result of self.getDisplayData()
 
@@ -103,7 +103,7 @@ class AbstractUpgradable(Jsonable):
         done = False
 
         while not done and self.customization_points > 0:
-            self.display_data()
+            self.displayData()
             options = ["Save changes and quit"]
             can_up = []
             can_down = []

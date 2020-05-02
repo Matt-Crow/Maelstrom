@@ -70,9 +70,9 @@ class Game:
         """
         data = PlayerSaveFile("users/" + user_name.replace(" ", "_").lower() + ".txt")
 
-        self.player = AbstractTeam.load_team('users/' + user_name.replace(" ", "_").lower() + '.json')
+        self.player = AbstractTeam.loadTeam('users/' + user_name.replace(" ", "_").lower() + '.json')
         self.player.initialize()
-        self.player.display_data()
+        self.player.displayData()
 
 
     def new_user_menu(self):
