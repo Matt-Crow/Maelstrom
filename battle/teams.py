@@ -33,7 +33,7 @@ class AbstractTeam(AbstractJsonSerialable):
         ret = None
         dict = AbstractJsonSerialable.readFile(path)
         if dict["type"] == "PlayerTeam":
-            character = AbstractCharacter.read_json(dict["members"][0])
+            character = AbstractCharacter.loadJson(dict["members"][0])
             ret = PlayerTeam(dict["name"], character)
             for item in dict.get('inventory', []):
                 ret.obtain(Item.read_json(item))

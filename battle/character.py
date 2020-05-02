@@ -33,22 +33,31 @@ class AbstractCharacter(AbstractCustomizable):
     required kwargs:
     - name : str
     - customPoints : int
+    - element : str
+    - level : int
+    - XP : int
+    - attacks : list
+    - passives : list
+    - equipped_items : list
+    - control : Stat
+    - resistance : Stat
+    - potency : Stat
+    - luck : Stat
+    - energy : Stat
     """
     def __init__(self, type: str, **kwargs):
         super(AbstractCharacter, self).__init__(type, kwargs["name"], kwargs["customPoints"])
         self.max_hp = 100
 
+        self.element = kwargs["element"]
+        self.level = kwargs["level"]
+        self.XP = kwargs["XP"]
+
+        self.attacks = kwargs["attacks"]
+        self.passives = kwargs["passives"]
+        self.equipped_items = kwargs["equipped_items"]
         for stat in STATS:
-            self.addStat(Stat(stat, lambda base: 20.0 + float(base), 0))
-
-        self.element = element
-        self.level = lv
-        self.XP = xp
-
-        self.attacks = actives
-        self.passives = passives
-        self.equipped_items = items
-
+            self.addStat(Stat(stat, lambda base: 20.0 + float(base), kwargs[stat].base))
         self.addSerializedAttributes(
             "element",
             "XP",
@@ -68,32 +77,33 @@ class AbstractCharacter(AbstractCustomizable):
     Reads a JSON object as a dictionary, then converts it to an AbstractCharacter
     """
     @staticmethod
-    def loadJson(jdict: dict) -> 'AbstractCharacter':
+    def loadJson(jdict) -> 'AbstractCharacter':
         ctype = jdict["type"]
-        name = jdict["name"]
-        element = jdict["element"]
-        level = int(jdict["level"])
-        xp = int(jdict["XP"])
-        actives = jdict["attacks"]
-        passives = jdict["passives"]
-        items = jdict["equipped_items"]
-        custom_points = int(jdict["customization_points"])
+
+        #name = jdict["name"]
+        #element = jdict["element"]
+        #level = int(jdict["level"])
+        #xp = int(jdict["XP"])
+        #actives = jdict["attacks"]
+        #passives = jdict["passives"]
+        #items = jdict["equipped_items"]
+        #custom_points = int(jdict["customPoints"])
 
         ret = None
 
         if ctype == 'PlayerCharacter':
-            ret = PlayerCharacter(name)
+            ret = PlayerCharacter(**jdict)
         elif ctype == 'EnemyCharacter':
-            ret = EnemyCharacter(name)
+            ret = EnemyCharacter(**jdict)
         else:
             raise Exception('Type not found! ' + ctype)
 
         # oh, this is so horrible!!!
-        ret.customization_points = custom_points
-        ret.set_element(element)
-        ret.level = level
-        ret.XP = xp
-
+        #ret.customPoints = custom_points
+        #ret.set_element(element)
+        #ret.level = level
+        #ret.XP = xp
+        """
         for k, v in jdict.items():
             if type(v) == type({}) and v.get('type', 'NO TYPE') == 'Stat':
                 ret.set_base(k, int(v.get('base', 0)))
@@ -106,7 +116,7 @@ class AbstractCharacter(AbstractCustomizable):
             ret.add_passive(AbstractPassive.read_json(passive))
         for item in jdict.get('equipped_items', []):
             ret.equip_item(Item.read_json(item))
-
+        """
         return ret
 
 
@@ -442,7 +452,6 @@ class AbstractCharacter(AbstractCustomizable):
         """
         return self.HP_rem <= 0
 
-
     @staticmethod
     def load_from_file(file_path: str) -> 'AbstractCharacter':
         """
@@ -473,7 +482,7 @@ leave that open to adjustment
 """
 class PlayerCharacter(AbstractCharacter):
     def __init__(self, **kwargs):
-        super(self.__class__, self).__init__("PlayerCharacter", kwargs)
+        super(self.__class__, self).__init__(**dict(kwargs, type="PlayerCharacter"))
 
     def choose_attack(self):
         attack_options = []
@@ -505,13 +514,13 @@ class PlayerCharacter(AbstractCharacter):
         """
         self.XP = 0
         self.level += 1
-        self.customization_points += 1
+        self.customPoints += 1
         for active in self.attacks:
-            active.customization_points += 1
+            active.customPoints += 1
         for passive in self.passives:
-            passive.customization_points += 1
+            passive.customPoints += 1
         for item in self.equipped_items:
-            item.customization_points += 1
+            item.customPoints += 1
 
         self.calc_all()
         self.HP_rem = self.max_hp

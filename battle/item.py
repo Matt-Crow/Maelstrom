@@ -123,7 +123,7 @@ class Item(AbstractUpgradable):
         """
         #some way to auto-do this?
         name = json.get("name", "NAME NOT FOUND")
-        custom_points = int(json.get('customization_points', 0))
+        custom_points = int(json.get('customPoints', 0))
 
         ret = Item(name)
         ret.boosted_stat = json.get('boosted_stat', 'potency')
@@ -131,7 +131,7 @@ class Item(AbstractUpgradable):
         ret.desc = json.get('desc', 'DESCRIPTION NOT FOUND')
         ret.set_base('boost', int(json.get('boost', {'base': 0}).get('base', 0))) #since stat is stored in json now
         ret.set_name = json.get('set_name', None)
-        ret.customization_points = custom_points
+        ret.customPoints = custom_points
         return ret
 
 

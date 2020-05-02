@@ -24,11 +24,11 @@ class AbstractUpgradable(Jsonable):
 
         self.attributes = {} #what can be customized
         # str : Stat
-        self.customization_points = 0
+        self.customPoints = 0
 
         self.user = None
 
-        self.track_attr('customization_points')
+        self.track_attr('customPoints')
 
 
     def set_user(self, user: 'AbstractCharacter'):
@@ -102,7 +102,7 @@ class AbstractUpgradable(Jsonable):
         """
         done = False
 
-        while not done and self.customization_points > 0:
+        while not done and self.customPoints > 0:
             self.displayData()
             options = ["Save changes and quit"]
             can_up = []
@@ -141,7 +141,7 @@ class AbstractUpgradable(Jsonable):
             self.attributes[up].set_base(self.attributes[up].get_base() + 1)
             self.attributes[down].set_base(self.attributes[down].get_base() - 1)
             self.calc_all()
-            self.customization_points -= 1
+            self.customPoints -= 1
 
 
     def __str__(self) -> str:

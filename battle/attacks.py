@@ -47,7 +47,7 @@ class AbstractActive(AbstractUpgradable):
         #some way to auto-do this?
         name = json.get("name", "NAME NOT FOUND")
         rtype = json.get("type", "TYPE NOT FOUND")
-        custom_points = int(json.get('customization_points', 0))
+        custom_points = int(json.get('customPoints', 0))
 
         ret = None
         if rtype == "AbstractActive":
@@ -59,7 +59,7 @@ class AbstractActive(AbstractUpgradable):
             if type(v) == type({}) and v.get('type', 'NO TYPE') == 'Stat':
                 ret.set_base(k, int(v.get('base', 0)))
 
-        ret.customization_points = custom_points
+        ret.customPoints = custom_points
 
         return ret
 
