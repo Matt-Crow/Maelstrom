@@ -12,7 +12,7 @@ class AbstractCustomizable(AbstractJsonSerialable):
     """
     type is used when decoding its JSON file.
     """
-    def __init__(self, type: str, name: str, customPoints=0):
+    def __init__(self, type: str, name: str, customPoints: int):
         super(AbstractCustomizable, self).__init__()
         self.name = name
         self.type = type

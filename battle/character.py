@@ -4,7 +4,7 @@ from attacks import AbstractActive
 from passives import AbstractPassive
 from item import Item, ItemSet
 from events import *
-from upgradable import AbstractUpgradable
+from customizable import AbstractCustomizable
 from output import Op
 import json
 
@@ -15,78 +15,76 @@ import os
 from file import writeCsvFile
 
 """
-Characters.
-
-Have to keep all 3 classes in one file because of circular depenancy
+Characters
 """
 ENEMY_DIRECTORY = 'files/enemy_characters'
 ENEMY_CACHE = {} #cached results of loading enemy files
 
-class AbstractCharacter(AbstractUpgradable):
-    """
-    A Class containing all the info for a character
-    """
-
-
+"""
+A Class containing all the info for a character
+"""
+class AbstractCharacter(AbstractCustomizable):
     """
     Initializers:
     Used to 'build' the characters
+
+    Yeah, totally need to use kwargs here
     """
-    def __init__(self, name):
-        super(AbstractCharacter, self).__init__(name)
-        self.set_type('AbstractCharacter')
+    def __init__(self, type: str, name: str, element, lv: int, xp: int, actives: list, passives: list, items: list, customPoints: int):
+        super(AbstractCharacter, self).__init__(type, name, customPoints)
         self.max_hp = 100
 
         for stat in STATS:
-            self.add_attr(stat, Stat(stat, battle_stat, 0))
+            self.addStat(Stat(stat, battle_stat, 0))
 
-        for element in ELEMENTS:
-            self.add_attr(element + " damage multiplier", Stat(element + " damage multiplier", mult_red_stat, 0))
-            self.add_attr(element + " damage reduction", Stat(element + " damage reduction", mult_red_stat, 0))
+        self.element = element
+        self.level = lv
+        self.XP = xp
 
-        self.element = 'NO ELEMENT SET'
-        self.level = 1
-        self.XP = 0
+        self.attacks = actives
+        self.passives = passives
+        self.equipped_items = items
 
-        self.attacks = []
-        self.passives = []
-        self.equipped_items = []
+        self.addSerializedAttributes(
+            "element",
+            "XP",
+            "level",
+            "attacks",
+            "passives",
+            "equipped_items"
+        )
 
-        self.track_attr('element')
-        self.track_attr('XP')
-        self.track_attr('level')
-        self.track_attr('attacks')
-        self.track_attr('passives')
-        self.track_attr('equipped_items')
+    """
+    Returns a deep copy of this character
+    """
+    def copy(self)->'AbstractCharacter':
+        return AbstractCharacter.read_json(self.toJsonDict())
 
-    def copy(self) -> 'AbstractCharacter':
-        """
-        Returns a deep copy of this character
-        """
-        return AbstractCharacter.read_json(self.get_as_json())
-
-
+    """
+    Reads a JSON object as a dictionary, then converts it to an AbstractCharacter
+    """
     @staticmethod
-    def read_json(jdict: dict) -> 'AbstractCharacter':
-        """
-        Reads a JSON object as a dictionary, then converts it to an AbstractCharacter
-        """
-        name = jdict.get('name', 'NAME NOT FOUND')
-        custom_points = int(jdict.get('customization_points', 0))
-        rtype = jdict.get('type', 'TYPE NOT FOUND')
-        element = jdict.get('element', 'ELEMENT NOT FOUND')
-        level = int(jdict.get('level', 1))
-        xp = int(jdict.get('XP', 0))
+    def loadJson(jdict: dict) -> 'AbstractCharacter':
+        ctype = jdict["type"]
+        name = jdict["name"]
+        element = jdict["element"]
+        level = int(jdict["level"])
+        xp = int(jdict["XP"])
+        actives = jdict["attacks"]
+        passives = jdict["passives"]
+        items = jdict["equipped_items"]
+        custom_points = int(jdict["customization_points"])
 
         ret = None
 
-        if rtype == 'PlayerCharacter':
+        if ctype == 'PlayerCharacter':
             ret = PlayerCharacter(name)
-        elif rtype == 'EnemyCharacter':
+        elif ctype == 'EnemyCharacter':
             ret = EnemyCharacter(name)
         else:
-            raise Exception('Type not found! ' + rtype)
+            raise Exception('Type not found! ' + ctype)
 
+        # oh, this is so horrible!!!
         ret.customization_points = custom_points
         ret.set_element(element)
         ret.level = level
