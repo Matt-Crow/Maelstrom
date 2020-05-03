@@ -14,23 +14,6 @@ def get_hit_perc(lv):
     """
     return 16.67 * (1 + lv * 0.05)
 
-def contains(string, search):
-    ret = False
-    letters_found = 0
-
-    # go through the word...
-    for letter in range(0, len(string)):
-        # is the current letter equal to the next letter in ignore?
-        if string[letter] == search[letters_found]:
-            letters_found += 1
-            # have we found the whole word?
-            if letters_found == len(search):
-                letters_found = 0
-                ret = True
-        else:
-            letters_found = 0
-    return ret
-
 def ignore_text(word, ignore):
     """
     Returns a string, if ignore

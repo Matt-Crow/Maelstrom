@@ -93,7 +93,7 @@ class File(object):
         file = open(self.file, 'w')
         for line in self.raw_data:
             write = line
-            if not contains(line, "\n"):
+            if '\n' not in line:
                 write += "\n"
             file.write(write)
 

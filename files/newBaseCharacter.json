@@ -3,9 +3,9 @@
     "type": "EnemyCharacter",
     "customPoints": 0,
     "element": "hail",
-    "XP": 0,
+    "xp": 0,
     "level": 1,
-    "attacks": [
+    "actives": [
         {
             "name": "Icicle Jab",
             "type": "AbstractActive",
@@ -350,7 +350,7 @@
             }
         }
     ],
-    "equipped_items": [],
+    "equippedItems": [],
     "control": {
         "name": "control",
         "type": "Stat",

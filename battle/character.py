@@ -1,15 +1,16 @@
-from utilities import contains, ignore_text, choose, ELEMENTS, STATS, Dp
+from utilities import choose, ELEMENTS, STATS, Dp
 from stat_classes import Stat
-from attacks import AbstractActive
+from actives import AbstractActive
 from passives import AbstractPassive
 from item import Item, ItemSet
 from events import *
 from customizable import AbstractCustomizable
 from output import Op
 import json
+
+# these two used for enemy cache
 from pathlib import Path
 import os
-from file import writeCsvFile
 
 """
 Characters
@@ -33,46 +34,57 @@ class AbstractCharacter(AbstractCustomizable):
     - customizationPoints : int (defaults to 0)
     - element : str
     - level : int (defaults to 1)
-    - XP : int (defaults to 0)
-    - attacks : list (defaults to AbstractActive.getDefaults(element))
+    - xp : int (defaults to 0)
+    - actives : list (defaults to AbstractActive.getDefaults(element))
     - passives : list (default to AbstractPassive.getDefaults())
-    - equipped_items : list (defaults to [])
+    - equippedItems : list (defaults to [])
     - stats: object{ str : int } (defaults to 0 for each stat in STATS not given in the object)
     """
     def __init__(self, **kwargs):
         super(AbstractCharacter, self).__init__(**kwargs)
-        self.max_hp = 100
+        self.maxHp = 100
 
         self.element = kwargs["element"]
         self.level = kwargs.get("level", 1)
-        self.XP = kwargs.get("XP", 0)
+        self.xp = kwargs.get("xp", 0)
 
-        self.attacks = []
+        self.actives = []
         self.passives = []
-        self.equipped_items = []
-        for attack in kwargs.get("attacks", AbstractActive.getDefaults(self.element)):
-            self.addActive(attack)
+        self.equippedItems = []
+        for active in kwargs.get("actives", AbstractActive.getDefaults(self.element)):
+            self.addActive(active)
         for passive in kwargs.get("passives", AbstractPassive.getDefaults()):
             self.addPassive(passive)
-        for item in kwargs.get("equipped_items", []):
+        for item in kwargs.get("equippedItems", []):
             self.equipItem(item)
 
         for stat in STATS:
-            self.addStat(Stat(stat, lambda base: 20.0 + float(base), kwargs["stats"].get(stat, 0)))
+            self.addStat(Stat(stat, lambda base: 20.0 + float(base), kwargs.get("stats", {}).get(stat, 0)))
         self.addSerializedAttributes(
             "element",
-            "XP",
+            "xp",
             "level",
-            "attacks",
+            "actives",
             "passives",
-            "equipped_items"
+            "equippedItems"
         )
+
+    """
+    The new default method.
+    """
+    @staticmethod
+    def createDefaultPlayer(name="Name not set", element=ELEMENTS[0])->"PlayerCharacter":
+        player = PlayerCharacter(
+            name=name,
+            element=element
+        )
+        return player
 
     """
     Returns a deep copy of this character
     """
     def copy(self)->'AbstractCharacter':
-        return AbstractCharacter.read_json(self.toJsonDict())
+        return AbstractCharacter.loadJson(self.toJsonDict())
 
     """
     Reads a JSON object as a dictionary, then converts it to an AbstractCharacter
@@ -80,14 +92,14 @@ class AbstractCharacter(AbstractCustomizable):
     @staticmethod
     def loadJson(jdict) -> 'AbstractCharacter':
         ctype = jdict["type"]
-        jdict["attacks"] = [AbstractActive.read_json(data) for data in jdict["attacks"]]
+        jdict["actives"] = [AbstractActive.read_json(data) for data in jdict["actives"]]
         #name = jdict["name"]
         #element = jdict["element"]
         #level = int(jdict["level"])
-        #xp = int(jdict["XP"])
-        #actives = jdict["attacks"]
+        #xp = int(jdict["xp"])
+        #actives = jdict["actives"]
         #passives = jdict["passives"]
-        #items = jdict["equipped_items"]
+        #items = jdict["equippedItems"]
         #custom_points = int(jdict["customPoints"])
 
         ret = None
@@ -102,51 +114,25 @@ class AbstractCharacter(AbstractCustomizable):
         # oh, this is so horrible!!!
         #ret.customPoints = custom_points
         #ret.level = level
-        #ret.XP = xp
+        #ret.xp = xp
         """
         for k, v in jdict.items():
             if type(v) == type({}) and v.get('type', 'NO TYPE') == 'Stat':
                 ret.set_base(k, int(v.get('base', 0)))
 
-        for active in jdict.get('attacks', []):
+        for active in jdict.get('actives', []):
             #for some reason, I have to reconver to a dictionary,
             #because active is a string
             ret.addActive(AbstractActive.read_json(active))
         for passive in jdict.get('passives', []):
             ret.add_passive(AbstractPassive.read_json(passive))
-        for item in jdict.get('equipped_items', []):
+        for item in jdict.get('equippedItems', []):
             ret.equipItem(Item.read_json(item))
         """
         return ret
 
-
-    @staticmethod
-    def read_default_player() -> 'AbstractCharacter':
-        """
-        reads the data from files/base_character, then converts it to a character
-        """
-        ret = AbstractCharacter.createDefaultPlayer()
-        with open('files/base_character.json') as file:
-            ret = AbstractCharacter.read_json(json.loads(file.read()))
-
-        return ret
-
-    """
-    The new default method.
-    """
-    @staticmethod
-    def createDefaultPlayer(name="Name not set", element=ELEMENTS[0])->"PlayerCharacter":
-        player = PlayerCharacter(
-            name=name,
-            element=element
-        )
-        return player
-
     def addActive(self, active: 'AbstractActive'):
-        """
-
-        """
-        self.attacks.append(active)
+        self.actives.append(active)
         active.set_user(self)
         active.calc_all()
 
@@ -158,81 +144,71 @@ class AbstractCharacter(AbstractCustomizable):
         passive.calc_all()
 
     def equipItem(self, item: 'Item'):
-        """
-        """
-        self.equipped_items.append(item)
+        self.equippedItems.append(item)
         item.set_user(self)
         item.equip(self)
         item.calc_all()
 
     # HP defined here
-    def init_for_battle(self):
-        """
-        Prepare for battle!
-        """
-        self.reset_action_registers()
+    def initForBattle(self):
+        self.resetActionRegisters()
+        self.calcStats()
 
-        self.calc_all()
-
-        for attack in self.attacks:
-            attack.set_user(self)
-            attack.init_for_battle()
+        for active in self.actives:
+            active.set_user(self)
+            active.initForBattle()
 
         for passive in self.passives:
             passive.set_user(self)
-            passive.init_for_battle()
+            passive.initForBattle()
 
-        for item in self.equipped_items:
+        for item in self.equippedItems:
             item.set_user(self)
             item.apply_boosts()
 
         # this part down here checks if we should get the 3-piece set bonus from our items
-        check_set = None
-        set_total = 0
-        for item in self.equipped_items:
+        checkSet = None
+        setTotal = 0
+        for item in self.equippedItems:
             if item.set_name != None:
-                if check_set == None:
-                    check_set = item.set_name
-                if item.set_name == check_set:
-                    set_total += 1
-            if set_total == 3:
-                ItemSet.get_set_bonus(check_set).f(self)
+                if checkSet == None:
+                    checkSet = item.set_name
+                if item.set_name == checkSet:
+                    setTotal += 1
+            if setTotal == 3:
+                ItemSet.get_set_bonus(checkSet).f(self)
 
-        self.HP_rem = self.max_hp
+        self.remHp = self.maxHp
         self.energy = int(self.getStatValue("energy") / 2.0)
 
-    # action register class?
-    def reset_action_registers(self):
-        """
-        Action registers are used to
-        hold functions which should be
-        invoked whenever a specific
-        condition is met, such as being
-        hit. They should each take an
-        extendtion of AbstractEvent as
-        a paramter
-        """
+    # Redo all of this sometime
+    """
+    Action registers are used to
+    hold functions which should be
+    invoked whenever a specific
+    condition is met, such as being
+    hit. They should each take an
+    extendtion of AbstractEvent as
+    a paramter
+    """
+    def resetActionRegisters(self):
         self.on_hit_given_actions = []
         self.on_hit_taken_actions = []
         self.on_update_actions = []
-
     def add_on_hit_given_action(self, action, duration = -1):
         """
         duration is how long to check for the condition
         """
         self.on_hit_given_actions.append({"function":action, "duration":duration})
-
     def add_on_hit_taken_action(self, action, duration = -1):
         """
         duration of -1 means it lasts forever in battle
         """
         self.on_hit_taken_actions.append({"function":action, "duration":duration})
-
     def add_on_update_action(self, action, duration = -1):
         """
         """
         self.on_update_actions.append({"function":action, "duration":duration})
-
     def update_action_registers(self):
         """
         Standard decrement, check, reasign
@@ -250,15 +226,12 @@ class AbstractCharacter(AbstractCustomizable):
         update(self.on_hit_taken_actions)
         update(self.on_update_actions)
 
+
     """
-    Data obtaining functions:
-    Used to get data about a character
+    Returns as a value between 0 and 100
     """
-    def hp_perc(self):
-        """
-        Returns as a value between 0 and 100
-        """
-        return int((float(self.HP_rem) / float(self.max_hp) * 100.0))
+    def getHpPerc(self):
+        return int((float(self.remHp) / float(self.maxHp) * 100.0))
 
     def displayData(self):
         """
@@ -273,21 +246,21 @@ class AbstractCharacter(AbstractCustomizable):
             Op.add(stat + ": " + str(int(self.getStatValue(stat))))
 
         Op.add("ACTIVES:")
-        for attack in self.attacks:
-            Op.add("-" + attack.name)
+        for active in self.actives:
+            Op.add("-" + active.name)
 
         Op.add("PASSIVES:")
         for passive in self.passives:
             Op.add("-" + passive.name)
 
         Op.add("ITEMS:")
-        for item in self.equipped_items:
+        for item in self.equippedItems:
             Op.add("-" + item.name)
 
-        Op.add(str(self.XP) + "/" + str(self.level * 10))
+        Op.add(str(self.xp) + "/" + str(self.level * 10))
         Op.display()
 
-    def get_short_desc(self):
+    def getShortDesc(self):
         """
         returns a short description of the character
         """
@@ -305,52 +278,46 @@ class AbstractCharacter(AbstractCustomizable):
         20 translates to 20%
         """
         mult = 1 + self.getStatValue("potency") / 100
-        self.attributes[boost.stat_name].boost(boost)
+        self.stats[boost.stat_name].boost(boost)
 
+    """
+    Restores HP.
+    Converts an INTEGER
+    to a percentage.
+    """
     def heal(self, percent):
-        """
-        Restores HP.
-        Converts an INTEGER
-        to a percentage.
-        """
         mult = 1 + self.getStatValue("potency") / 100
-        healing = self.max_hp * (float(percent) / 100)
-        self.HP_rem = self.HP_rem + healing * mult
+        healing = self.maxHp * (float(percent) / 100)
+        self.remHp = self.remHp + healing * mult
 
         Op.add(self.name + " healed " + str(int(healing)) + " HP!")
         Op.display()
 
-        if self.HP_rem > self.max_hp:
-            self.HP_rem = self.max_hp
+        if self.remHp > self.maxHp:
+            self.remHp = self.maxHp
 
     def harm(self, percent):
         mult = 1 - self.getStatValue("potency") / 100
-        harming = self.max_hp * (float(percent) / 100)
-        self.direct_dmg(harming * mult)
+        harming = self.maxHp * (float(percent) / 100)
+        self.takeDmg(harming * mult)
         Op.add(self.name + " took " + str(int(harming * mult)) + " damage!")
         Op.display()
 
-    def direct_dmg(self, dmg):
-        self.HP_rem -= dmg
-        self.HP_rem = int(self.HP_rem)
+    def takeDmg(self, dmg):
+        self.remHp -= dmg
+        self.remHp = int(self.remHp)
         self.team.updateMembersRem()
 
-    def gain_energy(self, amount):
-        """
-        Increase your energy.
-        """
-        self.energy = self.energy + amount
+    def gainEnergy(self, amount):
+        self.energy += amount
 
         if self.energy > self.getStatValue("energy"):
             self.energy = self.getStatValue("energy")
 
         self.energy = int(self.energy)
 
-    def lose_energy(self, amount):
-        """
-        Decrease your energy
-        """
-        self.energy = self.energy - amount
+    def loseEnergy(self, amount):
+        self.energy -= amount
         if self.energy < 0:
             self.energy = 0
 
@@ -360,21 +327,20 @@ class AbstractCharacter(AbstractCustomizable):
         for action in self.on_update_actions:
             action["function"]()
 
-        self.gain_energy(self.getStatValue("energy") * 0.15)
-        for stat in self.attributes.values():
+        self.gainEnergy(self.getStatValue("energy") * 0.15)
+        for stat in self.stats.values():
             stat.update()
-            #stat.displayData();
 
     """
     Damage calculation
     """
-    def calc_DMG(self, attacker, attack_used):
+    def calcDmgTaken(self, attacker, activeUsed):
         """
         MHC is not checked here so that it doesn't
         mess with AI
         """
         damage = 0
-        for damage_type, value in attack_used.damages.items():
+        for damage_type, value in activeUsed.damages.items():
             damage += value
         damage *= attacker.getStatValue("control") / self.getStatValue("resistance")
 
@@ -383,15 +349,15 @@ class AbstractCharacter(AbstractCustomizable):
 
         return damage
 
-    def take_DMG(self, attacker, attack_used):
-        dmg = self.calc_DMG(attacker, attack_used)
-        dmg = dmg * attack_used.calc_MHC()
+    def struckBy(self, attacker, activeUsed):
+        dmg = self.calcDmgTaken(attacker, activeUsed)
+        dmg = dmg * activeUsed.calc_MHC()
         Op.add(attacker.name + " struck " + self.name)
         Op.add("for " + str(int(dmg)) + " damage")
-        Op.add("using " + attack_used.name + "!")
+        Op.add("using " + activeUsed.name + "!")
         Op.display()
 
-        event = OnHitEvent("Attack", attacker, self, attack_used, dmg)
+        event = OnHitEvent("Attack", attacker, self, activeUsed, dmg)
         event.displayData()
 
         for passive in self.on_hit_taken_actions:
@@ -400,13 +366,10 @@ class AbstractCharacter(AbstractCustomizable):
         for passive in attacker.on_hit_given_actions:
             passive["function"](event)
 
-        self.direct_dmg(dmg)
+        self.takeDmg(dmg)
 
-    def check_if_KOed(self):
-        """
-        Am I dead yet?
-        """
-        return self.HP_rem <= 0
+    def isKoed(self):
+        return self.remHp <= 0
 
     @staticmethod
     def load_from_file(file_path: str) -> 'AbstractCharacter':
@@ -437,24 +400,24 @@ class PlayerCharacter(AbstractCharacter):
 
     def choose_attack(self):
         attack_options = []
-        for attack in self.attacks:
+        for active in self.actives:
             if attack.can_use():
                 attack_options.append(attack)
 
-        choose("What attack do you wish to use?", attack_options).use()
+        choose("What active do you wish to use?", attack_options).use()
 
     """
     Post-battle actions:
     Occur after battle
     """
-    def gain_XP(self, amount):
+    def gain_xp(self, amount):
         """
         Give experience.
-        Caps at the most XP required for a battle
+        Caps at the most xp required for a battle
         (Can't level up twice after one battle)
         """
-        self.XP = self.XP + amount
-        while self.XP >= self.level * 10:
+        self.xp = self.xp + amount
+        while self.xp >= self.level * 10:
             Op.add(self.name + " leveled up!")
             Op.display()
             self.level_up()
@@ -463,18 +426,18 @@ class PlayerCharacter(AbstractCharacter):
         """
         Increases level
         """
-        self.XP = 0
+        self.xp = 0
         self.level += 1
         self.customPoints += 1
-        for active in self.attacks:
+        for active in self.actives:
             active.customPoints += 1
         for passive in self.passives:
             passive.customPoints += 1
-        for item in self.equipped_items:
+        for item in self.equippedItems:
             item.customPoints += 1
 
-        self.calc_all()
-        self.HP_rem = self.max_hp
+        self.calcStats()
+        self.remHp = self.maxHp
         self.displayData()
 
     """
@@ -484,8 +447,8 @@ class PlayerCharacter(AbstractCharacter):
     def choose_items(self):
         self.display_items()
 
-        if len(self.equipped_items) == 0 or choose("Do you wish to change these items?", ("yes", "no")) == "yes":
-            for item in self.equipped_items:
+        if len(self.equippedItems) == 0 or choose("Do you wish to change these items?", ("yes", "no")) == "yes":
+            for item in self.equippedItems:
                 item.unequip()
 
             items = self.team.get_available_items()
@@ -493,16 +456,16 @@ class PlayerCharacter(AbstractCharacter):
             if len(items) <= 3:
                 for item in items:
                     item.equip(self)
-                    self.equipped_items.append(item)
+                    self.equippedItems.append(item)
             else:
                 for item in items:
                     item.displayData()
 
             items = self.team.get_available_items()
-            while (len(self.equipped_items) < 3) and (len(items) is not 0):
+            while (len(self.equippedItems) < 3) and (len(items) is not 0):
                 item = choose("Which item do you want to equip?", items)
                 item.equip(self)
-                self.equipped_items.append(item)
+                self.equippedItems.append(item)
                 items = self.team.get_available_items()
 
             self.display_items()
@@ -516,7 +479,7 @@ class PlayerCharacter(AbstractCharacter):
         if len(self.team.inventory) > 0:
             options.append("Equipped items")
 
-        for item in self.equipped_items:
+        for item in self.equippedItems:
             item.displayData()
             options.append(item)
 
@@ -524,7 +487,7 @@ class PlayerCharacter(AbstractCharacter):
             passive.displayData()
             options.append(passive)
 
-        for attack in self.attacks:
+        for active in self.actives:
             attack.displayData()
             options.append(attack)
 
@@ -546,12 +509,12 @@ class EnemyCharacter(AbstractCharacter):
     AI stuff
     """
     def best_attack(self):
-        best = self.attacks[0]
+        best = self.actives[0]
         highest_dmg = 0
         Dp.add("----------")
-        for attack in self.attacks:
+        for active in self.actives:
             if attack.can_use():
-                dmg = self.team.enemy.active.calc_DMG(self, attack)
+                dmg = self.team.enemy.active.calcDmgTaken(self, attack)
                 if dmg > highest_dmg:
                     best = attack
                     highest_dmg = dmg
@@ -575,12 +538,12 @@ class EnemyCharacter(AbstractCharacter):
         Can you get multiple KOes?
         """
         """
-        for attack in self.attacks:
+        for active in self.actives:
             if not attack.can_use(self) or not type(attack) == type(AllAttack("test", 0)):
                 continue
             koes = 0
             for member in self.team.enemy.members_rem:
-                if member.calc_DMG(self, attack) * sw >= member.HP_rem:
+                if member.calcDmgTaken(self, attack) * sw >= member.remHp:
                     koes += 1
             if koes >= 2:
                 return attack
@@ -589,9 +552,9 @@ class EnemyCharacter(AbstractCharacter):
         Can you get a KO?
         """
         can_ko = []
-        for attack in self.attacks:
+        for active in self.actives:
             if attack.can_use():
-                if self.team.enemy.active.calc_DMG(self, attack) * sw >= self.team.enemy.active.HP_rem:
+                if self.team.enemy.active.calcDmgTaken(self, attack) * sw >= self.team.enemy.active.remHp:
                     can_ko.append(attack)
 
         if len(can_ko) == 1:

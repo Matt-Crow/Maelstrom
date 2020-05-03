@@ -29,7 +29,7 @@ Week 2: Revised/improved/reordered functions
 1/5/2017 : Added Location, began work on splitting file
 
 27/10/2017: Revised output
-1/11/2017 - 8/11/2017: Revised how attacks work, added hit principle
+1/11/2017 - 8/11/2017: Revised how actives work, added hit principle
 9/11/2017 - 15/11/2017 : Finished Attack, added events
 17/11/2017 - 25/11/2017: Added customization, worked on save codes
 26/11/2017 - 28/11/2017: Worked on Item

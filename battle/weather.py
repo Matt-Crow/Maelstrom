@@ -40,7 +40,7 @@ class Weather(object):
         """
         if self.type == "lightning":
             for person in affected:
-                person.gain_energy(self.intensity)
+                person.gainEnergy(self.intensity)
 
         if self.type == "wind":
             for person in affected:

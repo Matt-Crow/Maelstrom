@@ -6,6 +6,7 @@ from serialize import Jsonable
 
 
 """
+OLD GET RID OF IT
 An AbstractUpgradable is anything that the player can change as their characters level up.
 """
 

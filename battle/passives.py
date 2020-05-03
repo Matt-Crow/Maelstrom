@@ -180,15 +180,15 @@ class Threshhold(AbstractPassive):
         self.add_attr("threshhold", Stat("threshhold", thresh_form, 4))
 
 
-    def init_for_battle(self):
+    def initForBattle(self):
         self.user.add_on_update_action(self.check_trigger)
 
 
     def check_trigger(self):
         Dp.add("Checking trigger for " + self.name)
         Dp.add(str(self.get_stat("threshhold") * 100) + "% threshhold")
-        Dp.add(str(self.user.hp_perc()) + "% user health")
-        if self.user.hp_perc() <= self.get_stat("threshhold"):
+        Dp.add(str(self.user.getHpPerc()) + "% user health")
+        if self.user.getHpPerc() <= self.get_stat("threshhold"):
             Dp.add("activated")
             self.f()
         Dp.dp()
@@ -215,7 +215,7 @@ class OnHitGiven(AbstractPassive):
         self.add_attr('chance', Stat('chance', chance_form, 4))
 
 
-    def init_for_battle(self):
+    def initForBattle(self):
         self.user.add_on_hit_given_action(self.check_trigger)
 
 
@@ -251,7 +251,7 @@ class OnHitTaken(AbstractPassive):
         self.add_attr('chance', Stat('chance', chance_form, 4))
 
 
-    def init_for_battle(self):
+    def initForBattle(self):
         self.user.add_on_hit_taken_action(self.check_trigger)
 
 

@@ -7,9 +7,9 @@
             "type": "PlayerCharacter",
             "customPoints": 3,
             "element": "lightning",
-            "XP": 0,
+            "xp": 0,
             "level": 4,
-            "attacks": [
+            "actives": [
                 {
                     "name": "lightning bolt",
                     "type": "AbstractActive",
@@ -299,7 +299,7 @@
                     }
                 }
             ],
-            "equipped_items": [
+            "equippedItems": [
                 {
                     "name": "Item 1",
                     "type": "Item",

@@ -7,7 +7,7 @@ from output import Op
 
 class AbstractActive(AbstractUpgradable):
     """
-    The attacks all characters can use
+    The actives all characters can use
     """
 
 
@@ -86,7 +86,7 @@ class AbstractActive(AbstractUpgradable):
         super(AbstractActive, self).set_user(user)
         self.distribute_damage()
 
-    def init_for_battle(self):
+    def initForBattle(self):
         self.calc_all()
         self.distribute_damage()
         for side_effect in self.side_effects:
@@ -111,7 +111,7 @@ class AbstractActive(AbstractUpgradable):
         return ret
 
     def getDisplayData(self):
-        self.init_for_battle()
+        self.initForBattle()
         ret = [self.type + " " + self.name]
 
         for type, value in self.damages.items():
@@ -166,18 +166,18 @@ class AbstractActive(AbstractUpgradable):
                 side_effect["effect"]()
 
     def use(self):
-        self.user.lose_energy(self.energy_cost)
+        self.user.loseEnergy(self.energy_cost)
         if self.get_stat("damage multiplier") is not 0:
-            self.user.team.enemy.active.take_DMG(self.user, self)
+            self.user.team.enemy.active.struckBy(self.user, self)
             self.apply_side_effects_to(self.user.team.enemy.active)
         if self.get_stat("cleave") is not 0.0:
             for enemy in self.user.team.enemy.members_rem:
                 if enemy is not self.user.team.enemy.active:
-                    enemy.direct_dmg(self.total_dmg() * self.get_stat("cleave"))
+                    enemy.takeDmg(self.total_dmg() * self.get_stat("cleave"))
                     self.apply_side_effects_to(enemy)
 
     """
-    Returns the default attacks that every
+    Returns the default actives that every
     character can use
     """
     @staticmethod
@@ -253,7 +253,7 @@ def dmg_weight(base: int) -> float:
     """
     The formula for damage weight
 
-    Damage weight is how much of the attack's total damage will be devoted to
+    Damage weight is how much of the actives's total damage will be devoted to
     a specific element.
     For example,
     by default, the weights are 10 for each element, so the total damage would be evenly divided.

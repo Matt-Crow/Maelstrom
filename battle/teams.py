@@ -68,7 +68,7 @@ class AbstractTeam(AbstractJsonSerialable):
     def updateMembersRem(self):
         newMembersRem = []
         for member in self.members_rem:
-            if not member.check_if_KOed():
+            if not member.isKoed():
                 newMembersRem.append(member)
                 member.update()
             else:
@@ -96,7 +96,7 @@ class AbstractTeam(AbstractJsonSerialable):
         # I will definitely want to add a forEach sort of method
         self.members_rem = []
         for member in self.members:
-            member.init_for_battle()
+            member.initForBattle()
             self.members_rem.append(member)
         self.active = self.members_rem[0]
 
@@ -106,12 +106,12 @@ class AbstractTeam(AbstractJsonSerialable):
         """
         Op.add(self.name)
         for member in self.members_rem:
-            Op.add("* " + member.name + " " + str(int(member.HP_rem)) + "/" + str(int(member.max_hp)))
+            Op.add("* " + member.name + " " + str(int(member.remHp)) + "/" + str(int(member.maxHp)))
         Op.add("Currently active: " + self.active.name)
         Op.add(self.active.getDisplayData())
         Op.add(self.active.name + "'s Energy: " + str(self.active.energy))
         if self.enemy:
-            Op.add("Active enemy: " + self.enemy.active.name + " " + str(int(self.enemy.active.HP_rem)) + "/" + str(int(self.enemy.active.max_hp)))
+            Op.add("Active enemy: " + self.enemy.active.name + " " + str(int(self.enemy.active.remHp)) + "/" + str(int(self.enemy.active.maxHp)))
         Op.display()
 
     def __str__(self):
@@ -121,7 +121,7 @@ class AbstractTeam(AbstractJsonSerialable):
         """
         This is where stuff happens
         """
-        if self.active.check_if_KOed():
+        if self.active.isKoed():
             self.active = self.chooseSwitchin()
         self.switched_in = False
 
@@ -225,7 +225,7 @@ class EnemyTeam(AbstractTeam):
         """
         First, check if our active can KO
         """
-        if self.one_left() or self.enemy.active.calc_DMG(self.active, self.active.best_attack()) >= self.enemy.active.HP_rem:
+        if self.one_left() or self.enemy.active.calcDmgTaken(self.active, self.active.best_attack()) >= self.enemy.active.remHp:
             return False
 
 
@@ -233,7 +233,7 @@ class EnemyTeam(AbstractTeam):
         Second, check if an ally can KO
         """
         for member in self.members_rem:
-            if self.enemy.active.calc_DMG(member, member.best_attack()) * 0.75 >= self.enemy.active.HP_rem:
+            if self.enemy.active.calcDmgTaken(member, member.best_attack()) * 0.75 >= self.enemy.active.remHp:
                 return True
 
 
@@ -253,7 +253,7 @@ class EnemyTeam(AbstractTeam):
         """
         can_ko = []
         for member in self.members_rem:
-            if self.enemy.active.calc_DMG(member, member.best_attack()) * 0.75 >= self.enemy.active.HP_rem:
+            if self.enemy.active.calcDmgTaken(member, member.best_attack()) * 0.75 >= self.enemy.active.remHp:
                 can_ko.append(member)
 
         for member in can_ko:

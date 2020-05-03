@@ -76,7 +76,7 @@ class Battle(AbstractJsonSerialable):
         """
         ret = [self.name, "\t" + self.desc]
         for member in self.enemy_team.members:
-            ret.append("\t* " + member.get_short_desc())
+            ret.append("\t* " + member.getShortDesc())
         return ret
 
     def __str__(self):
@@ -142,7 +142,7 @@ class Battle(AbstractJsonSerialable):
         """
         xp = self.enemy_team.getXpGiven()
         for member in self.player_team.members:
-            member.gain_XP(xp)
+            member.gain_xp(xp)
 
     def play(self):
         """

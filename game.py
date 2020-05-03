@@ -6,7 +6,7 @@ from utilities import choose, ELEMENTS
 from area import Area
 import json
 
-from load_characters import generateEnemies
+from generateData import generateEnemies
 
 """
 The Game class is used to store data on the game the user is currently playing,
@@ -20,7 +20,7 @@ class Game:
     def test(self):
         defaultPlayer = AbstractCharacter.createDefaultPlayer()
         defaultPlayer.displayData()
-        generateEnemies()
+        #generateEnemies()
 
     """
     Begins the program
