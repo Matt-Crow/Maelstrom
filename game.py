@@ -6,6 +6,8 @@ from utilities import choose, ELEMENTS
 from area import Area
 import json
 
+from load_characters import generateEnemies
+
 """
 The Game class is used to store data on the game the user is currently playing,
 so this way, there don't have to be any globals.
@@ -18,6 +20,7 @@ class Game:
     def test(self):
         defaultPlayer = AbstractCharacter.createDefaultPlayer()
         defaultPlayer.displayData()
+        generateEnemies()
 
     """
     Begins the program

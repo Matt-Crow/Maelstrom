@@ -30,35 +30,35 @@ class AbstractCharacter(AbstractCustomizable):
     required kwargs:
     - type : str
     - name : str
-    - customPoints : int
+    - customizationPoints : int (defaults to 0)
     - element : str
-    - level : int
-    - XP : int
-    - attacks : list
-    - passives : list
-    - equipped_items : list
-    - stats: object
+    - level : int (defaults to 1)
+    - XP : int (defaults to 0)
+    - attacks : list (defaults to AbstractActive.getDefaults(element))
+    - passives : list (default to AbstractPassive.getDefaults())
+    - equipped_items : list (defaults to [])
+    - stats: object{ str : int } (defaults to 0 for each stat in STATS not given in the object)
     """
     def __init__(self, **kwargs):
         super(AbstractCharacter, self).__init__(**kwargs)
         self.max_hp = 100
 
         self.element = kwargs["element"]
-        self.level = kwargs["level"]
-        self.XP = kwargs["XP"]
+        self.level = kwargs.get("level", 1)
+        self.XP = kwargs.get("XP", 0)
 
         self.attacks = []
         self.passives = []
         self.equipped_items = []
-        for attack in kwargs["attacks"]:
+        for attack in kwargs.get("attacks", AbstractActive.getDefaults(self.element)):
             self.addActive(attack)
-        for passive in kwargs["passives"]:
+        for passive in kwargs.get("passives", AbstractPassive.getDefaults()):
             self.addPassive(passive)
-        for item in kwargs["equipped_items"]:
+        for item in kwargs.get("equipped_items", []):
             self.equipItem(item)
 
         for stat in STATS:
-            self.addStat(Stat(stat, lambda base: 20.0 + float(base), kwargs["stats"][stat]))
+            self.addStat(Stat(stat, lambda base: 20.0 + float(base), kwargs["stats"].get(stat, 0)))
         self.addSerializedAttributes(
             "element",
             "XP",
@@ -136,21 +136,10 @@ class AbstractCharacter(AbstractCustomizable):
     """
     @staticmethod
     def createDefaultPlayer(name="Name not set", element=ELEMENTS[0])->"PlayerCharacter":
-        attacks = AbstractActive.get_defaults()
-        attacks.append(AbstractActive.get_default_bolt(element))
-        dict = {
-            "name" : name,
-            "customPoints" : 0,
-            "element" : "lightning",
-            "level" : 1,
-            "XP" : 0,
-            "attacks" : attacks,
-            "passives" : AbstractPassive.get_defaults(),
-            "equipped_items" : [],
-            "stats" : {stat: 0 for stat in STATS}
-        }
-
-        player = PlayerCharacter(**dict)
+        player = PlayerCharacter(
+            name=name,
+            element=element
+        )
         return player
 
     def addActive(self, active: 'AbstractActive'):
@@ -551,7 +540,7 @@ class PlayerCharacter(AbstractCharacter):
 
 class EnemyCharacter(AbstractCharacter):
     def __init__(self, **kwargs):
-        super(self.__class__, self).__init__("EnemyCharacter", kwargs)
+        super(self.__class__, self).__init__(**dict(kwargs, type="EnemyCharacter"))
 
     """
     AI stuff

@@ -93,7 +93,7 @@ class AbstractPassive(AbstractUpgradable):
 
 
     @staticmethod
-    def get_defaults() -> list:
+    def getDefaults() -> list:
         """
         Returns the default passives
 

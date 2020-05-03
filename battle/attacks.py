@@ -176,13 +176,20 @@ class AbstractActive(AbstractUpgradable):
                     enemy.direct_dmg(self.total_dmg() * self.get_stat("cleave"))
                     self.apply_side_effects_to(enemy)
 
+    """
+    Returns the default attacks that every
+    character can use
+    """
     @staticmethod
-    def get_defaults() -> list:
-        """
-        Returns the default attacks that every character can use
+    def getDefaults(element: str) -> list:
+        bolt = AbstractActive.read_json({
+            'name' : element + ' bolt',
+            'type' : 'AbstractActive',
+            'cleave' : -5,
+            'crit chance' : -2,
+            'damage multiplier' : 7
+        })
 
-        TODO: make this read from a file
-        """
         slash = MeleeAttack("Slash")
         jab = AbstractActive.read_json({
             "name" : "Jab",
@@ -223,21 +230,7 @@ class AbstractActive(AbstractUpgradable):
             }
         })
 
-        return [slash, jab, slam]
-
-
-    @staticmethod
-    def get_default_bolt(element: str) -> 'AbstractActive':
-        """
-        Returns the default 'elemental' active each character gets
-        """
-        return AbstractActive.read_json({
-            'name' : element + ' bolt',
-            'type' : 'AbstractActive',
-            'cleave' : -5,
-            'crit chance' : -2,
-            'damage multiplier' : 7
-        })
+        return [bolt, slash, jab, slam]
 
 
 class MeleeAttack(AbstractActive):
