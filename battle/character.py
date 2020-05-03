@@ -398,19 +398,19 @@ class PlayerCharacter(AbstractCharacter):
     def __init__(self, **kwargs):
         super(self.__class__, self).__init__(**dict(kwargs, type="PlayerCharacter"))
 
-    def choose_attack(self):
-        attack_options = []
+    def chooseActive(self):
+        options = []
         for active in self.actives:
-            if attack.can_use():
-                attack_options.append(attack)
+            if active.can_use():
+                options.append(active)
 
-        choose("What active do you wish to use?", attack_options).use()
+        choose("What active do you wish to use?", options).use()
 
     """
     Post-battle actions:
     Occur after battle
     """
-    def gain_xp(self, amount):
+    def gainXp(self, amount):
         """
         Give experience.
         Caps at the most xp required for a battle
@@ -420,9 +420,9 @@ class PlayerCharacter(AbstractCharacter):
         while self.xp >= self.level * 10:
             Op.add(self.name + " leveled up!")
             Op.display()
-            self.level_up()
+            self.levelUp()
 
-    def level_up(self):
+    def levelUp(self):
         """
         Increases level
         """
@@ -444,8 +444,8 @@ class PlayerCharacter(AbstractCharacter):
     Character management
     """
 
-    def choose_items(self):
-        self.display_items()
+    def chooseItems(self):
+        self.displayItems()
 
         if len(self.equippedItems) == 0 or choose("Do you wish to change these items?", ("yes", "no")) == "yes":
             for item in self.equippedItems:
@@ -468,12 +468,9 @@ class PlayerCharacter(AbstractCharacter):
                 self.equippedItems.append(item)
                 items = self.team.get_available_items()
 
-            self.display_items()
+            self.displayItems()
 
     def manage(self):
-        """
-        This will replace customize
-        """
         options = ["Quit"]
 
         if len(self.team.inventory) > 0:
@@ -488,15 +485,15 @@ class PlayerCharacter(AbstractCharacter):
             options.append(passive)
 
         for active in self.actives:
-            attack.displayData()
-            options.append(attack)
+            active.displayData()
+            options.append(active)
 
         options.reverse()
 
         customize = choose("What do you want to customize?", options)
         if customize != "Quit":
             if customize == 'Equipped items':
-                self.choose_items()
+                self.chooseItems()
             customize.customize()
 
 
@@ -508,27 +505,27 @@ class EnemyCharacter(AbstractCharacter):
     """
     AI stuff
     """
-    def best_attack(self):
+    def bestActive(self):
         best = self.actives[0]
-        highest_dmg = 0
+        bestDmg = 0
         Dp.add("----------")
         for active in self.actives:
-            if attack.can_use():
-                dmg = self.team.enemy.active.calcDmgTaken(self, attack)
-                if dmg > highest_dmg:
-                    best = attack
-                    highest_dmg = dmg
-                Dp.add("Damge with " + attack.name + ": " + str(dmg))
+            if active.can_use():
+                dmg = self.team.enemy.active.calcDmgTaken(self, active)
+                if dmg > bestDmg:
+                    best = active
+                    bestDmg = dmg
+                Dp.add("Damage with " + active.name + ": " + str(dmg))
         Dp.add("----------")
         Dp.dp()
         return best
 
-    def what_attack(self):
-        """
-        Used to help the AI
-        choose what attack
-        to use
-        """
+    """
+    Used to help the AI
+    choose what active
+    to use
+    """
+    def whatActive(self):
         if self.team.switched_in:
             sw = 0.75
         else:
@@ -539,33 +536,33 @@ class EnemyCharacter(AbstractCharacter):
         """
         """
         for active in self.actives:
-            if not attack.can_use(self) or not type(attack) == type(AllAttack("test", 0)):
+            if not active.can_use(self) or not type(active) == type(AllAttack("test", 0)):
                 continue
             koes = 0
             for member in self.team.enemy.members_rem:
-                if member.calcDmgTaken(self, attack) * sw >= member.remHp:
+                if member.calcDmgTaken(self, active) * sw >= member.remHp:
                     koes += 1
             if koes >= 2:
-                return attack
+                return active
         """
         """
         Can you get a KO?
         """
-        can_ko = []
+        canKo = []
         for active in self.actives:
-            if attack.can_use():
-                if self.team.enemy.active.calcDmgTaken(self, attack) * sw >= self.team.enemy.active.remHp:
-                    can_ko.append(attack)
+            if active.can_use():
+                if self.team.enemy.active.calcDmgTaken(self, active) * sw >= self.team.enemy.active.remHp:
+                    canKo.append(active)
 
-        if len(can_ko) == 1:
-            return can_ko[0]
+        if len(canKo) == 1:
+            return canKo[0]
         """
         If you cannot KO...
         """
-        return self.best_attack()
+        return self.bestActive()
 
-    def choose_attack(self):
-        self.what_attack().use()
+    def chooseActive(self):
+        self.whatActive().use()
 
     """
     Reads an enemy file, if it exists.
@@ -597,6 +594,3 @@ class EnemyCharacter(AbstractCharacter):
             raise FileNotFoundError('Enemy not found in ' + ENEMY_DIRECTORY + ': ' + name + ' Did you forget to call .save() on that enemy?')
 
         return ret.copy()
-
-if __name__ == "__main__":
-    pass

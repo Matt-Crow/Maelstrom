@@ -142,7 +142,7 @@ class Battle(AbstractJsonSerialable):
         """
         xp = self.enemy_team.getXpGiven()
         for member in self.player_team.members:
-            member.gain_xp(xp)
+            member.gainXp(xp)
 
     def play(self):
         """

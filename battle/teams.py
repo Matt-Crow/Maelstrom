@@ -129,7 +129,7 @@ class AbstractTeam(AbstractJsonSerialable):
         if self.shouldSwitch():
             self.active = self.chooseSwitchin()
             self.switched_in = True
-        self.active.choose_attack()
+        self.active.chooseActive()
 
     def shouldSwitch(self) -> bool:
         """
@@ -225,7 +225,7 @@ class EnemyTeam(AbstractTeam):
         """
         First, check if our active can KO
         """
-        if self.one_left() or self.enemy.active.calcDmgTaken(self.active, self.active.best_attack()) >= self.enemy.active.remHp:
+        if self.one_left() or self.enemy.active.calcDmgTaken(self.active, self.active.bestActive()) >= self.enemy.active.remHp:
             return False
 
 
@@ -233,7 +233,7 @@ class EnemyTeam(AbstractTeam):
         Second, check if an ally can KO
         """
         for member in self.members_rem:
-            if self.enemy.active.calcDmgTaken(member, member.best_attack()) * 0.75 >= self.enemy.active.remHp:
+            if self.enemy.active.calcDmgTaken(member, member.bestActive()) * 0.75 >= self.enemy.active.remHp:
                 return True
 
 
@@ -253,7 +253,7 @@ class EnemyTeam(AbstractTeam):
         """
         can_ko = []
         for member in self.members_rem:
-            if self.enemy.active.calcDmgTaken(member, member.best_attack()) * 0.75 >= self.enemy.active.remHp:
+            if self.enemy.active.calcDmgTaken(member, member.bestActive()) * 0.75 >= self.enemy.active.remHp:
                 can_ko.append(member)
 
         for member in can_ko:
