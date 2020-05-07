@@ -14,17 +14,26 @@ initializing them
 and the weather.
 """
 class Battle(AbstractJsonSerialable):
-    def __init__(self, name: str, desc: str, script: list, finalAct: list, level: int, enemyNames: list, rewards = []):
-        super(Battle, self).__init__(type="Battle")
-        self.name = name
-        self.desc = desc
-        self.level = level #the level of enemies
-        self.script = script
-        self.final_act = finalAct
+    """
+    Required kwargs:
+    - name : str
+    - desc : str
+    - prescript : list of str, defaults to []
+    - postscript : list of str, defaults to []
 
+    Not sure how I want to pass enemies.
+    Sending an enemyteam makes sense,
+    but is less memory efficient than creating one upon starting the battle.
+    """
+    def __init__(self, **kwargs):#name: str, desc: str, script: list, finalAct: list, level: int, enemyNames: list, rewards = []):
+        super(Battle, self).__init__(**dict(kwargs, type="Battle"))
+        self.name = kwargs["name"]
+        self.desc = kwargs["desc"]
+        self.prescript = kwargs.get("prescript", [])
+        self.postscript = kwargs.get("postscript", [])
+        #self.level = level #the level of enemies
 
-
-        self.forecast = []
+        self.forecast = [] # need to make Weather serialize
 
         self.enemy_team = EnemyTeam(enemyNames, level)
 
@@ -33,33 +42,8 @@ class Battle(AbstractJsonSerialable):
 
     @staticmethod
     def loadJson(jdict: dict) -> "Battle":
-        return Battle(
-            jdict["name"],
-            jdict["desc"],
-            jdict["script"],
-            jdict["final act"],
-            jdict["level"],
-            jdict.get('enemies', []),
-            [Item.read_json(data) for data in jdict.get('rewards', [])]
-        )
-        return ret
-
-
-    def get_as_json(self) -> dict:
-        """
-        Returns a dictionary version of this battle
-        """
-        return {
-            'name' : self.name,
-            'enemies' : [enemy.name for enemy in self.enemy_team.members],
-            'level' : self.level,
-            'desc' : self.desc,
-            'script' : self.script,
-            'final act' : self.final_act,
-            'forecast' : 'TODO',
-            'rewards' : [item.get_as_json() for item in self.rewards]
-        }
-
+        jdict["rewards"] = [Item.read_json(data) for data in jdict["rewards"]]
+        return Battle(dict)
 
     def restrict_weather(self, forecast):
         """
@@ -100,7 +84,7 @@ class Battle(AbstractJsonSerialable):
             Op.add(self.player_team.name + " won!")
             Op.display()
 
-            for line in self.final_act:
+            for line in self.postscript:
                 Op.add(line)
                 Op.display()
 
@@ -113,7 +97,7 @@ class Battle(AbstractJsonSerialable):
         Prepare both teams
         for the match.
         """
-        for line in self.script:
+        for line in self.prescript:
             Op.add(line)
             Op.display()
 
