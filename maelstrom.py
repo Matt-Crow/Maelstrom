@@ -46,7 +46,6 @@ from util.path import add_subdir
 
 add_subdir("battle")
 add_subdir("util")
-add_subdir("story")
 add_subdir('management')
 
 from game import Game

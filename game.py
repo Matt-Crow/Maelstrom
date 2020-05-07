@@ -20,6 +20,7 @@ class Game:
     def test(self):
         defaultPlayer = AbstractCharacter.createDefaultPlayer()
         defaultPlayer.displayData()
+        Area.createDefaultArea().chooseAction(defaultPlayer)
         #generateEnemies()
 
     """

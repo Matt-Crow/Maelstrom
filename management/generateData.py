@@ -6,6 +6,7 @@ import json
 #this file is for management purposes ONLY.
 #use it if the data in files gets corrupted or needs to be reset
 
+# TODO: make this write most of the data to a file (files?)
 """
 Generates the default data for enemies,
 and outputs it to the enemy directory.
