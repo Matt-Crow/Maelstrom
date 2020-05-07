@@ -14,13 +14,13 @@ class Area(AbstractJsonSerialable):
     - name : str
     - desc : str
     - locations : list of Locations. Defaults to []
-    - levels : list of Battles. Defaults to []
+    - levels : list of Battles. Defaults to [Location.createDefaultLocation]
     """
     def __init__(self, **kwargs):
         super(Area, self).__init__(**dict(kwargs, type="Area"))
         self.name = kwargs["name"]
         self.desc = kwargs["desc"]
-        self.locations = kwargs.get("locations", [])
+        self.locations = kwargs.get("locations", [Location.createDefaultLocation()])
         self.levels = kwargs.get("levels", [])
 
         self.addSerializedAttributes(
@@ -38,6 +38,7 @@ class Area(AbstractJsonSerialable):
             desc="No description"
         )
 
+    # get rid of this!
     @staticmethod
     def loadDefault():
         jdict = {}
@@ -106,11 +107,17 @@ Locations are used to store text descriptions of an area,
 providing a bit of atmosphere
 """
 class Location(AbstractJsonSerialable):
-    def __init__(self, name: str, desc: str, script: list):
-        super(Location, self).__init__(type="Location")
-        self.name = name
-        self.desc = desc
-        self.script = script
+    """
+    required kwargs:
+    - name : str
+    - desc : str
+    - script : list of strings. Defaults to []
+    """
+    def __init__(self, **kwargs):#name: str, desc: str, script: list):
+        super(Location, self).__init__(**dict(kwargs, type="Location"))
+        self.name = kwargs["name"]
+        self.desc = kwargs["desc"]
+        self.script = kwargs.get("script", [])
         self.addSerializedAttributes(
             "name",
             "desc",
@@ -118,8 +125,20 @@ class Location(AbstractJsonSerialable):
         )
 
     @staticmethod
+    def createDefaultLocation():
+        return Location(
+            name="Shoreline",
+            desc="Gentle waves lap at the shore.",
+            script=[
+                "I'm not sure how I feel about the sand...",
+                "is it course and rough?",
+                "or soft?"
+            ]
+        )
+
+    @staticmethod
     def loadJson(jdict: dict):
-        return Location(jdict["name"], jdict["desc"], jdict["script"])
+        return Location(**dict)
 
     """
     Get data for outputting
@@ -129,9 +148,7 @@ class Location(AbstractJsonSerialable):
 
 
     """
-    Prints this location's story,
-    then calls this' action method,
-    passing in the given player
+    Prints this location's story
     """
     def travelTo(self):
         for line in self.script:
