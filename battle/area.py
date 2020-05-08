@@ -5,7 +5,7 @@ from serialize import AbstractJsonSerialable
 import json
 import os
 
-AREA_DIRECTORY = 'maelstrom_story/areas'
+AREA_DIRECTORY = 'data/areas'
 class Area(AbstractJsonSerialable):
     """
     An Area is a collection of story elements and battles.

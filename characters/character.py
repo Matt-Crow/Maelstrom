@@ -15,7 +15,7 @@ import os
 """
 Characters
 """
-ENEMY_DIRECTORY = 'files/enemy_characters'
+ENEMY_DIRECTORY = 'data/enemy_characters'
 ENEMY_CACHE = {} #cached results of loading enemy files
 
 """
