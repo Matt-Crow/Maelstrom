@@ -1,5 +1,6 @@
 import json
 import os
+from stat_classes import Stat
 
 class AbstractJsonSerialable(object):
     """
@@ -144,10 +145,13 @@ class Jsonable(object):
 class CustomJsonEncoder(json.JSONEncoder):
     def default(self, obj):
         ret = None
+        input(type(obj))
         if callable(getattr(obj, 'get_as_json', None)):
             ret = obj.get_as_json()
         elif isinstance(obj, AbstractJsonSerialable):
             ret = obj.toJsonDict()
+        elif isinstance(obj, Stat):
+            ret = obj.base
         else:
             ret = json.JSONEncoder.default(self, obj)
         return ret
