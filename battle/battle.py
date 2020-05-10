@@ -1,6 +1,6 @@
 from utilities import *
 from item import Item
-from weather import WEATHERS, NO_WEATHER
+from weather import WEATHERS, NO_WEATHER, deserializeWeather
 from teams import EnemyTeam
 from output import Op
 from character import EnemyCharacter, ENEMY_CACHE
@@ -38,18 +38,25 @@ class Battle(AbstractJsonSerialable):
 
         #self.level = level #the level of enemies
 
-        # need to make Weather serialize
-
         self.enemy_team = EnemyTeam(enemyNames, level)
 
         self.rewards = to_list(rewards)
 
+        self.addSerializedAttributes(
+            "name",
+            "desc",
+            "prescript",
+            "postscript",
+            "forecast"
+        )
+
 
     @staticmethod
     def loadJson(jdict: dict) -> "Battle":
+        jdict["forecast"] = [deserializeWeather(data) for data in jdict["forecast"]]
         jdict["rewards"] = [Item.read_json(data) for data in jdict["rewards"]]
         return Battle(dict)
-        
+
     def getDisplayData(self):
         """
         gets data for outputting

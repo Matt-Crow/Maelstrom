@@ -1,12 +1,13 @@
 import random
 from stat_classes import Boost
+from serialize import AbstractJsonSerialable
 
 """
 This is what makes Maelstrom unique!
 Weather provides in-battle effects
 that alter the stats of characters
 """
-class Weather(object):
+class Weather(AbstractJsonSerialable):
     """
     Required kwargs:
     - name : str
@@ -14,9 +15,11 @@ class Weather(object):
     - consumer : function accepting an AbstractCharacter as an argument
     """
     def __init__(self, **kwargs):
+        super(Weather, self).__init__(**dict(kwargs, type="Weather"))
         self.name = kwargs["name"]
         self.msg = kwargs["msg"]
         self.consumer = kwargs["consumer"]
+        self.addSerializedAttribute("name")
 
     """
     Apply stat changes
@@ -66,3 +69,14 @@ WEATHERS = (
     WIND_WEATHER,
     NO_WEATHER
 )
+
+def deserializeWeather(jdict: dict)->"Weather":
+    name = jdict["name"]
+    ret = None
+    for weather in WEATHERS:
+        if weather.name == name:
+            ret = weather
+            break
+    if ret is None:
+        raise Error("No weather found with name '{0}'".format(name))
+    return ret
