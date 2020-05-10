@@ -18,7 +18,7 @@ class Game:
         self.exit = False
 
     def test(self):
-        generateEnemies()
+        #generateEnemies()
         defaultPlayer = AbstractCharacter.createDefaultPlayer()
         team = PlayerTeam(
             name="Default team",

@@ -58,6 +58,8 @@ class AbstractCharacter(AbstractCustomizable):
         for item in kwargs.get("equippedItems", []):
             self.equipItem(item)
 
+        print(self.name)
+        print(kwargs.get("stats", {}))
         for stat in STATS:
             self.addStat(Stat(stat, lambda base: 20.0 + float(base), kwargs.get("stats", {}).get(stat, 0)))
         self.calcStats()
@@ -91,47 +93,23 @@ class AbstractCharacter(AbstractCustomizable):
 
     """
     Reads a JSON object as a dictionary, then converts it to an AbstractCharacter
+    looks like this is done
     """
     @staticmethod
     def loadJson(jdict) -> 'AbstractCharacter':
         ctype = jdict["type"]
         jdict["actives"] = [AbstractActive.read_json(data) for data in jdict["actives"]]
-        #name = jdict["name"]
-        #element = jdict["element"]
-        #level = int(jdict["level"])
-        #xp = int(jdict["xp"])
-        #actives = jdict["actives"]
-        #passives = jdict["passives"]
-        #items = jdict["equippedItems"]
-        #custom_points = int(jdict["customPoints"])
-
+        jdict["passives"]= [AbstractPassive.read_json(data) for data in jdict["passives"]]
+        jdict["equippedItems"] = [Item.read_json(data) for data in jdict["equippedItems"]]
         ret = None
 
-        if ctype == 'PlayerCharacter':
+        if ctype == "PlayerCharacter":
             ret = PlayerCharacter(**jdict)
-        elif ctype == 'EnemyCharacter':
+        elif ctype == "EnemyCharacter":
             ret = EnemyCharacter(**jdict)
         else:
-            raise Exception('Type not found! ' + ctype)
+            raise Exception("Type not found! " + ctype)
 
-        # oh, this is so horrible!!!
-        #ret.customPoints = custom_points
-        #ret.level = level
-        #ret.xp = xp
-        """
-        for k, v in jdict.items():
-            if type(v) == type({}) and v.get('type', 'NO TYPE') == 'Stat':
-                ret.set_base(k, int(v.get('base', 0)))
-
-        for active in jdict.get('actives', []):
-            #for some reason, I have to reconver to a dictionary,
-            #because active is a string
-            ret.addActive(AbstractActive.read_json(active))
-        for passive in jdict.get('passives', []):
-            ret.add_passive(AbstractPassive.read_json(passive))
-        for item in jdict.get('equippedItems', []):
-            ret.equipItem(Item.read_json(item))
-        """
         return ret
 
     def addActive(self, active: 'AbstractActive'):
@@ -374,24 +352,7 @@ class AbstractCharacter(AbstractCustomizable):
     def isKoed(self):
         return self.remHp <= 0
 
-"""
-    @staticmethod
-    def load_from_file(file_path: str) -> 'AbstractCharacter':
 
-        Reads a json file, then returns the character contained in that file
-
-        ret = None
-
-        try:
-            with open(file_path, 'rt') as file:
-                ret = AbstractCharacter.read_json(json.loads(file.read()))
-        except FileNotFoundError as ex:
-            Op.add('Could not find file ' + file_path)
-            Op.add(str(ex))
-            Op.display()
-
-        return ret
-"""
 
 """
 A PlayerCharacter is a Character controlled by a player.
@@ -570,7 +531,7 @@ class EnemyCharacter(AbstractCharacter):
 
     def save(self):
         self.writeToFile(os.path.join(ENEMY_DIRECTORY, self.name + ".json"))
-    
+
     """
     Reads an enemy file, if it exists.
     If force is True, searches through the enemy directory for
@@ -594,7 +555,7 @@ class EnemyCharacter(AbstractCharacter):
                 char_name = file_name.split('.')[0].replace('_', ' ').title() # get rid of file extention
                 print(char_name)
                 if all or name.title().replace('_', ' ') == char_name:
-                    ret = AbstractCharacter.load_from_file(str(path))
+                    ret = AbstractCharacter.loadJson(AbstractCharacter.readFile((str(path))))
                     ENEMY_CACHE[char_name] = ret
 
         if ret is None:
