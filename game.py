@@ -20,7 +20,12 @@ class Game:
     def test(self):
         defaultPlayer = AbstractCharacter.createDefaultPlayer()
         defaultPlayer.displayData()
-        Area.createDefaultArea().chooseAction(defaultPlayer)
+        team = PlayerTeam(
+            name="Default team",
+            member=defaultPlayer
+        )
+        team.displayData()
+        #Area.createDefaultArea().chooseAction(defaultPlayer)
         #generateEnemies()
 
     """
@@ -78,7 +83,7 @@ class Game:
         data = PlayerSaveFile("users/" + user_name.replace(" ", "_").lower() + ".txt")
 
         self.player = AbstractTeam.loadTeam('users/' + user_name.replace(" ", "_").lower() + '.json')
-        self.player.initialize()
+        self.player.initForBattle()
         self.player.displayData()
 
 

@@ -60,6 +60,9 @@ class AbstractCharacter(AbstractCustomizable):
 
         for stat in STATS:
             self.addStat(Stat(stat, lambda base: 20.0 + float(base), kwargs.get("stats", {}).get(stat, 0)))
+        self.calcStats()
+        self.remHp = self.maxHp
+        
         self.addSerializedAttributes(
             "element",
             "xp",
@@ -539,7 +542,7 @@ class EnemyCharacter(AbstractCharacter):
             if not active.can_use(self) or not type(active) == type(AllAttack("test", 0)):
                 continue
             koes = 0
-            for member in self.team.enemy.members_rem:
+            for member in self.team.enemy.membersRem:
                 if member.calcDmgTaken(self, active) * sw >= member.remHp:
                     koes += 1
             if koes >= 2:

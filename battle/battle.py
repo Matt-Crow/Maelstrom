@@ -83,7 +83,7 @@ class Battle(AbstractJsonSerialable):
         teams loses all
         members.
         """
-        if self.player_team.is_up():
+        if not self.player_team.isDefeated():
             Op.add(self.player_team.name + " won!")
             Op.display()
 
@@ -104,10 +104,10 @@ class Battle(AbstractJsonSerialable):
             Op.add(line)
             Op.display()
 
-        self.enemy_team.initialize()
+        self.enemy_team.initForBattle()
         self.enemy_team.enemy = self.player_team
 
-        self.player_team.initialize()
+        self.player_team.initForBattle()
         self.player_team.enemy = self.enemy_team
 
         self.enemy_team.displayData()
@@ -132,15 +132,15 @@ class Battle(AbstractJsonSerialable):
         """
         self.begin()
 
-        while self.enemy_team.is_up() and self.player_team.is_up():
-            self.weather.applyEffect(self.enemy_team.members_rem)
+        while not self.enemy_team.isDefeated() and not self.player_team.isDefeated():
+            self.weather.applyEffect(self.enemy_team.membersRem)
             # did the weather defeat them?
-            if self.enemy_team.is_up():
+            if not self.enemy_team.isDefeated():
                 self.enemy_team.doTurn()
                 # only bother doing player turn if enemy survives
                 # so this way we don't get 'ghost rounds'
-                self.weather.applyEffect(self.player_team.members_rem)
-                if self.player_team.is_up():
+                self.weather.applyEffect(self.player_team.membersRem)
+                if not self.player_team.isDefeated():
                     self.player_team.doTurn()
         self.check_winner()
         self.end()

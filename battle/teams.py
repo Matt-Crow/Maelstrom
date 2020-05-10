@@ -13,12 +13,19 @@ together so that the program knows
 who are enemies, and who are allies.
 """
 class AbstractTeam(AbstractJsonSerialable):
-    def __init__(self, type: str, name: str, members=[]):
-        super(AbstractTeam, self).__init__(type=type)
-        self.name = name
+    """
+    Required kwargs:
+    - type : str
+    - name : str
+    - members : list of AbstractCharacters
+    """
+    def __init__(self, **kwargs):
+        super(AbstractTeam, self).__init__(**dict(kwargs, type=type))
+        self.name = kwargs["name"]
         self.members = []
-        for member in members:
+        for member in kwargs["members"]:
             self.addMember(member)
+        self.membersRem = self.members
         self.enemy = None
         self.addSerializedAttributes(
             "name",
@@ -30,6 +37,7 @@ class AbstractTeam(AbstractJsonSerialable):
     """
     @staticmethod
     def loadTeam(path: str) -> 'AbstractTeam':
+        # this needs to be redone
         ret = None
         dict = AbstractJsonSerialable.readFile(path)
         if dict["type"] == "PlayerTeam":
@@ -44,22 +52,22 @@ class AbstractTeam(AbstractJsonSerialable):
 
         return ret
 
+    """
+    Adds a character to this' team, if they are not
+    already on the team
+    """
     def addMember(self, member: 'AbstractCharacter'):
-        """
-        Adds a character to this' team, if they are not
-        already on the team
-        """
         if member not in self.members:
             self.members.append(member)
             member.team = self
 
+    """
+    How much xp will be given
+    once this team is
+    defeated.
+    """
     # balance this later
     def getXpGiven(self):
-        """
-        How much xp will be given
-        once this team is
-        defeated.
-        """
         xp = 0
         for member in self.members:
             xp += member.level * 10
@@ -67,49 +75,46 @@ class AbstractTeam(AbstractJsonSerialable):
 
     def updateMembersRem(self):
         newMembersRem = []
-        for member in self.members_rem:
+        for member in self.membersRem:
             if not member.isKoed():
                 newMembersRem.append(member)
                 member.update()
             else:
                 Op.add(member.name + " is out of the game!")
                 Op.display()
-        self.members_rem = newMembersRem
+        self.membersRem = newMembersRem
 
-    def is_up(self):
-        """
-        Use to see if your team still exists
-        """
+    """
+    Use to see if your team still exists
+    """
+    def isDefeated(self):
+        return len(self.membersRem) == 0
 
-        return len(self.members_rem) != 0
+    """
+    Detects when you have only one member left
+    """
+    def oneLeft(self):
+        return len(self.membersRem) == 1
 
-    def one_left(self):
-        """
-        Detects when you have only one member left
-        """
-        return len(self.members_rem) == 1
-
-    def initialize(self):
-        """
-        Ready the troops!
-        """
+    def initForBattle(self):
         # I will definitely want to add a forEach sort of method
-        self.members_rem = []
+        self.membersRem = []
         for member in self.members:
             member.initForBattle()
-            self.members_rem.append(member)
-        self.active = self.members_rem[0]
+            self.membersRem.append(member)
+        self.active = self.membersRem[0]
 
+    """
+    Show info for a team
+    """
     def displayData(self):
-        """
-        Show info for a team
-        """
         Op.add(self.name)
-        for member in self.members_rem:
+        for member in self.membersRem:
             Op.add("* " + member.name + " " + str(int(member.remHp)) + "/" + str(int(member.maxHp)))
-        Op.add("Currently active: " + self.active.name)
-        Op.add(self.active.getDisplayData())
-        Op.add(self.active.name + "'s Energy: " + str(self.active.energy))
+        if hasattr(self, "active"):
+            Op.add("Currently active: " + self.active.name)
+            Op.add(self.active.getDisplayData())
+            Op.add(self.active.name + "'s Energy: " + str(self.active.energy))
         if self.enemy:
             Op.add("Active enemy: " + self.enemy.active.name + " " + str(int(self.enemy.active.remHp)) + "/" + str(int(self.enemy.active.maxHp)))
         Op.display()
@@ -131,25 +136,31 @@ class AbstractTeam(AbstractJsonSerialable):
             self.switched_in = True
         self.active.chooseActive()
 
+    """
+    Returns whether or not this team
+    should change who is active
+    """
     def shouldSwitch(self) -> bool:
-        """
-        Returns whether or not this team
-        should change who is active
-        """
         raise NotImplementedError('Team method shouldSwitch is abstract')
 
+    """
+    This is abstract: each subclass should implement it
+    """
     def chooseSwitchin(self) -> 'AbstractCharacter':
-        """
-        This is abstract: each subclass should implement it
-        """
         raise NotImplementedError('Team method chooseSwitchin is abstract')
 
 
 
 class PlayerTeam(AbstractTeam):
-    def __init__(self, name, member):
-        super(PlayerTeam, self).__init__("PlayerTeam", name, [member])
-        self.inventory = []
+    """
+    Required kwargs:
+    - name : str
+    - member : PlayerCharacter
+    - inventory : list of Items, defaults to []
+    """
+    def __init__(self, **kwargs):
+        super(PlayerTeam, self).__init__(**dict(kwargs, type="PlayerTeam", members=[kwargs["member"]]))
+        self.inventory = kwargs.get("inventory", [])
         self.addSerializedAttribute("inventory")
 
     """
@@ -169,7 +180,7 @@ class PlayerTeam(AbstractTeam):
         Who will fight?
         """
         choices = []
-        for member in self.members_rem:
+        for member in self.membersRem:
             if member != self.active:
                 choices.append(member)
         self.displayData()
@@ -225,14 +236,14 @@ class EnemyTeam(AbstractTeam):
         """
         First, check if our active can KO
         """
-        if self.one_left() or self.enemy.active.calcDmgTaken(self.active, self.active.bestActive()) >= self.enemy.active.remHp:
+        if self.oneLeft() or self.enemy.active.calcDmgTaken(self.active, self.active.bestActive()) >= self.enemy.active.remHp:
             return False
 
 
         """
         Second, check if an ally can KO
         """
-        for member in self.members_rem:
+        for member in self.membersRem:
             if self.enemy.active.calcDmgTaken(member, member.bestActive()) * 0.75 >= self.enemy.active.remHp:
                 return True
 
@@ -252,7 +263,7 @@ class EnemyTeam(AbstractTeam):
         Can anyone KO?
         """
         can_ko = []
-        for member in self.members_rem:
+        for member in self.membersRem:
             if self.enemy.active.calcDmgTaken(member, member.bestActive()) * 0.75 >= self.enemy.active.remHp:
                 can_ko.append(member)
 
@@ -273,7 +284,7 @@ class EnemyTeam(AbstractTeam):
         if len(can_ko) == 1:
             return can_ko[0]
         elif len(can_ko) == 0:
-            array = self.members_rem
+            array = self.membersRem
         else:
             array = can_ko
 

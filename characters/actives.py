@@ -171,7 +171,7 @@ class AbstractActive(AbstractUpgradable):
             self.user.team.enemy.active.struckBy(self.user, self)
             self.apply_side_effects_to(self.user.team.enemy.active)
         if self.get_stat("cleave") is not 0.0:
-            for enemy in self.user.team.enemy.members_rem:
+            for enemy in self.user.team.enemy.membersRem:
                 if enemy is not self.user.team.enemy.active:
                     enemy.takeDmg(self.total_dmg() * self.get_stat("cleave"))
                     self.apply_side_effects_to(enemy)
