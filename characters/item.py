@@ -48,7 +48,7 @@ class Item(AbstractUpgradable):
         self.set_type('Item')
 
         self.randomize_type()
-        self.generate_random_enh()
+        self.generateRandomEnh()
 
         self.set_name = None
         self.equipped = False
@@ -70,7 +70,7 @@ class Item(AbstractUpgradable):
         self.desc = Item.types[self.item_type]
 
 
-    def generate_random_enh(self):
+    def generateRandomEnh(self):
         """
         randomizes this' enhancement
         """

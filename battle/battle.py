@@ -38,7 +38,7 @@ class Battle(AbstractJsonSerialable):
 
         #self.level = level #the level of enemies
 
-        self.enemy_team = EnemyTeam(enemyNames, level)
+        #self.enemy_team = EnemyTeam(enemyNames, level)
 
         self.rewards = to_list(rewards)
 
@@ -145,17 +145,18 @@ class Battle(AbstractJsonSerialable):
         self.check_winner()
         self.end()
 
+    """
+    Creates a random level
+    """
     @staticmethod
-    def generate_random():
-        """
-        Creates a random level
-        """
-        enemy_names = []
-        num_enemies = random.randint(1, 4)
+    def generateRandom():
+        enemyNames = []
+        numEnemies = random.randint(1, 4)
 
         EnemyCharacter.load_enemy(all=True)
 
-        for i in range(0, num_enemies):
-            enemy_names.append(random.choice(list(ENEMY_CACHE.keys())))
+        keys = list(ENEMY_CACHE.keys())
+        for i in range(0, numEnemies):
+            enemyNames.append(random.choice(keys))
 
-        return Battle("Random encounter", enemy_names, 1)
+        return Battle("Random encounter", enemyNames, 1)

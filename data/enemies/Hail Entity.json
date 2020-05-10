@@ -1,0 +1,326 @@
+{
+    "type": "EnemyCharacter",
+    "name": "Hail Entity",
+    "customizationPoints": 0,
+    "stats": {
+        "control": {
+            "name": "control",
+            "type": "Stat",
+            "base": 0
+        },
+        "resistance": {
+            "name": "resistance",
+            "type": "Stat",
+            "base": 10
+        },
+        "potency": {
+            "name": "potency",
+            "type": "Stat",
+            "base": 0
+        },
+        "luck": {
+            "name": "luck",
+            "type": "Stat",
+            "base": -10
+        },
+        "energy": {
+            "name": "energy",
+            "type": "Stat",
+            "base": 0
+        }
+    },
+    "element": "hail",
+    "xp": 0,
+    "level": 1,
+    "actives": [
+        {
+            "name": "hail bolt",
+            "type": "AbstractActive",
+            "customPoints": 0,
+            "damage multiplier": {
+                "name": "damage multiplier",
+                "type": "Stat",
+                "base": 0
+            },
+            "lightning damage weight": {
+                "name": "lightning damage weight",
+                "type": "Stat",
+                "base": 0
+            },
+            "rain damage weight": {
+                "name": "rain damage weight",
+                "type": "Stat",
+                "base": 0
+            },
+            "hail damage weight": {
+                "name": "hail damage weight",
+                "type": "Stat",
+                "base": 0
+            },
+            "wind damage weight": {
+                "name": "wind damage weight",
+                "type": "Stat",
+                "base": 0
+            },
+            "cleave": {
+                "name": "cleave",
+                "type": "Stat",
+                "base": 0
+            },
+            "miss chance": {
+                "name": "miss chance",
+                "type": "Stat",
+                "base": 0
+            },
+            "crit chance": {
+                "name": "crit chance",
+                "type": "Stat",
+                "base": 0
+            },
+            "miss mult": {
+                "name": "miss mult",
+                "type": "Stat",
+                "base": 0
+            },
+            "crit mult": {
+                "name": "crit mult",
+                "type": "Stat",
+                "base": 0
+            }
+        },
+        {
+            "name": "Slash",
+            "type": "MeleeAttack",
+            "customPoints": 0,
+            "damage multiplier": {
+                "name": "damage multiplier",
+                "type": "Stat",
+                "base": 0
+            },
+            "lightning damage weight": {
+                "name": "lightning damage weight",
+                "type": "Stat",
+                "base": 0
+            },
+            "rain damage weight": {
+                "name": "rain damage weight",
+                "type": "Stat",
+                "base": 0
+            },
+            "hail damage weight": {
+                "name": "hail damage weight",
+                "type": "Stat",
+                "base": 0
+            },
+            "wind damage weight": {
+                "name": "wind damage weight",
+                "type": "Stat",
+                "base": 0
+            },
+            "cleave": {
+                "name": "cleave",
+                "type": "Stat",
+                "base": 0
+            },
+            "miss chance": {
+                "name": "miss chance",
+                "type": "Stat",
+                "base": 0
+            },
+            "crit chance": {
+                "name": "crit chance",
+                "type": "Stat",
+                "base": 0
+            },
+            "miss mult": {
+                "name": "miss mult",
+                "type": "Stat",
+                "base": 0
+            },
+            "crit mult": {
+                "name": "crit mult",
+                "type": "Stat",
+                "base": 0
+            }
+        },
+        {
+            "name": "Jab",
+            "type": "MeleeAttack",
+            "customPoints": 0,
+            "damage multiplier": {
+                "name": "damage multiplier",
+                "type": "Stat",
+                "base": 0
+            },
+            "lightning damage weight": {
+                "name": "lightning damage weight",
+                "type": "Stat",
+                "base": 0
+            },
+            "rain damage weight": {
+                "name": "rain damage weight",
+                "type": "Stat",
+                "base": 0
+            },
+            "hail damage weight": {
+                "name": "hail damage weight",
+                "type": "Stat",
+                "base": 0
+            },
+            "wind damage weight": {
+                "name": "wind damage weight",
+                "type": "Stat",
+                "base": 0
+            },
+            "cleave": {
+                "name": "cleave",
+                "type": "Stat",
+                "base": 0
+            },
+            "miss chance": {
+                "name": "miss chance",
+                "type": "Stat",
+                "base": -5
+            },
+            "crit chance": {
+                "name": "crit chance",
+                "type": "Stat",
+                "base": 5
+            },
+            "miss mult": {
+                "name": "miss mult",
+                "type": "Stat",
+                "base": -5
+            },
+            "crit mult": {
+                "name": "crit mult",
+                "type": "Stat",
+                "base": 5
+            }
+        },
+        {
+            "name": "Slam",
+            "type": "MeleeAttack",
+            "customPoints": 0,
+            "damage multiplier": {
+                "name": "damage multiplier",
+                "type": "Stat",
+                "base": 5
+            },
+            "lightning damage weight": {
+                "name": "lightning damage weight",
+                "type": "Stat",
+                "base": 0
+            },
+            "rain damage weight": {
+                "name": "rain damage weight",
+                "type": "Stat",
+                "base": 0
+            },
+            "hail damage weight": {
+                "name": "hail damage weight",
+                "type": "Stat",
+                "base": 0
+            },
+            "wind damage weight": {
+                "name": "wind damage weight",
+                "type": "Stat",
+                "base": 0
+            },
+            "cleave": {
+                "name": "cleave",
+                "type": "Stat",
+                "base": 0
+            },
+            "miss chance": {
+                "name": "miss chance",
+                "type": "Stat",
+                "base": -5
+            },
+            "crit chance": {
+                "name": "crit chance",
+                "type": "Stat",
+                "base": 0
+            },
+            "miss mult": {
+                "name": "miss mult",
+                "type": "Stat",
+                "base": 0
+            },
+            "crit mult": {
+                "name": "crit mult",
+                "type": "Stat",
+                "base": 0
+            }
+        }
+    ],
+    "passives": [
+        {
+            "name": "Threshhold test",
+            "type": "Threshhold Passive",
+            "customPoints": 0,
+            "targets_user": "True",
+            "boosted_stat": "resistance",
+            "status level": {
+                "name": "status level",
+                "type": "Stat",
+                "base": 5
+            },
+            "status duration": {
+                "name": "status duration",
+                "type": "Stat",
+                "base": 0
+            },
+            "threshhold": {
+                "name": "threshhold",
+                "type": "Stat",
+                "base": 10
+            }
+        },
+        {
+            "name": "On Hit Given Test",
+            "type": "On Hit Given Passive",
+            "customPoints": 0,
+            "targets_user": "True",
+            "boosted_stat": "luck",
+            "status level": {
+                "name": "status level",
+                "type": "Stat",
+                "base": 0
+            },
+            "status duration": {
+                "name": "status duration",
+                "type": "Stat",
+                "base": 10
+            },
+            "chance": {
+                "name": "chance",
+                "type": "Stat",
+                "base": 5
+            }
+        },
+        {
+            "name": "On Hit Taken Test",
+            "type": "On Hit Taken Passive",
+            "customPoints": 0,
+            "targets_user": "False",
+            "boosted_stat": "control",
+            "status level": {
+                "name": "status level",
+                "type": "Stat",
+                "base": 10
+            },
+            "status duration": {
+                "name": "status duration",
+                "type": "Stat",
+                "base": 5
+            },
+            "chance": {
+                "name": "chance",
+                "type": "Stat",
+                "base": 0
+            }
+        }
+    ],
+    "equippedItems": []
+}

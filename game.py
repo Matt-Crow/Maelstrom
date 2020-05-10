@@ -18,15 +18,13 @@ class Game:
         self.exit = False
 
     def test(self):
+        generateEnemies()
         defaultPlayer = AbstractCharacter.createDefaultPlayer()
-        defaultPlayer.displayData()
         team = PlayerTeam(
             name="Default team",
             member=defaultPlayer
         )
-        team.displayData()
-        #Area.createDefaultArea().chooseAction(defaultPlayer)
-        #generateEnemies()
+        Area.createDefaultArea().chooseAction(defaultPlayer)
 
     """
     Begins the program

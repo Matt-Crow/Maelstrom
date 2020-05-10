@@ -15,7 +15,7 @@ import os
 """
 Characters
 """
-ENEMY_DIRECTORY = 'data/enemy_characters'
+ENEMY_DIRECTORY = 'data/enemies'
 ENEMY_CACHE = {} #cached results of loading enemy files
 
 """
@@ -62,7 +62,7 @@ class AbstractCharacter(AbstractCustomizable):
             self.addStat(Stat(stat, lambda base: 20.0 + float(base), kwargs.get("stats", {}).get(stat, 0)))
         self.calcStats()
         self.remHp = self.maxHp
-        
+
         self.addSerializedAttributes(
             "element",
             "xp",
@@ -374,11 +374,12 @@ class AbstractCharacter(AbstractCustomizable):
     def isKoed(self):
         return self.remHp <= 0
 
+"""
     @staticmethod
     def load_from_file(file_path: str) -> 'AbstractCharacter':
-        """
+
         Reads a json file, then returns the character contained in that file
-        """
+
         ret = None
 
         try:
@@ -390,7 +391,7 @@ class AbstractCharacter(AbstractCustomizable):
             Op.display()
 
         return ret
-
+"""
 
 """
 A PlayerCharacter is a Character controlled by a player.
@@ -567,6 +568,9 @@ class EnemyCharacter(AbstractCharacter):
     def chooseActive(self):
         self.whatActive().use()
 
+    def save(self):
+        self.writeToFile(os.path.join(ENEMY_DIRECTORY, self.name + ".json"))
+    
     """
     Reads an enemy file, if it exists.
     If force is True, searches through the enemy directory for

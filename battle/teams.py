@@ -219,13 +219,13 @@ class PlayerTeam(AbstractTeam):
 
 
 class EnemyTeam(AbstractTeam):
-    def __init__(self, member_names: list, level: int):
-        super(self.__class__, self).__init__("EnemyTeam", "Enemy Team")
-        member_names = to_list(member_names)
-        for name in member_names:
-            member = EnemyCharacter.load_enemy(name)
-            member.level = level
-            self.addMember(member)
+    """
+    Required kwargs:
+    - name : str,
+    - members : list of EnemyCharacters
+    """
+    def __init__(self, **kwargs):
+        super(self.__class__, self).__init__(**dict(kwargs, type="EnemyTeam"))
 
     """
     AI stuff

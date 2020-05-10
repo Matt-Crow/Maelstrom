@@ -13,15 +13,15 @@ class Area(AbstractJsonSerialable):
     required kwargs:
     - name : str
     - desc : str
-    - locations : list of Locations. Defaults to []
-    - levels : list of Battles. Defaults to [Location.createDefaultLocation]
+    - locations : list of Locations. Defaults to [Location.createDefaultLocation]
+    - levels : list of Battles. Defaults to [Battle.generateRandom]
     """
     def __init__(self, **kwargs):
         super(Area, self).__init__(**dict(kwargs, type="Area"))
         self.name = kwargs["name"]
         self.desc = kwargs["desc"]
         self.locations = kwargs.get("locations", [Location.createDefaultLocation()])
-        self.levels = kwargs.get("levels", [])
+        self.levels = kwargs.get("levels", [Battle.generateRandom()])
 
         self.addSerializedAttributes(
             "name",
@@ -29,7 +29,6 @@ class Area(AbstractJsonSerialable):
             "locations",
             "levels"
         )
-        #self.levels.append(Battle.generate_random())
 
     @staticmethod
     def createDefaultArea()->"Area":

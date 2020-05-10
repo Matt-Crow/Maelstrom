@@ -1,4 +1,4 @@
-from character import AbstractCharacter, EnemyCharacter
+from character import AbstractCharacter, EnemyCharacter, ENEMY_DIRECTORY
 import json
 
 
@@ -21,7 +21,7 @@ def generateEnemies():
         }
     )
     #lightning.displayData()
-    #lightning.save()
+    lightning.save()
 
     rain = EnemyCharacter(
         name="Rain Entity",
@@ -32,7 +32,7 @@ def generateEnemies():
         }
     )
     #rain.displayData()
-    #rain.save()
+    rain.save()
 
     hail = EnemyCharacter(
         name="Hail Entity",
@@ -43,7 +43,7 @@ def generateEnemies():
         }
     )
     #hail.displayData()
-    #hail.save()
+    hail.save()
 
     wind = EnemyCharacter(
         name="Wind Entity",
@@ -54,7 +54,7 @@ def generateEnemies():
         }
     )
     #wind.displayData()
-    #wind.save()
+    wind.save()
 
     stone = EnemyCharacter(
         name="Stone Soldier",
@@ -68,4 +68,4 @@ def generateEnemies():
         }
     )
     #stone.displayData()
-    #stone.save()
+    stone.save()
