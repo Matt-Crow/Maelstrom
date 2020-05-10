@@ -1,6 +1,6 @@
 from utilities import *
 from item import Item
-from weather import Weather
+from weather import WEATHERS, NO_WEATHER
 from teams import EnemyTeam
 from output import Op
 from character import EnemyCharacter, ENEMY_CACHE
@@ -20,6 +20,7 @@ class Battle(AbstractJsonSerialable):
     - desc : str
     - prescript : list of str, defaults to []
     - postscript : list of str, defaults to []
+    - forecast : list of Weather, defaults to WEATHERS, or if an empty list is passed, defaults to NO_WEATHER
 
     Not sure how I want to pass enemies.
     Sending an enemyteam makes sense,
@@ -31,9 +32,13 @@ class Battle(AbstractJsonSerialable):
         self.desc = kwargs["desc"]
         self.prescript = kwargs.get("prescript", [])
         self.postscript = kwargs.get("postscript", [])
+        self.forecast = kwargs.get("forecast", WEATHERS)
+        if len(self.forecast) == 0:
+            self.forecast = [NO_WEATHER]
+
         #self.level = level #the level of enemies
 
-        self.forecast = [] # need to make Weather serialize
+        # need to make Weather serialize
 
         self.enemy_team = EnemyTeam(enemyNames, level)
 
@@ -44,16 +49,7 @@ class Battle(AbstractJsonSerialable):
     def loadJson(jdict: dict) -> "Battle":
         jdict["rewards"] = [Item.read_json(data) for data in jdict["rewards"]]
         return Battle(dict)
-
-    def restrict_weather(self, forecast):
-        """
-        Since most battles can have any
-        weather, it only makes sense to
-        exclude it from the constructor,
-        so here it is
-        """
-        self.forecast = to_list(forecast)
-
+        
     def getDisplayData(self):
         """
         gets data for outputting
@@ -110,14 +106,8 @@ class Battle(AbstractJsonSerialable):
         self.enemy_team.displayData()
         self.player_team.displayData()
 
-        self.weather = Weather.generate_random()
-
-        if len(self.forecast) > 0:
-            num = 0
-            if len(self.forecast) > 1:
-                num = random.randrange(0, len(self.forecast) - 1)
-            self.weather = self.forecast[num]
-        Op.add(self.weather.get_msg())
+        self.weather = random.choice(self.forecast)
+        Op.add(self.weather.getMsg())
         Op.display()
 
     def end(self):
@@ -136,13 +126,13 @@ class Battle(AbstractJsonSerialable):
         self.begin()
 
         while self.enemy_team.is_up() and self.player_team.is_up():
-            self.weather.do_effect(self.enemy_team.members_rem)
+            self.weather.applyEffect(self.enemy_team.members_rem)
             # did the weather defeat them?
             if self.enemy_team.is_up():
                 self.enemy_team.doTurn()
                 # only bother doing player turn if enemy survives
                 # so this way we don't get 'ghost rounds'
-                self.weather.do_effect(self.player_team.members_rem)
+                self.weather.applyEffect(self.player_team.members_rem)
                 if self.player_team.is_up():
                     self.player_team.doTurn()
         self.check_winner()
