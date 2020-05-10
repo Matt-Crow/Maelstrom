@@ -17,7 +17,7 @@ class AbstractPassive(AbstractUpgradable):
     2. append the passive:
     * character.passives.append(pas)
     3. set the user:
-    * pas.set_user(character)
+    * pas.setUser(character)
     """
     def __init__(self, name: str):
         super(AbstractPassive, self).__init__(name)

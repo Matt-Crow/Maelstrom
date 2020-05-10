@@ -114,19 +114,19 @@ class AbstractCharacter(AbstractCustomizable):
 
     def addActive(self, active: 'AbstractActive'):
         self.actives.append(active)
-        active.set_user(self)
+        active.setUser(self)
         active.calc_all()
 
     def addPassive(self, passive: 'AbstractPassive'):
         """
         """
         self.passives.append(passive)
-        passive.set_user(self)
+        passive.setUser(self)
         passive.calc_all()
 
     def equipItem(self, item: 'Item'):
         self.equippedItems.append(item)
-        item.set_user(self)
+        item.setUser(self)
         item.equip(self)
         item.calc_all()
 
@@ -136,15 +136,15 @@ class AbstractCharacter(AbstractCustomizable):
         self.calcStats()
 
         for active in self.actives:
-            active.set_user(self)
+            active.setUser(self)
             active.initForBattle()
 
         for passive in self.passives:
-            passive.set_user(self)
+            passive.setUser(self)
             passive.initForBattle()
 
         for item in self.equippedItems:
-            item.set_user(self)
+            item.setUser(self)
             item.apply_boosts()
 
         # this part down here checks if we should get the 3-piece set bonus from our items
@@ -332,7 +332,7 @@ class AbstractCharacter(AbstractCustomizable):
 
     def struckBy(self, attacker, activeUsed):
         dmg = self.calcDmgTaken(attacker, activeUsed)
-        dmg = dmg * activeUsed.calc_MHC()
+        dmg = dmg * activeUsed.getMHCMult()
         Op.add(attacker.name + " struck " + self.name)
         Op.add("for " + str(int(dmg)) + " damage")
         Op.add("using " + activeUsed.name + "!")
@@ -366,7 +366,7 @@ class PlayerCharacter(AbstractCharacter):
     def chooseActive(self):
         options = []
         for active in self.actives:
-            if active.can_use():
+            if active.canUse():
                 options.append(active)
 
         choose("What active do you wish to use?", options).use()
@@ -475,7 +475,7 @@ class EnemyCharacter(AbstractCharacter):
         bestDmg = 0
         Dp.add("----------")
         for active in self.actives:
-            if active.can_use():
+            if active.canUse():
                 dmg = self.team.enemy.active.calcDmgTaken(self, active)
                 if dmg > bestDmg:
                     best = active
@@ -501,7 +501,7 @@ class EnemyCharacter(AbstractCharacter):
         """
         """
         for active in self.actives:
-            if not active.can_use(self) or not type(active) == type(AllAttack("test", 0)):
+            if not active.canUse(self) or not type(active) == type(AllAttack("test", 0)):
                 continue
             koes = 0
             for member in self.team.enemy.membersRem:
@@ -515,7 +515,7 @@ class EnemyCharacter(AbstractCharacter):
         """
         canKo = []
         for active in self.actives:
-            if active.can_use():
+            if active.canUse():
                 if self.team.enemy.active.calcDmgTaken(self, active) * sw >= self.team.enemy.active.remHp:
                     canKo.append(active)
 

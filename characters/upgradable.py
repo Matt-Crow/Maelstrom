@@ -32,7 +32,7 @@ class AbstractUpgradable(Jsonable):
         self.track_attr('customPoints')
 
 
-    def set_user(self, user: 'AbstractCharacter'):
+    def setUser(self, user: 'AbstractCharacter'):
         """
         Sets this' user
         """
