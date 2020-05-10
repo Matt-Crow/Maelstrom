@@ -115,7 +115,7 @@ class AbstractCharacter(AbstractCustomizable):
     def addActive(self, active: 'AbstractActive'):
         self.actives.append(active)
         active.setUser(self)
-        active.calc_all()
+        active.calcStats()
 
     def addPassive(self, passive: 'AbstractPassive'):
         """

@@ -31,8 +31,8 @@ class AbstractActive(AbstractCustomizable):
         - crit mult
 
     """
-    def __init__(self, **kwargs):#name: str, cost = 5):
-        super(AbstractActive, self).__init__(**kwargs)
+    def __init__(self, **kwargs):
+        super(AbstractActive, self).__init__(**dict(kwargs, type=kwargs.get("type", "AbstractActive")))
         #                                                                     get stat dict, if it has one, else an empty dict
         self.addStat(Stat("damage multiplier", lambda base: 1.0 + base * 0.5, kwargs.get("stats", {}).get("damage multiplier", 0)))
         #                                                                                                 no damage multiplier? Just do 0
@@ -45,12 +45,12 @@ class AbstractActive(AbstractCustomizable):
         self.cost = kwargs.get("cost", 5)
         self.damage = getDmgPerc(1) * self.getStatValue("damage multiplier")
 
-
+    """
     @staticmethod # redo this
     def read_json(json: dict) -> 'AbstractActive':
-        """
+
         Reads a JSON object as a dictionary, then converts it to an Active
-        """
+
         #print("JSON:")
         #pprint.pprint(json)
 
@@ -72,14 +72,13 @@ class AbstractActive(AbstractCustomizable):
         ret.customPoints = custom_points
 
         return ret
-
+    """
     def setUser(self, user):
-        super(AbstractActive, self).setUser(user)
         self.initForBattle()
 
     def initForBattle(self):
         self.calcStats()
-        lv = 1 if self.user is None else self.user.level
+        lv = 1 if not hasattr(self, "user") else self.user.level
         self.damage = getDmgPerc(lv) * self.getStatValue("damage multiplier")
 
     def getDisplayData(self):
@@ -130,61 +129,38 @@ class AbstractActive(AbstractCustomizable):
     Returns the default actives that every
     character can use
     """
-    #todo change this
     @staticmethod
     def getDefaults(element: str) -> list:
-        bolt = AbstractActive.read_json({
-            'name' : element + ' bolt',
-            'type' : 'AbstractActive',
-            'cleave' : -5,
-            'crit chance' : -2,
-            'damage multiplier' : 7
-        })
+        bolt = AbstractActive(
+            name=element+" bolt",
+            stats={
+                "cleave":-5,
+                "crit chance":-2,
+                "damage multiplier":7
+            }
+        )
 
-        slash = MeleeAttack("Slash")
-        jab = AbstractActive.read_json({
-            "name" : "Jab",
-            "type" : "MeleeAttack",
-            "miss chance" : {
-                'type': 'Stat',
-                'base': -5,
-                'name': 'miss chance'
-            },
-            "crit chance" : {
-                'type': 'Stat',
-                'base': 5,
-                'name': 'crit chance'
-            },
-            "miss mult" : {
-                'type': 'Stat',
-                'base': -5,
-                'name': 'miss mult'
-            },
-            "crit mult" : {
-                'type': 'Stat',
-                'base': 5,
-                'name': 'crit mult'
+        slash = MeleeAttack(name="Slash")
+        jab = MeleeAttack(
+            name="Jab",
+            stats={
+                "miss chance":-5,
+                "crit chance":5,
+                "miss mult":-5,
+                "crit mult":5
             }
-        })
-        slam = AbstractActive.read_json({
-            "name" : "Slam",
-            "type" : "MeleeAttack",
-            "damage multiplier" : {
-                'type': 'Stat',
-                'base': 5,
-                'name': 'damage multiplier'
-            },
-            "miss chance" : {
-                'type': 'Stat',
-                'base': -5,
-                'name': 'miss chance'
+        )
+        slam = MeleeAttack(
+            name="Slam",
+            stats={
+                "damage multiplier":5,
+                "miss chance":-5
             }
-        })
+        )
 
         return [bolt, slash, jab, slam]
 
 
 class MeleeAttack(AbstractActive):
-    def __init__(self, name):
-        super(MeleeAttack, self).__init__(name, 0)
-        self.set_type("MeleeAttack")
+    def __init__(self, **kwargs):
+        super(MeleeAttack, self).__init__(**dict(kwargs, type="MeleeAttack"))

@@ -145,7 +145,7 @@ class Jsonable(object):
 class CustomJsonEncoder(json.JSONEncoder):
     def default(self, obj):
         ret = None
-        input(type(obj))
+        #input(type(obj)) debug tool
         if callable(getattr(obj, 'get_as_json', None)):
             ret = obj.get_as_json()
         elif isinstance(obj, AbstractJsonSerialable):
