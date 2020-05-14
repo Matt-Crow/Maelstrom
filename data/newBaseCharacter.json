@@ -287,8 +287,8 @@
             "name": "Threshhold test",
             "type": "Threshhold Passive",
             "customPoints": 0,
-            "targets_user": "True",
-            "boosted_stat": "resistance",
+            "targetsUser": "True",
+            "boostedStat": "resistance",
             "status level": {
                 "name": "status level",
                 "type": "Stat",
@@ -309,8 +309,8 @@
             "name": "On Hit Given Test",
             "type": "On Hit Given Passive",
             "customPoints": 0,
-            "targets_user": "True",
-            "boosted_stat": "luck",
+            "targetsUser": "True",
+            "boostedStat": "luck",
             "status level": {
                 "name": "status level",
                 "type": "Stat",
@@ -331,8 +331,8 @@
             "name": "On Hit Taken Test",
             "type": "On Hit Taken Passive",
             "customPoints": 0,
-            "targets_user": "False",
-            "boosted_stat": "control",
+            "targetsUser": "False",
+            "boostedStat": "control",
             "status level": {
                 "name": "status level",
                 "type": "Stat",

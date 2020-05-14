@@ -6,7 +6,7 @@ class AbstractEvent(object):
     def __init__(self, id):
         self.id = id
         
-    def check_trigger(self):
+    def checkTrigger(self):
         pass
         
     def trip(self):

@@ -99,7 +99,7 @@ class AbstractCharacter(AbstractCustomizable):
     def loadJson(jdict) -> 'AbstractCharacter':
         ctype = jdict["type"]
         jdict["actives"] = [AbstractActive.read_json(data) for data in jdict["actives"]]
-        jdict["passives"]= [AbstractPassive.read_json(data) for data in jdict["passives"]]
+        jdict["passives"]= [AbstractPassive.loadJson(data) for data in jdict["passives"]]
         jdict["equippedItems"] = [Item.read_json(data) for data in jdict["equippedItems"]]
         ret = None
 

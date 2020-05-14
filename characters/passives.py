@@ -1,7 +1,7 @@
 from utilities import *
 from stat_classes import Stat, Boost
 
-from upgradable import AbstractUpgradable
+from customizable import AbstractCustomizable
 
 from output import Op
 
@@ -9,30 +9,45 @@ from output import Op
 """
 Passives
 """
-class AbstractPassive(AbstractUpgradable):
+class AbstractPassive(AbstractCustomizable):
     """
-    HOW TO ADD A PASSIVE TO A CHARACTER:
-    1. define the passive:
-    * pas = ~~~Passive(~ ~ ~ ~ ~ ~)
-    2. append the passive:
-    * character.passives.append(pas)
-    3. set the user:
-    * pas.setUser(character)
+    kwargs:
+    - name : str
+    - type : str
+    - boostedStat : str
+    - targetsUser : boolean (defaults to True)
+    - stats : dict{str, int}, defaults to 0 for each stat not given
+        - status level (defaults to 0.25)
+        - status duration (defaults to 3)
     """
-    def __init__(self, name: str):
-        super(AbstractPassive, self).__init__(name)
-        self.set_type("Passive")
+    def __init__(self, **kwargs):
+        super(AbstractPassive, self).__init__(**dict(kwargs, type=kwargs.get("type", "AbstractPassive")))
+        self.boostedStat = kwargs["boostedStat"]
+        self.targetsUser = kwargs.get("targetsUser", True)
 
-        self.boosted_stat = None
-        self.targets_user = True
+        self.addStat(Stat("status level", lambda base : 0.25 + 0.025 * base, kwargs.get("stats", {}).get("status level", 0)))
+        self.addStat(Stat("status duration", lambda base : 3 + int(float(base) / 5), kwargs.get("stats", {}).get("status duration", 0)))
 
-        self.track_attr('targets_user')
-        self.track_attr('boosted_stat')
-        self.add_attr("status level", Stat("status level", status_level_form, 4)) #default to 20%
-        self.add_attr("status duration", Stat("status duration", status_dur_form, 12)) #defaults to 3 turns
-
+        self.addSerializedAttributes(
+            "boostedStat",
+            "targetsUser"
+        )
 
     @staticmethod
+    def loadJson(jdict: dict)->"AbstractPassive":
+        ret = None
+        type = jdict["type"]
+        if type == "Threshhold Passive":
+            ret = Threshhold(**jdict)
+        elif type == "On Hit Given Passive":
+            ret = OnHitGiven(**jdict)
+        elif type == "On Hit Taken Passive":
+            ret = OnHitTaken(**jdict)
+        else:
+            raise Exception("Type not found for AbstractActive: " + type)
+        return ret
+
+    @staticmethod # get rid of this
     def read_json(json: dict) -> 'AbstractPassive':
         """
         Reads a JSON object as a dictionary, then converts it to a passive
@@ -41,7 +56,7 @@ class AbstractPassive(AbstractUpgradable):
         name = json.get("name", "NAME NOT FOUND")
         ptype = json.get("type", "TYPE NOT FOUND")
         custom_points = int(json.get('customPoints', 0))
-        targ = json.get('targets_user', True)
+        targ = json.get('targetsUser', True)
 
         ret = None
 
@@ -63,68 +78,49 @@ class AbstractPassive(AbstractUpgradable):
                 ret.set_base(k, int(v.get('base', 0)))
 
         ret.customPoints = custom_points
-        ret.boosted_stat = json.get('boosted_stat', None)
-        ret.targets_user = targ
+        ret.boostedStat = json.get('boostedStat', None)
+        ret.targetsUser = targ
 
         return ret
 
+    """
+    Returns the Boost this will inflict
+    """
+    def getBoost(self)->"Boost":
+        lv = self.getStatValue("status level")
+        if not self.targetsUser:
+            lv = -lv
 
-    def get_boost(self) -> 'Boost':
-        """
-        Returns the Boost this will inflict
-        """
-        boost = self.get_stat("status level")
-        if not self.targets_user:
-            boost = -boost
+        return Boost(self.boostedStat, boost, self.getStatValue("status duration"), self.name)
 
-        return Boost(self.boosted_stat, boost, self.get_stat("status duration"), self.name)
+    """
+    Applies this' boost
+    """
+    def applyBoost(self):
+        target = self.user if self.targetsUser else self.user.team.enemy.active
+        target.boost(self.getBoost())
 
-
-    def f(self):
-        """
-        Applies this' boost
-        """
-        target = self.user
-
-        if not self.targets_user:
-            target = self.user.team.enemy.active
-
-        target.boost(self.get_boost())
-
-
+    """
+    Returns the default passives
+    """
     @staticmethod
     def getDefaults() -> list:
-        """
-        Returns the default passives
-
-        todo: make this read from a file
-        """
-        p = AbstractPassive.read_json({
-            'name': 'Threshhold test',
-            'type': 'Threshhold Passive',
-            'boosted_stat' : 'resistance',
-            'threshhold' : {
-                'type' : 'Stat',
-                'base' : 10,
-                'name' : 'threshhold'
-            },
-            'status level' : {
-                'type': 'Stat',
-                'base': 5,
-                'name': 'status level'
-            },
-            'status duration' : {
-                'type': 'Stat',
-                'base': 0,
-                'name': 'status duration'
-            },
-            'targets_user' : 'True'
-        })
+        p = Threshhold(
+            name="Threshhold test",
+            boostedStat="resistance",
+            stats={
+                "threshhold" : 10,
+                "status level" : 0,
+                "status duration" : -10
+            }
+        )
+        Op.add(p.getDisplayData())
+        Op.display()
 
         o = AbstractPassive.read_json({
             'name': 'On Hit Given Test',
             'type': 'On Hit Given Passive',
-            'boosted_stat' : 'luck',
+            'boostedStat' : 'luck',
             'chance' : {
                 'type': 'Stat',
                 'base': 5,
@@ -140,13 +136,13 @@ class AbstractPassive(AbstractUpgradable):
                 'base': 10,
                 'name': 'status duration'
             },
-            'targets_user' : 'True'
+            'targetsUser' : 'True'
         })
 
         h = AbstractPassive.read_json({
             'name': 'On Hit Taken Test',
             'type': 'On Hit Taken Passive',
-            'boosted_stat' : 'control',
+            'boostedStat' : 'control',
             'chance' : {
                 'type': 'Stat',
                 'base': 0,
@@ -162,49 +158,46 @@ class AbstractPassive(AbstractUpgradable):
                 'base': 5,
                 'name': 'status duration'
             },
-            'targets_user' : 'False'
+            'targetsUser' : 'False'
         })
 
         return [p, o, h]
 
 
-
-
 class Threshhold(AbstractPassive):
     """
-    Automatically invoked at the end of every turn
+    Additional kwargs:
+    - stats {str, int}:
+        - threshhold (defaults to 25%)
     """
-    def __init__(self, name):
-        super(self.__class__, self).__init__(name)
-        self.set_type("Threshhold Passive")
-        self.add_attr("threshhold", Stat("threshhold", thresh_form, 4))
-
+    def __init__(self, **kwargs):
+        super(self.__class__, self).__init__(**dict(kwargs, type="Threshhold Passive"))
+        self.addStat(Stat("threshhold", lambda base : 0.25 + base * 0.025, kwargs.get("stats", {}).get("threshhold", 0)))
 
     def initForBattle(self):
-        self.user.add_on_update_action(self.check_trigger)
+        self.user.add_on_update_action(self.checkTrigger)
 
 
-    def check_trigger(self):
+    def checkTrigger(self):
         Dp.add("Checking trigger for " + self.name)
         Dp.add(str(self.get_stat("threshhold") * 100) + "% threshhold")
         Dp.add(str(self.user.getHpPerc()) + "% user health")
-        if self.user.getHpPerc() <= self.get_stat("threshhold"):
+        if self.user.getHpPerc() <= self.getStatValue("threshhold"):
             Dp.add("activated")
-            self.f()
+            self.applyBoost()
         Dp.dp()
 
-
+    """
+    returns a text representation of this object
+    """
     def getDisplayData(self) -> list:
-        """
-        returns a text representation of this object
-        """
-        target = 'user' if self.targets_user else 'active enemy'
+        target = "user" if self.targetsUser else 'active enemy'
         return [
-            self.name + ':',
-            '\tInflicts ' + target + ' with a ' + str(self.get_stat('status level') * 100) + '% bonus',
-            '\tto their ' + self.boosted_stat + ' stat',
-            '\tfor ' + str(self.get_stat('status duration')) + ' turns',
-            '\twhen the user is at or below ' + str(self.get_stat('threshhold') * 100) + '% of their maximum hit points.'
+            self.name + ":",
+            '\tInflicts ' + target + ' with a ' + str(self.getStatValue("status level") * 100) + '% bonus',
+            '\tto their ' + self.boostedStat + ' stat',
+            '\tfor ' + str(self.getStatValue('status duration')) + ' turns',
+            '\twhen the user is at or below ' + str(self.getStatValue('threshhold') * 100) + '% of their maximum hit points.'
         ]
 
 
@@ -216,17 +209,17 @@ class OnHitGiven(AbstractPassive):
 
 
     def initForBattle(self):
-        self.user.add_on_hit_given_action(self.check_trigger)
+        self.user.add_on_hit_given_action(self.checkTrigger)
 
 
-    def check_trigger(self, onHitEvent):
+    def checkTrigger(self, onHitEvent):
         rand = roll_perc(self.user.get_stat("luck"))
         Dp.add("Checking trigger for " + self.name)
         Dp.add("Need to roll " + str(100 - self.get_stat('chance')) + " or higher to activate")
         Dp.add("Rolled " + str(rand))
         if rand > 100 - self.get_stat('chance'):
             Dp.add("activated")
-            self.f()
+            self.applyBoost()
         Dp.dp()
 
 
@@ -234,12 +227,12 @@ class OnHitGiven(AbstractPassive):
         """
         returns a text representation of this object
         """
-        target = 'user' if self.targets_user else 'that opponent'
+        target = 'user' if self.targetsUser else 'that opponent'
         return [
             self.name + ':',
             '\tWhenever the user strikes an opponent, has a ' + str(self.get_stat('chance')) + '% chance to',
             '\tinflict ' + target + ' with a ' + str(self.get_stat('status level') * 100) + '% bonus',
-            '\tto their ' + self.boosted_stat + ' stat',
+            '\tto their ' + self.boostedStat + ' stat',
             '\tfor ' + str(self.get_stat('status duration')) + ' turns'
         ]
 
@@ -252,17 +245,17 @@ class OnHitTaken(AbstractPassive):
 
 
     def initForBattle(self):
-        self.user.add_on_hit_taken_action(self.check_trigger)
+        self.user.add_on_hit_taken_action(self.checkTrigger)
 
 
-    def check_trigger(self, onHitEvent):
+    def checkTrigger(self, onHitEvent):
         rand = roll_perc(self.user.get_stat("luck"))
         Dp.add("Checking trigger for " + self.name)
         Dp.add("Need to roll " + str(100 - self.get_stat('chance')) + " or higher to activate")
         Dp.add("Rolled " + str(rand))
         if rand > 100 - self.get_stat('chance'):
             Dp.add("activated")
-            self.f()
+            self.applyBoost()
         Dp.dp()
 
 
@@ -270,36 +263,16 @@ class OnHitTaken(AbstractPassive):
         """
         returns a text representation of this object
         """
-        target = 'user' if self.targets_user else 'the attacker'
+        target = 'user' if self.targetsUser else 'the attacker'
         return [
             self.name + ':',
             '\tWhenever the user is struck by an opponent, has a ' + str(self.get_stat('chance')) + '% chance to',
             '\tinflict ' + target + ' with a ' + str(self.get_stat('status level') * 100) + '% bonus',
-            '\tto their ' + self.boosted_stat + ' stat',
+            '\tto their ' + self.boostedStat + ' stat',
             '\tfor ' + str(self.get_stat('status duration')) + ' turns'
         ]
 
 
-def status_level_form(base: int) -> float:
-    """
-    Calculates the boost from statuses
-    """
-    return 0.2 + 0.025 * base
-
-
-def status_dur_form(base: int) -> int:
-    """
-    Calculates the number of turns a status lasts
-    """
-    return 3 + int(float(base) / 5)
-
-
-def thresh_form(base: int) -> float:
-    """
-    Calculates the HP threshhold that a passive
-    should activate under (as a percentage)
-    """
-    return 0.2 + base * 0.025
 
 
 def chance_form(base: int) -> int:

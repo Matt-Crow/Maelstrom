@@ -57,7 +57,7 @@ class Item(AbstractUpgradable):
         self.track_attr('item_type')
         self.track_attr('desc')
         self.track_attr('set_name')
-        self.track_attr('boosted_stat')
+        self.track_attr('boostedStat')
 
 
     def randomize_type(self):
@@ -77,21 +77,21 @@ class Item(AbstractUpgradable):
         enh_type = random.choice(("element+", "element-", "stat*"))
         if enh_type == "element+":
             boosted_element = random.choice(ELEMENTS)
-            self.boosted_stat = boosted_element + ' damage multiplier'
+            self.boostedStat = boosted_element + ' damage multiplier'
 
         elif enh_type == "element-":
             boosted_element = random.choice(ELEMENTS)
-            self.boosted_stat = boosted_element + ' damage reduction'
+            self.boostedStat = boosted_element + ' damage reduction'
 
         else:
-            self.boosted_stat = random.choice(STATS)
+            self.boostedStat = random.choice(STATS)
 
 
-    def get_boost(self) -> 'Boost':
+    def getBoost(self) -> 'Boost':
         """
         Returns the boost this will provide when equipped
         """
-        return Boost(self.boosted_stat, self.get_stat('boost'), -1, self.name)
+        return Boost(self.boostedStat, self.get_stat('boost'), -1, self.name)
 
 
     def equip(self, user):
@@ -103,14 +103,14 @@ class Item(AbstractUpgradable):
         self.equipped = False
 
     def apply_boosts(self):
-        self.user.boost(self.get_boost())
+        self.user.boost(self.getBoost())
 
     def getDisplayData(self):
         ret = [
             self.name + ":",
             "\t" + self.type
         ]
-        for line in self.get_boost().getDisplayData():
+        for line in self.getBoost().getDisplayData():
             ret.append("\t" + line)
         ret.append("\t" + self.desc)
         return ret
@@ -126,7 +126,7 @@ class Item(AbstractUpgradable):
         custom_points = int(json.get('customPoints', 0))
 
         ret = Item(name)
-        ret.boosted_stat = json.get('boosted_stat', 'potency')
+        ret.boostedStat = json.get('boostedStat', 'potency')
         ret.item_type = json.get('item_type', 'ITEM TYPE NOT FOUND')
         ret.desc = json.get('desc', 'DESCRIPTION NOT FOUND')
         ret.set_base('boost', int(json.get('boost', {'base': 0}).get('base', 0))) #since stat is stored in json now
@@ -146,7 +146,7 @@ class Item(AbstractUpgradable):
             'base': 10,
             'name': 'boost'
         },
-        'boosted_stat' : 'luck',
+        'boostedStat' : 'luck',
         'item_type' : 'TEST',
         'desc' : 'test item 1',
         'set_name' : 'Test item set'
