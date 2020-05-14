@@ -108,58 +108,25 @@ class AbstractPassive(AbstractCustomizable):
         p = Threshhold(
             name="Threshhold test",
             boostedStat="resistance",
-            stats={
-                "threshhold" : 10,
-                "status level" : 0,
-                "status duration" : -10
-            }
         )
         Op.add(p.getDisplayData())
         Op.display()
 
-        o = AbstractPassive.read_json({
-            'name': 'On Hit Given Test',
-            'type': 'On Hit Given Passive',
-            'boostedStat' : 'luck',
-            'chance' : {
-                'type': 'Stat',
-                'base': 5,
-                'name': 'chance'
-            },
-            'status level' : {
-                'type': 'Stat',
-                'base': 0,
-                'name': 'status level'
-            },
-            'status duration' : {
-                'type': 'Stat',
-                'base': 10,
-                'name': 'status duration'
-            },
-            'targetsUser' : 'True'
-        })
+        o = OnHitGiven(
+            name="On Hit Given Test",
+            boostedStat="luck",
+        )
+        Op.add(o.getDisplayData())
+        Op.display()
 
-        h = AbstractPassive.read_json({
-            'name': 'On Hit Taken Test',
-            'type': 'On Hit Taken Passive',
-            'boostedStat' : 'control',
-            'chance' : {
-                'type': 'Stat',
-                'base': 0,
-                'name': 'chance'
-            },
-            'status level' : {
-                'type': 'Stat',
-                'base': 10,
-                'name': 'status level'
-            },
-            'status duration' : {
-                'type': 'Stat',
-                'base': 5,
-                'name': 'status duration'
-            },
-            'targetsUser' : 'False'
-        })
+        h = OnHitTaken(
+            name="On Hit Taken Test",
+            boostedStat="control",
+            targetsUser=False
+        )
+
+        Op.add(h.getDisplayData())
+        Op.display()
 
         return [p, o, h]
 
@@ -177,10 +144,9 @@ class Threshhold(AbstractPassive):
     def initForBattle(self):
         self.user.add_on_update_action(self.checkTrigger)
 
-
     def checkTrigger(self):
         Dp.add("Checking trigger for " + self.name)
-        Dp.add(str(self.get_stat("threshhold") * 100) + "% threshhold")
+        Dp.add(str(self.getStatValue("threshhold") * 100) + "% threshhold")
         Dp.add(str(self.user.getHpPerc()) + "% user health")
         if self.user.getHpPerc() <= self.getStatValue("threshhold"):
             Dp.add("activated")
@@ -202,82 +168,74 @@ class Threshhold(AbstractPassive):
 
 
 class OnHitGiven(AbstractPassive):
-    def __init__(self, name):
-        super(self.__class__, self).__init__(name)
-        self.set_type('On Hit Given Passive')
-        self.add_attr('chance', Stat('chance', chance_form, 4))
-
+    """
+    Additional kwargs:
+    - stats : {str, int}:
+        - chance (defaults to 25%)
+    """
+    def __init__(self, **kwargs):
+        super(self.__class__, self).__init__(**dict(kwargs, type="On Hit Given Passive"))
+        self.addStat(Stat("chance", lambda base : 25 + int(base * 2.5), kwargs.get("stats", {}).get("chance", 0)))
 
     def initForBattle(self):
         self.user.add_on_hit_given_action(self.checkTrigger)
 
-
     def checkTrigger(self, onHitEvent):
-        rand = roll_perc(self.user.get_stat("luck"))
+        rand = roll_perc(self.user.getStatValue("luck"))
         Dp.add("Checking trigger for " + self.name)
-        Dp.add("Need to roll " + str(100 - self.get_stat('chance')) + " or higher to activate")
+        Dp.add("Need to roll " + str(100 - self.getStatValue('chance')) + " or higher to activate")
         Dp.add("Rolled " + str(rand))
-        if rand > 100 - self.get_stat('chance'):
+        if rand > 100 - self.getStatValue('chance'):
             Dp.add("activated")
             self.applyBoost()
         Dp.dp()
 
-
+    """
+    returns a text representation of this object
+    """
     def getDisplayData(self) -> list:
-        """
-        returns a text representation of this object
-        """
-        target = 'user' if self.targetsUser else 'that opponent'
+        target = "user" if self.targetsUser else "that opponent"
         return [
-            self.name + ':',
-            '\tWhenever the user strikes an opponent, has a ' + str(self.get_stat('chance')) + '% chance to',
-            '\tinflict ' + target + ' with a ' + str(self.get_stat('status level') * 100) + '% bonus',
+            self.name + ":",
+            "\tWhenever the user strikes an opponent, has a " + str(self.getStatValue("chance")) + '% chance to',
+            '\tinflict ' + target + ' with a ' + str(self.getStatValue('status level') * 100) + '% bonus',
             '\tto their ' + self.boostedStat + ' stat',
-            '\tfor ' + str(self.get_stat('status duration')) + ' turns'
+            '\tfor ' + str(self.getStatValue('status duration')) + ' turns'
         ]
 
 
 class OnHitTaken(AbstractPassive):
-    def __init__(self, name):
-        super(self.__class__, self).__init__(name)
-        self.set_type('On Hit Taken Passive')
-        self.add_attr('chance', Stat('chance', chance_form, 4))
-
+    """
+    Additional kwargs:
+    - stats : {str, int}:
+        - chance (defaults to 25%)
+    """
+    def __init__(self, **kwargs):
+        super(self.__class__, self).__init__(**dict(kwargs, type="On Hit Taken Passive"))
+        self.addStat(Stat("chance", lambda base : 25 + int(base * 2.5), kwargs.get("stats", {}).get("chance", 0)))
 
     def initForBattle(self):
         self.user.add_on_hit_taken_action(self.checkTrigger)
 
-
     def checkTrigger(self, onHitEvent):
-        rand = roll_perc(self.user.get_stat("luck"))
+        rand = roll_perc(self.user.getStatValue("luck"))
         Dp.add("Checking trigger for " + self.name)
-        Dp.add("Need to roll " + str(100 - self.get_stat('chance')) + " or higher to activate")
+        Dp.add("Need to roll " + str(100 - self.getStatValue('chance')) + " or higher to activate")
         Dp.add("Rolled " + str(rand))
-        if rand > 100 - self.get_stat('chance'):
+        if rand > 100 - self.getStatValue('chance'):
             Dp.add("activated")
             self.applyBoost()
         Dp.dp()
 
-
+    """
+    returns a text representation of this object
+    """
     def getDisplayData(self) -> list:
-        """
-        returns a text representation of this object
-        """
         target = 'user' if self.targetsUser else 'the attacker'
         return [
             self.name + ':',
-            '\tWhenever the user is struck by an opponent, has a ' + str(self.get_stat('chance')) + '% chance to',
-            '\tinflict ' + target + ' with a ' + str(self.get_stat('status level') * 100) + '% bonus',
+            '\tWhenever the user is struck by an opponent, has a ' + str(self.getStatValue('chance')) + '% chance to',
+            '\tinflict ' + target + ' with a ' + str(self.getStatValue('status level') * 100) + '% bonus',
             '\tto their ' + self.boostedStat + ' stat',
-            '\tfor ' + str(self.get_stat('status duration')) + ' turns'
+            '\tfor ' + str(self.getStatValue('status duration')) + ' turns'
         ]
-
-
-
-
-def chance_form(base: int) -> int:
-    """
-    Calculates what the activation chance for this should be,
-    from 0 to 100
-    """
-    return 20 + int(base * 2.5)

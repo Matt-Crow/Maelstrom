@@ -29,6 +29,7 @@ class AbstractCustomizable(AbstractJsonSerialable):
         #for k, v in kwargs["stats"].items():
         #    self.addStat(k, v)
         AbstractCustomizable.nextId += 1
+        self.user = None
         self.addSerializedAttributes(
             "name",
             "customizationPoints",
@@ -48,6 +49,9 @@ class AbstractCustomizable(AbstractJsonSerialable):
 
     def getStatValue(self, statName: str)->float:
         return self.stats[statName.lower()].get()
+
+    def setUser(self, user):
+        self.user = user
 
     def __str__(self):
         return "AbstractCustomizable#{0}: {1}".format(self.id, self.name)

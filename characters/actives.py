@@ -73,7 +73,9 @@ class AbstractActive(AbstractCustomizable):
 
         return ret
     """
+
     def setUser(self, user):
+        super(AbstractActive, self).setUser(user)
         self.initForBattle()
 
     def initForBattle(self):
