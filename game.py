@@ -1,5 +1,4 @@
 from output import Op
-from file import File, PlayerSaveFile
 from teams import PlayerTeam, AbstractTeam
 from character import AbstractCharacter
 from utilities import choose, ELEMENTS
@@ -56,7 +55,10 @@ class Game:
         """
         Asks the user to log in
         """
-        users = File("users/users.txt").get_lines()
+        users = []
+        with open("users/users.txt", "rt") as userFile:
+            for line in userFile:
+                users.append(line.strip())
 
         options = users.copy()
         options.append("None of these")
@@ -79,8 +81,6 @@ class Game:
         """
         Play a game as the given user
         """
-        data = PlayerSaveFile("users/" + user_name.replace(" ", "_").lower() + ".txt")
-
         self.player = AbstractTeam.loadTeam('users/' + user_name.replace(" ", "_").lower() + '.json')
         self.player.initForBattle()
         self.player.displayData()
