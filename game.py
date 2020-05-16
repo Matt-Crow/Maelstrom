@@ -36,6 +36,7 @@ class Game:
             else:
                 Area.loadDefault().chooseAction(self.player)
                 self.exit = True #since Area will run until the user chooses to quit.
+                raise Exception("Still need to add player saving!")
                 self.player.save()
 
 
