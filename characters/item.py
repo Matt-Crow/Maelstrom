@@ -5,33 +5,6 @@ import random
 from output import Op
 from upgradable import AbstractUpgradable
 
-class ItemSet(object):
-    """
-    An item set is a
-    combination of three
-    items that will give
-    the user a powerful
-    bonus
-    """
-    def __init__(self, name, bonus_function):
-        self.name = name
-        self.f = bonus_function
-
-    @staticmethod
-    def get_set_bonus(set_name):
-        def set_f(user):
-            def f(event):
-                Op.add("An error was encountered")
-                Op.add("item set by name of")
-                Op.add(set_name)
-                Op.add("does not exist")
-                Op.dp()
-            user.add_on_update_action(set_f)
-        ret = ItemSet("ERROR", set_f)
-        for set in sets:
-            if set.name == set_name:
-                ret = set
-        return ret.f
 """
 Items need weather specific, stat codes
 """
@@ -154,16 +127,6 @@ class Item(AbstractUpgradable):
 
         return [i1]
 
-
-def test_set_f(user):
-    def f(event):
-        Dp.add("Three piece bonus works!")
-        Dp.dp()
-    user.add_on_hit_taken_action(f)
-
-sets = [
-    ItemSet("Test item set", test_set_f)
-]
 
 
 def boost_form(base: int) -> float:

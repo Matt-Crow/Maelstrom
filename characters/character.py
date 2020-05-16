@@ -2,7 +2,7 @@ from utilities import choose, ELEMENTS, STATS, Dp
 from stat_classes import Stat
 from actives import AbstractActive
 from passives import AbstractPassive
-from item import Item, ItemSet
+from item import Item
 from events import *
 from customizable import AbstractCustomizable
 from output import Op
@@ -146,18 +146,6 @@ class AbstractCharacter(AbstractCustomizable):
         for item in self.equippedItems:
             item.setUser(self)
             item.apply_boosts()
-
-        # this part down here checks if we should get the 3-piece set bonus from our items
-        checkSet = None
-        setTotal = 0
-        for item in self.equippedItems:
-            if item.set_name != None:
-                if checkSet == None:
-                    checkSet = item.set_name
-                if item.set_name == checkSet:
-                    setTotal += 1
-            if setTotal == 3:
-                ItemSet.get_set_bonus(checkSet).f(self)
 
         self.remHp = self.maxHp
         self.energy = int(self.getStatValue("energy") / 2.0)
