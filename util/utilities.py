@@ -5,45 +5,7 @@ debug = False
 ELEMENTS = ("lightning", "rain", "hail", "wind")
 STATS = ("control", "resistance", "potency", "luck", "energy")
 
-def ignore_text(word, ignore):
-    """
-    Returns a string, if ignore
-    exists in that string, remove
-    it from the returned string
-    """
-    ret = ""
-    letters_found = 0
-    found_so_far = ""
-
-    # go through the word...
-    for letter in range(0, len(word)):
-        # is the current letter equal to the next letter in ignore?
-        if word[letter] == ignore[letters_found]:
-            # keep track of what we've found, just in case
-            found_so_far += word[letter]
-            letters_found += 1
-            # have we found the whole word?
-            if letters_found == len(ignore):
-                # ignore it
-                letters_found = 0
-                found_so_far = ""
-        else:
-            # don't ignore it
-            letters_found = 0
-            ret += found_so_far
-            found_so_far = ""
-            ret += word[letter]
-    return ret
-
-def mod(num):
-    """
-    A useful little guy
-    """
-    if num < 1:
-        num = 1
-    return num
-
-def set_in_bounds(num, min, max):
+def setInBounds(num, min, max):
     ret = num
     if num < min:
         ret = min
@@ -77,7 +39,7 @@ def choose(question, options):
     """
     # make sure options is a list
     options = to_list(options)
-    names = get_names_str(options)
+    names = [str(option) for option in options]
     ret = options[0]
     """
     only bother asking if there
@@ -90,12 +52,11 @@ def choose(question, options):
             print(str(num + 1) + ": " + names[num])
 
         #get their input
-        Ip.askInt("Enter a number: ") # automatically checks for number
-        ret = options[set_in_bounds(Ip.getInt() - 1, 0, len(options) - 1)]
+        ret = options[setInBounds(askIntInput("Enter a number: ") - 1, 0, len(options) - 1)]
         """
         the -1 is because they will enter a number from 1 to len(options),
         so I have to convert it to the corresponding index.
-        set_in_bounds will make any number work
+        setInBounds will make any number work
         """
     return ret
 
@@ -113,53 +74,24 @@ def to_list(change):
         r.append(change)
     return r
 
-def get_names_str(list):
-    """
-    Makes sure all the elements
-    in the list are strings
-    """
-    ret = []
-    for object in list:
-        ret.append(str(object))
-    return ret
+"""
+Requests an integer from the user,
+displaying the given message.
+Repeats this request until the
+user enters a valid integer.
+"""
+def askIntInput(msg: str)->int:
+    ip = " "
+    valid = False
+    while not valid:
+        ip = input(msg)
+        try:
+            ip = int(float(ip))
+            works = Valid
+        except:
+            print("Invalid input: Enter an integer:")
+    return ip
 
-class Ip:
-    """
-    Input
-    """
-    strings = []
-    ints = []
-
-    @staticmethod
-    def askStr(msg):
-        Ip.strings.append(raw_input(msg))
-
-    @staticmethod
-    def askInt(msg):
-        inp = " "
-        works = False
-        while not works:
-            inp = input(msg)
-            try:
-                inp = int(float(inp))
-                works = True
-            except:
-                print("Invalid input: Enter an integer:") #avoid clashing with Op
-        Ip.ints.append(inp)
-
-    @staticmethod
-    def getStr():
-        ret = "ERROR"
-        if len(Ip.strings) != 0:
-            ret = Ip.strings.pop(0)
-        return ret
-
-    @staticmethod
-    def getInt():
-        ret = -1
-        if len(Ip.ints) != 0:
-            ret = Ip.ints.pop(0)
-        return ret
 
 class AbstractOutput:
     """

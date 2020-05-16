@@ -113,7 +113,6 @@ class Stat(object):
         Dp.dp()
 
 
-#TODO: move this
 class Boost(object):
     def __init__(self, stat_name, amount, duration, id = "NoIDSet"):
         self.stat_name = stat_name
@@ -137,23 +136,3 @@ class Boost(object):
         if self.duration > 0:
             ret.append("\tfor " + str(self.duration) + " turns")
         return ret
-
-    def generate_save_code(self):
-        """
-        Returns a string that is
-        used for save files
-        """
-        ret = "b " + self.id + "/"
-        ret += self.stat_name + "/"
-        ret += str(self.amount) + "/"
-        ret += str(self.base_duration)
-        return ret
-
-    @staticmethod
-    def read_save_code(code):
-        code = code.split("/")
-        id = ignore_text(code[0], "b").strip()
-        stat = code[1].strip()
-        amount = float(code[2])
-        dur = int(float(code[3]))
-        return Boost(stat, amount, dur, id)
