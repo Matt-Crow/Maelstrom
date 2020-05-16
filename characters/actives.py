@@ -92,7 +92,7 @@ class AbstractActive(AbstractCustomizable):
         """
         ret = 1.0
 
-        rand = roll_perc(self.user.get_stat("luck"))
+        rand = roll_perc(self.user.getStatValue("luck"))
         Dp.add(["rand in getMHCMult: " + str(rand), "Crit: " + str(100 - self.getStatValue("crit chance")), "Miss: " + str(self.getStatValue("miss chance"))])
         Dp.dp()
         if rand <= self.getStatValue("miss chance"):
