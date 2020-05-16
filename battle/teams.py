@@ -44,7 +44,7 @@ class AbstractTeam(AbstractJsonSerialable):
             character = AbstractCharacter.loadJson(dict["members"][0])
             ret = PlayerTeam(dict["name"], character)
             for item in dict.get('inventory', []):
-                ret.obtain(Item.read_json(item))
+                ret.obtain(Item.loadJson(item))
         elif dict["type"] == "EnemyTeam":
             ret = EnemyTeam([member['name'] for member in dict["members"]], dict["members"][0].level)
         else:

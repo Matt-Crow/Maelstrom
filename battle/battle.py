@@ -54,7 +54,7 @@ class Battle(AbstractJsonSerialable):
     @staticmethod
     def loadJson(jdict: dict) -> "Battle":
         jdict["forecast"] = [deserializeWeather(data) for data in jdict["forecast"]]
-        jdict["rewards"] = [Item.read_json(data) for data in jdict["rewards"]]
+        jdict["rewards"] = [Item.loadJson(data) for data in jdict["rewards"]]
         return Battle(dict)
 
     def getDisplayData(self):

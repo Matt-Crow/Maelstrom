@@ -37,7 +37,7 @@ class AbstractCharacter(AbstractCustomizable):
     - xp : int (defaults to 0)
     - actives : list (defaults to AbstractActive.getDefaults(element))
     - passives : list (default to AbstractPassive.getDefaults())
-    - equippedItems : list (defaults to [])
+    - equippedItems : list (defaults to Item.getDefaults())
     - stats: object{ str : int } (defaults to 0 for each stat in STATS not given in the object)
     """
     def __init__(self, **kwargs):
@@ -55,7 +55,7 @@ class AbstractCharacter(AbstractCustomizable):
             self.addActive(active)
         for passive in kwargs.get("passives", AbstractPassive.getDefaults()):
             self.addPassive(passive)
-        for item in kwargs.get("equippedItems", []):
+        for item in kwargs.get("equippedItems", Item.getDefaults()):
             self.equipItem(item)
 
         print(self.name)
@@ -100,7 +100,7 @@ class AbstractCharacter(AbstractCustomizable):
         ctype = jdict["type"]
         jdict["actives"] = [AbstractActive.loadJson(data) for data in jdict["actives"]]
         jdict["passives"]= [AbstractPassive.loadJson(data) for data in jdict["passives"]]
-        jdict["equippedItems"] = [Item.read_json(data) for data in jdict["equippedItems"]]
+        jdict["equippedItems"] = [Item.loadJson(data) for data in jdict["equippedItems"]]
         ret = None
 
         if ctype == "PlayerCharacter":
@@ -116,8 +116,6 @@ class AbstractCharacter(AbstractCustomizable):
         self.actives.append(active)
         active.setUser(self)
         active.calcStats()
-        Op.add(active.getDisplayData())
-        Op.display()
 
     def addPassive(self, passive: 'AbstractPassive'):
         self.passives.append(passive)
@@ -128,7 +126,7 @@ class AbstractCharacter(AbstractCustomizable):
         self.equippedItems.append(item)
         item.setUser(self)
         item.equip(self)
-        item.calc_all()
+        item.calcStats()
 
     # HP defined here
     def initForBattle(self):
@@ -145,7 +143,7 @@ class AbstractCharacter(AbstractCustomizable):
 
         for item in self.equippedItems:
             item.setUser(self)
-            item.apply_boosts()
+            item.applyBoost()
 
         self.remHp = self.maxHp
         self.energy = int(self.getStatValue("energy") / 2.0)

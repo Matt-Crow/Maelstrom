@@ -1,14 +1,11 @@
 from utilities import STATS, ELEMENTS
 from stat_classes import *
+from output import Op
+from customizable import AbstractCustomizable
 import random
 
-from output import Op
-from upgradable import AbstractUpgradable
-
-"""
-Items need weather specific, stat codes
-"""
-class Item(AbstractUpgradable):
+#          isn't really customizable
+class Item(AbstractCustomizable):
     types = {
         "ring": "We wants it.",
         "trinket": "Fresh from the street vendor.",
@@ -16,56 +13,57 @@ class Item(AbstractUpgradable):
         "gear": "It comes from another dimension.",
         "greeble": "It looks incredible fun to play with."
     }
-    def __init__(self, name: str):
-        super(Item, self).__init__(name)
-        self.set_type('Item')
+    randomItemNumber = 0
 
-        self.randomize_type()
-        self.generateRandomEnh()
+    """
+    kwargs:
+    - name : str (defaults to random name)
+    - itemType : str (default to a random type)
+    - desc : str (defaults to the given itemType's description, or 'no description')
+    - boostedStat : str (defaults to a random stat)
+    """
+    def __init__(self, **kwargs):
+        super(Item, self).__init__(**dict(kwargs, name=Item.getItemName(kwargs), type="Item"))
 
-        self.set_name = None
+        self.itemType = kwargs.get("itemType", random.choice(list(Item.types.keys())))
+        self.desc = kwargs.get("desc", Item.types.get(self.itemType, "no description"))
+        self.boostedStat = kwargs.get("boostedStat", random.choice(STATS))
+
         self.equipped = False
 
-        self.add_attr('boost', Stat('boost', boost_form, 0))
-        self.track_attr('item_type')
-        self.track_attr('desc')
-        self.track_attr('set_name')
-        self.track_attr('boostedStat')
+        self.addSerializedAttributes(
+            "itemType",
+            "desc",
+            "boostedStat"
+        )
 
-
-    def randomize_type(self):
-        """
-        Sets this to a random item type
-        and sets its description appropriately
-        Has no impact on this, just flavor
-        """
-        self.item_type = random.choice(list(Item.types.keys()))
-        self.desc = Item.types[self.item_type]
-
-
-    def generateRandomEnh(self):
-        """
-        randomizes this' enhancement
-        """
-        enh_type = random.choice(("element+", "element-", "stat*"))
-        if enh_type == "element+":
-            boosted_element = random.choice(ELEMENTS)
-            self.boostedStat = boosted_element + ' damage multiplier'
-
-        elif enh_type == "element-":
-            boosted_element = random.choice(ELEMENTS)
-            self.boostedStat = boosted_element + ' damage reduction'
-
+    @staticmethod
+    def getItemName(kwargs: dict)->str:
+        ret = None
+        if hasattr(kwargs, "name"):
+            ret = kwargs["name"]
         else:
-            self.boostedStat = random.choice(STATS)
+            ret = "Random Item #" + str(Item.randomItemNumber)
+            Item.randomItemNumber += 1
+        return ret
 
+    """
+    Reads a JSON object as a dictionary, then converts it to an Item
+    """
+    @staticmethod
+    def loadJson(jdict: dict) -> "Item":
+        return Item(**jdict)
 
-    def getBoost(self) -> 'Boost':
-        """
-        Returns the boost this will provide when equipped
-        """
-        return Boost(self.boostedStat, self.get_stat('boost'), -1, self.name)
+    @staticmethod
+    def getDefaults() -> list:
+        return [Item()]
 
+    """
+    Returns the boost this will provide when equipped
+    """
+    def getBoost(self) -> "Boost":
+        #                              boosts by 10%
+        return Boost(self.boostedStat, 0.1, -1, self.name)
 
     def equip(self, user):
         self.user = user
@@ -75,67 +73,15 @@ class Item(AbstractUpgradable):
         self.user = None
         self.equipped = False
 
-    def apply_boosts(self):
+    def applyBoost(self):
         self.user.boost(self.getBoost())
 
     def getDisplayData(self):
         ret = [
             self.name + ":",
-            "\t" + self.type
+            "\t" + self.itemType
         ]
         for line in self.getBoost().getDisplayData():
             ret.append("\t" + line)
         ret.append("\t" + self.desc)
         return ret
-
-
-    @staticmethod
-    def read_json(json: dict) -> 'Item':
-        """
-        Reads a JSON object as a dictionary, then converts it to an Item
-        """
-        #some way to auto-do this?
-        name = json.get("name", "NAME NOT FOUND")
-        custom_points = int(json.get('customPoints', 0))
-
-        ret = Item(name)
-        ret.boostedStat = json.get('boostedStat', 'potency')
-        ret.item_type = json.get('item_type', 'ITEM TYPE NOT FOUND')
-        ret.desc = json.get('desc', 'DESCRIPTION NOT FOUND')
-        ret.set_base('boost', int(json.get('boost', {'base': 0}).get('base', 0))) #since stat is stored in json now
-        ret.set_name = json.get('set_name', None)
-        ret.customPoints = custom_points
-        return ret
-
-
-    @staticmethod
-    def get_defaults() -> list:
-        """
-        """
-        i1 = Item.read_json({
-        'name' : 'Item 1',
-        'boost' : {
-            'type': 'Stat',
-            'base': 10,
-            'name': 'boost'
-        },
-        'boostedStat' : 'luck',
-        'item_type' : 'TEST',
-        'desc' : 'test item 1',
-        'set_name' : 'Test item set'
-        })
-
-        return [i1]
-
-
-
-def boost_form(base: int) -> float:
-    """
-    Calculate how much the should boost a stat by
-    """
-    return 0.1 + 0.025 * base
-
-
-t1 = Item("Testitem 1")
-t2 = Item("Testitem 2")
-t3 = Item("Testitem 3")
