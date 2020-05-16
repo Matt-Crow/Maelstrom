@@ -46,33 +46,21 @@ class AbstractActive(AbstractCustomizable):
         self.damage = getDmgPerc(1) * self.getStatValue("damage multiplier")
 
     """
-    @staticmethod # redo this
-    def read_json(json: dict) -> 'AbstractActive':
-
-        Reads a JSON object as a dictionary, then converts it to an Active
-
-        #print("JSON:")
-        #pprint.pprint(json)
-
-        #some way to auto-do this?
-        name = json.get("name", "NAME NOT FOUND")
-        rtype = json.get("type", "TYPE NOT FOUND")
-        custom_points = int(json.get('customPoints', 0))
-
+    Reads a JSON object as a dictionary, then converts it to an Active
+    """
+    @staticmethod
+    def loadJson(jdict: dict) -> "AbstractActive":
         ret = None
-        if rtype == "AbstractActive":
-            ret = AbstractActive(name)
+        type = jdict["type"]
+
+        if type == "AbstractActive":
+            ret = AbstractActive(**jdict)
+        elif type == "MeleeAttack":
+            ret = MeleeAttack(**jdict)
         else:
-            ret = MeleeAttack(name)
-
-        for k, v in json.items():
-            if type(v) == type({}) and v.get('type', 'NO TYPE') == 'Stat':
-                ret.set_base(k, int(v.get('base', 0)))
-
-        ret.customPoints = custom_points
+            raise Exception("Type not found for AbstractActive: " + type)
 
         return ret
-    """
 
     def setUser(self, user):
         super(AbstractActive, self).setUser(user)

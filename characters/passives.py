@@ -44,43 +44,7 @@ class AbstractPassive(AbstractCustomizable):
         elif type == "On Hit Taken Passive":
             ret = OnHitTaken(**jdict)
         else:
-            raise Exception("Type not found for AbstractActive: " + type)
-        return ret
-
-    @staticmethod # get rid of this
-    def read_json(json: dict) -> 'AbstractPassive':
-        """
-        Reads a JSON object as a dictionary, then converts it to a passive
-        """
-        #some way to auto-do this?
-        name = json.get("name", "NAME NOT FOUND")
-        ptype = json.get("type", "TYPE NOT FOUND")
-        custom_points = int(json.get('customPoints', 0))
-        targ = json.get('targetsUser', True)
-
-        ret = None
-
-        if ptype == 'Threshhold Passive':
-            ret = Threshhold(name)
-            ret.set_base('threshhold', int(json.get('threshhold', {'base':4}).get('base', 4)))
-        elif ptype == 'On Hit Given Passive':
-            ret = OnHitGiven(name)
-            ret.set_base('chance', int(json.get('chance', {'base':4}).get('base', 4)))
-        elif ptype == 'On Hit Taken Passive':
-            ret = OnHitTaken(name)
-            ret.set_base('chance', int(json.get('chance', {'base':4}).get('base', 4)))
-        else:
-            raise Exception('Type not found for AbstractActive: ' + ptype)
-
-
-        for k, v in json.items():
-            if type(v) == type({}) and v.get('type', 'NO TYPE') == 'Stat':
-                ret.set_base(k, int(v.get('base', 0)))
-
-        ret.customPoints = custom_points
-        ret.boostedStat = json.get('boostedStat', None)
-        ret.targetsUser = targ
-
+            raise Exception("Type not found for AbstractPassive: " + type)
         return ret
 
     """
@@ -109,24 +73,17 @@ class AbstractPassive(AbstractCustomizable):
             name="Threshhold test",
             boostedStat="resistance",
         )
-        Op.add(p.getDisplayData())
-        Op.display()
 
         o = OnHitGiven(
             name="On Hit Given Test",
             boostedStat="luck",
         )
-        Op.add(o.getDisplayData())
-        Op.display()
 
         h = OnHitTaken(
             name="On Hit Taken Test",
             boostedStat="control",
             targetsUser=False
         )
-
-        Op.add(h.getDisplayData())
-        Op.display()
 
         return [p, o, h]
 

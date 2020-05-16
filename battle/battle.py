@@ -75,7 +75,6 @@ class Battle(AbstractJsonSerialable):
         """
         self.player_team = team
 
-    # stuff down here
     # add random loot
     def check_winner(self):
         """
