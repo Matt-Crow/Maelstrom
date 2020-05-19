@@ -5,7 +5,7 @@ from item import Item
 from serialize import AbstractJsonSerialable
 import os
 
-PLAYER_TEAM_DIRECTORY = 'users'
+PLAYER_TEAM_DIRECTORY = "users"
 
 """
 Teams are used to group characters

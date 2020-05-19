@@ -21,10 +21,9 @@ class Battle(AbstractJsonSerialable):
     - prescript : list of str, defaults to []
     - postscript : list of str, defaults to []
     - forecast : list of Weather, defaults to WEATHERS, or if an empty list is passed, defaults to NO_WEATHER
-
-    Not sure how I want to pass enemies.
-    Sending an enemyteam makes sense,
-    but is less memory efficient than creating one upon starting the battle.
+    - enemyNames : list of str, the names of enemies to put on the enemy team
+    - level : the level of enemies on the enemy team
+    - rewards : list of Items, defaults to []
     """
     def __init__(self, **kwargs):#name: str, desc: str, script: list, finalAct: list, level: int, enemyNames: list, rewards = []):
         super(Battle, self).__init__(**dict(kwargs, type="Battle"))
@@ -35,19 +34,18 @@ class Battle(AbstractJsonSerialable):
         self.forecast = kwargs.get("forecast", WEATHERS)
         if len(self.forecast) == 0:
             self.forecast = [NO_WEATHER]
-
-        #self.level = level #the level of enemies
-
-        #self.enemy_team = EnemyTeam(enemyNames, level)
-
-        self.rewards = to_list(rewards)
+        self.enemyNames = kwargs["enemyNames"]
+        self.level = kwargs["level"]
+        self.rewards = kwargs.get("rewards", [])
 
         self.addSerializedAttributes(
             "name",
             "desc",
             "prescript",
             "postscript",
-            "forecast"
+            "forecast",
+            "enemyNames",
+            "level"
         )
 
 
@@ -57,23 +55,17 @@ class Battle(AbstractJsonSerialable):
         jdict["rewards"] = [Item.loadJson(data) for data in jdict["rewards"]]
         return Battle(dict)
 
+    """
+    gets data for outputting
+    """
     def getDisplayData(self):
-        """
-        gets data for outputting
-        """
         ret = [self.name, "\t" + self.desc]
-        for member in self.enemy_team.members:
-            ret.append("\t* " + member.getShortDesc())
+        for name in self.enemyNames: # enemy team is not yet loaded
+            ret.append("\t* {0} Lv. {1}".format(name, self.level))
         return ret
 
     def __str__(self):
-        return self.name
-
-    def load_team(self, team):
-        """
-        Load the player's team
-        """
-        self.player_team = team
+        return "\n".join(self.getDisplayData())
 
     # add random loot
     def check_winner(self):
@@ -94,11 +86,31 @@ class Battle(AbstractJsonSerialable):
                 if reward != None:
                     reward.give(self.player_team)
 
-    def begin(self):
+    def end(self):
         """
-        Prepare both teams
-        for the match.
+        The stuff that takes place after battle
         """
+        xp = self.enemy_team.getXpGiven()
+        for member in self.player_team.members:
+            member.gainXp(xp)
+
+    """
+    Used to start
+    the battle
+    """
+    def play(self, playerTeam):
+        # set teams
+        self.player_team = playerTeam
+        enemies = [EnemyCharacter.load_enemy(name=enemyName) for enemyName in self.enemyNames]
+        for enemy in enemies:
+            enemy.level = self.level
+            enemy.displayData()
+
+        self.enemy_team = EnemyTeam(
+            name="Enemy Team",
+            members=enemies
+        )
+
         for line in self.prescript:
             Op.add(line)
             Op.display()
@@ -116,21 +128,6 @@ class Battle(AbstractJsonSerialable):
         Op.add(self.weather.getMsg())
         Op.display()
 
-    def end(self):
-        """
-        The stuff that takes place after battle
-        """
-        xp = self.enemy_team.getXpGiven()
-        for member in self.player_team.members:
-            member.gainXp(xp)
-
-    def play(self):
-        """
-        Used to start
-        the battle
-        """
-        self.begin()
-
         while not self.enemy_team.isDefeated() and not self.player_team.isDefeated():
             self.weather.applyEffect(self.enemy_team.membersRem)
             # did the weather defeat them?
@@ -143,6 +140,8 @@ class Battle(AbstractJsonSerialable):
                     self.player_team.doTurn()
         self.check_winner()
         self.end()
+
+        self.enemy_team = None # uncache enemy team to save memory
 
     """
     Creates a random level
@@ -158,4 +157,9 @@ class Battle(AbstractJsonSerialable):
         for i in range(0, numEnemies):
             enemyNames.append(random.choice(keys))
 
-        return Battle("Random encounter", enemyNames, 1)
+        return Battle(
+            name="Random encounter",
+            desc="Random battle",
+            enemyNames=enemyNames,
+            level=1
+        )

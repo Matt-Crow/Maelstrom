@@ -1,5 +1,7 @@
 import subprocess
 
+CLS_BEFORE_DISPLAY = not True
+
 class Op:
     """
     The static Op object is used to format output
@@ -54,15 +56,13 @@ class Op:
 
     @staticmethod
     def display():
-        try:
-
-            works = subprocess.call("cls", shell=True)
-            #print(works)
-            if works != 0: #is false, didn't run
-                works = subprocess.call("clear", shell=True)
-
-        except:
-            print("no work in output.py display method!")
+        if CLS_BEFORE_DISPLAY:
+            try:
+                works = subprocess.call("cls", shell=True)
+                if works != 0: #is false, didn't run
+                    works = subprocess.call("clear", shell=True)
+            except:
+                print("no work in output.py display method!")
         print(Op.border_pattern * 10)
         for msg in Op.msgs:
             print(msg)

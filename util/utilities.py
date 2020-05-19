@@ -87,7 +87,7 @@ def askIntInput(msg: str)->int:
         ip = input(msg)
         try:
             ip = int(float(ip))
-            works = Valid
+            valid = True
         except:
             print("Invalid input: Enter an integer:")
     return ip

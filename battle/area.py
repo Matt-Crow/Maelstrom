@@ -85,8 +85,7 @@ class Area(AbstractJsonSerialable):
         choice = choose("What do you wish to do?", options)
         if choice == "Level":
             lvChoice = choose("Which level do you want to play?", self.levels)
-            lvChoice.load_team(player)
-            lvChoice.play()
+            lvChoice.play(player)
         elif choice == "Manage":
             player.manage()
         elif choice == "Location":

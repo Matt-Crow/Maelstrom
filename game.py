@@ -23,7 +23,7 @@ class Game:
             name="Default team",
             member=defaultPlayer
         )
-        Area.createDefaultArea().chooseAction(defaultPlayer)
+        Area.createDefaultArea().chooseAction(team)
 
     """
     Begins the program

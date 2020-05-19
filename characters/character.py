@@ -58,8 +58,6 @@ class AbstractCharacter(AbstractCustomizable):
         for item in kwargs.get("equippedItems", Item.getDefaults()):
             self.equipItem(item)
 
-        print(self.name)
-        print(kwargs.get("stats", {}))
         for stat in STATS:
             self.addStat(Stat(stat, lambda base: 20.0 + float(base), kwargs.get("stats", {}).get(stat, 0)))
         self.calcStats()
@@ -200,38 +198,31 @@ class AbstractCharacter(AbstractCustomizable):
     def getHpPerc(self):
         return int((float(self.remHp) / float(self.maxHp) * 100.0))
 
-    def displayData(self):
-        """
-        Print info on a character
-        """
+    def getDisplayData(self)->list:
         self.calcStats()
-        Op.add("Lv. " + str(self.level) + " " + self.name)
-        Op.add(self.element)
-
-        Op.add("STATS:")
+        ret = ["Lv. " + str(self.level) + " " + self.name, self.element]
+        ret.append("STATS:")
         for stat in STATS:
-            Op.add(stat + ": " + str(int(self.getStatValue(stat))))
-
-        Op.add("ACTIVES:")
+            ret.append("\t" + stat + ": " + str(int(self.getStatValue(stat))))
+        ret.append("ACTIVES:")
         for active in self.actives:
-            Op.add("-" + active.name)
-
-        Op.add("PASSIVES:")
+            ret.append("\t" + active.name)
+        ret.append("PASSIVES:")
         for passive in self.passives:
-            Op.add("-" + passive.name)
-
-        Op.add("ITEMS:")
+            ret.append("\t" + passive.name)
+        ret.append("ITEMS:")
         for item in self.equippedItems:
-            Op.add("-" + item.name)
+            ret.append("\t" + item.name)
+        ret.append(str(self.xp) + "/" + str(self.level * 10))
 
-        Op.add(str(self.xp) + "/" + str(self.level * 10))
+        return ret
+
+    """
+    Print info on a character
+    """
+    def displayData(self):
+        Op.add(self.getDisplayData())
         Op.display()
-
-    def getShortDesc(self):
-        """
-        returns a short description of the character
-        """
-        return self.name + " Lv " + str(self.level) + " " + self.element
 
     """
     Battle functions:
@@ -535,11 +526,11 @@ class EnemyCharacter(AbstractCharacter):
             ret = ENEMY_CACHE[name.title]
         else:
             for path in Path(ENEMY_DIRECTORY).iterdir():
-                print(str(path))
+                #print(str(path))
                 file_name = str(path).split(os.sep)[-1]
-                print(file_name)
+                #print(file_name)
                 char_name = file_name.split('.')[0].replace('_', ' ').title() # get rid of file extention
-                print(char_name)
+                #print(char_name)
                 if all or name.title().replace('_', ' ') == char_name:
                     ret = AbstractCharacter.loadJson(AbstractCharacter.readFile((str(path))))
                     ENEMY_CACHE[char_name] = ret
