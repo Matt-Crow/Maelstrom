@@ -32,6 +32,10 @@ class AbstractTeam(AbstractJsonSerialable):
             "members"
         )
 
+    @classmethod
+    def deserializeJson(cls, json: dict)->"AbstractTeam":
+        raise NotImplementedError()
+        
     """
     Reads a json file, then returns the team contained in that file
     """
@@ -41,10 +45,10 @@ class AbstractTeam(AbstractJsonSerialable):
         ret = None
         dict = AbstractJsonSerialable.readFile(path)
         if dict["type"] == "PlayerTeam":
-            character = AbstractCharacter.loadJson(dict["members"][0])
+            character = AbstractCharacter.deserializeJson(dict["members"][0])
             ret = PlayerTeam(dict["name"], character)
             for item in dict.get('inventory', []):
-                ret.obtain(Item.loadJson(item))
+                ret.obtain(Item.deserializeJson(item))
         elif dict["type"] == "EnemyTeam":
             ret = EnemyTeam([member['name'] for member in dict["members"]], dict["members"][0].level)
         else:

@@ -1,8 +1,9 @@
+from abc import ABC, abstractmethod
 import json
 import os
 from stat_classes import Stat
 
-class AbstractJsonSerialable(object):
+class AbstractJsonSerialable(ABC): # allows this to use the "abstractmethod" annotation
     """
     Required kwargs:
     - type : str (used for deserializing)
@@ -40,7 +41,6 @@ class AbstractJsonSerialable(object):
             file.write(json.dumps(self.toJsonDict()))
 
     """
-    Change to class method?
     Reads a JSON file, returning
     its content as a dictionary.
     """
@@ -50,6 +50,11 @@ class AbstractJsonSerialable(object):
         with open(filePath, "r") as file:
             ret = json.loads(file.read())
         return ret
+
+    @classmethod
+    @abstractmethod
+    def deserializeJson(cls, json: dict)->"AbstractJsonSerialable":
+        pass
 
 class CustomJsonEncoder(json.JSONEncoder):
     def default(self, obj):

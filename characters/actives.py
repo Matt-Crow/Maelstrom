@@ -48,8 +48,8 @@ class AbstractActive(AbstractCustomizable):
     """
     Reads a JSON object as a dictionary, then converts it to an Active
     """
-    @staticmethod
-    def loadJson(jdict: dict) -> "AbstractActive":
+    @classmethod
+    def deserializeJson(cls, jdict: dict)->"AbstractActive":
         ret = None
         type = jdict["type"]
 

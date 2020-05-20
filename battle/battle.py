@@ -1,6 +1,6 @@
 from utilities import *
 from item import Item
-from weather import WEATHERS, NO_WEATHER, deserializeWeather
+from weather import WEATHERS, NO_WEATHER, Weather
 from teams import EnemyTeam
 from output import Op
 from character import EnemyCharacter, ENEMY_CACHE
@@ -49,10 +49,10 @@ class Battle(AbstractJsonSerialable):
         )
 
 
-    @staticmethod
-    def loadJson(jdict: dict) -> "Battle":
-        jdict["forecast"] = [deserializeWeather(data) for data in jdict["forecast"]]
-        jdict["rewards"] = [Item.loadJson(data) for data in jdict["rewards"]]
+    @classmethod
+    def deserializeJson(cls, json: dict)->"Battle":
+        jdict["forecast"] = [Weather.deserializeJson(data) for data in jdict["forecast"]]
+        jdict["rewards"] = [Item.deserializeJson(data) for data in jdict["rewards"]]
         return Battle(dict)
 
     """

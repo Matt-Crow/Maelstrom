@@ -36,6 +36,18 @@ class Weather(AbstractJsonSerialable):
     def getMsg(self):
         return self.msg
 
+    @classmethod
+    def deserializeJson(cls, json: dict)->"Weather":
+        name = jdict["name"]
+        ret = None
+        for weather in WEATHERS:
+            if weather.name == name:
+                ret = weather
+                break
+        if ret is None:
+            raise Error("No weather found with name '{0}'".format(name))
+        return ret
+
 LIGHNING_WEATHER = Weather(
     name="lightning",
     msg="The sky rains down its fire upon the field...",
@@ -69,14 +81,3 @@ WEATHERS = (
     WIND_WEATHER,
     NO_WEATHER
 )
-
-def deserializeWeather(jdict: dict)->"Weather":
-    name = jdict["name"]
-    ret = None
-    for weather in WEATHERS:
-        if weather.name == name:
-            ret = weather
-            break
-    if ret is None:
-        raise Error("No weather found with name '{0}'".format(name))
-    return ret

@@ -43,12 +43,12 @@ class Area(AbstractJsonSerialable):
         jdict = {}
         with open(os.path.join(AREA_DIRECTORY, "Ancient caverns".replace(" ", "_") + ".json"), 'rt') as file:
             jdict = json.loads(file.read())
-        return Area.loadJson(jdict)
+        return Area.deserializeJson(jdict)
 
-    @staticmethod
-    def loadJson(jdict: dict):
-        dict["locations"] = [Location.loadJson(j) for j in jdict["locations"]]
-        dict["levels"] = [Battle.loadJson(j) for j in jdict["levels"]]
+    @classmethod
+    def deserializeJson(cls, json: dict)->"Area":
+        dict["locations"] = [Location.deserializeJson(j) for j in jdict["locations"]]
+        dict["levels"] = [Battle.deserializeJson(j) for j in jdict["levels"]]
         return Area(**dict)
 
     def getDisplayData(self):
@@ -134,8 +134,8 @@ class Location(AbstractJsonSerialable):
             ]
         )
 
-    @staticmethod
-    def loadJson(jdict: dict):
+    @classmethod
+    def deserializeJson(cls, json: dict)->"Location":
         return Location(**dict)
 
     """

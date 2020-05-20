@@ -33,8 +33,8 @@ class AbstractPassive(AbstractCustomizable):
             "targetsUser"
         )
 
-    @staticmethod
-    def loadJson(jdict: dict)->"AbstractPassive":
+    @classmethod
+    def deserializeJson(cls, jdict: dict)->"AbstractPassive":
         ret = None
         type = jdict["type"]
         if type == "Threshhold Passive":

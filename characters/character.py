@@ -87,18 +87,18 @@ class AbstractCharacter(AbstractCustomizable):
     Returns a deep copy of this character
     """
     def copy(self)->'AbstractCharacter':
-        return AbstractCharacter.loadJson(self.toJsonDict())
+        return AbstractCharacter.deserializeJson(self.toJsonDict())
 
     """
     Reads a JSON object as a dictionary, then converts it to an AbstractCharacter
     looks like this is done
     """
-    @staticmethod
-    def loadJson(jdict) -> 'AbstractCharacter':
+    @classmethod
+    def deserializeJson(cls, jdict: dict)->"AbstractCharacter":
         ctype = jdict["type"]
-        jdict["actives"] = [AbstractActive.loadJson(data) for data in jdict["actives"]]
-        jdict["passives"]= [AbstractPassive.loadJson(data) for data in jdict["passives"]]
-        jdict["equippedItems"] = [Item.loadJson(data) for data in jdict["equippedItems"]]
+        jdict["actives"] = [AbstractActive.deserializeJson(data) for data in jdict["actives"]]
+        jdict["passives"]= [AbstractPassive.deserializeJson(data) for data in jdict["passives"]]
+        jdict["equippedItems"] = [Item.deserializeJson(data) for data in jdict["equippedItems"]]
         ret = None
 
         if ctype == "PlayerCharacter":
@@ -532,7 +532,7 @@ class EnemyCharacter(AbstractCharacter):
                 char_name = file_name.split('.')[0].replace('_', ' ').title() # get rid of file extention
                 #print(char_name)
                 if all or name.title().replace('_', ' ') == char_name:
-                    ret = AbstractCharacter.loadJson(AbstractCharacter.readFile((str(path))))
+                    ret = AbstractCharacter.deserializeJson(AbstractCharacter.readFile((str(path))))
                     ENEMY_CACHE[char_name] = ret
 
         if ret is None:

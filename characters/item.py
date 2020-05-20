@@ -50,8 +50,8 @@ class Item(AbstractCustomizable):
     """
     Reads a JSON object as a dictionary, then converts it to an Item
     """
-    @staticmethod
-    def loadJson(jdict: dict) -> "Item":
+    @classmethod
+    def deserializeJson(cls, jdict: dict)->"Item":
         return Item(**jdict)
 
     @staticmethod
