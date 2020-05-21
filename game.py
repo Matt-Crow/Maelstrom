@@ -4,6 +4,7 @@ from character import AbstractCharacter
 from utilities import choose, ELEMENTS
 from area import Area
 import json
+from fileSystem import getUserList
 
 from generateData import generateEnemies
 
@@ -17,6 +18,8 @@ class Game:
         self.exit = False
 
     def test(self):
+        Op.add(getUserList())
+        Op.display()
         generateEnemies()
         defaultPlayer = AbstractCharacter.createDefaultPlayer()
         team = PlayerTeam(
@@ -31,36 +34,32 @@ class Game:
     def run(self):
         while not self.exit:
             if self.player == None:
-                self.main_menu()
+                self.mainMenu()
             else:
                 Area.loadDefault().chooseAction(self.player)
                 self.exit = True #since Area will run until the user chooses to quit.
                 raise Exception("Still need to add player saving!")
-                self.player.save()
+                #self.player.save() fileSystem.saveUser(self.player)
 
-
-    def main_menu(self):
-        """
-        Displayes the main menu
-        """
+    """
+    Displayes the main menu
+    """
+    def mainMenu(self):
         Op.add("MAELSTROM")
         Op.display()
         action = choose("Choose an option: ", ["Play", "About", "Quit"])
         if action == "Play":
-            self.login_menu()
-        elif action == "Quit":
+            self.loginMenu()
+        elif action == "About":
+            pass # do nothing yet
+        else:
             self.exit = True
 
-    def login_menu(self):
-        """
-        Asks the user to log in
-        """
-        users = []
-        with open("users/users.txt", "rt") as userFile:
-            for line in userFile:
-                users.append(line.strip())
-
-        options = users.copy()
+    """
+    Asks the user to log in
+    """
+    def loginMenu(self):
+        options = getUserList()
         options.append("None of these")
 
         user_name = " "
@@ -70,7 +69,7 @@ class Game:
             user_name = choose("Which user are you?", options)
             if user_name == 'None of these':
                 self.new_user_menu()
-                self.login_menu()
+                self.loginMenu()
             else:
                 self.login_user(user_name)
         else:

@@ -5,8 +5,6 @@ from item import Item
 from serialize import AbstractJsonSerialable
 import os
 
-PLAYER_TEAM_DIRECTORY = "users"
-
 """
 Teams are used to group characters
 together so that the program knows
@@ -35,7 +33,7 @@ class AbstractTeam(AbstractJsonSerialable):
     @classmethod
     def deserializeJson(cls, json: dict)->"AbstractTeam":
         raise NotImplementedError()
-        
+
     """
     Reads a json file, then returns the team contained in that file
     """
@@ -217,10 +215,6 @@ class PlayerTeam(AbstractTeam):
 
         if managing is not "Exit":
             managing.manage()
-
-    def save(self):
-        self.writeToFile(os.path.join(PLAYER_TEAM_DIRECTORY, self.name.replace(" ", "_").lower() + ".json"))
-
 
 class EnemyTeam(AbstractTeam):
     """

@@ -41,7 +41,7 @@ May 2020: Working on lots of cleanup and redoing serialization
 Version 0.9
 """
 
-#having stuff above the import statements is usually not good, but this cleans up my import statements
+#get rid of this in the future
 from util.path import add_subdir
 
 add_subdir("battle")
@@ -52,5 +52,5 @@ from game import Game
 
 if __name__ == "__main__":
     input("Calling test from Maelstrom.py")
-    Game().test()
-    #Game().run()
+    #Game().test()
+    Game().run()
