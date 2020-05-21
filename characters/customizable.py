@@ -1,12 +1,7 @@
 from output import Op
 from serialize import AbstractJsonSerialable
 from stat_classes import Stat
-
-"""
-This will replace the old AbstractUpgradable class,
-sometime in the future
-"""
-
+from utilities import choose
 
 class AbstractCustomizable(AbstractJsonSerialable):
     nextId = 0

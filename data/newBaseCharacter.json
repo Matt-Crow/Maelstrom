@@ -1,7 +1,7 @@
 {
     "name": "Example Enemy",
     "type": "EnemyCharacter",
-    "customPoints": 0,
+    "customizationPoints": 0,
     "element": "hail",
     "xp": 0,
     "level": 1,
@@ -9,7 +9,7 @@
         {
             "name": "Icicle Jab",
             "type": "AbstractActive",
-            "customPoints": 0,
+            "customizationPoints": 0,
             "damage multiplier": {
                 "name": "damage multiplier",
                 "type": "Stat",
@@ -64,7 +64,7 @@
         {
             "name": "hail bolt",
             "type": "AbstractActive",
-            "customPoints": 0,
+            "customizationPoints": 0,
             "damage multiplier": {
                 "name": "damage multiplier",
                 "type": "Stat",
@@ -119,7 +119,7 @@
         {
             "name": "Slash",
             "type": "MeleeAttack",
-            "customPoints": 0,
+            "customizationPoints": 0,
             "damage multiplier": {
                 "name": "damage multiplier",
                 "type": "Stat",
@@ -174,7 +174,7 @@
         {
             "name": "Jab",
             "type": "MeleeAttack",
-            "customPoints": 0,
+            "customizationPoints": 0,
             "damage multiplier": {
                 "name": "damage multiplier",
                 "type": "Stat",
@@ -229,7 +229,7 @@
         {
             "name": "Slam",
             "type": "MeleeAttack",
-            "customPoints": 0,
+            "customizationPoints": 0,
             "damage multiplier": {
                 "name": "damage multiplier",
                 "type": "Stat",
@@ -286,7 +286,7 @@
         {
             "name": "Threshhold test",
             "type": "Threshhold Passive",
-            "customPoints": 0,
+            "customizationPoints": 0,
             "targetsUser": "True",
             "boostedStat": "resistance",
             "status level": {
@@ -308,7 +308,7 @@
         {
             "name": "On Hit Given Test",
             "type": "On Hit Given Passive",
-            "customPoints": 0,
+            "customizationPoints": 0,
             "targetsUser": "True",
             "boostedStat": "luck",
             "status level": {
@@ -330,7 +330,7 @@
         {
             "name": "On Hit Taken Test",
             "type": "On Hit Taken Passive",
-            "customPoints": 0,
+            "customizationPoints": 0,
             "targetsUser": "False",
             "boostedStat": "control",
             "status level": {

@@ -86,12 +86,11 @@ class AbstractCharacter(AbstractCustomizable):
     """
     Returns a deep copy of this character
     """
-    def copy(self)->'AbstractCharacter':
+    def copy(self)->"AbstractCharacter":
         return AbstractCharacter.deserializeJson(self.toJsonDict())
 
     """
     Reads a JSON object as a dictionary, then converts it to an AbstractCharacter
-    looks like this is done
     """
     @classmethod
     def deserializeJson(cls, jdict: dict)->"AbstractCharacter":
@@ -110,17 +109,17 @@ class AbstractCharacter(AbstractCustomizable):
 
         return ret
 
-    def addActive(self, active: 'AbstractActive'):
+    def addActive(self, active: "AbstractActive"):
         self.actives.append(active)
         active.setUser(self)
         active.calcStats()
 
-    def addPassive(self, passive: 'AbstractPassive'):
+    def addPassive(self, passive: "AbstractPassive"):
         self.passives.append(passive)
         passive.setUser(self)
         passive.calcStats()
 
-    def equipItem(self, item: 'Item'):
+    def equipItem(self, item: "Item"):
         self.equippedItems.append(item)
         item.setUser(self)
         item.equip(self)
@@ -297,10 +296,7 @@ class AbstractCharacter(AbstractCustomizable):
         MHC is not checked here so that it doesn't
         mess with AI
         """
-        damage = 0
-        for damage_type, value in activeUsed.damages.items():
-            damage += value
-        damage *= attacker.getStatValue("control") / self.getStatValue("resistance")
+        damage = activeUsed.damage * attacker.getStatValue("control") / self.getStatValue("resistance")
 
         if attacker.team.switched_in:
             damage = damage * 0.75
@@ -370,13 +366,13 @@ class PlayerCharacter(AbstractCharacter):
         """
         self.xp = 0
         self.level += 1
-        self.customPoints += 1
+        self.customizationPoints += 1
         for active in self.actives:
-            active.customPoints += 1
+            active.customizationPoints += 1
         for passive in self.passives:
-            passive.customPoints += 1
+            passive.customizationPoints += 1
         for item in self.equippedItems:
-            item.customPoints += 1
+            item.customizationPoints += 1
 
         self.calcStats()
         self.remHp = self.maxHp
@@ -436,9 +432,7 @@ class PlayerCharacter(AbstractCharacter):
         if customize != "Quit":
             if customize == 'Equipped items':
                 self.chooseItems()
-            customize.customize()
-
-
+            customize.customizeMenu()
 
 class EnemyCharacter(AbstractCharacter):
     def __init__(self, **kwargs):

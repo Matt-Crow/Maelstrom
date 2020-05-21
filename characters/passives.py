@@ -55,7 +55,7 @@ class AbstractPassive(AbstractCustomizable):
         if not self.targetsUser:
             lv = -lv
 
-        return Boost(self.boostedStat, boost, self.getStatValue("status duration"), self.name)
+        return Boost(self.boostedStat, self.getStatValue("status level"), self.getStatValue("status duration"), self.name)
 
     """
     Applies this' boost
