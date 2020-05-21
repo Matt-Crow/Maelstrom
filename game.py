@@ -73,16 +73,16 @@ class Game:
                 self.newUserMenu()
                 self.loginMenu()
             else:
-                self.login_user(userName)
+                self.loginUser(userName)
         else:
             self.newUserMenu() #logs in if successful
 
 
-    def login_user(self, userName):
-        """
-        Play a game as the given user
-        """
-        self.player = AbstractTeam.loadTeam('users/' + userName.replace(" ", "_").lower() + '.json')
+    """
+    Play a game as the given user
+    """
+    def loginUser(self, userName):
+        self.player = loadUser(userName)
         self.player.initForBattle()
         self.player.displayData()
 
@@ -95,7 +95,7 @@ class Game:
         result = self.createUser(name, element)
         print(result)
         if result == 'User added successfully!':
-            self.login_user(name)
+            self.loginUser(name)
         else:
             self.newUserMenu()
 

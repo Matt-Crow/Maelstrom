@@ -51,6 +51,5 @@ add_subdir("characters")
 from game import Game
 
 if __name__ == "__main__":
-    input("Calling test from Maelstrom.py")
     #Game().test()
     Game().run()

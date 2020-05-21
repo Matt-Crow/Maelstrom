@@ -1,3 +1,4 @@
+from teams import AbstractTeam
 import os.path
 from os import walk
 
