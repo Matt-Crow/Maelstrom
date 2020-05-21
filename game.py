@@ -4,7 +4,7 @@ from character import AbstractCharacter
 from utilities import choose, ELEMENTS
 from area import Area
 import json
-from fileSystem import getUserList
+from fileSystem import getUserList, loadUser, saveUser
 
 from generateData import generateEnemies
 
@@ -59,65 +59,64 @@ class Game:
     Asks the user to log in
     """
     def loginMenu(self):
-        options = getUserList()
-        options.append("None of these")
+        users = getUserList()
+        userName = None
+        options = ["Create game"]
+        if len(users) > 0:
+            options.append("Load game")
 
-        user_name = " "
-
-        action = choose("Do you wish to load a game, or start a new one?", ["Create game", "Load game"])
+        action = choose("Do you wish to load a game, or start a new one?", options)
         if action == "Load game":
-            user_name = choose("Which user are you?", options)
-            if user_name == 'None of these':
-                self.new_user_menu()
+            users.append("None of these")
+            userName = choose("Which user are you?", users)
+            if userName == "None of these":
+                self.newUserMenu()
                 self.loginMenu()
             else:
-                self.login_user(user_name)
+                self.login_user(userName)
         else:
-            self.new_user_menu() #logs in if successful
+            self.newUserMenu() #logs in if successful
 
 
-    def login_user(self, user_name):
+    def login_user(self, userName):
         """
         Play a game as the given user
         """
-        self.player = AbstractTeam.loadTeam('users/' + user_name.replace(" ", "_").lower() + '.json')
+        self.player = AbstractTeam.loadTeam('users/' + userName.replace(" ", "_").lower() + '.json')
         self.player.initForBattle()
         self.player.displayData()
 
-
-    def new_user_menu(self):
-        """
-        Creates the menu for creating a new user
-        """
-        name = input('What do you want your character\'s name to be? ')
-        element = choose('Each character has elemental powers, what element do you want yours to control?', ELEMENTS)
-        result = self.create_user(name, element)
+    """
+    Creates the menu for creating a new user
+    """
+    def newUserMenu(self):
+        name = input("What do you want your character\'s name to be? ")
+        element = choose("Each character has elemental powers, what element do you want yours to control?", ELEMENTS)
+        result = self.createUser(name, element)
         print(result)
         if result == 'User added successfully!':
             self.login_user(name)
         else:
-            self.new_user_menu()
+            self.newUserMenu()
 
-
-    def create_user(self, user_name: str, element: str) -> str:
-        """
-        Adds a user.
-        Returns a message based on if the profile creation was successful
-        """
-        ret = 'User added successfully!'
+    """
+    Adds a user.
+    Returns a message based on if the profile creation was successful
+    """
+    def createUser(self, userName: str, element: str) -> str:
+        ret = "User added successfully!"
         success = True
 
-        with open('users/users.txt', 'rt') as file:
-            if user_name in file.read():
-                ret = 'The name ' + user_name + ' is already taken.'
-                success = False
-
+        if userName in getUserList():
+            ret = "The name " + userName + " is already taken."
+            success = False
 
         if success:
-            character = AbstractCharacter.createDefaultPlayer(user_name, element)
-            PlayerTeam(user_name, character).save()
-
-            with open('users/users.txt', 'a') as file:
-                file.write(user_name + '\n')
+            character = AbstractCharacter.createDefaultPlayer(userName, element)
+            team = PlayerTeam(
+                name=userName,
+                member=character
+            )
+            saveUser(team)
 
         return ret

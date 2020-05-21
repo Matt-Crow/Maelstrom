@@ -18,7 +18,7 @@ class AbstractTeam(AbstractJsonSerialable):
     - members : list of AbstractCharacters
     """
     def __init__(self, **kwargs):
-        super(AbstractTeam, self).__init__(**dict(kwargs, type=type))
+        super(AbstractTeam, self).__init__(**dict(kwargs, type=kwargs["type"]))
         self.name = kwargs["name"]
         self.members = []
         for member in kwargs["members"]:

@@ -30,6 +30,8 @@ class AbstractJsonSerialable(ABC): # allows this to use the "abstractmethod" ann
     Subclasses will likely want to add keys to what this returns.
     """
     def toJsonDict(self)->dict:
+        #for attr in self.serializedAttributes:
+        #    print(attr, self.__dict__[attr])
         return json.loads(json.dumps({attr: self.__dict__[attr] for attr in self.serializedAttributes}, cls=CustomJsonEncoder))
 
     """
