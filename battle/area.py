@@ -37,16 +37,8 @@ class Area(AbstractJsonSerialable):
             desc="No description"
         )
 
-    # get rid of this!
-    @staticmethod
-    def loadDefault():
-        jdict = {}
-        with open(os.path.join(AREA_DIRECTORY, "Ancient caverns".replace(" ", "_") + ".json"), 'rt') as file:
-            jdict = json.loads(file.read())
-        return Area.deserializeJson(jdict)
-
     @classmethod
-    def deserializeJson(cls, json: dict)->"Area":
+    def deserializeJson(cls, jdict: dict)->"Area":
         dict["locations"] = [Location.deserializeJson(j) for j in jdict["locations"]]
         dict["levels"] = [Battle.deserializeJson(j) for j in jdict["levels"]]
         return Area(**dict)
@@ -135,8 +127,8 @@ class Location(AbstractJsonSerialable):
         )
 
     @classmethod
-    def deserializeJson(cls, json: dict)->"Location":
-        return Location(**dict)
+    def deserializeJson(cls, jdict: dict)->"Location":
+        return Location(**jdict)
 
     """
     Get data for outputting

@@ -50,7 +50,7 @@ class Battle(AbstractJsonSerialable):
 
 
     @classmethod
-    def deserializeJson(cls, json: dict)->"Battle":
+    def deserializeJson(cls, jdict: dict)->"Battle":
         jdict["forecast"] = [Weather.deserializeJson(data) for data in jdict["forecast"]]
         jdict["rewards"] = [Item.deserializeJson(data) for data in jdict["rewards"]]
         return Battle(dict)

@@ -34,7 +34,7 @@ class AbstractActive(AbstractCustomizable):
     def __init__(self, **kwargs):
         super(AbstractActive, self).__init__(**dict(kwargs, type=kwargs.get("type", "AbstractActive")))
         #                                                                     get stat dict, if it has one, else an empty dict
-        self.addStat(Stat("damage multiplier", lambda base: 1.0 + base * 0.5, kwargs.get("stats", {}).get("damage multiplier", 0)))
+        self.addStat(Stat("damage multiplier", lambda base: 1.0 + base * 0.05, kwargs.get("stats", {}).get("damage multiplier", 0)))
         #                                                                                                 no damage multiplier? Just do 0
         self.addStat(Stat("cleave", lambda base: 0.25 + base * 0.05, kwargs.get("stats", {}).get("cleave", 0)))
         self.addStat(Stat("miss chance", lambda base: 10 - base, kwargs.get("stats", {}).get("miss chance", 0)))

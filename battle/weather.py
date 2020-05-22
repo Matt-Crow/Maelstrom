@@ -37,7 +37,7 @@ class Weather(AbstractJsonSerialable):
         return self.msg
 
     @classmethod
-    def deserializeJson(cls, json: dict)->"Weather":
+    def deserializeJson(cls, jdict: dict)->"Weather":
         name = jdict["name"]
         ret = None
         for weather in WEATHERS:

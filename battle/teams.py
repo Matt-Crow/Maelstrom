@@ -4,6 +4,7 @@ from character import PlayerCharacter, EnemyCharacter, AbstractCharacter
 from item import Item
 from serialize import AbstractJsonSerialable
 import os
+import random
 
 """
 Teams are used to group characters
@@ -31,15 +32,15 @@ class AbstractTeam(AbstractJsonSerialable):
         )
 
     @classmethod
-    def deserializeJson(cls, json: dict)->"AbstractTeam":
-        type = json["type"]
+    def deserializeJson(cls, jdict: dict)->"AbstractTeam":
+        type = jdict["type"]
         ret = None
         if type == "PlayerTeam":
-            json["member"] = AbstractCharacter.deserializeJson(json["members"][0])
-            ret = PlayerTeam(**json)
+            jdict["member"] = AbstractCharacter.deserializeJson(jdict["members"][0])
+            ret = PlayerTeam(**jdict)
         elif type =="EnemyTeam":
-            json["members"] = [AbstractCharacter.deserializeJson(member) for member in json["members"]]
-            ret = EnemyTeam(**json)
+            jdict["members"] = [AbstractCharacter.deserializeJson(member) for member in jdict["members"]]
+            ret = EnemyTeam(**jdict)
         else:
             raise Error("Type not found for AbstractTeam: {0}".format(type))
         return ret

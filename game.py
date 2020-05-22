@@ -18,15 +18,10 @@ class Game:
         self.exit = False
 
     def test(self):
-        Op.add(getUserList())
-        Op.display()
-        generateEnemies()
         defaultPlayer = AbstractCharacter.createDefaultPlayer()
-        team = PlayerTeam(
-            name="Default team",
-            member=defaultPlayer
-        )
-        Area.createDefaultArea().chooseAction(team)
+        for active in defaultPlayer.actives:
+            active.displayData()
+            print(active.getStatValue("damage multiplier"))
 
     """
     Begins the program
@@ -36,7 +31,7 @@ class Game:
             if self.player == None:
                 self.mainMenu()
             else:
-                Area.loadDefault().chooseAction(self.player)
+                Area.createDefaultArea().chooseAction(self.player)
                 self.exit = True #since Area will run until the user chooses to quit.
                 raise Exception("Still need to add player saving!")
                 #self.player.save() fileSystem.saveUser(self.player)

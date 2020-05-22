@@ -2,6 +2,7 @@ from output import Op
 from serialize import AbstractJsonSerialable
 from stat_classes import Stat
 from utilities import choose
+from abc import abstractmethod
 
 class AbstractCustomizable(AbstractJsonSerialable):
     nextId = 0
@@ -97,8 +98,12 @@ class AbstractCustomizable(AbstractJsonSerialable):
                     self.calcStats()
                     self.customizationPoints -= 1
 
+    @abstractmethod
+    def getDisplayData(self)->list:
+        pass
+
     def displayData(self):
-        Op.add(str(self))
+        Op.add(self.getDisplayData())
         Op.display()
 
     """
