@@ -4,9 +4,7 @@ from character import AbstractCharacter
 from utilities import choose, ELEMENTS
 from area import Area
 import json
-from fileSystem import getUserList, loadUser, saveUser
-
-from generateData import generateEnemies
+from fileSystem import getUserList, loadUser, saveUser, loadEnemy, generateEnemies
 
 """
 The Game class is used to store data on the game the user is currently playing,
@@ -18,10 +16,8 @@ class Game:
         self.exit = False
 
     def test(self):
-        defaultPlayer = AbstractCharacter.createDefaultPlayer()
-        for active in defaultPlayer.actives:
-            active.displayData()
-            print(active.getStatValue("damage multiplier"))
+        generateEnemies()
+        loadEnemy("Stone Soldier").displayData()
 
     """
     Begins the program
@@ -33,8 +29,7 @@ class Game:
             else:
                 Area.createDefaultArea().chooseAction(self.player)
                 self.exit = True #since Area will run until the user chooses to quit.
-                raise Exception("Still need to add player saving!")
-                #self.player.save() fileSystem.saveUser(self.player)
+                saveUser(self.player)
 
     """
     Displayes the main menu

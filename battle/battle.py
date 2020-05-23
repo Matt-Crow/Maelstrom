@@ -3,7 +3,8 @@ from item import Item
 from weather import WEATHERS, NO_WEATHER, Weather
 from teams import EnemyTeam
 from output import Op
-from character import EnemyCharacter, ENEMY_CACHE
+from character import EnemyCharacter
+from fileSystem import loadEnemy, getEnemyList
 from serialize import AbstractJsonSerialable
 import random
 
@@ -101,7 +102,7 @@ class Battle(AbstractJsonSerialable):
     def play(self, playerTeam):
         # set teams
         self.player_team = playerTeam
-        enemies = [EnemyCharacter.load_enemy(name=enemyName) for enemyName in self.enemyNames]
+        enemies = [loadEnemy(enemyName) for enemyName in self.enemyNames]
         for enemy in enemies:
             enemy.level = self.level
             enemy.displayData()
@@ -151,11 +152,10 @@ class Battle(AbstractJsonSerialable):
         enemyNames = []
         numEnemies = random.randint(1, 4)
 
-        EnemyCharacter.load_enemy(all=True)
+        allEnemyNames = getEnemyList()
 
-        keys = list(ENEMY_CACHE.keys())
         for i in range(0, numEnemies):
-            enemyNames.append(random.choice(keys))
+            enemyNames.append(random.choice(allEnemyNames))
 
         return Battle(
             name="Random encounter",

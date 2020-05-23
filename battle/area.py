@@ -2,8 +2,6 @@ from utilities import *
 from battle import Battle
 from output import Op
 from serialize import AbstractJsonSerialable
-import json
-import os
 
 AREA_DIRECTORY = 'data/areas'
 class Area(AbstractJsonSerialable):

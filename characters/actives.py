@@ -45,6 +45,8 @@ class AbstractActive(AbstractCustomizable):
         self.cost = kwargs.get("cost", 5)
         self.damage = getDmgPerc(1) * self.getStatValue("damage multiplier")
 
+        self.addSerializedAttribute("cost")
+
     """
     Reads a JSON object as a dictionary, then converts it to an Active
     """
@@ -153,4 +155,4 @@ class AbstractActive(AbstractCustomizable):
 
 class MeleeAttack(AbstractActive):
     def __init__(self, **kwargs):
-        super(MeleeAttack, self).__init__(**dict(kwargs, type="MeleeAttack"))
+        super(MeleeAttack, self).__init__(**dict(kwargs, type="MeleeAttack", cost=0))

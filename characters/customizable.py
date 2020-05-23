@@ -50,7 +50,7 @@ class AbstractCustomizable(AbstractJsonSerialable):
         self.user = user
 
     def __str__(self):
-        return "AbstractCustomizable#{0}: {1}".format(self.id, self.name)
+        return self.name
 
     # more or less a replacement for AbstractUpgradable.getDisplayData()
     def getStatDisplayList(self)->list:

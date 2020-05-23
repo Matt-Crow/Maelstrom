@@ -6,17 +6,10 @@ from item import Item
 from events import *
 from customizable import AbstractCustomizable
 from output import Op
-import json
-
-# these two used for enemy cache
-from pathlib import Path
-import os
 
 """
 Characters
 """
-ENEMY_DIRECTORY = 'data/enemies'
-ENEMY_CACHE = {} #cached results of loading enemy files
 
 """
 A Class containing all the info for a character
@@ -215,13 +208,6 @@ class AbstractCharacter(AbstractCustomizable):
         ret.append(str(self.xp) + "/" + str(self.level * 10))
 
         return ret
-
-    """
-    Print info on a character
-    """
-    def displayData(self):
-        Op.add(self.getDisplayData())
-        Op.display()
 
     """
     Battle functions:
@@ -499,37 +485,3 @@ class EnemyCharacter(AbstractCharacter):
 
     def chooseActive(self):
         self.whatActive().use()
-
-    def save(self):
-        self.writeToFile(os.path.join(ENEMY_DIRECTORY, self.name + ".json"))
-
-    """
-    Reads an enemy file, if it exists.
-    If force is True, searches through the enemy directory for
-    that enemy's save file, then loads that enemy, caching it in the
-    enemy cache.
-
-    If force is False, will first check if the enemy has already been
-    cached.
-    """
-    @staticmethod
-    def load_enemy(name=' ', force=False, all=False) -> 'EnemyCharacter':
-        ret = None
-
-        if not force and name.title in ENEMY_CACHE:
-            ret = ENEMY_CACHE[name.title]
-        else:
-            for path in Path(ENEMY_DIRECTORY).iterdir():
-                #print(str(path))
-                file_name = str(path).split(os.sep)[-1]
-                #print(file_name)
-                char_name = file_name.split('.')[0].replace('_', ' ').title() # get rid of file extention
-                #print(char_name)
-                if all or name.title().replace('_', ' ') == char_name:
-                    ret = AbstractCharacter.deserializeJson(AbstractCharacter.readFile((str(path))))
-                    ENEMY_CACHE[char_name] = ret
-
-        if ret is None:
-            raise FileNotFoundError('Enemy not found in ' + ENEMY_DIRECTORY + ': ' + name + ' Did you forget to call .save() on that enemy?')
-
-        return ret.copy()
