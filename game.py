@@ -1,10 +1,10 @@
 from output import Op
 from teams import PlayerTeam, AbstractTeam
-from character import AbstractCharacter
+from character import AbstractCharacter, EnemyCharacter
 from utilities import choose, ELEMENTS
 from area import Area
 import json
-from fileSystem import getUserList, loadUser, saveUser, loadEnemy, generateEnemies
+from fileSystem import getUserList, loadUser, saveUser, loadEnemy, generateEnemies, loadArea
 
 """
 The Game class is used to store data on the game the user is currently playing,
@@ -16,8 +16,12 @@ class Game:
         self.exit = False
 
     def test(self):
-        generateEnemies()
-        loadEnemy("Stone Soldier").displayData()
+        badGuy = loadEnemy("Rar me bad guy")
+        player = loadUser("temp")
+        area = loadArea("Test Area")
+        badGuy.displayData()
+        player.displayData()
+        area.displayData()
 
     """
     Begins the program

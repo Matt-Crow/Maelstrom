@@ -1,5 +1,6 @@
 from character import AbstractCharacter, EnemyCharacter
 from teams import AbstractTeam
+from area import Area
 import os.path
 from os import walk
 
@@ -9,19 +10,58 @@ This file will handle all the file system interfacing
 USER_DIR = os.path.abspath("users") # relative to root
 DATA_DIR = os.path.abspath("data")
 ENEMY_DIR = os.path.join(DATA_DIR, "enemies")
+AREA_DIR = os.path.join(DATA_DIR, "areas")
+
+"""
+Formats an AbstractJsonSerialable's name (or any string for that matter)
+into an appropriate file name
+"""
+def formatFileName(serializableName: str)->str:
+    return serializableName.replace(" ", "_") + ".json"
+"""
+Undoes the formatting from formatFileName
+"""
+def unFormatFileName(fileName: str)->str:
+    return fileName.replace(".json", "").replace("_", " ")
+
+
+
+"""
+Returns a list of all filenames of JSON files
+in the given dir, with the unFormatFileName applied
+to each of them.
+"""
+def getJsonFileList(dirPath: str)->"list<str>":
+    ret = []
+    ext = []
+    for (dirPath, dirNames, fileNames) in walk(dirPath):
+        for fileName in fileNames:
+            ext = os.path.splitext(fileName)
+            if len(ext) >= 2 and ext[1] == ".json":
+                ret.append(unFormatFileName(fileName))
+    return ret
 
 def getUserList()->"list<str>":
-    ret = []
-    for (dirPath, dirNames, fileNames) in walk(USER_DIR):
-        ret.extend([fileName.replace(".json", "").replace("_", " ") for fileName in fileNames])
-    return ret
+    return getJsonFileList(USER_DIR)
 def getEnemyList()->"list<str>":
-    ret = []
-    for (dirPath, dirNames, fileNames) in walk(ENEMY_DIR):
-        ret.extend([fileName.replace(".json", "").replace("_", " ") for fileName in fileNames])
+    return getJsonFileList(ENEMY_DIR)
+def getAreaList()->"list<str>":
+    return getJsonFileList(AREA_DIR)
+
+
+
+def loadSerializable(serializableName: str, fromDir: str, cls: "class")->"AbstractJsonSerialable":
+    ret = None
+    filePath = os.path.join(fromDir, formatFileName(serializableName))
+    if os.path.isfile(filePath):
+        ret = cls.deserializeJson(cls.readFile(filePath))
+    else:
+        raise FileNotFoundError(filePath)
     return ret
 
 def loadUser(userName: str)->"PlayerTeam":
+    return loadSerializable(userName, USER_DIR, AbstractTeam)
+    """
     filePath = os.path.join(USER_DIR, userName.replace(" ", "_")) + ".json"
     ret = None
     if os.path.isfile(filePath):
@@ -29,8 +69,11 @@ def loadUser(userName: str)->"PlayerTeam":
     else:
         raise FileNotFoundError(filePath)
     return ret
+    """
 
 def loadEnemy(enemyName: str)->"EnemyCharacter":
+    return loadSerializable(enemyName, ENEMY_DIR, AbstractCharacter)
+    """
     filePath = os.path.join(ENEMY_DIR, enemyName.replace(" ", "_")) + ".json"
     ret = None
     if os.path.isfile(filePath):
@@ -38,12 +81,27 @@ def loadEnemy(enemyName: str)->"EnemyCharacter":
     else:
         raise FileNotFoundError(filePath)
     return ret
+    """
+
+# untested
+def loadArea(areaName: str)->"Area":
+    return loadSerializable(areaName, AREA_DIR, Area)
+
+
+
+def saveSerializable(serializable: "AbstractJsonSerialable", toDir: str):
+    serializable.writeToFile(os.path.join(toDir, formatFileName(serializable.name)))
 
 def saveUser(user: "PlayerTeam"):
-    user.writeToFile(os.path.join(USER_DIR, user.name.replace(" ", "_")) + ".json")
+    saveSerializable(user, USER_DIR)
+    #user.writeToFile(os.path.join(USER_DIR, user.name.replace(" ", "_")) + ".json")
 
 def saveEnemy(enemy: "EnemyCharacter"):
-    enemy.writeToFile(os.path.join(ENEMY_DIR, enemy.name.replace(" ", "_")) + ".json")
+    saveSerializable(enemy, ENEMY_DIR)
+    #enemy.writeToFile(os.path.join(ENEMY_DIR, enemy.name.replace(" ", "_")) + ".json")
+
+def saveArea(area: "Area"):
+    saveSerializable(area, AREA_DIR)
 
 """
 Generates the default data for enemies,

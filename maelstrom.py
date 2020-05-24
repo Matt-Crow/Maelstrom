@@ -51,5 +51,5 @@ add_subdir("characters")
 from game import Game
 
 if __name__ == "__main__":
-    #Game().test()
-    Game().run()
+    Game().test()
+    #Game().run()
