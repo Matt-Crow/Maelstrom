@@ -1,9 +1,6 @@
-from utilities import *
-from battle import Battle
-from output import Op
 from serialize import AbstractJsonSerialable
+# more imports at the bottom to manage circular dependencies
 
-AREA_DIRECTORY = 'data/areas'
 class Area(AbstractJsonSerialable):
     """
     An Area is a collection of story elements and battles.
@@ -37,9 +34,9 @@ class Area(AbstractJsonSerialable):
 
     @classmethod
     def deserializeJson(cls, jdict: dict)->"Area":
-        dict["locations"] = [Location.deserializeJson(j) for j in jdict["locations"]]
-        dict["levels"] = [Battle.deserializeJson(j) for j in jdict["levels"]]
-        return Area(**dict)
+        jdict["locations"] = [Location.deserializeJson(j) for j in jdict["locations"]]
+        jdict["levels"] = [Battle.deserializeJson(j) for j in jdict["levels"]]
+        return Area(**jdict)
 
     def getDisplayData(self):
         ret = []
@@ -54,7 +51,9 @@ class Area(AbstractJsonSerialable):
             for line in level.getDisplayData():
                 ret.append("\t" + line)
         return ret
-
+    def displayData(self)->"list<str>":
+        Op.add(self.getDisplayData())
+        Op.display()
 
     def __str__(self):
         return self.name
@@ -142,3 +141,7 @@ class Location(AbstractJsonSerialable):
         for line in self.script:
             Op.add(line)
             Op.display()
+
+from utilities import *
+from battle import Battle
+from output import Op

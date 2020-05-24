@@ -61,29 +61,8 @@ def loadSerializable(serializableName: str, fromDir: str, cls: "class")->"Abstra
 
 def loadUser(userName: str)->"PlayerTeam":
     return loadSerializable(userName, USER_DIR, AbstractTeam)
-    """
-    filePath = os.path.join(USER_DIR, userName.replace(" ", "_")) + ".json"
-    ret = None
-    if os.path.isfile(filePath):
-        ret = AbstractTeam.deserializeJson(AbstractTeam.readFile(filePath))
-    else:
-        raise FileNotFoundError(filePath)
-    return ret
-    """
-
 def loadEnemy(enemyName: str)->"EnemyCharacter":
     return loadSerializable(enemyName, ENEMY_DIR, AbstractCharacter)
-    """
-    filePath = os.path.join(ENEMY_DIR, enemyName.replace(" ", "_")) + ".json"
-    ret = None
-    if os.path.isfile(filePath):
-        ret = AbstractCharacter.deserializeJson(AbstractCharacter.readFile(filePath))
-    else:
-        raise FileNotFoundError(filePath)
-    return ret
-    """
-
-# untested
 def loadArea(areaName: str)->"Area":
     return loadSerializable(areaName, AREA_DIR, Area)
 
@@ -91,15 +70,10 @@ def loadArea(areaName: str)->"Area":
 
 def saveSerializable(serializable: "AbstractJsonSerialable", toDir: str):
     serializable.writeToFile(os.path.join(toDir, formatFileName(serializable.name)))
-
 def saveUser(user: "PlayerTeam"):
     saveSerializable(user, USER_DIR)
-    #user.writeToFile(os.path.join(USER_DIR, user.name.replace(" ", "_")) + ".json")
-
 def saveEnemy(enemy: "EnemyCharacter"):
     saveSerializable(enemy, ENEMY_DIR)
-    #enemy.writeToFile(os.path.join(ENEMY_DIR, enemy.name.replace(" ", "_")) + ".json")
-
 def saveArea(area: "Area"):
     saveSerializable(area, AREA_DIR)
 

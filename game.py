@@ -4,7 +4,7 @@ from character import AbstractCharacter, EnemyCharacter
 from utilities import choose, ELEMENTS
 from area import Area
 import json
-from fileSystem import getUserList, loadUser, saveUser, loadEnemy, generateEnemies, loadArea
+from fileSystem import getUserList, loadUser, saveUser
 
 """
 The Game class is used to store data on the game the user is currently playing,
@@ -16,12 +16,7 @@ class Game:
         self.exit = False
 
     def test(self):
-        badGuy = loadEnemy("Rar me bad guy")
-        player = loadUser("temp")
-        area = loadArea("Test Area")
-        badGuy.displayData()
-        player.displayData()
-        area.displayData()
+        pass
 
     """
     Begins the program
