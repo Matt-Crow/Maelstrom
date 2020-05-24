@@ -13,22 +13,37 @@ so this way, there don't have to be any globals.
 class Game:
     def __init__(self):
         self.player = None
+        self.currentArea = None
         self.exit = False
 
     def test(self):
         EnemyCharacter.generateEnemies()
 
+    def chooseAction(self):
+        options = ["explore", "view character info", "customize character", "exit"]
+        choice = choose("What do you wish to do?", options)
+        if choice == "explore":
+            self.currentArea.chooseAction(self.player)
+        elif choice == "view character info":
+            pass
+        elif choice == "customize character":
+            self.player.manage()
+        elif choice == "exit":
+            self.exit = True
+        else:
+            raise Exception("Unsupported choice in game.py Game.chooseAction: '{0}''".format(choice))
+
     """
     Begins the program
     """
     def run(self):
+        self.currentArea = Area.createDefaultArea()
         while not self.exit:
             if self.player == None:
                 self.mainMenu()
             else:
-                Area.createDefaultArea().chooseAction(self.player)
-                self.exit = True #since Area will run until the user chooses to quit.
-                self.player.save()
+                self.chooseAction()
+        self.player.save()
 
     """
     Displayes the main menu
