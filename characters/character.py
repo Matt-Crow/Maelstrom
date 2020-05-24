@@ -395,7 +395,7 @@ class PlayerCharacter(AbstractCharacter):
             self.displayItems()
 
     def manage(self):
-        options = ["Quit"]
+        options = ["Quit", self]
 
         if len(self.team.inventory) > 0:
             options.append("Equipped items")
