@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 import json
-import os
 from stat_classes import Stat
 
 class AbstractJsonSerialable(ABC): # allows this to use the "abstractmethod" annotation

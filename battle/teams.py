@@ -3,6 +3,7 @@ from output import Op
 from character import PlayerCharacter, EnemyCharacter, AbstractCharacter
 from item import Item
 from serialize import AbstractJsonSerialable
+from fileSystem import USER_DIR, saveSerializable, loadSerializable
 import os
 import random
 
@@ -155,6 +156,13 @@ class PlayerTeam(AbstractTeam):
         super(PlayerTeam, self).__init__(**dict(kwargs, type="PlayerTeam", members=[kwargs["member"]]))
         self.inventory = kwargs.get("inventory", [])
         self.addSerializedAttribute("inventory")
+
+    @classmethod
+    def loadUser(cls, userName: str)->"PlayerTeam":
+        return loadSerializable(userName, USER_DIR, AbstractTeam)
+        
+    def save(self):
+        saveSerializable(self, USER_DIR)
 
     """
     Choices are made using these functions

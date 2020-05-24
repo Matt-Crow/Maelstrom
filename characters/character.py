@@ -6,6 +6,7 @@ from item import Item
 from events import *
 from customizable import AbstractCustomizable
 from output import Op
+from fileSystem import saveSerializable, loadSerializable, ENEMY_DIR
 
 """
 Characters
@@ -423,6 +424,80 @@ class PlayerCharacter(AbstractCharacter):
 class EnemyCharacter(AbstractCharacter):
     def __init__(self, **kwargs):
         super(self.__class__, self).__init__(**dict(kwargs, type="EnemyCharacter"))
+
+    """
+    Creates all the default
+    enemies in the enemy directory
+    """
+    @classmethod
+    def generateEnemies(cls):
+        lightning = EnemyCharacter(
+            name="Lightning Entity",
+            element="lightning",
+            stats={
+                "energy" : 10,
+                "resistance" : -10
+            }
+        )
+        #lightning.displayData()
+        lightning.save()
+
+        rain = EnemyCharacter(
+            name="Rain Entity",
+            element="rain",
+            stats={
+                "potency" : 10,
+                "control" : -10
+            }
+        )
+        #rain.displayData()
+        rain.save()
+
+        hail = EnemyCharacter(
+            name="Hail Entity",
+            element = "hail",
+            stats={
+                "resistance" : 10,
+                "luck" : -10
+            }
+        )
+        #hail.displayData()
+        hail.save()
+
+        wind = EnemyCharacter(
+            name="Wind Entity",
+            element = "wind",
+            stats={
+                "luck" : 10,
+                "potency" : -10
+            }
+        )
+        #wind.displayData()
+        wind.save()
+
+        stone = EnemyCharacter(
+            name="Stone Soldier",
+            element="stone",
+            stats={
+                "control":5,
+                "resistance":10,
+                "luck":-5,
+                "energy":-5,
+                "potency":-5
+            }
+        )
+        #stone.displayData()
+        stone.save()
+
+    """
+    saves this enemy to the enemy directory
+    """
+    def save(self):
+        saveSerializable(self, ENEMY_DIR)
+
+    @classmethod
+    def loadEnemy(cls, enemyName: str)->"EnemyCharacter":
+        return loadSerializable(enemyName, ENEMY_DIR, AbstractCharacter)
 
     """
     AI stuff

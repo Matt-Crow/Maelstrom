@@ -1,6 +1,3 @@
-from character import AbstractCharacter, EnemyCharacter
-from teams import AbstractTeam
-from area import Area
 import os.path
 from os import walk
 
@@ -48,8 +45,7 @@ def getEnemyList()->"list<str>":
 def getAreaList()->"list<str>":
     return getJsonFileList(AREA_DIR)
 
-
-
+# this should be implemented into each AbstractJsonSerialable
 def loadSerializable(serializableName: str, fromDir: str, cls: "class")->"AbstractJsonSerialable":
     ret = None
     filePath = os.path.join(fromDir, formatFileName(serializableName))
@@ -59,83 +55,5 @@ def loadSerializable(serializableName: str, fromDir: str, cls: "class")->"Abstra
         raise FileNotFoundError(filePath)
     return ret
 
-def loadUser(userName: str)->"PlayerTeam":
-    return loadSerializable(userName, USER_DIR, AbstractTeam)
-def loadEnemy(enemyName: str)->"EnemyCharacter":
-    return loadSerializable(enemyName, ENEMY_DIR, AbstractCharacter)
-def loadArea(areaName: str)->"Area":
-    return loadSerializable(areaName, AREA_DIR, Area)
-
-
-
 def saveSerializable(serializable: "AbstractJsonSerialable", toDir: str):
     serializable.writeToFile(os.path.join(toDir, formatFileName(serializable.name)))
-def saveUser(user: "PlayerTeam"):
-    saveSerializable(user, USER_DIR)
-def saveEnemy(enemy: "EnemyCharacter"):
-    saveSerializable(enemy, ENEMY_DIR)
-def saveArea(area: "Area"):
-    saveSerializable(area, AREA_DIR)
-
-"""
-Generates the default data for enemies,
-and outputs it to the enemy directory.
-"""
-def generateEnemies():
-    lightning = EnemyCharacter(
-        name="Lightning Entity",
-        element="lightning",
-        stats={
-            "energy" : 10,
-            "resistance" : -10
-        }
-    )
-    #lightning.displayData()
-    saveEnemy(lightning)
-
-    rain = EnemyCharacter(
-        name="Rain Entity",
-        element="rain",
-        stats={
-            "potency" : 10,
-            "control" : -10
-        }
-    )
-    #rain.displayData()
-    saveEnemy(rain)
-
-    hail = EnemyCharacter(
-        name="Hail Entity",
-        element = "hail",
-        stats={
-            "resistance" : 10,
-            "luck" : -10
-        }
-    )
-    #hail.displayData()
-    saveEnemy(hail)
-
-    wind = EnemyCharacter(
-        name="Wind Entity",
-        element = "wind",
-        stats={
-            "luck" : 10,
-            "potency" : -10
-        }
-    )
-    #wind.displayData()
-    saveEnemy(wind)
-
-    stone = EnemyCharacter(
-        name="Stone Soldier",
-        element="stone",
-        stats={
-            "control":5,
-            "resistance":10,
-            "luck":-5,
-            "energy":-5,
-            "potency":-5
-        }
-    )
-    #stone.displayData()
-    saveEnemy(stone)

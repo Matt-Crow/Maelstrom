@@ -1,5 +1,9 @@
 from serialize import AbstractJsonSerialable
-# more imports at the bottom to manage circular dependencies
+from fileSystem import AREA_DIR, loadSerializable, saveSerializable
+from utilities import *
+from battle import Battle
+from output import Op
+
 
 class Area(AbstractJsonSerialable):
     """
@@ -37,6 +41,13 @@ class Area(AbstractJsonSerialable):
         jdict["locations"] = [Location.deserializeJson(j) for j in jdict["locations"]]
         jdict["levels"] = [Battle.deserializeJson(j) for j in jdict["levels"]]
         return Area(**jdict)
+
+    @classmethod
+    def loadArea(cls, areaName: str)->"Area":
+        return loadSerializable(areaName, AREA_DIR, Area)
+
+    def save(self):
+        saveSerializable(self, AREA_DIR)
 
     def getDisplayData(self):
         ret = []
@@ -141,7 +152,3 @@ class Location(AbstractJsonSerialable):
         for line in self.script:
             Op.add(line)
             Op.display()
-
-from utilities import *
-from battle import Battle
-from output import Op

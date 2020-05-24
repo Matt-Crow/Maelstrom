@@ -4,7 +4,7 @@ from character import AbstractCharacter, EnemyCharacter
 from utilities import choose, ELEMENTS
 from area import Area
 import json
-from fileSystem import getUserList, loadUser, saveUser
+from fileSystem import getUserList
 
 """
 The Game class is used to store data on the game the user is currently playing,
@@ -16,7 +16,7 @@ class Game:
         self.exit = False
 
     def test(self):
-        pass
+        EnemyCharacter.generateEnemies()
 
     """
     Begins the program
@@ -28,7 +28,7 @@ class Game:
             else:
                 Area.createDefaultArea().chooseAction(self.player)
                 self.exit = True #since Area will run until the user chooses to quit.
-                saveUser(self.player)
+                self.player.save()
 
     """
     Displayes the main menu
@@ -71,7 +71,7 @@ class Game:
     Play a game as the given user
     """
     def loginUser(self, userName):
-        self.player = loadUser(userName)
+        self.player = PlayerTeam.loadUser(userName)
         self.player.initForBattle()
         self.player.displayData()
 
@@ -106,6 +106,6 @@ class Game:
                 name=userName,
                 member=character
             )
-            saveUser(team)
+            team.save()
 
         return ret
