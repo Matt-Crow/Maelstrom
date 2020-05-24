@@ -79,26 +79,15 @@ class Area(AbstractJsonSerialable):
             options.append("Location")
         if len(self.levels) > 0:
             options.append("Level")
-        options.append("Manage")
         options.append("Quit")
 
         choice = choose("What do you wish to do?", options)
         if choice == "Level":
             lvChoice = choose("Which level do you want to play?", self.levels)
             lvChoice.play(player)
-        elif choice == "Manage":
-            player.manage()
         elif choice == "Location":
             travelChoice = choose("Where do you want to go?", self.locations)
             travelChoice.travelTo()
-
-        # will want to move this somewhere else.
-        if choice != "Quit":
-            self.chooseAction(player)
-
-
-
-
 
 """
 Locations are used to store text descriptions of an area,

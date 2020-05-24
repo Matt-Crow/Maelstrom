@@ -199,13 +199,16 @@ class AbstractCharacter(AbstractCustomizable):
             ret.append("\t" + stat + ": " + str(int(self.getStatValue(stat))))
         ret.append("ACTIVES:")
         for active in self.actives:
-            ret.append("\t" + active.name)
+            for line in active.getDisplayData():
+                ret.append("\t{0}".format(line))
         ret.append("PASSIVES:")
         for passive in self.passives:
-            ret.append("\t" + passive.name)
+            for line in passive.getDisplayData():
+                ret.append("\t{0}".format(line))
         ret.append("ITEMS:")
         for item in self.equippedItems:
-            ret.append("\t" + item.name)
+            for line in item.getDisplayData():
+                ret.append("\t{0}".format(line))
         ret.append(str(self.xp) + "/" + str(self.level * 10))
 
         return ret

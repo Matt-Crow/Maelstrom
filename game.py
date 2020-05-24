@@ -25,7 +25,7 @@ class Game:
         if choice == "explore":
             self.currentArea.chooseAction(self.player)
         elif choice == "view character info":
-            pass
+            self.player.displayData()
         elif choice == "customize character":
             self.player.manage()
         elif choice == "exit":
@@ -55,7 +55,7 @@ class Game:
         if action == "Play":
             self.loginMenu()
         elif action == "About":
-            pass # do nothing yet
+            pass
         else:
             self.exit = True
 
