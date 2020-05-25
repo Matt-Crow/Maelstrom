@@ -3,7 +3,7 @@ from stat_classes import Stat
 from actives import AbstractActive
 from passives import AbstractPassive
 from item import Item
-from events import *
+from events import OnHitEvent, ActionRegister, HIT_GIVEN_EVENT, HIT_TAKEN_EVENT, UPDATE_EVENT
 from customizable import AbstractCustomizable
 from output import Op
 from fileSystem import saveSerializable, loadSerializable, ENEMY_DIR
@@ -56,6 +56,8 @@ class AbstractCharacter(AbstractCustomizable):
             self.addStat(Stat(stat, lambda base: 20.0 + float(base), kwargs.get("stats", {}).get(stat, 0)))
         self.calcStats()
         self.remHp = self.maxHp
+
+        self.actionRegister = ActionRegister()
 
         self.addSerializedAttributes(
             "element",
@@ -121,7 +123,7 @@ class AbstractCharacter(AbstractCustomizable):
 
     # HP defined here
     def initForBattle(self):
-        self.resetActionRegisters()
+        self.actionRegister.clear()
         self.calcStats()
 
         for active in self.actives:
@@ -139,51 +141,10 @@ class AbstractCharacter(AbstractCustomizable):
         self.remHp = self.maxHp
         self.energy = int(self.getStatValue("energy") / 2.0)
 
-    # Redo all of this sometime
-    """
-    Action registers are used to
-    hold functions which should be
-    invoked whenever a specific
-    condition is met, such as being
-    hit. They should each take an
-    extendtion of AbstractEvent as
-    a paramter
-    """
-    def resetActionRegisters(self):
-        self.on_hit_given_actions = []
-        self.on_hit_taken_actions = []
-        self.on_update_actions = []
-    def add_on_hit_given_action(self, action, duration = -1):
-        """
-        duration is how long to check for the condition
-        """
-        self.on_hit_given_actions.append({"function":action, "duration":duration})
-    def add_on_hit_taken_action(self, action, duration = -1):
-        """
-        duration of -1 means it lasts forever in battle
-        """
-        self.on_hit_taken_actions.append({"function":action, "duration":duration})
-    def add_on_update_action(self, action, duration = -1):
-        """
-        """
-        self.on_update_actions.append({"function":action, "duration":duration})
-    def update_action_registers(self):
-        """
-        Standard decrement, check, reasign
-        pattern I use all the time
-        """
-        def update(register):
-            new = []
-            for action in register:
-                action["duration"] -= 1
-                # don't check if negative,
-                # that way I can make stuff last forever
-                if action["duration"] != 0:
-                    new.append(action)
-        update(self.on_hit_given_actions)
-        update(self.on_hit_taken_actions)
-        update(self.on_update_actions)
-
+    def addActionListener(self, enumType, action):
+        self.actionRegister.addActionListener(enumType, action)
+    def fireActionListeners(self, enumType, event=None):
+        self.actionRegister.fire(enumType, event)
 
     """
     Returns as a value between 0 and 100
@@ -268,12 +229,8 @@ class AbstractCharacter(AbstractCustomizable):
         if self.energy < 0:
             self.energy = 0
 
-    # stat.displayData in here
     def update(self):
-        self.update_action_registers()
-        for action in self.on_update_actions:
-            action["function"]()
-
+        self.fireActionListeners(UPDATE_EVENT, self)
         self.gainEnergy(self.getStatValue("energy") * 0.15)
         for stat in self.stats.values():
             stat.update()
@@ -304,12 +261,8 @@ class AbstractCharacter(AbstractCustomizable):
         event = OnHitEvent("Attack", attacker, self, activeUsed, dmg)
         event.displayData()
 
-        for passive in self.on_hit_taken_actions:
-            passive["function"](event)
-
-        for passive in attacker.on_hit_given_actions:
-            passive["function"](event)
-
+        self.fireActionListeners(HIT_TAKEN_EVENT, event)
+        attacker.fireActionListeners(HIT_GIVEN_EVENT, event)
         self.takeDmg(dmg)
 
     def isKoed(self):

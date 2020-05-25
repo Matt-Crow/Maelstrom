@@ -2,7 +2,7 @@ from utilities import *
 from stat_classes import Stat, Boost
 
 from customizable import AbstractCustomizable
-
+from events import HIT_GIVEN_EVENT, HIT_TAKEN_EVENT, UPDATE_EVENT
 from output import Op
 
 
@@ -99,13 +99,13 @@ class Threshhold(AbstractPassive):
         self.addStat(Stat("threshhold", lambda base : 0.25 + base * 0.025, kwargs.get("stats", {}).get("threshhold", 0)))
 
     def initForBattle(self):
-        self.user.add_on_update_action(self.checkTrigger)
+        self.user.addActionListener(UPDATE_EVENT, self.checkTrigger)
 
-    def checkTrigger(self):
+    def checkTrigger(self, updated):
         Dp.add("Checking trigger for " + self.name)
         Dp.add(str(self.getStatValue("threshhold") * 100) + "% threshhold")
-        Dp.add(str(self.user.getHpPerc()) + "% user health")
-        if self.user.getHpPerc() <= self.getStatValue("threshhold"):
+        Dp.add(str(updated.getHpPerc()) + "% user health")
+        if updated.getHpPerc() <= self.getStatValue("threshhold"):
             Dp.add("activated")
             self.applyBoost()
         Dp.dp()
@@ -135,7 +135,7 @@ class OnHitGiven(AbstractPassive):
         self.addStat(Stat("chance", lambda base : 25 + int(base * 2.5), kwargs.get("stats", {}).get("chance", 0)))
 
     def initForBattle(self):
-        self.user.add_on_hit_given_action(self.checkTrigger)
+        self.user.addActionListener(HIT_GIVEN_EVENT, self.checkTrigger)
 
     def checkTrigger(self, onHitEvent):
         rand = roll_perc(self.user.getStatValue("luck"))
@@ -172,7 +172,7 @@ class OnHitTaken(AbstractPassive):
         self.addStat(Stat("chance", lambda base : 25 + int(base * 2.5), kwargs.get("stats", {}).get("chance", 0)))
 
     def initForBattle(self):
-        self.user.add_on_hit_taken_action(self.checkTrigger)
+        self.user.addActionListener(HIT_TAKEN_EVENT, self.checkTrigger)
 
     def checkTrigger(self, onHitEvent):
         rand = roll_perc(self.user.getStatValue("luck"))
