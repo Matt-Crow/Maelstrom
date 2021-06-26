@@ -1,10 +1,12 @@
-from output import Op
+from util.output import Op
 from teams import PlayerTeam, AbstractTeam
 from character import AbstractCharacter, EnemyCharacter
 from utilities import choose, ELEMENTS
 from area import Area
 import json
 from fileSystem import getUserList
+
+from output.screens.screens import Screen
 
 """
 The Game class is used to store data on the game the user is currently playing,
@@ -17,7 +19,8 @@ class Game:
         self.exit = False
 
     def test(self):
-        EnemyCharacter.generateEnemies()
+        Screen().display()
+        #EnemyCharacter.generateEnemies()
 
     def chooseAction(self):
         options = ["explore", "view character info", "customize character", "exit"]

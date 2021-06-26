@@ -1,4 +1,4 @@
-from output import Op
+from util.output import Op
 from serialize import AbstractJsonSerialable
 from stat_classes import Stat
 from utilities import choose

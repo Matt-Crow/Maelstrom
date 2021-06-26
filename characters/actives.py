@@ -2,7 +2,7 @@ from stat_classes import Stat, Boost
 import pprint
 from utilities import ELEMENTS, roll_perc, Dp
 from customizable import AbstractCustomizable
-from output import Op
+from util.output import Op
 
 def getDmgPerc(lv):
     """

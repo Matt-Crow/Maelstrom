@@ -2,7 +2,7 @@ from serialize import AbstractJsonSerialable
 from fileSystem import AREA_DIR, loadSerializable, saveSerializable
 from utilities import *
 from battle import Battle
-from output import Op
+from util.output import Op
 
 
 class Area(AbstractJsonSerialable):

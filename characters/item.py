@@ -1,6 +1,6 @@
 from utilities import STATS, ELEMENTS
 from stat_classes import *
-from output import Op
+from util.output import Op
 from customizable import AbstractCustomizable
 import random
 

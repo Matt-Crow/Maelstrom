@@ -5,7 +5,7 @@ from passives import AbstractPassive
 from item import Item
 from events import OnHitEvent, ActionRegister, HIT_GIVEN_EVENT, HIT_TAKEN_EVENT, UPDATE_EVENT
 from customizable import AbstractCustomizable
-from output import Op
+from util.output import Op
 from fileSystem import saveSerializable, loadSerializable, ENEMY_DIR
 
 """

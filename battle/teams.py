@@ -1,5 +1,5 @@
 from utilities import Dp, choose, to_list
-from output import Op
+from util.output import Op
 from character import PlayerCharacter, EnemyCharacter, AbstractCharacter
 from item import Item
 from serialize import AbstractJsonSerialable

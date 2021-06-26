@@ -2,7 +2,7 @@ from utilities import *
 from item import Item
 from weather import WEATHERS, NO_WEATHER, Weather
 from teams import EnemyTeam
-from output import Op
+from util.output import Op
 from character import EnemyCharacter
 from fileSystem import getEnemyList
 from serialize import AbstractJsonSerialable
