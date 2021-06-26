@@ -20,8 +20,11 @@ class Game:
 
     def test(self):
         screen = Screen()
+        screen.add(77, 0, "Yum")
+        screen.add(79, 10, "Vertical")
         screen.add(40, 20, "Hello world!")
-        screen.add(70, 30, "This line will be cut off")
+        screen.add(60, 25, "This line will be cut off")
+        screen.add(70, 30, "This has a bunch of \n new \n lines")
         screen.display()
         #EnemyCharacter.generateEnemies()
 

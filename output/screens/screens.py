@@ -24,34 +24,28 @@ class Screen:
 
     def add(self, x, y, msg):
         msg = str(msg)
+        maxChars = SCREEN_COLS - x
+        if maxChars < 0:
+            raise RuntimeError("x is too large")
 
-        lines = msg.split("\n")
-
-        for line in lines:
-            endOfWord = line.find(' ', SCREEN_COLS - x - 1)
-            if endOfWord == -1:
-                endOfWord = len(line)
-            while endOfWord != -1: # too wide to fit on one row
-                # write across multiple rows
-                self.addLine(x, y, line[:endOfWord])
-                y = y + 1
-                line = line[endOfWord + 1:]
-                endOfWord = line.find(' ', SCREEN_COLS - x - 1)
-            # by now, the line is narrow enough to fit
-            if len(line) != 0:
-                self.addLine(x, y, line)
-                y = y + 1
-
-    def addLine(self, x, y, msg):
-        print(msg)
-        msg = str(msg)
-        length = len(msg)
-        numChars = length if length + x - 1 < SCREEN_COLS else SCREEN_COLS - x - 1
-        for i in range(numChars):
-            if msg[i] == '\n':
-                y = y + 1
+        newline = msg.find('\n', 0, maxChars)
+        if newline != -1:
+            self.add(x, y + 1, msg[newline + 1:]) # recur with everything after \n
+            msg = msg[:newline]
+        # by now, msg either fits or did not have a newline
+        if len(msg) > maxChars: # doesn't fit on one line
+            endOfWord = msg.rfind(' ', 0, maxChars + 1) # end of last word that fits on screen
+            if endOfWord == -1: # no words fit on screen
+                self.add(x, y + 1, msg[maxChars:]) # recur with everything that won't fit
+                msg = msg[:maxChars]
             else:
-                self.content[y][x + i] = msg[i]
+                self.add(x, y + 1, msg[endOfWord + 1:]) # recur after to that last space
+                msg = msg[:endOfWord]
+
+        # Base case: msg fits and has no newlines
+        length = len(msg)
+        for i in range(length):
+            self.content[y][x + i] = msg[i]
 
     def display(self):
         for row in self.content:
