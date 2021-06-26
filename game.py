@@ -19,7 +19,10 @@ class Game:
         self.exit = False
 
     def test(self):
-        Screen().display()
+        screen = Screen()
+        screen.add(40, 20, "Hello world!")
+        screen.add(70, 30, "This line will be cut off")
+        screen.display()
         #EnemyCharacter.generateEnemies()
 
     def chooseAction(self):
