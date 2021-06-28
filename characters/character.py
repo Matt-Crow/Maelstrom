@@ -1,6 +1,6 @@
 from utilities import choose, ELEMENTS, STATS, Dp
 from stat_classes import Stat
-from actives import AbstractActive
+from characters.actives.actives import AbstractActive
 from passives import AbstractPassive
 from item import Item
 from events import OnHitEvent, ActionRegister, HIT_GIVEN_EVENT, HIT_TAKEN_EVENT, UPDATE_EVENT

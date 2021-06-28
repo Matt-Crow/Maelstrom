@@ -3,14 +3,17 @@ import pprint
 from utilities import ELEMENTS, roll_perc, Dp
 from customizable import AbstractCustomizable
 from util.output import Op
+from characters.actives.activeStats import ActiveStatFactory
 
+"""
+This module handles active abilities that characters can use
+"""
+
+"""
+Calculates the average amount of damage an attack should do to a target at a
+given level
+"""
 def getDmgPerc(lv):
-    """
-    Calculates how much
-    damage an attack should
-    do to a target at a given
-    level
-    """
     return 16.67 * (1 + lv * 0.05)
 
 """
@@ -33,9 +36,11 @@ class AbstractActive(AbstractCustomizable):
     """
     def __init__(self, **kwargs):
         super(AbstractActive, self).__init__(**dict(kwargs, type=kwargs.get("type", "AbstractActive")))
+        statFact = ActiveStatFactory()
         #                                                                     get stat dict, if it has one, else an empty dict
-        self.addStat(Stat("damage multiplier", lambda base: 1.0 + base * 0.05, kwargs.get("stats", {}).get("damage multiplier", 0)))
+        #self.addStat(Stat("damage multiplier", lambda base: 1.0 + base * 0.05, kwargs.get("stats", {}).get("damage multiplier", 0)))
         #                                                                                                 no damage multiplier? Just do 0
+        self.addStat(statFact.makeDamageMultiplier(kwargs.get("stats", {}).get("damage multiplier", 0)))
         self.addStat(Stat("cleave", lambda base: 0.25 + base * 0.05, kwargs.get("stats", {}).get("cleave", 0)))
         self.addStat(Stat("miss chance", lambda base: 10 - base, kwargs.get("stats", {}).get("miss chance", 0)))
         self.addStat(Stat("crit chance", lambda base: 10 + base, kwargs.get("stats", {}).get("crit chance", 0)))
@@ -76,7 +81,7 @@ class AbstractActive(AbstractCustomizable):
     def getDisplayData(self):
         self.initForBattle()
         ret = [self.type + " " + self.name]
-        ret.append("\tdamage: " + str(int(self.damage)))
+        ret.append(f'\tdamage: {str(int(self.damage))} ({self.stats["damage multiplier"].toString()})')
         ret.append("\tCritical hit chance: " + str(self.getStatValue("crit chance")) + "%")
         ret.append("\tMiss chance: " + str(self.getStatValue("miss chance")) + "%")
         ret.append("\tCritical hit multiplier: " + str(int(self.getStatValue("crit mult") * 100)) + "%")

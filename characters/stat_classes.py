@@ -11,7 +11,7 @@ class Stat(object):
     making it easier to keep
     track of values
     """
-    def __init__(self, name, formula, base: int, min_base = -10, max_base = 10):
+    def __init__(self, name, formula, base: int, min_base = -10, max_base = 10, description = lambda base: f'base {base}'):
         """
         Creates a new stat.
         Forumula is a function that takes an integer as a parameter,
@@ -31,6 +31,7 @@ class Stat(object):
         self.boosts = []
         self.max_base = max_base
         self.min_base = min_base
+        self.description = description
 
         self.set_base(base)
         self.value = None
@@ -102,6 +103,9 @@ class Stat(object):
                 new_boosts.append(boost)
                 boost.duration -= 1
         self.boosts = new_boosts
+
+    def toString(self):
+        return self.description(self.base)
 
     def displayData(self):
         Dp.add(self.name);
