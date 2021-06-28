@@ -6,7 +6,7 @@ from area import Area
 import json
 from fileSystem import getUserList
 
-from output.screens.screens import Screen, AreaScreen
+from output.screens.screens import Screen, AreaScreen, GameScreen
 
 """
 The Game class is used to store data on the game the user is currently playing,
@@ -27,6 +27,7 @@ class Game:
         screen.add(70, 30, "This has a bunch of \n new \n lines")
         screen.display()
         AreaScreen(Area.createDefaultArea()).display()
+        GameScreen().display()
         #EnemyCharacter.generateEnemies()
 
     def chooseAction(self):
@@ -53,7 +54,8 @@ class Game:
                 self.mainMenu()
             else:
                 self.chooseAction()
-        self.player.save()
+        if self.player is not None:
+            self.player.save()
 
     """
     Displayes the main menu

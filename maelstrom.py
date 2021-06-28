@@ -41,6 +41,7 @@ May 2020: Working on lots of cleanup and redoing serialization
 Version 0.9
 """
 
+import sys
 #get rid of this in the future
 from util.path import add_subdir
 
@@ -51,5 +52,7 @@ add_subdir("characters")
 from game import Game
 
 if __name__ == "__main__":
-    #Game().test()
-    Game().run()
+    if(len(sys.argv) > 1 and sys.argv[1] == "--test"):
+        Game().test()
+    else:
+        Game().run()

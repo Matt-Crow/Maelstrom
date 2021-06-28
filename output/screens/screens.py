@@ -2,6 +2,8 @@
 This module provides the basic structure of the screens the program displays
 """
 
+from enum import Enum, auto
+
 SCREEN_COLS = 80
 SCREEN_ROWS = 40
 
@@ -84,3 +86,48 @@ class AreaScreen(Screen):
         self.add(4, y, "Levels:")
         for i in range(len(levels)):
             self.add(8, y + i + 1, f'* {levels[i].name}')
+
+BORDER = "#"
+OPTION_ROWS = 5 # allows for 2 columns of 5 options each
+
+class GameScreenMode(Enum):
+    ONE_COL = auto()
+    SPLIT = auto()
+
+class GameScreen(Screen):
+    def __init__(self):
+        super(GameScreen, self).__init__()
+        self.setTitle("Maelstrom")
+        self.nextBodyLine = 0
+        self.nextLeftLine = 0
+        self.nextRightLine = 0
+        self.options = []
+        self.clearOptions()
+        self.mode = GameScreenMode.SPLIT
+
+    def setTitle(self, title: str):
+        self.outlineBox(0, 0, SCREEN_COLS, 3, BORDER, " ")
+        center = int((SCREEN_COLS) / 2) - len(title)
+        self.add(center, 1, title)
+
+    def fillBox(self, x, y, w, h, character):
+        for i in range(h):
+            self.add(x, y + i, character * w)
+
+    def outlineBox(self, x, y, w, h, outlineCharacter, fillCharacter):
+        self.fillBox(x, y, w, h, outlineCharacter)
+        self.fillBox(x + 1, y + 1, w - 2, h - 2, fillCharacter)
+
+    def clearOptions(self):
+        self.options.clear()
+        numRows = OPTION_ROWS + 2 # one above, one below the options
+        #self.add(0, SCREEN_ROWS - numRows, BORDER * SCREEN_COLS * numRows)
+        self.outlineBox(0, SCREEN_ROWS - numRows, SCREEN_COLS, numRows, BORDER, " ")
+
+    def display(self):
+        if self.mode == GameScreenMode.ONE_COL:
+            self.outlineBox(0, 3, SCREEN_COLS, SCREEN_ROWS - 3 - OPTION_ROWS - 2, BORDER, " ")
+        elif self.mode == GameScreenMode.SPLIT:
+            self.outlineBox(0, 3, int(SCREEN_COLS / 2), SCREEN_ROWS - 3 - OPTION_ROWS - 2, BORDER, " ")
+            self.outlineBox(int(SCREEN_COLS / 2), 3, int(SCREEN_COLS / 2), SCREEN_ROWS - 3 - OPTION_ROWS - 2, BORDER, " ")
+        super(GameScreen, self).display()
