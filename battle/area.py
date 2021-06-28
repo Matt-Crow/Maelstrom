@@ -4,7 +4,6 @@ from utilities import *
 from battle import Battle
 from util.output import Op
 
-
 class Area(AbstractJsonSerialable):
     """
     An Area is a collection of story elements and battles.
@@ -62,7 +61,7 @@ class Area(AbstractJsonSerialable):
             for line in level.getDisplayData():
                 ret.append("\t" + line)
         return ret
-    def displayData(self)->"list<str>":
+    def displayData(self):
         Op.add(self.getDisplayData())
         Op.display()
 
