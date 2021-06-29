@@ -3,6 +3,8 @@ This module provides the basic structure of the screens the program displays
 """
 
 from enum import Enum, auto
+import math
+import sys
 
 SCREEN_COLS = 80
 SCREEN_ROWS = 40
@@ -131,3 +133,23 @@ class GameScreen(Screen):
             self.outlineBox(0, 3, int(SCREEN_COLS / 2), SCREEN_ROWS - 3 - OPTION_ROWS - 2, BORDER, " ")
             self.outlineBox(int(SCREEN_COLS / 2), 3, int(SCREEN_COLS / 2), SCREEN_ROWS - 3 - OPTION_ROWS - 2, BORDER, " ")
         super(GameScreen, self).display()
+
+class SimplerGameScreen:
+    def __init__(self):
+        self.title = "Maelstrom"
+
+    def setTitle(self, title: str):
+        self.title = title[:(SCREEN_COLS - 2)] # ensures title fits
+
+    def display(self):
+        self.write(sys.stdout)
+
+    def write(self, out): # can use a file as out
+        self.writeTitle(out)
+
+    def writeTitle(self, out):
+        print(BORDER * SCREEN_COLS, file=out)
+        leftPadding = math.floor((SCREEN_COLS - len(self.title)) / 2) - 1
+        rightPadding = math.ceil((SCREEN_COLS - len(self.title)) / 2) - 1
+        print(f'{BORDER}{leftPadding * " "}{self.title}{rightPadding * " "}{BORDER}')
+        print(BORDER * SCREEN_COLS, file=out)
