@@ -134,18 +134,49 @@ class GameScreen(Screen):
             self.outlineBox(int(SCREEN_COLS / 2), 3, int(SCREEN_COLS / 2), SCREEN_ROWS - 3 - OPTION_ROWS - 2, BORDER, " ")
         super(GameScreen, self).display()
 
+NUM_BODY_ROWS = 10
+
 class SimplerGameScreen:
     def __init__(self):
         self.title = "Maelstrom"
+        self.body = []
+        self.leftBody = []
+        self.rightBody = []
+        self.mode = GameScreenMode.ONE_COL
 
     def setTitle(self, title: str):
-        self.title = title[:(SCREEN_COLS - 2)] # ensures title fits
+        self.title = title[:(SCREEN_COLS - 4)] # ensures title fits
+
+    def addBodyRows(self, rows: "List<String>"):
+        for row in rows:
+            self.addBodyRow(row)
+
+    def addBodyRow(self, row: str):
+        if "\n" in row:
+            self.addBodyRows(row.split("\n"))
+        elif len(self.body) == NUM_BODY_ROWS:
+            print(f'cannot add body row "{row}", as the body array is full')
+        else:
+            self.body.append(self.format(row)[:(SCREEN_COLS - 4)]) # make sure it fits
+
+    def format(self, row: str)->str:
+        return row.replace("\t", " " * 4)
+
+    def setMode(self, mode):
+        self.mode = mode
+
+    def clear(self):
+        self.title = "Maelstrom"
+        self.body.clear()
+        self.leftBody.clear()
+        self.rightBody.clear()
 
     def display(self):
         self.write(sys.stdout)
 
     def write(self, out): # can use a file as out
         self.writeTitle(out)
+        self.writeBody(out)
 
     def writeTitle(self, out):
         print(BORDER * SCREEN_COLS, file=out)
@@ -153,3 +184,24 @@ class SimplerGameScreen:
         rightPadding = math.ceil((SCREEN_COLS - len(self.title)) / 2) - 1
         print(f'{BORDER}{leftPadding * " "}{self.title}{rightPadding * " "}{BORDER}')
         print(BORDER * SCREEN_COLS, file=out)
+
+    def writeBody(self, out):
+        print(BORDER * SCREEN_COLS, file=out)
+        if self.mode == GameScreenMode.ONE_COL:
+            self.writeOneCol(out)
+        else:
+            raise "not implemented"
+        print(BORDER * SCREEN_COLS, file=out)
+
+    def writeOneCol(self, out):
+        rowNum = 0
+        spaces = 0
+        for row in self.body:
+            spaces = SCREEN_COLS - 4 - len(row)
+            print(f'{BORDER} {row}{" " * spaces} {BORDER}', file=out)
+            rowNum = rowNum + 1
+
+        # print empty lines
+        while rowNum < NUM_BODY_ROWS:
+            print(f'{BORDER} {" " * (SCREEN_COLS - 4)} {BORDER}')
+            rowNum = rowNum + 1

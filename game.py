@@ -28,7 +28,9 @@ class Game:
         screen.display()
         AreaScreen(Area.createDefaultArea()).display()
         GameScreen().display()
-        SimplerGameScreen().display()
+        scr = SimplerGameScreen()
+        scr.addBodyRow("Hello there!\nDoes this thing even work?\n\tHello?\n\t\tHello?\n\t\t\tAnybody there?")
+        scr.display()
         #EnemyCharacter.generateEnemies()
 
     def chooseAction(self):
