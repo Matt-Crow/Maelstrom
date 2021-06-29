@@ -5,6 +5,7 @@ This module provides the basic structure of the screens the program displays
 from enum import Enum, auto
 import math
 import sys
+from util.utilities import lengthOfLongest
 
 SCREEN_COLS = 80
 SCREEN_ROWS = 40
@@ -183,12 +184,11 @@ class SimplerGameScreen:
 
         return rows
 
-    # this will likely change later
+    """
+    There may need to be some limit on the number of options this can be given
+    """
     def addOption(self, option: str):
-        if len(self.options) < OPTION_ROWS * 2:
-            self.options.append(option)
-        else:
-            raise "cannot add more options" 
+        self.options.append(option)
 
     def setMode(self, mode):
         self.mode = mode
@@ -240,19 +240,32 @@ class SimplerGameScreen:
 
     def writeOptions(self, out):
         print(BORDER * SCREEN_COLS, file=out)
-        if len(self.options) <= OPTION_ROWS:
-            self.writeOptionsOneCol(out)
-        else:
-            raise "not implemented"#self.writeOptionsTwoCol(out)
-        print(BORDER * SCREEN_COLS, file=out)
 
-    def writeOptionsOneCol(self, out):
-        numRows = 0
-        spaces = 0
-        for option in self.options:
-            spaces = SCREEN_COLS - 4 - 3 - len(option)
-            print(f'{BORDER} {str(numRows + 1)}: {option}{" " * spaces} {BORDER}', file=out)
-            numRows = numRows + 1
-        while numRows < OPTION_ROWS:
-            print(f'{BORDER} {" " * (SCREEN_COLS - 4)} {BORDER}', file=out)
-            numRows = numRows + 1
+        # get column widths
+        colWidths = []
+        colStart = 0
+        while colStart < len(self.options): #                                                 + 1 so there's a space between columns
+            colWidths.append(lengthOfLongest(self.options[colStart:(colStart + OPTION_ROWS)]) + 1)
+            colStart += OPTION_ROWS # next column
+        """
+        colWidths[0] contains the width of the first OPTION_ROWS options,
+        colWidths[1] contains the width of the next OPTION_ROWS options,
+        etc
+        """
+
+        # setup
+        numCols = len(colWidths)
+        msg = ""
+        i = 0
+        for rowNum in range(OPTION_ROWS):
+            msg = ""
+            for colNum in range(numCols):
+                i = rowNum + colNum * OPTION_ROWS
+                if i < len(self.options):
+                    if colNum is not 0:
+                        msg += f'{BORDER} ' # separate columns with border
+                    msg += f'{(i + 1):2}: {self.options[i].ljust(colWidths[colNum])}'
+            msg = msg.ljust(SCREEN_COLS - 4)[:(SCREEN_COLS - 4)] # justify and trim it to fit exactly
+            print(f'{BORDER} {msg} {BORDER}', file=out)
+
+        print(BORDER * SCREEN_COLS, file=out)
