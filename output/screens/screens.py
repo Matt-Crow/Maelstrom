@@ -1,5 +1,8 @@
 """
 This module provides the basic structure of the screens the program displays
+
+Primary exports:
+
 """
 
 from enum import Enum, auto
@@ -11,7 +14,7 @@ SCREEN_COLS = 80
 SCREEN_ROWS = 40
 
 """
-
+displayCharacterStats(Character)
 """
 class Screen:
     def __init__(self):
@@ -195,6 +198,9 @@ class SimplerGameScreen:
 
     def clear(self):
         self.title = "Maelstrom"
+        self.clearBody()
+
+    def clearBody(self):
         self.body.clear()
         self.leftBody.clear()
         self.rightBody.clear()
@@ -204,6 +210,10 @@ class SimplerGameScreen:
 
     def display(self):
         self.write(sys.stdout)
+
+    def displayAndPause(self):
+        self.display()
+        input("press enter or return to continue")
 
     def write(self, out): # can use a file as out
         self.writeTitle(out)
@@ -269,3 +279,14 @@ class SimplerGameScreen:
             print(f'{BORDER} {msg} {BORDER}', file=out)
 
         print(BORDER * SCREEN_COLS, file=out)
+
+def displayCharacterStats(character):
+    screen = SimplerGameScreen()
+    screen.setTitle(f'{character.name} Lv. {character.level}')
+    displayData = character.getDisplayData()
+    start = 0
+    while start < len(displayData):
+        screen.clearBody()
+        screen.addBodyRows(displayData[start:(start+NUM_BODY_ROWS)])
+        screen.displayAndPause()
+        start += NUM_BODY_ROWS
