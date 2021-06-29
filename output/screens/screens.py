@@ -142,6 +142,7 @@ class SimplerGameScreen:
         self.body = []
         self.leftBody = []
         self.rightBody = []
+        self.options = []
         self.mode = GameScreenMode.ONE_COL
 
     def setTitle(self, title: str):
@@ -182,6 +183,13 @@ class SimplerGameScreen:
 
         return rows
 
+    # this will likely change later
+    def addOption(self, option: str):
+        if len(self.options) < OPTION_ROWS * 2:
+            self.options.append(option)
+        else:
+            raise "cannot add more options" 
+
     def setMode(self, mode):
         self.mode = mode
 
@@ -191,12 +199,16 @@ class SimplerGameScreen:
         self.leftBody.clear()
         self.rightBody.clear()
 
+    def clearOptions(self):
+        self.options.clear()
+
     def display(self):
         self.write(sys.stdout)
 
     def write(self, out): # can use a file as out
         self.writeTitle(out)
         self.writeBody(out)
+        self.writeOptions(out)
 
     def writeTitle(self, out):
         print(BORDER * SCREEN_COLS, file=out)
@@ -225,3 +237,22 @@ class SimplerGameScreen:
         while rowNum < NUM_BODY_ROWS:
             print(f'{BORDER} {" " * (SCREEN_COLS - 4)} {BORDER}')
             rowNum = rowNum + 1
+
+    def writeOptions(self, out):
+        print(BORDER * SCREEN_COLS, file=out)
+        if len(self.options) <= OPTION_ROWS:
+            self.writeOptionsOneCol(out)
+        else:
+            raise "not implemented"#self.writeOptionsTwoCol(out)
+        print(BORDER * SCREEN_COLS, file=out)
+
+    def writeOptionsOneCol(self, out):
+        numRows = 0
+        spaces = 0
+        for option in self.options:
+            spaces = SCREEN_COLS - 4 - 3 - len(option)
+            print(f'{BORDER} {str(numRows + 1)}: {option}{" " * spaces} {BORDER}', file=out)
+            numRows = numRows + 1
+        while numRows < OPTION_ROWS:
+            print(f'{BORDER} {" " * (SCREEN_COLS - 4)} {BORDER}', file=out)
+            numRows = numRows + 1

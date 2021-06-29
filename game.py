@@ -32,6 +32,9 @@ class Game:
         scr.addBodyRow("Hello there!\nDoes this thing even work?\n\tHello?\n\t\tHello?\n\t\t\tAnybody there?")
         scr.addBodyRow("ahh " * 50)
         scr.addBodyRow("X#" * 50)
+        scr.addOption("Alpha")
+        scr.addOption("Beta")
+        scr.addOption("Gamma")
         scr.display()
         #EnemyCharacter.generateEnemies()
 
