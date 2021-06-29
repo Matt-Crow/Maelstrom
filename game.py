@@ -30,6 +30,8 @@ class Game:
         GameScreen().display()
         scr = SimplerGameScreen()
         scr.addBodyRow("Hello there!\nDoes this thing even work?\n\tHello?\n\t\tHello?\n\t\t\tAnybody there?")
+        scr.addBodyRow("ahh " * 50)
+        scr.addBodyRow("X#" * 50)
         scr.display()
         #EnemyCharacter.generateEnemies()
 

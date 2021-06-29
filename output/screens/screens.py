@@ -152,15 +152,35 @@ class SimplerGameScreen:
             self.addBodyRow(row)
 
     def addBodyRow(self, row: str):
+        row = self.format(row)
         if "\n" in row:
             self.addBodyRows(row.split("\n"))
+        elif len(row) > SCREEN_COLS - 4: # make sure it fits
+            self.addBodyRows(self.wrap(row))
         elif len(self.body) == NUM_BODY_ROWS:
             print(f'cannot add body row "{row}", as the body array is full')
         else:
-            self.body.append(self.format(row)[:(SCREEN_COLS - 4)]) # make sure it fits
+            self.body.append(row)
 
     def format(self, row: str)->str:
         return row.replace("\t", " " * 4)
+
+    def wrap(self, row: str)->"List<str>":
+        rows = []
+        maxWidth = SCREEN_COLS - 4
+        if self.mode == GameScreenMode.SPLIT:
+            maxWidth = int(maxWidth / 2)
+
+        while len(row) is not 0:
+            wordBreak = row.rfind(" ", 0, maxWidth)
+            if wordBreak == -1: # no suitable break point
+                rows.append(row[:maxWidth])
+                row = row[maxWidth:]
+            else:
+                rows.append(row[:wordBreak])
+                row = row[(wordBreak + 1):]
+
+        return rows
 
     def setMode(self, mode):
         self.mode = mode
