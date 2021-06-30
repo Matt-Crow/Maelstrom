@@ -6,7 +6,7 @@ from area import Area
 import json
 from fileSystem import getUserList
 
-from output.screens.screens import Screen, AreaScreen, GameScreen, SimplerGameScreen, displayCharacterStats
+from inputOutput.screens import Screen, AreaScreen, GameScreen, SimplerGameScreen, displayCharacterStats
 
 """
 The Game class is used to store data on the game the user is currently playing,
