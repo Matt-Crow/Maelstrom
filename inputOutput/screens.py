@@ -163,8 +163,6 @@ class SimplerGameScreen:
             self.addBodyRows(row.split("\n"))
         elif len(row) > SCREEN_COLS - 4: # make sure it fits
             self.addBodyRows(self.wrap(row))
-        elif len(self.body) == NUM_BODY_ROWS:
-            print(f'cannot add body row "{row}", as the body array is full')
         else:
             self.body.append(row)
 
@@ -219,9 +217,20 @@ class SimplerGameScreen:
         input("press enter or return to continue")
 
     def write(self, out): # can use a file as out
-        self.writeTitle(out)
-        self.writeBody(out)
-        self.writeOptions(out)
+        bodyLines = max(len(self.body), len(self.leftBody), len(self.rightBody))
+        currLine = 0
+        """
+        Displays NUM_BODY_ROWS rows of the body at a time
+        """
+        while currLine < bodyLines:
+            self.writeTitle(out)
+            self.writeBody(out, currLine)
+            currLine += NUM_BODY_ROWS
+            if currLine < bodyLines: # more lines
+                self.writeOptions(out, []) # just print empty options box
+                input("press enter or return to continue")
+        self.writeOptions(out, self.options)
+        print("Choose an option:")
 
     def writeTitle(self, out):
         print(BORDER * SCREEN_COLS, file=out)
@@ -230,35 +239,38 @@ class SimplerGameScreen:
         print(f'{BORDER}{leftPadding * " "}{self.title}{rightPadding * " "}{BORDER}')
         print(BORDER * SCREEN_COLS, file=out)
 
-    def writeBody(self, out):
+    """
+    Writes the body lines withing [firstLineNum, firstLineNum + NUM_BODY_ROWS)
+    """
+    def writeBody(self, out, firstLineNum=0):
         print(BORDER * SCREEN_COLS, file=out)
         if self.mode == GameScreenMode.ONE_COL:
-            self.writeOneCol(out)
+            self.writeOneCol(out, firstLineNum)
         else:
             raise "not implemented"
         print(BORDER * SCREEN_COLS, file=out)
 
-    def writeOneCol(self, out):
+    def writeOneCol(self, out, firstLineNum=0):
         rowNum = 0
         spaces = 0
-        for row in self.body:
-            spaces = SCREEN_COLS - 4 - len(row)
-            print(f'{BORDER} {row}{" " * spaces} {BORDER}', file=out)
-            rowNum = rowNum + 1
-
-        # print empty lines
+        row = None
         while rowNum < NUM_BODY_ROWS:
-            print(f'{BORDER} {" " * (SCREEN_COLS - 4)} {BORDER}')
+            if rowNum + firstLineNum < len(self.body):
+                row = self.body[rowNum + firstLineNum]
+                spaces = SCREEN_COLS - 4 - len(row)
+                print(f'{BORDER} {row}{" " * spaces} {BORDER}', file=out)
+            else:
+                print(f'{BORDER} {" " * (SCREEN_COLS - 4)} {BORDER}')
             rowNum = rowNum + 1
 
-    def writeOptions(self, out):
+    def writeOptions(self, out, options):
         print(BORDER * SCREEN_COLS, file=out)
 
         # get column widths
         colWidths = []
         colStart = 0
-        while colStart < len(self.options): #                                                 + 1 so there's a space between columns
-            colWidths.append(lengthOfLongest(self.options[colStart:(colStart + OPTION_ROWS)]) + 1)
+        while colStart < len(options): #                                                 + 1 so there's a space between columns
+            colWidths.append(lengthOfLongest(options[colStart:(colStart + OPTION_ROWS)]) + 1)
             colStart += OPTION_ROWS # next column
         """
         colWidths[0] contains the width of the first OPTION_ROWS options,
@@ -274,10 +286,10 @@ class SimplerGameScreen:
             msg = ""
             for colNum in range(numCols):
                 i = rowNum + colNum * OPTION_ROWS
-                if i < len(self.options):
+                if i < len(options):
                     if colNum is not 0:
                         msg += f'{BORDER} ' # separate columns with border
-                    msg += f'{(i + 1):2}: {self.options[i].ljust(colWidths[colNum])}'
+                    msg += f'{(i + 1):2}: {options[i].ljust(colWidths[colNum])}'
             msg = msg.ljust(SCREEN_COLS - 4)[:(SCREEN_COLS - 4)] # justify and trim it to fit exactly
             print(f'{BORDER} {msg} {BORDER}', file=out)
 
@@ -287,9 +299,5 @@ def displayCharacterStats(character):
     screen = SimplerGameScreen()
     screen.setTitle(f'{character.name} Lv. {character.level}')
     displayData = character.getDisplayData()
-    start = 0
-    while start < len(displayData):
-        screen.clearBody()
-        screen.addBodyRows(displayData[start:(start+NUM_BODY_ROWS)])
-        screen.displayAndPause()
-        start += NUM_BODY_ROWS
+    screen.addBodyRows(displayData)
+    screen.display()
