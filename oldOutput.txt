@@ -1,7 +1,7 @@
 ~*~*~*~*~*~*~*~*~*~*
 MAELSTROM
 ~*~*~*~*~*~*~*~*~*~*
-Press enter or return to continueChoose an option:
+Press enter or return to continueChoose an option: 
 1: Play
 2: About
 3: Quit
@@ -53,6 +53,11 @@ ACTIVES:
 		Miss multiplier: 50%
 		Cleave damage: 25% of damage from initial hit
 PASSIVES:
+	Threshhold test:
+		Inflicts user with a 25.0% bonus
+		to their resistance stat
+		for 3.0 turns
+		when the user is at or below 25.0% of their maximum hit points.
 	On Hit Given Test:
 		Whenever the user strikes an opponent, has a 25.0% chance to
 		inflict user with a 25.0% bonus
@@ -66,6 +71,9 @@ PASSIVES:
 ITEMS:
 	Random Item #0:
 		ring
+		Boost: Random Item #0
+			+10% to
+			luck stat
 		test item 1
 40.0/50
 Alexandre's Energy: 10
@@ -160,6 +168,11 @@ ACTIVES:
 		Miss multiplier: 50%
 		Cleave damage: 25% of damage from initial hit
 PASSIVES:
+	Threshhold test:
+		Inflicts user with a 25.0% bonus
+		to their resistance stat
+		for 3.0 turns
+		when the user is at or below 25.0% of their maximum hit points.
 	On Hit Given Test:
 		Whenever the user strikes an opponent, has a 25.0% chance to
 		inflict user with a 25.0% bonus
@@ -173,6 +186,9 @@ PASSIVES:
 ITEMS:
 	Random Item #2:
 		gear
+		Boost: Random Item #2
+			+10% to
+			control stat
 		It comes from another dimension.
 0/10
 ~*~*~*~*~*~*~*~*~*~*
@@ -215,6 +231,11 @@ ACTIVES:
 		Miss multiplier: 50%
 		Cleave damage: 25% of damage from initial hit
 PASSIVES:
+	Threshhold test:
+		Inflicts user with a 25.0% bonus
+		to their resistance stat
+		for 3.0 turns
+		when the user is at or below 25.0% of their maximum hit points.
 	On Hit Given Test:
 		Whenever the user strikes an opponent, has a 25.0% chance to
 		inflict user with a 25.0% bonus
@@ -228,6 +249,9 @@ PASSIVES:
 ITEMS:
 	Random Item #4:
 		trinket
+		Boost: Random Item #4
+			+10% to
+			control stat
 		Fresh from the street vendor.
 0/10
 ~*~*~*~*~*~*~*~*~*~*
@@ -274,6 +298,11 @@ ACTIVES:
 		Miss multiplier: 50%
 		Cleave damage: 25% of damage from initial hit
 PASSIVES:
+	Threshhold test:
+		Inflicts user with a 25.0% bonus
+		to their resistance stat
+		for 3.0 turns
+		when the user is at or below 25.0% of their maximum hit points.
 	On Hit Given Test:
 		Whenever the user strikes an opponent, has a 25.0% chance to
 		inflict user with a 25.0% bonus
@@ -287,6 +316,9 @@ PASSIVES:
 ITEMS:
 	Random Item #2:
 		gear
+		Boost: Random Item #2
+			+10% to
+			control stat
 		It comes from another dimension.
 0/10
 Stone Soldier's Energy: 7
@@ -334,6 +366,11 @@ ACTIVES:
 		Miss multiplier: 50%
 		Cleave damage: 25% of damage from initial hit
 PASSIVES:
+	Threshhold test:
+		Inflicts user with a 25.0% bonus
+		to their resistance stat
+		for 3.0 turns
+		when the user is at or below 25.0% of their maximum hit points.
 	On Hit Given Test:
 		Whenever the user strikes an opponent, has a 25.0% chance to
 		inflict user with a 25.0% bonus
@@ -347,6 +384,9 @@ PASSIVES:
 ITEMS:
 	Random Item #0:
 		ring
+		Boost: Random Item #0
+			+10% to
+			luck stat
 		test item 1
 40.0/50
 Alexandre's Energy: 10
@@ -398,6 +438,11 @@ ACTIVES:
 		Miss multiplier: 50%
 		Cleave damage: 25% of damage from initial hit
 PASSIVES:
+	Threshhold test:
+		Inflicts user with a 25.0% bonus
+		to their resistance stat
+		for 3.0 turns
+		when the user is at or below 25.0% of their maximum hit points.
 	On Hit Given Test:
 		Whenever the user strikes an opponent, has a 25.0% chance to
 		inflict user with a 25.0% bonus
@@ -411,6 +456,9 @@ PASSIVES:
 ITEMS:
 	Random Item #2:
 		gear
+		Boost: Random Item #2
+			+10% to
+			control stat
 		It comes from another dimension.
 0/10
 Stone Soldier's Energy: 10
@@ -466,6 +514,11 @@ ACTIVES:
 		Miss multiplier: 50%
 		Cleave damage: 25% of damage from initial hit
 PASSIVES:
+	Threshhold test:
+		Inflicts user with a 25.0% bonus
+		to their resistance stat
+		for 3.0 turns
+		when the user is at or below 25.0% of their maximum hit points.
 	On Hit Given Test:
 		Whenever the user strikes an opponent, has a 25.0% chance to
 		inflict user with a 25.0% bonus
@@ -479,6 +532,9 @@ PASSIVES:
 ITEMS:
 	Random Item #0:
 		ring
+		Boost: Random Item #0
+			+10% to
+			luck stat
 		test item 1
 40.0/50
 Alexandre's Energy: 16
@@ -526,6 +582,11 @@ ACTIVES:
 		Miss multiplier: 50%
 		Cleave damage: 25% of damage from initial hit
 PASSIVES:
+	Threshhold test:
+		Inflicts user with a 25.0% bonus
+		to their resistance stat
+		for 3.0 turns
+		when the user is at or below 25.0% of their maximum hit points.
 	On Hit Given Test:
 		Whenever the user strikes an opponent, has a 25.0% chance to
 		inflict user with a 25.0% bonus
@@ -539,6 +600,9 @@ PASSIVES:
 ITEMS:
 	Random Item #0:
 		ring
+		Boost: Random Item #0
+			+10% to
+			luck stat
 		test item 1
 40.0/50
 Alexandre's Energy: 16
@@ -599,6 +663,11 @@ ACTIVES:
 		Miss multiplier: 50%
 		Cleave damage: 25% of damage from initial hit
 PASSIVES:
+	Threshhold test:
+		Inflicts user with a 25.0% bonus
+		to their resistance stat
+		for 3.0 turns
+		when the user is at or below 25.0% of their maximum hit points.
 	On Hit Given Test:
 		Whenever the user strikes an opponent, has a 25.0% chance to
 		inflict user with a 25.0% bonus
@@ -612,6 +681,9 @@ PASSIVES:
 ITEMS:
 	Random Item #2:
 		gear
+		Boost: Random Item #2
+			+10% to
+			control stat
 		It comes from another dimension.
 0/10
 Stone Soldier's Energy: 12
@@ -666,6 +738,11 @@ ACTIVES:
 		Miss multiplier: 50%
 		Cleave damage: 25% of damage from initial hit
 PASSIVES:
+	Threshhold test:
+		Inflicts user with a 25.0% bonus
+		to their resistance stat
+		for 3.0 turns
+		when the user is at or below 25.0% of their maximum hit points.
 	On Hit Given Test:
 		Whenever the user strikes an opponent, has a 25.0% chance to
 		inflict user with a 25.0% bonus
@@ -679,6 +756,9 @@ PASSIVES:
 ITEMS:
 	Random Item #0:
 		ring
+		Boost: Random Item #0
+			+10% to
+			luck stat
 		test item 1
 40.0/50
 Alexandre's Energy: 17
@@ -726,6 +806,11 @@ ACTIVES:
 		Miss multiplier: 50%
 		Cleave damage: 25% of damage from initial hit
 PASSIVES:
+	Threshhold test:
+		Inflicts user with a 25.0% bonus
+		to their resistance stat
+		for 3.0 turns
+		when the user is at or below 25.0% of their maximum hit points.
 	On Hit Given Test:
 		Whenever the user strikes an opponent, has a 25.0% chance to
 		inflict user with a 25.0% bonus
@@ -739,6 +824,9 @@ PASSIVES:
 ITEMS:
 	Random Item #0:
 		ring
+		Boost: Random Item #0
+			+10% to
+			luck stat
 		test item 1
 40.0/50
 Alexandre's Energy: 17
@@ -799,6 +887,11 @@ ACTIVES:
 		Miss multiplier: 50%
 		Cleave damage: 25% of damage from initial hit
 PASSIVES:
+	Threshhold test:
+		Inflicts user with a 25.0% bonus
+		to their resistance stat
+		for 3.0 turns
+		when the user is at or below 25.0% of their maximum hit points.
 	On Hit Given Test:
 		Whenever the user strikes an opponent, has a 25.0% chance to
 		inflict user with a 25.0% bonus
@@ -812,6 +905,9 @@ PASSIVES:
 ITEMS:
 	Random Item #2:
 		gear
+		Boost: Random Item #2
+			+10% to
+			control stat
 		It comes from another dimension.
 0/10
 Stone Soldier's Energy: 14
@@ -866,6 +962,11 @@ ACTIVES:
 		Miss multiplier: 50%
 		Cleave damage: 25% of damage from initial hit
 PASSIVES:
+	Threshhold test:
+		Inflicts user with a 25.0% bonus
+		to their resistance stat
+		for 3.0 turns
+		when the user is at or below 25.0% of their maximum hit points.
 	On Hit Given Test:
 		Whenever the user strikes an opponent, has a 25.0% chance to
 		inflict user with a 25.0% bonus
@@ -879,6 +980,9 @@ PASSIVES:
 ITEMS:
 	Random Item #0:
 		ring
+		Boost: Random Item #0
+			+10% to
+			luck stat
 		test item 1
 40.0/50
 Alexandre's Energy: 20
@@ -926,6 +1030,11 @@ ACTIVES:
 		Miss multiplier: 50%
 		Cleave damage: 25% of damage from initial hit
 PASSIVES:
+	Threshhold test:
+		Inflicts user with a 25.0% bonus
+		to their resistance stat
+		for 3.0 turns
+		when the user is at or below 25.0% of their maximum hit points.
 	On Hit Given Test:
 		Whenever the user strikes an opponent, has a 25.0% chance to
 		inflict user with a 25.0% bonus
@@ -939,6 +1048,9 @@ PASSIVES:
 ITEMS:
 	Random Item #0:
 		ring
+		Boost: Random Item #0
+			+10% to
+			luck stat
 		test item 1
 40.0/50
 Alexandre's Energy: 20
@@ -999,6 +1111,11 @@ ACTIVES:
 		Miss multiplier: 50%
 		Cleave damage: 25% of damage from initial hit
 PASSIVES:
+	Threshhold test:
+		Inflicts user with a 25.0% bonus
+		to their resistance stat
+		for 3.0 turns
+		when the user is at or below 25.0% of their maximum hit points.
 	On Hit Given Test:
 		Whenever the user strikes an opponent, has a 25.0% chance to
 		inflict user with a 25.0% bonus
@@ -1012,6 +1129,9 @@ PASSIVES:
 ITEMS:
 	Random Item #2:
 		gear
+		Boost: Random Item #2
+			+10% to
+			control stat
 		It comes from another dimension.
 0/10
 Stone Soldier's Energy: 15
@@ -1069,6 +1189,11 @@ ACTIVES:
 		Miss multiplier: 50%
 		Cleave damage: 25% of damage from initial hit
 PASSIVES:
+	Threshhold test:
+		Inflicts user with a 25.0% bonus
+		to their resistance stat
+		for 3.0 turns
+		when the user is at or below 25.0% of their maximum hit points.
 	On Hit Given Test:
 		Whenever the user strikes an opponent, has a 25.0% chance to
 		inflict user with a 25.0% bonus
@@ -1082,6 +1207,9 @@ PASSIVES:
 ITEMS:
 	Random Item #0:
 		ring
+		Boost: Random Item #0
+			+10% to
+			luck stat
 		test item 1
 0/60
 ~*~*~*~*~*~*~*~*~*~*
@@ -1131,6 +1259,11 @@ ACTIVES:
 		Miss multiplier: 50%
 		Cleave damage: 25% of damage from initial hit
 PASSIVES:
+	Threshhold test:
+		Inflicts user with a 25.0% bonus
+		to their resistance stat
+		for 3.0 turns
+		when the user is at or below 25.0% of their maximum hit points.
 	On Hit Given Test:
 		Whenever the user strikes an opponent, has a 25.0% chance to
 		inflict user with a 25.0% bonus
@@ -1144,6 +1277,9 @@ PASSIVES:
 ITEMS:
 	Random Item #0:
 		ring
+		Boost: Random Item #0
+			+10% to
+			luck stat
 		test item 1
 0/60
 Alexandre's Energy: 20
@@ -1154,4 +1290,4 @@ Press enter or return to continueWhat do you wish to do?
 2: view character info
 3: customize character
 4: exit
-Enter a number:
+Enter a number: 

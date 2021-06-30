@@ -45,6 +45,7 @@ class Game:
             self.currentArea.chooseAction(self.player)
         elif choice == "view character info":
             self.player.displayData()
+            displayCharacterStats(self.player.membersRem[0])
         elif choice == "customize character":
             self.player.manage()
         elif choice == "exit":

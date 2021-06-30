@@ -8,6 +8,7 @@ Primary exports:
 from enum import Enum, auto
 import math
 import sys
+import re
 from util.utilities import lengthOfLongest
 
 SCREEN_COLS = 80
@@ -176,14 +177,16 @@ class SimplerGameScreen:
         if self.mode == GameScreenMode.SPLIT:
             maxWidth = int(maxWidth / 2)
 
-        while len(row) is not 0:
+        while len(row.strip()) is not 0:
             wordBreak = row.rfind(" ", 0, maxWidth)
-            if wordBreak == -1: # no suitable break point
+            firstNonSpace = re.search("[^ ]", row)
+            indentation = 0 if not firstNonSpace else firstNonSpace.start()
+            if wordBreak < indentation: # no suitable break point
                 rows.append(row[:maxWidth])
-                row = row[maxWidth:]
+                row = indentation * " " + row[maxWidth:]
             else:
                 rows.append(row[:wordBreak])
-                row = row[(wordBreak + 1):]
+                row = indentation * " " + row[(wordBreak + 1):]
 
         return rows
 

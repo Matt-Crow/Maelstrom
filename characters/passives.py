@@ -115,13 +115,14 @@ class Threshhold(AbstractPassive):
     """
     def getDisplayData(self) -> list:
         target = "user" if self.targetsUser else 'active enemy'
-        return [
-            self.name + ":",
-            '\tInflicts ' + target + ' with a ' + str(self.getStatValue("status level") * 100) + '% bonus',
-            '\tto their ' + self.boostedStat + ' stat',
-            '\tfor ' + str(self.getStatValue('status duration')) + ' turns',
-            '\twhen the user is at or below ' + str(self.getStatValue('threshhold') * 100) + '% of their maximum hit points.'
-        ]
+        nl = "\n"
+        tab = "\t"
+        desc = (
+            f'{self.name}: {nl}'
+            f'{tab}Inflicts {target} with {"{nl}{tab}".join(self.getBoost().getDisplayData())} '
+            f'when the user is at or below {self.getStatValue("threshhold") * 100}% of their maximum HP'
+        ) # python automatically joins these strings
+        return desc.split("\n")
 
 
 class OnHitGiven(AbstractPassive):

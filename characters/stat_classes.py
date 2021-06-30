@@ -137,6 +137,7 @@ class Boost(object):
             "\t" + self.stat_name + " stat"
         ]
 
+        ret = f'Boost {self.id}: +{int(self.amount * 100)}% to {self.stat_name}'
         if self.duration > 0:
-            ret.append("\tfor " + str(self.duration) + " turns")
-        return ret
+            ret += f' for {self.duration} turns'
+        return [ret]
