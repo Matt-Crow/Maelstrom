@@ -7,6 +7,7 @@ from events import OnHitEvent, ActionRegister, HIT_GIVEN_EVENT, HIT_TAKEN_EVENT,
 from customizable import AbstractCustomizable
 from util.output import Op
 from fileSystem import saveSerializable, loadSerializable, ENEMY_DIR
+from util.stringUtil import entab
 
 """
 Characters
@@ -152,27 +153,30 @@ class AbstractCharacter(AbstractCustomizable):
     def getHpPerc(self):
         return int((float(self.remHp) / float(self.maxHp) * 100.0))
 
-    def getDisplayData(self)->list:
+    def getDisplayData(self)->str:
         self.calcStats()
-        ret = ["Lv. " + str(self.level) + " " + self.name, self.element]
+        ret = [
+            f'{self.name} Lv. {self.level} {self.element}',
+            entab(f'{self.xp} / {self.level * 10} XP')
+        ]
+
         ret.append("STATS:")
         for stat in STATS:
-            ret.append("\t" + stat + ": " + str(int(self.getStatValue(stat))))
+            ret.append(entab(f'{stat}: {int(self.getStatValue(stat))}'))
+
         ret.append("ACTIVES:")
         for active in self.actives:
-            for line in active.getDisplayData():
-                ret.append("\t{0}".format(line))
+            ret.append(entab(active.getDisplayData()))
+
         ret.append("PASSIVES:")
         for passive in self.passives:
-            for line in passive.getDisplayData():
-                ret.append("\t{0}".format(line))
+            ret.append(entab(passive.getDisplayData()))
+
         ret.append("ITEMS:")
         for item in self.equippedItems:
-            for line in item.getDisplayData():
-                ret.append("\t{0}".format(line))
-        ret.append(str(self.xp) + "/" + str(self.level * 10))
+            ret.append(entab(item.getDisplayData()))
 
-        return ret
+        return "\n".join(ret)
 
     """
     Battle functions:

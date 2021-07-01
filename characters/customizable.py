@@ -52,7 +52,7 @@ class AbstractCustomizable(AbstractJsonSerialable):
     def __str__(self):
         return self.name
 
-    # more or less a replacement for AbstractUpgradable.getDisplayData()
+    # more or less a replacement for getDisplayData()
     def getStatDisplayList(self)->list:
         ret = ["{0}'s stats:".format(self.name)]
         for k, v in self.stats.items():
@@ -98,8 +98,12 @@ class AbstractCustomizable(AbstractJsonSerialable):
                     self.calcStats()
                     self.customizationPoints -= 1
 
+    """
+    Subclasses should override this method to return a textual description of
+    themself
+    """
     @abstractmethod
-    def getDisplayData(self)->list:
+    def getDisplayData(self)->str:
         pass
 
     def displayData(self):

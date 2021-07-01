@@ -1,4 +1,5 @@
 from utilities import *
+from util.stringUtil import entab
 
 """
 Stat stuff
@@ -130,14 +131,8 @@ class Boost(object):
     def reset(self):
         self.duration = self.base_duration
 
-    def getDisplayData(self):
-        ret = [
-            "Boost: " + self.id,
-            "\t+" + str(int(self.amount * 100)) + "% to",
-            "\t" + self.stat_name + " stat"
-        ]
-
-        ret = f'Boost {self.id}: +{int(self.amount * 100)}% to {self.stat_name}'
+    def getDisplayData(self)->str:
+        ret = f'Boost {self.id}: +{int(self.amount * 100)}% bonus to {self.stat_name}'
         if self.duration > 0:
             ret += f' for {self.duration} turns'
-        return [ret]
+        return ret

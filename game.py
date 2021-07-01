@@ -8,6 +8,9 @@ from fileSystem import getUserList
 
 from inputOutput.screens import Screen, AreaScreen, GameScreen, SimplerGameScreen, displayCharacterStats
 
+from util.stringUtil import entab
+
+
 """
 The Game class is used to store data on the game the user is currently playing,
 so this way, there don't have to be any globals.
@@ -19,6 +22,11 @@ class Game:
         self.exit = False
 
     def test(self):
+        myStr = "Hello World!\n"
+        myStr += entab("This series of lines\nWill be entabbed!\nCool,\n\tRight?")
+        myStr = entab(myStr) + "\nEverything before this is entabbed"
+        print(myStr)
+
         screen = Screen()
         screen.add(77, 0, "Yum")
         screen.add(79, 10, "Vertical")
@@ -36,6 +44,7 @@ class Game:
             scr.addOption(f'f({i}) = {32 - i * i}')
         scr.addOption("Jeff")
         scr.display()
+        
         #EnemyCharacter.generateEnemies()
 
     def chooseAction(self):

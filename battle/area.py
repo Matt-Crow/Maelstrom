@@ -3,6 +3,7 @@ from fileSystem import AREA_DIR, loadSerializable, saveSerializable
 from utilities import *
 from battle import Battle
 from util.output import Op
+from util.stringUtil import entab
 
 class Area(AbstractJsonSerialable):
     """
@@ -48,19 +49,22 @@ class Area(AbstractJsonSerialable):
     def save(self):
         saveSerializable(self, AREA_DIR)
 
-    def getDisplayData(self):
-        ret = []
-        ret.append("Area: " + self.name)
-        ret.append("\t" + self.desc)
+    def getDisplayData(self)->str:
+        ret = [
+            f'Area: {self.name}',
+            entab(self.desc)
+        ]
+
         ret.append("Locations:")
         for loc in self.locations:
-            for line in loc.getDisplayData():
-                ret.append("\t" + line)
+            ret.append(entab(loc.getDisplayData()))
+
         ret.append("Levels:")
         for level in self.levels:
-            for line in level.getDisplayData():
-                ret.append("\t" + line)
-        return ret
+            ret.append(entab(level.getDisplayData()))
+
+        return "\n".join(ret)
+
     def displayData(self):
         Op.add(self.getDisplayData())
         Op.display()
@@ -129,8 +133,8 @@ class Location(AbstractJsonSerialable):
     """
     Get data for outputting
     """
-    def getDisplayData(self):
-        return [self.name, "\t" + self.desc]
+    def getDisplayData(self)->str:
+        return f'{self.name}: {self.desc}'
 
 
     """

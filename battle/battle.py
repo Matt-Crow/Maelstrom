@@ -6,7 +6,9 @@ from util.output import Op
 from character import EnemyCharacter
 from fileSystem import getEnemyList
 from serialize import AbstractJsonSerialable
+from util.stringUtil import entab
 import random
+
 
 """
 The Battle class pits 2 teams
@@ -57,14 +59,16 @@ class Battle(AbstractJsonSerialable):
         jdict["rewards"] = [Item.deserializeJson(data) for data in jdict["rewards"]]
         return Battle(**jdict)
 
-    """
-    gets data for outputting
-    """
-    def getDisplayData(self):
-        ret = [self.name, "\t" + self.desc]
+    def getDisplayData(self)->str:
+        ret = [
+            self.name,
+            entab(self.desc)
+        ]
+
         for name in self.enemyNames: # enemy team is not yet loaded
-            ret.append("\t* {0} Lv. {1}".format(name, self.level))
-        return ret
+            ret.append(entab("* {0} Lv. {1}".format(name, self.level)))
+
+        return "\n".join(ret)
 
     def __str__(self):
         return "\n".join(self.getDisplayData())

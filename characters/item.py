@@ -3,6 +3,7 @@ from stat_classes import *
 from util.output import Op
 from customizable import AbstractCustomizable
 import random
+from util.stringUtil import entab
 
 #          isn't really customizable
 class Item(AbstractCustomizable):
@@ -76,12 +77,10 @@ class Item(AbstractCustomizable):
     def applyBoost(self):
         self.user.boost(self.getBoost())
 
-    def getDisplayData(self):
+    def getDisplayData(self)->str:
         ret = [
-            self.name + ":",
-            "\t" + self.itemType
+            f'{self.name}: {self.itemType}',
+            entab(self.getBoost().getDisplayData()),
+            entab(self.desc)
         ]
-        for line in self.getBoost().getDisplayData():
-            ret.append("\t" + line)
-        ret.append("\t" + self.desc)
-        return ret
+        return "\n".join(ret)

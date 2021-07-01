@@ -4,6 +4,8 @@ from utilities import ELEMENTS, roll_perc, Dp
 from customizable import AbstractCustomizable
 from util.output import Op
 from characters.actives.activeStats import ActiveStatFactory
+from util.stringUtil import entab
+
 
 """
 This module handles active abilities that characters can use
@@ -78,17 +80,19 @@ class AbstractActive(AbstractCustomizable):
         lv = 1 if not hasattr(self, "user") else self.user.level
         self.damage = getDmgPerc(lv) * self.getStatValue("damage multiplier")
 
-    def getDisplayData(self):
+    def getDisplayData(self)->str:
         self.initForBattle()
-        ret = [self.type + " " + self.name]
-        ret.append(f'\tdamage: {str(int(self.damage))} ({self.stats["damage multiplier"].toString()})')
-        ret.append("\tCritical hit chance: " + str(self.getStatValue("crit chance")) + "%")
-        ret.append("\tMiss chance: " + str(self.getStatValue("miss chance")) + "%")
-        ret.append("\tCritical hit multiplier: " + str(int(self.getStatValue("crit mult") * 100)) + "%")
-        ret.append("\tMiss multiplier: " + str(int(self.getStatValue("miss mult") * 100)) + "%")
-        ret.append("\tCleave damage: " + str(int(self.getStatValue("cleave") * 100)) + "% of damage from initial hit")
+        ret = [
+            f'{self.name}:',
+            entab(f'{int(self.damage)} damage to target'),
+            entab(f'all other enemies receive {int(self.getStatValue("cleave") * 100)}% of the damage from the initial hit'),
+            entab(f'{self.getStatValue("crit chance")}% chance of scoring a critical hit,'),
+            entab(f'for a {int(self.getStatValue("crit mult") * 100)}% damage multiplication'),
+            entab(f'{self.getStatValue("miss chance")}% chance of scoring a glancing bow,'),
+            entab(f'for a {int(self.getStatValue("miss mult") * 100)}% damage multiplication')
+        ]
 
-        return ret
+        return "\n".join(ret)
 
     def canUse(self):
         return self.user.energy >= self.cost

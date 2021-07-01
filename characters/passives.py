@@ -4,7 +4,7 @@ from stat_classes import Stat, Boost
 from customizable import AbstractCustomizable
 from events import HIT_GIVEN_EVENT, HIT_TAKEN_EVENT, UPDATE_EVENT
 from util.output import Op
-
+from util.stringUtil import entab
 
 """
 Passives
@@ -113,16 +113,15 @@ class Threshhold(AbstractPassive):
     """
     returns a text representation of this object
     """
-    def getDisplayData(self) -> list:
+    def getDisplayData(self) -> str:
         target = "user" if self.targetsUser else 'active enemy'
         nl = "\n"
-        tab = "\t"
-        desc = (
-            f'{self.name}: {nl}'
-            f'{tab}Inflicts {target} with {"{nl}{tab}".join(self.getBoost().getDisplayData())} '
-            f'when the user is at or below {self.getStatValue("threshhold") * 100}% of their maximum HP'
-        ) # python automatically joins these strings
-        return desc.split("\n")
+        desc = [
+            f'{self.name}:',
+            entab(f'Inflicts {target} with {self.getBoost().getDisplayData()}'),
+            entab(f'when the user is at or below {self.getStatValue("threshhold") * 100}% of their maximum HP')
+        ]
+        return "\n".join(desc)
 
 
 class OnHitGiven(AbstractPassive):
@@ -151,15 +150,13 @@ class OnHitGiven(AbstractPassive):
     """
     returns a text representation of this object
     """
-    def getDisplayData(self) -> list:
+    def getDisplayData(self) -> str:
         target = "user" if self.targetsUser else "that opponent"
-        return [
-            self.name + ":",
-            "\tWhenever the user strikes an opponent, has a " + str(self.getStatValue("chance")) + '% chance to',
-            '\tinflict ' + target + ' with a ' + str(self.getStatValue('status level') * 100) + '% bonus',
-            '\tto their ' + self.boostedStat + ' stat',
-            '\tfor ' + str(self.getStatValue('status duration')) + ' turns'
+        desc = [
+            f'{self.name}:',
+            entab(f'Whenever the user strikes an opponent, has a {self.getStatValue("chance")}% chance to inflict {target} with {self.getBoost().getDisplayData()}'),
         ]
+        return "\n".join(desc)
 
 
 class OnHitTaken(AbstractPassive):
@@ -188,12 +185,10 @@ class OnHitTaken(AbstractPassive):
     """
     returns a text representation of this object
     """
-    def getDisplayData(self) -> list:
+    def getDisplayData(self) -> str:
         target = 'user' if self.targetsUser else 'the attacker'
-        return [
-            self.name + ':',
-            '\tWhenever the user is struck by an opponent, has a ' + str(self.getStatValue('chance')) + '% chance to',
-            '\tinflict ' + target + ' with a ' + str(self.getStatValue('status level') * 100) + '% bonus',
-            '\tto their ' + self.boostedStat + ' stat',
-            '\tfor ' + str(self.getStatValue('status duration')) + ' turns'
+        desc = [
+            f'{self.name}:',
+            entab(f'Whenever the user is struck by an opponent, has a {self.getStatValue("chance")}% chance to inflict {target} with {self.getBoost().getDisplayData()}')
         ]
+        return "\n".join(desc)

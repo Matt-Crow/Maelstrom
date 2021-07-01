@@ -299,5 +299,5 @@ def displayCharacterStats(character):
     screen = SimplerGameScreen()
     screen.setTitle(f'{character.name} Lv. {character.level}')
     displayData = character.getDisplayData()
-    screen.addBodyRows(displayData)
+    screen.addBodyRows(displayData.split("\n"))
     screen.display()
