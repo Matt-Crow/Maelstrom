@@ -15,59 +15,6 @@ Enter a number: ~*~*~*~*~*~*~*~*~*~*
 Alexandre
 * Alexandre 100/100
 Currently active: Alexandre
-Lv. 5 Alexandre
-lightning
-STATS:
-	control: 20
-	resistance: 24
-	potency: 16
-	luck: 20
-	energy: 20
-ACTIVES:
-	AbstractActive lightning bolt
-		damage: 31 (damage is multiplied by 1.5)
-		Critical hit chance: 7.0%
-		Miss chance: 9.0%
-		Critical hit multiplier: 135%
-		Miss multiplier: 50%
-		Cleave damage: 0% of damage from initial hit
-	MeleeAttack Slash
-		damage: 20 (damage is multiplied by 1.0)
-		Critical hit chance: 10.0%
-		Miss chance: 10.0%
-		Critical hit multiplier: 150%
-		Miss multiplier: 50%
-		Cleave damage: 25% of damage from initial hit
-	MeleeAttack Jab
-		damage: 20 (damage is multiplied by 1.0)
-		Critical hit chance: 15.0%
-		Miss chance: 16.0%
-		Critical hit multiplier: 175%
-		Miss multiplier: 9%
-		Cleave damage: 45% of damage from initial hit
-	MeleeAttack Slam
-		damage: 26 (damage is multiplied by 1.25)
-		Critical hit chance: 10.0%
-		Miss chance: 15.0%
-		Critical hit multiplier: 150%
-		Miss multiplier: 50%
-		Cleave damage: 25% of damage from initial hit
-PASSIVES:
-	On Hit Given Test:
-		Whenever the user strikes an opponent, has a 25.0% chance to
-		inflict user with a 25.0% bonus
-		to their luck stat
-		for 3.0 turns
-	On Hit Taken Test:
-		Whenever the user is struck by an opponent, has a 25.0% chance to
-		inflict user with a 25.0% bonus
-		to their control stat
-		for 3.0 turns
-ITEMS:
-	Random Item #0:
-		ring
-		test item 1
-40.0/50
 Alexandre's Energy: 10
 ~*~*~*~*~*~*~*~*~*~*
 Press enter or return to continueWhat do you wish to do?
@@ -296,127 +243,12 @@ Press enter or return to continue~*~*~*~*~*~*~*~*~*~*
 Alexandre
 * Alexandre 100/100
 Currently active: Alexandre
-Lv. 5 Alexandre
-lightning
-STATS:
-	control: 20
-	resistance: 24
-	potency: 16
-	luck: 20
-	energy: 20
-ACTIVES:
-	AbstractActive lightning bolt
-		damage: 31 (damage is multiplied by 1.5)
-		Critical hit chance: 7.0%
-		Miss chance: 9.0%
-		Critical hit multiplier: 135%
-		Miss multiplier: 50%
-		Cleave damage: 0% of damage from initial hit
-	MeleeAttack Slash
-		damage: 20 (damage is multiplied by 1.0)
-		Critical hit chance: 10.0%
-		Miss chance: 10.0%
-		Critical hit multiplier: 150%
-		Miss multiplier: 50%
-		Cleave damage: 25% of damage from initial hit
-	MeleeAttack Jab
-		damage: 20 (damage is multiplied by 1.0)
-		Critical hit chance: 15.0%
-		Miss chance: 16.0%
-		Critical hit multiplier: 175%
-		Miss multiplier: 9%
-		Cleave damage: 45% of damage from initial hit
-	MeleeAttack Slam
-		damage: 26 (damage is multiplied by 1.25)
-		Critical hit chance: 10.0%
-		Miss chance: 15.0%
-		Critical hit multiplier: 150%
-		Miss multiplier: 50%
-		Cleave damage: 25% of damage from initial hit
-PASSIVES:
-	On Hit Given Test:
-		Whenever the user strikes an opponent, has a 25.0% chance to
-		inflict user with a 25.0% bonus
-		to their luck stat
-		for 3.0 turns
-	On Hit Taken Test:
-		Whenever the user is struck by an opponent, has a 25.0% chance to
-		inflict user with a 25.0% bonus
-		to their control stat
-		for 3.0 turns
-ITEMS:
-	Random Item #0:
-		ring
-		test item 1
-40.0/50
 Alexandre's Energy: 10
 Active enemy: Stone Soldier 100/100
 ~*~*~*~*~*~*~*~*~*~*
 Press enter or return to continue~*~*~*~*~*~*~*~*~*~*
 The sky rains down its fire upon the field...
 ~*~*~*~*~*~*~*~*~*~*
-Press enter or return to continue~*~*~*~*~*~*~*~*~*~*
-Enemy Team
-* Stone Soldier 100/100
-* Rain Entity 100/100
-Currently active: Stone Soldier
-Lv. 1 Stone Soldier
-stone
-STATS:
-	control: 25
-	resistance: 30
-	potency: 15
-	luck: 15
-	energy: 15
-ACTIVES:
-	AbstractActive stone bolt
-		damage: 23 (damage is multiplied by 1.35)
-		Critical hit chance: 8.0%
-		Miss chance: 10.0%
-		Critical hit multiplier: 150%
-		Miss multiplier: 50%
-		Cleave damage: 0% of damage from initial hit
-	MeleeAttack Slash
-		damage: 17 (damage is multiplied by 1.0)
-		Critical hit chance: 10.0%
-		Miss chance: 10.0%
-		Critical hit multiplier: 150%
-		Miss multiplier: 50%
-		Cleave damage: 25% of damage from initial hit
-	MeleeAttack Jab
-		damage: 17 (damage is multiplied by 1.0)
-		Critical hit chance: 15.0%
-		Miss chance: 15.0%
-		Critical hit multiplier: 175%
-		Miss multiplier: 25%
-		Cleave damage: 25% of damage from initial hit
-	MeleeAttack Slam
-		damage: 21 (damage is multiplied by 1.25)
-		Critical hit chance: 10.0%
-		Miss chance: 15.0%
-		Critical hit multiplier: 150%
-		Miss multiplier: 50%
-		Cleave damage: 25% of damage from initial hit
-PASSIVES:
-	On Hit Given Test:
-		Whenever the user strikes an opponent, has a 25.0% chance to
-		inflict user with a 25.0% bonus
-		to their luck stat
-		for 3.0 turns
-	On Hit Taken Test:
-		Whenever the user is struck by an opponent, has a 25.0% chance to
-		inflict the attacker with a 25.0% bonus
-		to their control stat
-		for 3.0 turns
-ITEMS:
-	Random Item #2:
-		gear
-		It comes from another dimension.
-0/10
-Stone Soldier's Energy: 10
-Active enemy: Alexandre 100/100
-~*~*~*~*~*~*~*~*~*~*
-Press enter or return to continue~*~*~*~*~*~*~*~*~*~*
 A critical hit!
 ~*~*~*~*~*~*~*~*~*~*
 Press enter or return to continue~*~*~*~*~*~*~*~*~*~*
@@ -428,59 +260,6 @@ Press enter or return to continue~*~*~*~*~*~*~*~*~*~*
 Alexandre
 * Alexandre 63/100
 Currently active: Alexandre
-Lv. 5 Alexandre
-lightning
-STATS:
-	control: 20
-	resistance: 24
-	potency: 16
-	luck: 20
-	energy: 20
-ACTIVES:
-	AbstractActive lightning bolt
-		damage: 31 (damage is multiplied by 1.5)
-		Critical hit chance: 7.0%
-		Miss chance: 9.0%
-		Critical hit multiplier: 135%
-		Miss multiplier: 50%
-		Cleave damage: 0% of damage from initial hit
-	MeleeAttack Slash
-		damage: 20 (damage is multiplied by 1.0)
-		Critical hit chance: 10.0%
-		Miss chance: 10.0%
-		Critical hit multiplier: 150%
-		Miss multiplier: 50%
-		Cleave damage: 25% of damage from initial hit
-	MeleeAttack Jab
-		damage: 20 (damage is multiplied by 1.0)
-		Critical hit chance: 15.0%
-		Miss chance: 16.0%
-		Critical hit multiplier: 175%
-		Miss multiplier: 9%
-		Cleave damage: 45% of damage from initial hit
-	MeleeAttack Slam
-		damage: 26 (damage is multiplied by 1.25)
-		Critical hit chance: 10.0%
-		Miss chance: 15.0%
-		Critical hit multiplier: 150%
-		Miss multiplier: 50%
-		Cleave damage: 25% of damage from initial hit
-PASSIVES:
-	On Hit Given Test:
-		Whenever the user strikes an opponent, has a 25.0% chance to
-		inflict user with a 25.0% bonus
-		to their luck stat
-		for 3.0 turns
-	On Hit Taken Test:
-		Whenever the user is struck by an opponent, has a 25.0% chance to
-		inflict user with a 25.0% bonus
-		to their control stat
-		for 3.0 turns
-ITEMS:
-	Random Item #0:
-		ring
-		test item 1
-40.0/50
 Alexandre's Energy: 16
 Active enemy: Stone Soldier 100/100
 ~*~*~*~*~*~*~*~*~*~*
@@ -488,59 +267,6 @@ Press enter or return to continue~*~*~*~*~*~*~*~*~*~*
 Alexandre
 * Alexandre 63/100
 Currently active: Alexandre
-Lv. 5 Alexandre
-lightning
-STATS:
-	control: 20
-	resistance: 24
-	potency: 16
-	luck: 20
-	energy: 20
-ACTIVES:
-	AbstractActive lightning bolt
-		damage: 31 (damage is multiplied by 1.5)
-		Critical hit chance: 7.0%
-		Miss chance: 9.0%
-		Critical hit multiplier: 135%
-		Miss multiplier: 50%
-		Cleave damage: 0% of damage from initial hit
-	MeleeAttack Slash
-		damage: 20 (damage is multiplied by 1.0)
-		Critical hit chance: 10.0%
-		Miss chance: 10.0%
-		Critical hit multiplier: 150%
-		Miss multiplier: 50%
-		Cleave damage: 25% of damage from initial hit
-	MeleeAttack Jab
-		damage: 20 (damage is multiplied by 1.0)
-		Critical hit chance: 15.0%
-		Miss chance: 16.0%
-		Critical hit multiplier: 175%
-		Miss multiplier: 9%
-		Cleave damage: 45% of damage from initial hit
-	MeleeAttack Slam
-		damage: 26 (damage is multiplied by 1.25)
-		Critical hit chance: 10.0%
-		Miss chance: 15.0%
-		Critical hit multiplier: 150%
-		Miss multiplier: 50%
-		Cleave damage: 25% of damage from initial hit
-PASSIVES:
-	On Hit Given Test:
-		Whenever the user strikes an opponent, has a 25.0% chance to
-		inflict user with a 25.0% bonus
-		to their luck stat
-		for 3.0 turns
-	On Hit Taken Test:
-		Whenever the user is struck by an opponent, has a 25.0% chance to
-		inflict user with a 25.0% bonus
-		to their control stat
-		for 3.0 turns
-ITEMS:
-	Random Item #0:
-		ring
-		test item 1
-40.0/50
 Alexandre's Energy: 16
 Active enemy: Stone Soldier 100/100
 ~*~*~*~*~*~*~*~*~*~*
@@ -557,67 +283,6 @@ for 20 damage
 using lightning bolt!
 ~*~*~*~*~*~*~*~*~*~*
 Press enter or return to continue~*~*~*~*~*~*~*~*~*~*
-Enemy Team
-* Stone Soldier 79/100
-* Rain Entity 100/100
-Currently active: Stone Soldier
-Lv. 1 Stone Soldier
-stone
-STATS:
-	control: 25
-	resistance: 30
-	potency: 15
-	luck: 15
-	energy: 15
-ACTIVES:
-	AbstractActive stone bolt
-		damage: 23 (damage is multiplied by 1.35)
-		Critical hit chance: 8.0%
-		Miss chance: 10.0%
-		Critical hit multiplier: 150%
-		Miss multiplier: 50%
-		Cleave damage: 0% of damage from initial hit
-	MeleeAttack Slash
-		damage: 17 (damage is multiplied by 1.0)
-		Critical hit chance: 10.0%
-		Miss chance: 10.0%
-		Critical hit multiplier: 150%
-		Miss multiplier: 50%
-		Cleave damage: 25% of damage from initial hit
-	MeleeAttack Jab
-		damage: 17 (damage is multiplied by 1.0)
-		Critical hit chance: 15.0%
-		Miss chance: 15.0%
-		Critical hit multiplier: 175%
-		Miss multiplier: 25%
-		Cleave damage: 25% of damage from initial hit
-	MeleeAttack Slam
-		damage: 21 (damage is multiplied by 1.25)
-		Critical hit chance: 10.0%
-		Miss chance: 15.0%
-		Critical hit multiplier: 150%
-		Miss multiplier: 50%
-		Cleave damage: 25% of damage from initial hit
-PASSIVES:
-	On Hit Given Test:
-		Whenever the user strikes an opponent, has a 25.0% chance to
-		inflict user with a 25.0% bonus
-		to their luck stat
-		for 3.0 turns
-	On Hit Taken Test:
-		Whenever the user is struck by an opponent, has a 25.0% chance to
-		inflict the attacker with a 25.0% bonus
-		to their control stat
-		for 3.0 turns
-ITEMS:
-	Random Item #2:
-		gear
-		It comes from another dimension.
-0/10
-Stone Soldier's Energy: 12
-Active enemy: Alexandre 63/100
-~*~*~*~*~*~*~*~*~*~*
-Press enter or return to continue~*~*~*~*~*~*~*~*~*~*
 ~*~*~*~*~*~*~*~*~*~*
 Press enter or return to continue~*~*~*~*~*~*~*~*~*~*
 Stone Soldier struck Alexandre
@@ -628,59 +293,6 @@ Press enter or return to continue~*~*~*~*~*~*~*~*~*~*
 Alexandre
 * Alexandre 38/100
 Currently active: Alexandre
-Lv. 5 Alexandre
-lightning
-STATS:
-	control: 20
-	resistance: 24
-	potency: 16
-	luck: 20
-	energy: 20
-ACTIVES:
-	AbstractActive lightning bolt
-		damage: 31 (damage is multiplied by 1.5)
-		Critical hit chance: 7.0%
-		Miss chance: 9.0%
-		Critical hit multiplier: 135%
-		Miss multiplier: 50%
-		Cleave damage: 0% of damage from initial hit
-	MeleeAttack Slash
-		damage: 20 (damage is multiplied by 1.0)
-		Critical hit chance: 10.0%
-		Miss chance: 10.0%
-		Critical hit multiplier: 150%
-		Miss multiplier: 50%
-		Cleave damage: 25% of damage from initial hit
-	MeleeAttack Jab
-		damage: 20 (damage is multiplied by 1.0)
-		Critical hit chance: 15.0%
-		Miss chance: 16.0%
-		Critical hit multiplier: 175%
-		Miss multiplier: 9%
-		Cleave damage: 45% of damage from initial hit
-	MeleeAttack Slam
-		damage: 26 (damage is multiplied by 1.25)
-		Critical hit chance: 10.0%
-		Miss chance: 15.0%
-		Critical hit multiplier: 150%
-		Miss multiplier: 50%
-		Cleave damage: 25% of damage from initial hit
-PASSIVES:
-	On Hit Given Test:
-		Whenever the user strikes an opponent, has a 25.0% chance to
-		inflict user with a 25.0% bonus
-		to their luck stat
-		for 3.0 turns
-	On Hit Taken Test:
-		Whenever the user is struck by an opponent, has a 25.0% chance to
-		inflict user with a 25.0% bonus
-		to their control stat
-		for 3.0 turns
-ITEMS:
-	Random Item #0:
-		ring
-		test item 1
-40.0/50
 Alexandre's Energy: 17
 Active enemy: Stone Soldier 79/100
 ~*~*~*~*~*~*~*~*~*~*
@@ -688,59 +300,6 @@ Press enter or return to continue~*~*~*~*~*~*~*~*~*~*
 Alexandre
 * Alexandre 38/100
 Currently active: Alexandre
-Lv. 5 Alexandre
-lightning
-STATS:
-	control: 20
-	resistance: 24
-	potency: 16
-	luck: 20
-	energy: 20
-ACTIVES:
-	AbstractActive lightning bolt
-		damage: 31 (damage is multiplied by 1.5)
-		Critical hit chance: 7.0%
-		Miss chance: 9.0%
-		Critical hit multiplier: 135%
-		Miss multiplier: 50%
-		Cleave damage: 0% of damage from initial hit
-	MeleeAttack Slash
-		damage: 20 (damage is multiplied by 1.0)
-		Critical hit chance: 10.0%
-		Miss chance: 10.0%
-		Critical hit multiplier: 150%
-		Miss multiplier: 50%
-		Cleave damage: 25% of damage from initial hit
-	MeleeAttack Jab
-		damage: 20 (damage is multiplied by 1.0)
-		Critical hit chance: 15.0%
-		Miss chance: 16.0%
-		Critical hit multiplier: 175%
-		Miss multiplier: 9%
-		Cleave damage: 45% of damage from initial hit
-	MeleeAttack Slam
-		damage: 26 (damage is multiplied by 1.25)
-		Critical hit chance: 10.0%
-		Miss chance: 15.0%
-		Critical hit multiplier: 150%
-		Miss multiplier: 50%
-		Cleave damage: 25% of damage from initial hit
-PASSIVES:
-	On Hit Given Test:
-		Whenever the user strikes an opponent, has a 25.0% chance to
-		inflict user with a 25.0% bonus
-		to their luck stat
-		for 3.0 turns
-	On Hit Taken Test:
-		Whenever the user is struck by an opponent, has a 25.0% chance to
-		inflict user with a 25.0% bonus
-		to their control stat
-		for 3.0 turns
-ITEMS:
-	Random Item #0:
-		ring
-		test item 1
-40.0/50
 Alexandre's Energy: 17
 Active enemy: Stone Soldier 79/100
 ~*~*~*~*~*~*~*~*~*~*
@@ -757,67 +316,6 @@ for 13 damage
 using Slash!
 ~*~*~*~*~*~*~*~*~*~*
 Press enter or return to continue~*~*~*~*~*~*~*~*~*~*
-Enemy Team
-* Stone Soldier 65/100
-* Rain Entity 94/100
-Currently active: Stone Soldier
-Lv. 1 Stone Soldier
-stone
-STATS:
-	control: 25
-	resistance: 30
-	potency: 15
-	luck: 15
-	energy: 15
-ACTIVES:
-	AbstractActive stone bolt
-		damage: 23 (damage is multiplied by 1.35)
-		Critical hit chance: 8.0%
-		Miss chance: 10.0%
-		Critical hit multiplier: 150%
-		Miss multiplier: 50%
-		Cleave damage: 0% of damage from initial hit
-	MeleeAttack Slash
-		damage: 17 (damage is multiplied by 1.0)
-		Critical hit chance: 10.0%
-		Miss chance: 10.0%
-		Critical hit multiplier: 150%
-		Miss multiplier: 50%
-		Cleave damage: 25% of damage from initial hit
-	MeleeAttack Jab
-		damage: 17 (damage is multiplied by 1.0)
-		Critical hit chance: 15.0%
-		Miss chance: 15.0%
-		Critical hit multiplier: 175%
-		Miss multiplier: 25%
-		Cleave damage: 25% of damage from initial hit
-	MeleeAttack Slam
-		damage: 21 (damage is multiplied by 1.25)
-		Critical hit chance: 10.0%
-		Miss chance: 15.0%
-		Critical hit multiplier: 150%
-		Miss multiplier: 50%
-		Cleave damage: 25% of damage from initial hit
-PASSIVES:
-	On Hit Given Test:
-		Whenever the user strikes an opponent, has a 25.0% chance to
-		inflict user with a 25.0% bonus
-		to their luck stat
-		for 3.0 turns
-	On Hit Taken Test:
-		Whenever the user is struck by an opponent, has a 25.0% chance to
-		inflict the attacker with a 25.0% bonus
-		to their control stat
-		for 3.0 turns
-ITEMS:
-	Random Item #2:
-		gear
-		It comes from another dimension.
-0/10
-Stone Soldier's Energy: 14
-Active enemy: Alexandre 38/100
-~*~*~*~*~*~*~*~*~*~*
-Press enter or return to continue~*~*~*~*~*~*~*~*~*~*
 ~*~*~*~*~*~*~*~*~*~*
 Press enter or return to continue~*~*~*~*~*~*~*~*~*~*
 Stone Soldier struck Alexandre
@@ -828,59 +326,6 @@ Press enter or return to continue~*~*~*~*~*~*~*~*~*~*
 Alexandre
 * Alexandre 13/100
 Currently active: Alexandre
-Lv. 5 Alexandre
-lightning
-STATS:
-	control: 20
-	resistance: 24
-	potency: 16
-	luck: 20
-	energy: 20
-ACTIVES:
-	AbstractActive lightning bolt
-		damage: 31 (damage is multiplied by 1.5)
-		Critical hit chance: 7.0%
-		Miss chance: 9.0%
-		Critical hit multiplier: 135%
-		Miss multiplier: 50%
-		Cleave damage: 0% of damage from initial hit
-	MeleeAttack Slash
-		damage: 20 (damage is multiplied by 1.0)
-		Critical hit chance: 10.0%
-		Miss chance: 10.0%
-		Critical hit multiplier: 150%
-		Miss multiplier: 50%
-		Cleave damage: 25% of damage from initial hit
-	MeleeAttack Jab
-		damage: 20 (damage is multiplied by 1.0)
-		Critical hit chance: 15.0%
-		Miss chance: 16.0%
-		Critical hit multiplier: 175%
-		Miss multiplier: 9%
-		Cleave damage: 45% of damage from initial hit
-	MeleeAttack Slam
-		damage: 26 (damage is multiplied by 1.25)
-		Critical hit chance: 10.0%
-		Miss chance: 15.0%
-		Critical hit multiplier: 150%
-		Miss multiplier: 50%
-		Cleave damage: 25% of damage from initial hit
-PASSIVES:
-	On Hit Given Test:
-		Whenever the user strikes an opponent, has a 25.0% chance to
-		inflict user with a 25.0% bonus
-		to their luck stat
-		for 3.0 turns
-	On Hit Taken Test:
-		Whenever the user is struck by an opponent, has a 25.0% chance to
-		inflict user with a 25.0% bonus
-		to their control stat
-		for 3.0 turns
-ITEMS:
-	Random Item #0:
-		ring
-		test item 1
-40.0/50
 Alexandre's Energy: 20
 Active enemy: Stone Soldier 65/100
 ~*~*~*~*~*~*~*~*~*~*
@@ -888,59 +333,6 @@ Press enter or return to continue~*~*~*~*~*~*~*~*~*~*
 Alexandre
 * Alexandre 13/100
 Currently active: Alexandre
-Lv. 5 Alexandre
-lightning
-STATS:
-	control: 20
-	resistance: 24
-	potency: 16
-	luck: 20
-	energy: 20
-ACTIVES:
-	AbstractActive lightning bolt
-		damage: 31 (damage is multiplied by 1.5)
-		Critical hit chance: 7.0%
-		Miss chance: 9.0%
-		Critical hit multiplier: 135%
-		Miss multiplier: 50%
-		Cleave damage: 0% of damage from initial hit
-	MeleeAttack Slash
-		damage: 20 (damage is multiplied by 1.0)
-		Critical hit chance: 10.0%
-		Miss chance: 10.0%
-		Critical hit multiplier: 150%
-		Miss multiplier: 50%
-		Cleave damage: 25% of damage from initial hit
-	MeleeAttack Jab
-		damage: 20 (damage is multiplied by 1.0)
-		Critical hit chance: 15.0%
-		Miss chance: 16.0%
-		Critical hit multiplier: 175%
-		Miss multiplier: 9%
-		Cleave damage: 45% of damage from initial hit
-	MeleeAttack Slam
-		damage: 26 (damage is multiplied by 1.25)
-		Critical hit chance: 10.0%
-		Miss chance: 15.0%
-		Critical hit multiplier: 150%
-		Miss multiplier: 50%
-		Cleave damage: 25% of damage from initial hit
-PASSIVES:
-	On Hit Given Test:
-		Whenever the user strikes an opponent, has a 25.0% chance to
-		inflict user with a 25.0% bonus
-		to their luck stat
-		for 3.0 turns
-	On Hit Taken Test:
-		Whenever the user is struck by an opponent, has a 25.0% chance to
-		inflict user with a 25.0% bonus
-		to their control stat
-		for 3.0 turns
-ITEMS:
-	Random Item #0:
-		ring
-		test item 1
-40.0/50
 Alexandre's Energy: 20
 Active enemy: Stone Soldier 65/100
 ~*~*~*~*~*~*~*~*~*~*
@@ -955,67 +347,6 @@ Press enter or return to continue~*~*~*~*~*~*~*~*~*~*
 Alexandre struck Stone Soldier
 for 13 damage
 using Jab!
-~*~*~*~*~*~*~*~*~*~*
-Press enter or return to continue~*~*~*~*~*~*~*~*~*~*
-Enemy Team
-* Stone Soldier 51/100
-* Rain Entity 84/100
-Currently active: Stone Soldier
-Lv. 1 Stone Soldier
-stone
-STATS:
-	control: 25
-	resistance: 30
-	potency: 15
-	luck: 15
-	energy: 15
-ACTIVES:
-	AbstractActive stone bolt
-		damage: 23 (damage is multiplied by 1.35)
-		Critical hit chance: 8.0%
-		Miss chance: 10.0%
-		Critical hit multiplier: 150%
-		Miss multiplier: 50%
-		Cleave damage: 0% of damage from initial hit
-	MeleeAttack Slash
-		damage: 17 (damage is multiplied by 1.0)
-		Critical hit chance: 10.0%
-		Miss chance: 10.0%
-		Critical hit multiplier: 150%
-		Miss multiplier: 50%
-		Cleave damage: 25% of damage from initial hit
-	MeleeAttack Jab
-		damage: 17 (damage is multiplied by 1.0)
-		Critical hit chance: 15.0%
-		Miss chance: 15.0%
-		Critical hit multiplier: 175%
-		Miss multiplier: 25%
-		Cleave damage: 25% of damage from initial hit
-	MeleeAttack Slam
-		damage: 21 (damage is multiplied by 1.25)
-		Critical hit chance: 10.0%
-		Miss chance: 15.0%
-		Critical hit multiplier: 150%
-		Miss multiplier: 50%
-		Cleave damage: 25% of damage from initial hit
-PASSIVES:
-	On Hit Given Test:
-		Whenever the user strikes an opponent, has a 25.0% chance to
-		inflict user with a 25.0% bonus
-		to their luck stat
-		for 3.0 turns
-	On Hit Taken Test:
-		Whenever the user is struck by an opponent, has a 25.0% chance to
-		inflict the attacker with a 25.0% bonus
-		to their control stat
-		for 3.0 turns
-ITEMS:
-	Random Item #2:
-		gear
-		It comes from another dimension.
-0/10
-Stone Soldier's Energy: 15
-Active enemy: Alexandre 13/100
 ~*~*~*~*~*~*~*~*~*~*
 Press enter or return to continue~*~*~*~*~*~*~*~*~*~*
 ~*~*~*~*~*~*~*~*~*~*

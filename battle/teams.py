@@ -4,6 +4,8 @@ from character import PlayerCharacter, EnemyCharacter, AbstractCharacter
 from item import Item
 from serialize import AbstractJsonSerialable
 from fileSystem import USER_DIR, saveSerializable, loadSerializable
+from util.stringUtil import entab, lengthOfLongest
+from inputOutput.screens import displayTeamUndetailed
 import os
 import random
 
@@ -119,6 +121,18 @@ class AbstractTeam(AbstractJsonSerialable):
             Op.add("Active enemy: " + self.enemy.active.name + " " + str(int(self.enemy.active.remHp)) + "/" + str(int(self.enemy.active.maxHp)))
         Op.display()
 
+    def getShortDisplayData(self)->str:
+        lines = [
+            f'{self.name}:'
+        ]
+        longestName = lengthOfLongest((member.name for member in self.membersRem))
+        longestHp = lengthOfLongest((str(member.remHp) for member in self.membersRem))
+        for member in self.membersRem:
+            lines.append(f'* {member.name.ljust(longestName)}: {str(member.remHp).rjust(longestHp)} HP')
+        if hasattr(self, "active"):
+            lines.append(f'Current active: {self.active.name} ({self.active.energy} energy)')
+        return "\n".join(lines)
+
     def __str__(self):
         return self.name
 
@@ -130,7 +144,7 @@ class AbstractTeam(AbstractJsonSerialable):
             self.active = self.chooseSwitchin()
         self.switched_in = False
 
-        self.displayData()
+        displayTeamUndetailed(self)
         if self.shouldSwitch():
             self.active = self.chooseSwitchin()
             self.switched_in = True
@@ -178,7 +192,7 @@ class PlayerTeam(AbstractTeam):
         Asks the user if they want to
         switch before attacking
         """
-        self.displayData()
+        displayTeamUndetailed(self)
 
         return len(self.members) > 1 and choose('Do you want to switch your active character?', ['Yes', 'No']) == 'Yes'
 
@@ -190,7 +204,7 @@ class PlayerTeam(AbstractTeam):
         for member in self.membersRem:
             if member != self.active:
                 choices.append(member)
-        self.displayData()
+        displayTeamUndetailed(self)
         self.switch(choose("Who do you want to bring in?", choices))
 
     """

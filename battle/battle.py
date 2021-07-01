@@ -7,6 +7,7 @@ from character import EnemyCharacter
 from fileSystem import getEnemyList
 from serialize import AbstractJsonSerialable
 from util.stringUtil import entab
+from inputOutput.screens import displayTeamUndetailed
 import random
 
 
@@ -127,8 +128,8 @@ class Battle(AbstractJsonSerialable):
         self.player_team.initForBattle()
         self.player_team.enemy = self.enemy_team
 
-        self.enemy_team.displayData()
-        self.player_team.displayData()
+        displayTeamUndetailed(self.enemy_team)
+        displayTeamUndetailed(self.player_team)
 
         self.weather = random.choice(self.forecast)
         Op.add(self.weather.getMsg())
