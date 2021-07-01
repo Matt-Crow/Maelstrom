@@ -115,11 +115,9 @@ class Threshhold(AbstractPassive):
     """
     def getDisplayData(self) -> str:
         target = "user" if self.targetsUser else 'active enemy'
-        nl = "\n"
         desc = [
             f'{self.name}:',
-            entab(f'Inflicts {target} with {self.getBoost().getDisplayData()}'),
-            entab(f'when the user is at or below {self.getStatValue("threshhold") * 100}% of their maximum HP')
+            entab(f'Inflicts {target} with {self.getBoost().getDisplayData()} when the user is at or below {self.getStatValue("threshhold") * 100}% of their maximum HP')
         ]
         return "\n".join(desc)
 

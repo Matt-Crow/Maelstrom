@@ -17,7 +17,7 @@ so this way, there don't have to be any globals.
 """
 class Game:
     def __init__(self):
-        self.player = None
+        self.playerTeam = None
         self.currentArea = None
         self.exit = False
 
@@ -44,19 +44,20 @@ class Game:
             scr.addOption(f'f({i}) = {32 - i * i}')
         scr.addOption("Jeff")
         scr.display()
-        
+
         #EnemyCharacter.generateEnemies()
 
     def chooseAction(self):
         options = ["explore", "view character info", "customize character", "exit"]
         choice = choose("What do you wish to do?", options)
         if choice == "explore":
-            self.currentArea.chooseAction(self.player)
+            self.currentArea.chooseAction(self.playerTeam)
         elif choice == "view character info":
-            self.player.displayData()
-            displayCharacterStats(self.player.membersRem[0])
+            # This will change to display the entire team if I change back to
+            # more than one member per player team
+            displayCharacterStats(self.playerTeam.getMember())
         elif choice == "customize character":
-            self.player.manage()
+            self.playerTeam.manage()
         elif choice == "exit":
             self.exit = True
         else:
@@ -68,12 +69,12 @@ class Game:
     def run(self):
         self.currentArea = Area.createDefaultArea()
         while not self.exit:
-            if self.player == None:
+            if self.playerTeam == None:
                 self.mainMenu()
             else:
                 self.chooseAction()
-        if self.player is not None:
-            self.player.save()
+        if self.playerTeam is not None:
+            self.playerTeam.save()
 
     """
     Displayes the main menu
@@ -116,9 +117,11 @@ class Game:
     Play a game as the given user
     """
     def loginUser(self, userName):
-        self.player = PlayerTeam.loadUser(userName)
-        self.player.initForBattle()
-        self.player.displayData()
+        self.playerTeam = PlayerTeam.loadUser(userName)
+        self.playerTeam.initForBattle()
+        # This will change to display the entire team if I change back to
+        # more than one member per player team
+        displayCharacterStats(self.playerTeam.getMember())
 
     """
     Creates the menu for creating a new user

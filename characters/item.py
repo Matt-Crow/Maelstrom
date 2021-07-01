@@ -81,6 +81,6 @@ class Item(AbstractCustomizable):
         ret = [
             f'{self.name}: {self.itemType}',
             entab(self.getBoost().getDisplayData()),
-            entab(self.desc)
+            entab(f'"{self.desc}"')
         ]
         return "\n".join(ret)

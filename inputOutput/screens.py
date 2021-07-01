@@ -9,7 +9,7 @@ from enum import Enum, auto
 import math
 import sys
 import re
-from util.utilities import lengthOfLongest
+from util.stringUtil import lengthOfLongest
 
 SCREEN_COLS = 80
 SCREEN_ROWS = 40

@@ -1,5 +1,4 @@
 import random
-import functools
 
 debug = False
 
@@ -13,13 +12,6 @@ def setInBounds(num, min, max):
     elif num > max:
         ret = max
     return ret
-
-"""
-Returns the length of the longest string in the given array
-"""
-def lengthOfLongest(strs: "List<str>")->int:
-    strs = map(lambda str: len(str), strs)
-    return functools.reduce(lambda bestLenSoFar, currLen: max(bestLenSoFar, currLen), strs, 0)
 
 
 def roll_perc(base = 0):

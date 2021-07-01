@@ -47,6 +47,12 @@ class AbstractTeam(AbstractJsonSerialable):
         return ret
 
     """
+    Use this to access team members
+    """
+    def getMember(self, num=0)->"AbstractCharacter":
+        return self.members[num]
+
+    """
     Adds a character to this' team, if they are not
     already on the team
     """
@@ -160,7 +166,7 @@ class PlayerTeam(AbstractTeam):
     @classmethod
     def loadUser(cls, userName: str)->"PlayerTeam":
         return loadSerializable(userName, USER_DIR, AbstractTeam)
-        
+
     def save(self):
         saveSerializable(self, USER_DIR)
 

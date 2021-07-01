@@ -132,7 +132,7 @@ class Boost(object):
         self.duration = self.base_duration
 
     def getDisplayData(self)->str:
-        ret = f'Boost {self.id}: +{int(self.amount * 100)}% bonus to {self.stat_name}'
+        ret = f'+{int(self.amount * 100)}% {self.stat_name}'
         if self.duration > 0:
             ret += f' for {self.duration} turns'
         return ret

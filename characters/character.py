@@ -7,7 +7,7 @@ from events import OnHitEvent, ActionRegister, HIT_GIVEN_EVENT, HIT_TAKEN_EVENT,
 from customizable import AbstractCustomizable
 from util.output import Op
 from fileSystem import saveSerializable, loadSerializable, ENEMY_DIR
-from util.stringUtil import entab
+from util.stringUtil import entab, lengthOfLongest
 
 """
 Characters
@@ -161,8 +161,9 @@ class AbstractCharacter(AbstractCustomizable):
         ]
 
         ret.append("STATS:")
+        width = lengthOfLongest(STATS)
         for stat in STATS:
-            ret.append(entab(f'{stat}: {int(self.getStatValue(stat))}'))
+            ret.append(entab(f'{stat.ljust(width)}: {int(self.getStatValue(stat))}'))
 
         ret.append("ACTIVES:")
         for active in self.actives:
