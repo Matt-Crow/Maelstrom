@@ -14,7 +14,6 @@ from util.stringUtil import lengthOfLongest
 
 
 
-
 def displayCharacterStats(character):
     screen = SimplerGameScreen()
     screen.setTitle(f'{character.name} Lv. {character.level}')
@@ -35,20 +34,60 @@ SCREEN_COLS = 80
 SCREEN_ROWS = 40
 
 BORDER = "#"
-OPTION_ROWS = 5 # allows for 2 columns of 5 options each
-
-class GameScreenMode(Enum):
-    ONE_COL = auto()
-    SPLIT = auto()
+OPTION_ROWS = 5
 
 NUM_BODY_ROWS = 10
+
+class RowStyle:
+    def wrap(self, msg: str)->"list<str>":
+        pass
+
+    def format(self, msg: str)->"list<str>":
+        pass
+
+class BorderedRow:
+    def __init__(self, rowWidth=SCREEN_COLS, border="#", padding=" "):
+        super().__init__()
+        self.border = border
+        self.padding = padding
+        self.bodyWidth = rowWidth - (len(border) + len(padding)) * 2
+
+    def wrap(self, msg: str)->"list<str>":
+        rows = []
+
+        while len(msg.strip()) is not 0:
+            wordBreak = msg.rfind(" ", 0, self.bodyWidth)
+            firstNonSpace = re.search("[^ ]", msg)
+            indentation = 0 if not firstNonSpace else firstNonSpace.start()
+            if wordBreak < indentation: # no suitable break point
+                rows.append(msg[:maxWidth])
+                msg = indentation * " " + msg[self.bodyWidth:]
+            else:
+                rows.append(msg[:wordBreak])
+                msg = indentation * " " + msg[(wordBreak + 1):]
+
+        return rows
+
+    def format(self, msg: str)->"list<str>":
+        rows = []
+
+        if "\n" in msg:
+            for line in msg.split("\n"):
+                rows.extend(self.format(line))
+        elif len(msg) > self.bodyWidth:
+            rows.extend(self.wrap(msg))
+        else:
+            rows.append(msg)
+
+        return [f'{self.border}{self.padding}{row.ljust(self.bodyWidth, self.padding)}{self.padding}{self.border}' for row in rows]
+
+
 
 class SimplerGameScreen:
     def __init__(self):
         self.title = "Maelstrom"
         self.body = [] # List of BodyRows
         self.options = []
-        self.mode = GameScreenMode.ONE_COL
 
     def setTitle(self, title: str):
         self.title = title[:(SCREEN_COLS - 4)] # ensures title fits
@@ -59,33 +98,55 @@ class SimplerGameScreen:
 
     def addBodyRow(self, row: str):
         row = self.format(row)
-        if "\n" in row:
-            self.addBodyRows(row.split("\n"))
-        elif len(row) > SCREEN_COLS - 4: # make sure it fits
-            self.addBodyRows(self.wrap(row))
-        else:
-            self.body.append(LeftAlignedRow(row))
+        self.body.extend(BorderedRow().format(row))
 
     def addSplitRow(self, left: str, right: str):
-        # not done yet
         left = self.format(left)
         right = self.format(right)
-        # what to do about newlines?
-        half = int((SCREEN_COLS - 4) / 2)
-        if len(left) > half:
-            pass
-        if len(right) > half:
-            pass
-        self.body.append(SplitRow(left, right))
+
+        # deal with newlines
+        if "\n" in left:
+            leftLines = left.split("\n")
+        else:
+            leftLines = [left]
+
+        if "\n" in right:
+            rightLines = right.split("\n")
+        else:
+            rightLines = [right]
+
+        half = int((SCREEN_COLS - 4) / 2) - 2
+        leftRows = []
+        rightRows = []
+
+        for line in leftLines:
+            if len(line) > half:
+                leftRows.extend(self.wrap(line, half))
+            else:
+                leftRows.append(line)
+
+        for line in rightLines:
+            if len(line) > half:
+                rightRows.extend(self.wrap(line, half))
+            else:
+                rightRows.append(line)
+
+        # Pair up left and right rows. Rows with no match get paired with spaces
+        totalLines = max(len(leftRows), len(rightRows))
+        for i in range(totalLines):
+            l = ""
+            r = ""
+            if len(leftRows) > i:
+                l = leftRows[i]
+            if len(rightRows) > i:
+                r = rightRows[i]
+            self.body.append(SplitRow(l, r))
 
     def format(self, row: str)->str:
         return row.replace("\t", " " * 4)
 
-    def wrap(self, row: str)->"List<str>":
+    def wrap(self, row: str, maxWidth: int)->"List<str>":
         rows = []
-        maxWidth = SCREEN_COLS - 4
-        if self.mode == GameScreenMode.SPLIT:
-            maxWidth = int(maxWidth / 2)
 
         while len(row.strip()) is not 0:
             wordBreak = row.rfind(" ", 0, maxWidth)
@@ -105,9 +166,6 @@ class SimplerGameScreen:
     """
     def addOption(self, option: str):
         self.options.append(option)
-
-    def setMode(self, mode):
-        self.mode = mode
 
     def clear(self):
         self.title = "Maelstrom"
@@ -152,10 +210,7 @@ class SimplerGameScreen:
     """
     def writeBody(self, out, firstLineNum=0):
         print(BORDER * SCREEN_COLS, file=out)
-        if self.mode == GameScreenMode.ONE_COL:
-            self.writeOneCol(out, firstLineNum)
-        else:
-            raise "not implemented"
+        self.writeOneCol(out, firstLineNum)
         print(BORDER * SCREEN_COLS, file=out)
 
     def writeOneCol(self, out, firstLineNum=0):
@@ -358,7 +413,6 @@ class GameScreen(Screen):
         self.nextRightLine = 0
         self.options = []
         self.clearOptions()
-        self.mode = GameScreenMode.SPLIT
 
     def setTitle(self, title: str):
         self.outlineBox(0, 0, SCREEN_COLS, 3, BORDER, " ")
@@ -380,9 +434,6 @@ class GameScreen(Screen):
         self.outlineBox(0, SCREEN_ROWS - numRows, SCREEN_COLS, numRows, BORDER, " ")
 
     def display(self):
-        if self.mode == GameScreenMode.ONE_COL:
-            self.outlineBox(0, 3, SCREEN_COLS, SCREEN_ROWS - 3 - OPTION_ROWS - 2, BORDER, " ")
-        elif self.mode == GameScreenMode.SPLIT:
-            self.outlineBox(0, 3, int(SCREEN_COLS / 2), SCREEN_ROWS - 3 - OPTION_ROWS - 2, BORDER, " ")
-            self.outlineBox(int(SCREEN_COLS / 2), 3, int(SCREEN_COLS / 2), SCREEN_ROWS - 3 - OPTION_ROWS - 2, BORDER, " ")
+        self.outlineBox(0, 3, int(SCREEN_COLS / 2), SCREEN_ROWS - 3 - OPTION_ROWS - 2, BORDER, " ")
+        self.outlineBox(int(SCREEN_COLS / 2), 3, int(SCREEN_COLS / 2), SCREEN_ROWS - 3 - OPTION_ROWS - 2, BORDER, " ")
         super(GameScreen, self).display()

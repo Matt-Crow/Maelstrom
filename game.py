@@ -32,9 +32,8 @@ class Game:
         GameScreen().display()
         """
         scr = SimplerGameScreen()
-        scr.addBodyRow("Hello there!\nDoes this thing even work?\n\tHello?\n\t\tHello?\n\t\t\tAnybody there?")
+        scr.addSplitRow("alpha" * 20, "beta")
         scr.addBodyRow("ahh " * 50)
-        scr.addSplitRow("alpha", "beta")
         for i in range(20):
             scr.addOption(f'f({i}) = {32 - i * i}')
         scr.addOption("Jeff")
