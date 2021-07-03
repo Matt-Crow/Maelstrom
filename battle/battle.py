@@ -7,7 +7,7 @@ from character import EnemyCharacter
 from fileSystem import getEnemyList
 from serialize import AbstractJsonSerialable
 from util.stringUtil import entab
-from inputOutput.screens import displayTeamUndetailed
+from inputOutput.screens import displayTeamUndetailed, displayBattleStart
 import random
 
 
@@ -134,6 +134,8 @@ class Battle(AbstractJsonSerialable):
         self.weather = random.choice(self.forecast)
         Op.add(self.weather.getMsg())
         Op.display()
+
+        displayBattleStart(self)
 
         while not self.enemy_team.isDefeated() and not self.player_team.isDefeated():
             self.weather.applyEffect(self.enemy_team.membersRem)

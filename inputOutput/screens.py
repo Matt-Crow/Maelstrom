@@ -28,6 +28,16 @@ def displayTeamUndetailed(team):
     screen.addBodyRow(displayData)
     screen.display()
 
+def displayBattleStart(battle):
+    screen = SimplerGameScreen()
+    screen.setTitle(f'{battle.player_team.name} VS. {battle.enemy_team.name}')
+    playerTeamData = battle.player_team.getShortDisplayData()
+    enemyTeamData = battle.enemy_team.getShortDisplayData()
+    screen.addSplitRow(playerTeamData, enemyTeamData)
+    screen.addBodyRows(battle.prescript)
+    screen.addBodyRow(battle.weather.getMsg())
+    screen.displayAndPause()
+
 
 
 SCREEN_COLS = 80
@@ -38,6 +48,9 @@ OPTION_ROWS = 5
 
 NUM_BODY_ROWS = 10
 
+"""
+Psuedo-abstract class
+"""
 class RowStyle:
     def wrap(self, msg: str)->"list<str>":
         pass
@@ -45,41 +58,55 @@ class RowStyle:
     def format(self, msg: str)->"list<str>":
         pass
 
+"""
+RowContentStyle(n).format(s) will return an array of string each exactly n
+characters long
+"""
+class RowContentStyle(RowStyle):
+    def __init__(self, rowWidth):
+        super().__init__()
+        self.rowWidth = rowWidth
+
+    def wrap(self, msg: str)->"list<str>":
+        lines = []
+        line = msg.replace("\t", " " * 4)
+        if len(line.strip()) is 0: # catch purposely empty lines
+            lines.append(line)
+
+        while len(line.strip()) is not 0:
+            wordBreak = line.rfind(" ", 0, self.rowWidth)
+            firstNonSpace = re.search("[^ ]", line)
+            indentation = 0 if not firstNonSpace else firstNonSpace.start()
+            if wordBreak < indentation: # no suitable break point
+                lines.append(line[:self.rowWidth])
+                line = indentation * " " + line[self.rowWidth:]
+            else:
+                lines.append(line[:wordBreak])
+                line = indentation * " " + line[(wordBreak + 1):]
+
+        return lines
+
+    def format(self, msg: str)->"list<str>":
+        rows = []
+        msg = msg.replace("\t", " " * 4)
+
+        for line in msg.split("\n"):
+            rows.extend(self.wrap(line))
+
+        return [row.ljust(self.rowWidth) for row in rows]
+
+
 class BorderedRowStyle(RowStyle):
     def __init__(self, rowWidth=SCREEN_COLS, border="#", padding=" "):
         super().__init__()
         self.border = border
         self.padding = padding
-        self.bodyWidth = rowWidth - (len(border) + len(padding)) * 2
-
-    def wrap(self, msg: str)->"list<str>":
-        rows = []
-
-        while len(msg.strip()) is not 0:
-            wordBreak = msg.rfind(" ", 0, self.bodyWidth)
-            firstNonSpace = re.search("[^ ]", msg)
-            indentation = 0 if not firstNonSpace else firstNonSpace.start()
-            if wordBreak < indentation: # no suitable break point
-                rows.append(msg[:self.bodyWidth])
-                msg = indentation * " " + msg[self.bodyWidth:]
-            else:
-                rows.append(msg[:wordBreak])
-                msg = indentation * " " + msg[(wordBreak + 1):]
-
-        return rows
+        bodyWidth = rowWidth - (len(border) + len(padding)) * 2
+        self.contentStyler = RowContentStyle(bodyWidth)
 
     def format(self, msg: str)->"list<str>":
-        rows = []
-
-        if "\n" in msg:
-            for line in msg.split("\n"):
-                rows.extend(self.format(line))
-        elif len(msg) > self.bodyWidth:
-            rows.extend(self.wrap(msg))
-        else:
-            rows.append(msg)
-
-        return [f'{self.border}{self.padding}{row.ljust(self.bodyWidth, self.padding)}{self.padding}{self.border}' for row in rows]
+        innerStyling = self.contentStyler.format(msg)
+        return [f'{self.border}{self.padding}{row}{self.padding}{self.border}' for row in innerStyling]
 
 class SplitRowStyle(RowStyle):
     def __init__(self, rowWidth=SCREEN_COLS, border="#", padding=" "):
@@ -93,10 +120,11 @@ class SplitRowStyle(RowStyle):
         leftRows = self.leftStyle.format(left)
         rightRows = self.rightStyle.format(right)
 
+        # Pair up left and right rows. Rows with no match get paired with spaces
         numRows = max(len(leftRows), len(rightRows))
         for i in range(numRows):
-            l = self.leftStyle.format("")[0] # empty row
-            r = self.rightStyle.format("")[0]
+            l = self.leftStyle.format(" ")[0] # empty row
+            r = self.rightStyle.format(" ")[0]
             if len(leftRows) > i:
                 l = leftRows[i]
             if len(rightRows) > i:
@@ -109,7 +137,7 @@ class SplitRowStyle(RowStyle):
 class SimplerGameScreen:
     def __init__(self):
         self.title = "Maelstrom"
-        self.body = [] # List of BodyRows
+        self.body = [] # List of str
         self.options = []
 
     def setTitle(self, title: str):
@@ -120,71 +148,10 @@ class SimplerGameScreen:
             self.addBodyRow(row)
 
     def addBodyRow(self, row: str):
-        row = self.format(row)
         self.body.extend(BorderedRowStyle().format(row))
 
     def addSplitRow(self, left: str, right: str):
-        left = self.format(left)
-        right = self.format(right)
         self.body.extend(SplitRowStyle().format(left, right))
-        """
-        # deal with newlines
-        if "\n" in left:
-            leftLines = left.split("\n")
-        else:
-            leftLines = [left]
-
-        if "\n" in right:
-            rightLines = right.split("\n")
-        else:
-            rightLines = [right]
-
-        half = int((SCREEN_COLS - 4) / 2) - 2
-        leftRows = []
-        rightRows = []
-
-        for line in leftLines:
-            if len(line) > half:
-                leftRows.extend(self.wrap(line, half))
-            else:
-                leftRows.append(line)
-
-        for line in rightLines:
-            if len(line) > half:
-                rightRows.extend(self.wrap(line, half))
-            else:
-                rightRows.append(line)
-
-        # Pair up left and right rows. Rows with no match get paired with spaces
-        totalLines = max(len(leftRows), len(rightRows))
-        for i in range(totalLines):
-            l = ""
-            r = ""
-            if len(leftRows) > i:
-                l = leftRows[i]
-            if len(rightRows) > i:
-                r = rightRows[i]
-            self.body.append(SplitRow(l, r))
-        """
-
-    def format(self, row: str)->str:
-        return row.replace("\t", " " * 4)
-
-    def wrap(self, row: str, maxWidth: int)->"List<str>":
-        rows = []
-
-        while len(row.strip()) is not 0:
-            wordBreak = row.rfind(" ", 0, maxWidth)
-            firstNonSpace = re.search("[^ ]", row)
-            indentation = 0 if not firstNonSpace else firstNonSpace.start()
-            if wordBreak < indentation: # no suitable break point
-                rows.append(row[:maxWidth])
-                row = indentation * " " + row[maxWidth:]
-            else:
-                rows.append(row[:wordBreak])
-                row = indentation * " " + row[(wordBreak + 1):]
-
-        return rows
 
     """
     There may need to be some limit on the number of options this can be given
@@ -231,7 +198,7 @@ class SimplerGameScreen:
         print(BORDER * SCREEN_COLS, file=out)
 
     """
-    Writes the body lines withing [firstLineNum, firstLineNum + NUM_BODY_ROWS)
+    Writes the body lines within [firstLineNum, firstLineNum + NUM_BODY_ROWS)
     """
     def writeBody(self, out, firstLineNum=0):
         print(BORDER * SCREEN_COLS, file=out)
@@ -280,13 +247,6 @@ class SimplerGameScreen:
             print(f'{BORDER} {msg} {BORDER}', file=out)
 
         print(BORDER * SCREEN_COLS, file=out)
-
-
-class BodyRowStyle(Enum):
-    LEFT_ALIGN = auto()
-    RIGHT_ALIGN = auto()
-    CENTER_ALIGN = auto()
-    SPLIT = auto()
 
 class BodyRow:
     def __init__(self, content: str):

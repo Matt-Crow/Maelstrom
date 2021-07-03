@@ -6,7 +6,7 @@ from area import Area
 import json
 from fileSystem import getUserList
 
-from inputOutput.screens import Screen, AreaScreen, GameScreen, SimplerGameScreen, displayCharacterStats
+from inputOutput.screens import Screen, AreaScreen, GameScreen, SimplerGameScreen, displayCharacterStats, RowContentStyle
 
 
 """
@@ -32,12 +32,15 @@ class Game:
         GameScreen().display()
         """
         scr = SimplerGameScreen()
-        scr.addSplitRow("alpha" * 20, "beta")
+        scr.addSplitRow("alpha" * 20, "beta\ngamma\n\tdelta\nsomething else entirely")
         scr.addBodyRow("ahh " * 50)
         for i in range(20):
             scr.addOption(f'f({i}) = {32 - i * i}')
         scr.addOption("Jeff")
         scr.display()
+
+        for line in RowContentStyle(8).format("#" * 60):
+            print(f'|{line}|')
 
         #EnemyCharacter.generateEnemies()
 
