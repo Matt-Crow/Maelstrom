@@ -8,8 +8,6 @@ from fileSystem import getUserList
 
 from inputOutput.screens import Screen, AreaScreen, GameScreen, SimplerGameScreen, displayCharacterStats
 
-from util.stringUtil import entab
-
 
 """
 The Game class is used to store data on the game the user is currently playing,
@@ -22,11 +20,7 @@ class Game:
         self.exit = False
 
     def test(self):
-        myStr = "Hello World!\n"
-        myStr += entab("This series of lines\nWill be entabbed!\nCool,\n\tRight?")
-        myStr = entab(myStr) + "\nEverything before this is entabbed"
-        print(myStr)
-
+        """
         screen = Screen()
         screen.add(77, 0, "Yum")
         screen.add(79, 10, "Vertical")
@@ -36,10 +30,11 @@ class Game:
         screen.display()
         AreaScreen(Area.createDefaultArea()).display()
         GameScreen().display()
+        """
         scr = SimplerGameScreen()
         scr.addBodyRow("Hello there!\nDoes this thing even work?\n\tHello?\n\t\tHello?\n\t\t\tAnybody there?")
         scr.addBodyRow("ahh " * 50)
-        scr.addBodyRow("X#" * 50)
+        scr.addSplitRow("alpha", "beta")
         for i in range(20):
             scr.addOption(f'f({i}) = {32 - i * i}')
         scr.addOption("Jeff")

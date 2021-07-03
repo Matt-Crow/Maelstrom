@@ -46,9 +46,7 @@ NUM_BODY_ROWS = 10
 class SimplerGameScreen:
     def __init__(self):
         self.title = "Maelstrom"
-        self.body = []
-        self.leftBody = []
-        self.rightBody = []
+        self.body = [] # List of BodyRows
         self.options = []
         self.mode = GameScreenMode.ONE_COL
 
@@ -66,7 +64,19 @@ class SimplerGameScreen:
         elif len(row) > SCREEN_COLS - 4: # make sure it fits
             self.addBodyRows(self.wrap(row))
         else:
-            self.body.append(row)
+            self.body.append(LeftAlignedRow(row))
+
+    def addSplitRow(self, left: str, right: str):
+        # not done yet
+        left = self.format(left)
+        right = self.format(right)
+        # what to do about newlines?
+        half = int((SCREEN_COLS - 4) / 2)
+        if len(left) > half:
+            pass
+        if len(right) > half:
+            pass
+        self.body.append(SplitRow(left, right))
 
     def format(self, row: str)->str:
         return row.replace("\t", " " * 4)
@@ -105,8 +115,6 @@ class SimplerGameScreen:
 
     def clearBody(self):
         self.body.clear()
-        self.leftBody.clear()
-        self.rightBody.clear()
 
     def clearOptions(self):
         self.options.clear()
@@ -119,7 +127,7 @@ class SimplerGameScreen:
         input("press enter or return to continue")
 
     def write(self, out): # can use a file as out
-        bodyLines = max(len(self.body), len(self.leftBody), len(self.rightBody))
+        bodyLines = len(self.body)
         currLine = 0
         """
         Displays NUM_BODY_ROWS rows of the body at a time
@@ -136,9 +144,7 @@ class SimplerGameScreen:
 
     def writeTitle(self, out):
         print(BORDER * SCREEN_COLS, file=out)
-        leftPadding = math.floor((SCREEN_COLS - len(self.title)) / 2) - 1
-        rightPadding = math.ceil((SCREEN_COLS - len(self.title)) / 2) - 1
-        print(f'{BORDER}{leftPadding * " "}{self.title}{rightPadding * " "}{BORDER}')
+        print(CenterAlignedRow(self.title), file=out)
         print(BORDER * SCREEN_COLS, file=out)
 
     """
@@ -154,13 +160,11 @@ class SimplerGameScreen:
 
     def writeOneCol(self, out, firstLineNum=0):
         rowNum = 0
-        spaces = 0
         row = None
         while rowNum < NUM_BODY_ROWS:
             if rowNum + firstLineNum < len(self.body):
                 row = self.body[rowNum + firstLineNum]
-                spaces = SCREEN_COLS - 4 - len(row)
-                print(f'{BORDER} {row}{" " * spaces} {BORDER}', file=out)
+                print(row, file=out)
             else:
                 print(f'{BORDER} {" " * (SCREEN_COLS - 4)} {BORDER}')
             rowNum = rowNum + 1
@@ -198,6 +202,68 @@ class SimplerGameScreen:
         print(BORDER * SCREEN_COLS, file=out)
 
 
+class BodyRowStyle(Enum):
+    LEFT_ALIGN = auto()
+    RIGHT_ALIGN = auto()
+    CENTER_ALIGN = auto()
+    SPLIT = auto()
+
+class BodyRow:
+    def __init__(self, content: str):
+        self.content = content
+
+class LeftAlignedRow(BodyRow):
+    def __init__(self, content: str):
+        super().__init__(content)
+
+    def __str__(self)->str:
+        return f'{BORDER} {self.content.ljust(SCREEN_COLS - 4)} {BORDER}'
+
+class RightAlignedRow(BodyRow):
+    def __init__(self, content: str):
+        super().__init__(content)
+
+    def __str__(self)->str:
+        return f'{BORDER} {self.content.rjust(SCREEN_COLS - 4)} {BORDER}'
+
+class CenterAlignedRow(BodyRow):
+    def __init__(self, content: str):
+        super().__init__(content)
+        maxWidth = SCREEN_COLS - 4
+        """
+        when maxWidth == len(content), cannot offset
+        when len(content) == 1, offset is halfway across the screen
+        """
+        offset = int((maxWidth - len(content)) / 2)
+        self.spacing = " " * offset
+
+    def __str__(self)->str:
+        return f'{BORDER} {(self.spacing + self.content).ljust(SCREEN_COLS - 4)} {BORDER}'
+
+class SplitRow(BodyRow):
+    def __init__(self, left=None, right=None):
+        super().__init__("")
+
+        half = int((SCREEN_COLS - 4) / 2)
+
+        if left is None:
+            left = " " * half
+        self.left = left
+
+        if right is None:
+            right = " " * half
+        self.right = right
+
+    def setLeft(self, left: str):
+        self.left = left
+
+    def setRight(self, right: str):
+        self.right = right
+
+    def __str__(self)->str:
+        leftHalf = math.floor((SCREEN_COLS - 4) / 2) - 2
+        rightHalf = math.ceil((SCREEN_COLS - 4) / 2) - 2
+        return f'{BORDER} {self.left.ljust(leftHalf)} {BORDER}{BORDER} {self.right.ljust(rightHalf)} {BORDER}'
 
 
 
