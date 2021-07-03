@@ -52,9 +52,6 @@ NUM_BODY_ROWS = 10
 Psuedo-abstract class
 """
 class RowStyle:
-    def wrap(self, msg: str)->"list<str>":
-        pass
-
     def format(self, msg: str)->"list<str>":
         pass
 
@@ -77,7 +74,10 @@ class RowContentStyle(RowStyle):
             wordBreak = line.rfind(" ", 0, self.rowWidth)
             firstNonSpace = re.search("[^ ]", line)
             indentation = 0 if not firstNonSpace else firstNonSpace.start()
-            if wordBreak < indentation: # no suitable break point
+            if len(line) < self.rowWidth: # fits
+                lines.append(line)
+                line = indentation * " " + line[self.rowWidth:]
+            elif wordBreak < indentation: # no suitable break point
                 lines.append(line[:self.rowWidth])
                 line = indentation * " " + line[self.rowWidth:]
             else:
@@ -252,20 +252,6 @@ class BodyRow:
     def __init__(self, content: str):
         self.content = content
 
-class LeftAlignedRow(BodyRow):
-    def __init__(self, content: str):
-        super().__init__(content)
-
-    def __str__(self)->str:
-        return f'{BORDER} {self.content.ljust(SCREEN_COLS - 4)} {BORDER}'
-
-class RightAlignedRow(BodyRow):
-    def __init__(self, content: str):
-        super().__init__(content)
-
-    def __str__(self)->str:
-        return f'{BORDER} {self.content.rjust(SCREEN_COLS - 4)} {BORDER}'
-
 class CenterAlignedRow(BodyRow):
     def __init__(self, content: str):
         super().__init__(content)
@@ -279,32 +265,6 @@ class CenterAlignedRow(BodyRow):
 
     def __str__(self)->str:
         return f'{BORDER} {(self.spacing + self.content).ljust(SCREEN_COLS - 4)} {BORDER}'
-
-class SplitRow(BodyRow):
-    def __init__(self, left=None, right=None):
-        super().__init__("")
-
-        half = int((SCREEN_COLS - 4) / 2)
-
-        if left is None:
-            left = " " * half
-        self.left = left
-
-        if right is None:
-            right = " " * half
-        self.right = right
-
-    def setLeft(self, left: str):
-        self.left = left
-
-    def setRight(self, right: str):
-        self.right = right
-
-    def __str__(self)->str:
-        leftHalf = math.floor((SCREEN_COLS - 4) / 2) - 2
-        rightHalf = math.ceil((SCREEN_COLS - 4) / 2) - 2
-        return f'{BORDER} {self.left.ljust(leftHalf)} {BORDER}{BORDER} {self.right.ljust(rightHalf)} {BORDER}'
-
 
 
 """
