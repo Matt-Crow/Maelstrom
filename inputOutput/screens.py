@@ -45,7 +45,7 @@ class RowStyle:
     def format(self, msg: str)->"list<str>":
         pass
 
-class BorderedRow:
+class BorderedRowStyle(RowStyle):
     def __init__(self, rowWidth=SCREEN_COLS, border="#", padding=" "):
         super().__init__()
         self.border = border
@@ -60,7 +60,7 @@ class BorderedRow:
             firstNonSpace = re.search("[^ ]", msg)
             indentation = 0 if not firstNonSpace else firstNonSpace.start()
             if wordBreak < indentation: # no suitable break point
-                rows.append(msg[:maxWidth])
+                rows.append(msg[:self.bodyWidth])
                 msg = indentation * " " + msg[self.bodyWidth:]
             else:
                 rows.append(msg[:wordBreak])
@@ -81,6 +81,29 @@ class BorderedRow:
 
         return [f'{self.border}{self.padding}{row.ljust(self.bodyWidth, self.padding)}{self.padding}{self.border}' for row in rows]
 
+class SplitRowStyle(RowStyle):
+    def __init__(self, rowWidth=SCREEN_COLS, border="#", padding=" "):
+        super().__init__()
+        self.leftStyle = BorderedRowStyle(math.floor(rowWidth / 2), border, padding)
+        self.rightStyle = BorderedRowStyle(math.ceil(rowWidth / 2), border, padding)
+
+    def format(self, left, right)->"list<str>":
+        rows = []
+
+        leftRows = self.leftStyle.format(left)
+        rightRows = self.rightStyle.format(right)
+
+        numRows = max(len(leftRows), len(rightRows))
+        for i in range(numRows):
+            l = self.leftStyle.format("")[0] # empty row
+            r = self.rightStyle.format("")[0]
+            if len(leftRows) > i:
+                l = leftRows[i]
+            if len(rightRows) > i:
+                r = rightRows[i]
+            rows.append(f'{l}{r}')
+
+        return rows
 
 
 class SimplerGameScreen:
@@ -98,12 +121,13 @@ class SimplerGameScreen:
 
     def addBodyRow(self, row: str):
         row = self.format(row)
-        self.body.extend(BorderedRow().format(row))
+        self.body.extend(BorderedRowStyle().format(row))
 
     def addSplitRow(self, left: str, right: str):
         left = self.format(left)
         right = self.format(right)
-
+        self.body.extend(SplitRowStyle().format(left, right))
+        """
         # deal with newlines
         if "\n" in left:
             leftLines = left.split("\n")
@@ -141,6 +165,7 @@ class SimplerGameScreen:
             if len(rightRows) > i:
                 r = rightRows[i]
             self.body.append(SplitRow(l, r))
+        """
 
     def format(self, row: str)->str:
         return row.replace("\t", " " * 4)
