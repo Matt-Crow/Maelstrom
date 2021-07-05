@@ -3,31 +3,16 @@ from stat_classes import Boost
 from serialize import AbstractJsonSerialable
 
 """
-This is what makes Maelstrom unique!
-Weather provides in-battle effects
-that alter the stats of characters
+This is what gives Maelstrom its name. Weather provides in-battle effects that
+alter the stats of characters. This is an abstract class
 """
 class Weather(AbstractJsonSerialable):
-    """
-    Required kwargs:
-    - name : str
-    - msg : str
-    - consumer : function accepting an AbstractCharacter as an argument
-    """
-    def __init__(self, **kwargs):
-        super(Weather, self).__init__(**dict(kwargs, type="Weather"))
-        self.name = kwargs["name"]
-        self.msg = kwargs["msg"]
-        self.consumer = kwargs["consumer"]
-        self.addSerializedAttribute("name")
 
-    """
-    Apply stat changes
-    to a list of AbstractCharacters
-    """
-    def applyEffect(self, affected):
-        for person in affected:
-            self.consumer(person)
+    def __init__(self, name: str, msg: str):
+        super(Weather, self).__init__(**dict(name=name, type="Weather"))
+        self.name = name
+        self.msg = msg
+        self.addSerializedAttribute("name")
 
     """
     returns a message showing
@@ -35,6 +20,19 @@ class Weather(AbstractJsonSerialable):
     """
     def getMsg(self):
         return self.msg
+
+    """
+    Apply stat changes to a list of AbstractCharacters. Returns a string message
+    that will be output
+    """
+    def applyEffect(self, affected: "List<AbstractCharacter>")->str:
+        msgs = []
+        for person in affected:
+            msgs.append(self.doApplyEffect(person))
+        return "\n".join(msgs)
+
+    def doApplyEffect(self, target: "AbstractCharacter")->str:
+        pass
 
     @classmethod
     def deserializeJson(cls, jdict: dict)->"Weather":
@@ -48,31 +46,53 @@ class Weather(AbstractJsonSerialable):
             raise Error("No weather found with name '{0}'".format(name))
         return ret
 
-LIGHNING_WEATHER = Weather(
-    name="lightning",
-    msg="The sky rains down its fire upon the field...",
-    consumer=(lambda person : person.gainEnergy(3))
-)
-RAIN_WEATHER = Weather(
-    name="rain",
-    msg="A deluge of water pours forth from the sky...",
-    consumer=(lambda person : person.heal(9))
-)
-HAIL_WEATHER = Weather(
-    name="hail",
-    msg="A light snow was falling...",
-    consumer=(lambda person : person.harm(12))
-)
-WIND_WEATHER = Weather(
-    name="wind",
-    msg="The strong winds blow mightily...",
-    consumer=(lambda person : person.boost(Boost("control", 15, 1, "Weather")))
-)
-NO_WEATHER = Weather(
-    name="no weather",
-    msg="The land is seized by an undying calm...",
-    consumer=(lambda person : None)
-)
+class Lightning(Weather):
+    def __init__(self):
+        super().__init__("lightning", "The sky rains down its fire upon the field...")
+
+    def doApplyEffect(self, target: "AbstractCharacter")->str:
+        amount = target.gainEnergy(3)
+        return f'The charged atmosphere provides {target.name} with {amount} energy'
+
+class Rain(Weather):
+    def __init__(self):
+        super().__init__("rain", "A deluge of water pours forth from the sky...")
+
+    def doApplyEffect(self, target: "AbstractCharacter")->str:
+        amount = target.heal(9)
+        return f'The restorative rain heals {target.name} by {amount} HP'
+
+class Hail(Weather):
+    def __init__(self):
+        super().__init__("hail", "A light snow was falling...")
+
+    def doApplyEffect(self, target: "AbstractCharacter")->str:
+        dmg = target.harm(12)
+        return f'The battering hail inflicts {target.name} with {dmg} damage'
+
+class Wind(Weather):
+    def __init__(self):
+        super().__init__("wind", "The strong winds blow mightily...")
+
+    def doApplyEffect(self, target: "AbstractCharacter")->str:
+        boost = Boost("control", 15, 1, "Weather")
+        withPotencyApplied = target.boost(boost)
+        return f'The driving wind inflicts {target.name} with {withPotencyApplied.getDisplayData()}'
+
+class Clear(Weather):
+    def __init__(self):
+        super().__init__("no weather", "The land is seized by an undying calm...")
+
+    def doApplyEffect(self, target: "AbstractCharacter")->str:
+        return ""
+
+
+
+LIGHNING_WEATHER = Lightning()
+RAIN_WEATHER = Rain()
+HAIL_WEATHER = Hail()
+WIND_WEATHER = Wind()
+NO_WEATHER = Clear()
 
 WEATHERS = (
     LIGHNING_WEATHER,

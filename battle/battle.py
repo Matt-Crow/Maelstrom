@@ -84,7 +84,6 @@ class Battle(AbstractJsonSerialable):
         enemies = [EnemyCharacter.loadEnemy(enemyName) for enemyName in self.enemyNames]
         for enemy in enemies:
             enemy.level = self.level
-
         self.enemy_team = EnemyTeam(
             name="Enemy Team",
             members=enemies
@@ -102,11 +101,11 @@ class Battle(AbstractJsonSerialable):
         displayBattleStart(self)
 
         while not self.enemy_team.isDefeated() and not self.player_team.isDefeated():
-            self.weather.applyEffect(self.enemy_team.membersRem)
+            weatherMsg = self.weather.applyEffect(self.enemy_team.membersRem)
             # did the weather defeat them?
             if not self.enemy_team.isDefeated():
                 self.enemy_team.doTurn()
-                displayBattleEnemyTurn(self, [])
+                displayBattleEnemyTurn(self, [weatherMsg])
                 # only bother doing player turn if enemy survives
                 # so this way we don't get 'ghost rounds'
                 self.weather.applyEffect(self.player_team.membersRem)

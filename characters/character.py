@@ -183,51 +183,60 @@ class AbstractCharacter(AbstractCustomizable):
     Battle functions:
     Used during battle
     """
-    # add ID checking to prevent doubling up
-    def boost(self, boost):
-        """
-        Increase or lower stats in battle
-        amount will be an integeral amount
-        20 translates to 20%
-        """
-        mult = 1 + self.getStatValue("potency") / 100
-        self.stats[boost.stat_name].boost(boost)
 
     """
-    Restores HP.
-    Converts an INTEGER
-    to a percentage.
+    Increase or lower stats in battle. Returns the boost this receives with its
+    potency stat factored in
+    """
+    # TODO add ID checking to prevent doubling up
+    def boost(self, boost):
+        mult = 1 + self.getStatValue("potency") / 100
+        boost = boost.copy()
+        boost.amount *= mult
+        self.stats[boost.stat_name].boost(boost)
+        return boost
+
+    """
+    Restores HP. Converts an INTEGER to a percentage. Returns the amount of HP
+    healed.
     """
     def heal(self, percent):
         mult = 1 + self.getStatValue("potency") / 100
         healing = self.maxHp * (float(percent) / 100)
         self.remHp = self.remHp + healing * mult
 
-        Op.add(self.name + " healed " + str(int(healing)) + " HP!")
-        Op.display()
-
         if self.remHp > self.maxHp:
             self.remHp = self.maxHp
 
+        return int(healing)
+
+    """
+    returns the actual amount of damage inflicted
+    """
     def harm(self, percent):
         mult = 1 - self.getStatValue("potency") / 100
         harming = self.maxHp * (float(percent) / 100)
-        self.takeDmg(harming * mult)
-        Op.add(self.name + " took " + str(int(harming * mult)) + " damage!")
-        Op.display()
+        amount = int(harming * mult)
+        self.takeDmg(amount)
+        return amount
 
     def takeDmg(self, dmg):
         self.remHp -= dmg
         self.remHp = int(self.remHp)
         self.team.updateMembersRem()
 
+    """
+    Returns the amount of energy gained
+    """
     def gainEnergy(self, amount):
+        mult = 1 + self.getStatValue("potency") / 100
+        amount = int(amount * mult)
         self.energy += amount
 
         if self.energy > self.getStatValue("energy"):
             self.energy = self.getStatValue("energy")
 
-        self.energy = int(self.energy)
+        return amount
 
     def loseEnergy(self, amount):
         self.energy -= amount

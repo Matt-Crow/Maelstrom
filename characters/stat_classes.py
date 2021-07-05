@@ -136,3 +136,9 @@ class Boost(object):
         if self.duration > 0:
             ret += f' for {self.duration} turns'
         return ret
+
+    """
+    Returns a copy of this Boost
+    """
+    def copy(self)->"Boost":
+        return Boost(self.stat_name, self.amount, self.base_duration, self.id)

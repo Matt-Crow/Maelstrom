@@ -113,9 +113,6 @@ class Game:
     def loginUser(self, userName):
         self.playerTeam = PlayerTeam.loadUser(userName)
         self.playerTeam.initForBattle()
-        # This will change to display the entire team if I change back to
-        # more than one member per player team
-        displayCharacterStats(self.playerTeam.getMember())
 
     """
     Creates the menu for creating a new user
