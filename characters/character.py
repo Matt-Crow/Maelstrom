@@ -223,6 +223,7 @@ class AbstractCharacter(AbstractCustomizable):
     def takeDmg(self, dmg):
         self.remHp -= dmg
         self.remHp = int(self.remHp)
+        return dmg
 
     """
     Returns the amount of energy gained
@@ -262,7 +263,8 @@ class AbstractCharacter(AbstractCustomizable):
 
     def struckBy(self, attacker, activeUsed)->str:
         dmg = self.calcDmgTaken(attacker, activeUsed)
-        dmg = int(dmg * activeUsed.getMHCMult())
+        hitType = activeUsed.getMHCMult()
+        dmg = int(dmg * hitType.multiplier)
 
         event = OnHitEvent("Attack", attacker, self, activeUsed, dmg)
 
@@ -270,7 +272,7 @@ class AbstractCharacter(AbstractCustomizable):
         attacker.fireActionListeners(HIT_GIVEN_EVENT, event)
         self.takeDmg(dmg)
 
-        return f'{attacker.name} struck {self.name} for {dmg} damage using {activeUsed.name}!'
+        return f'{hitType.message} {attacker.name} struck {self.name} for {dmg} damage using {activeUsed.name}!'
 
     def isKoed(self):
         return self.remHp <= 0

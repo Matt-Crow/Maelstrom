@@ -5,7 +5,6 @@ from item import Item
 from serialize import AbstractJsonSerialable
 from fileSystem import USER_DIR, saveSerializable, loadSerializable
 from util.stringUtil import entab, lengthOfLongest
-from inputOutput.screens import displayTeamUndetailed
 from characters.stat_classes import Boost
 import os
 import random
@@ -100,7 +99,7 @@ class AbstractTeam(AbstractJsonSerialable):
     def switchIn(self, member)->str:
         self.active = member
         member.boost(Boost("control", -0.25, 1, "switch in penalty"))
-        return f'{self.enemy_team.active.name} is now active'
+        return f'{self.active.name} is now active'
 
     """
     Use to see if your team still exists
@@ -196,7 +195,6 @@ class PlayerTeam(AbstractTeam):
         Asks the user if they want to
         switch before attacking
         """
-        displayTeamUndetailed(self)
 
         return len(self.members) > 1 and choose('Do you want to switch your active character?', ['Yes', 'No']) == 'Yes'
 
@@ -208,7 +206,6 @@ class PlayerTeam(AbstractTeam):
         for member in self.membersRem:
             if member != self.active:
                 choices.append(member)
-        displayTeamUndetailed(self)
         self.switch(choose("Who do you want to bring in?", choices))
 
     """

@@ -138,7 +138,7 @@ class Battle(AbstractJsonSerialable):
             # Attack steps
             msgs.append(self.enemy_team.active.chooseActive())
 
-        self.displayBattleEnemyTurn(msgs)
+        displayBattleEnemyTurn(self, msgs)
 
 
     def doPlayerTurn(self)->"List<str>":
@@ -161,7 +161,7 @@ class Battle(AbstractJsonSerialable):
             # Attack steps
             msgs.append(self.player_team.active.chooseActive())
 
-        self.displayBattlePlayerTurn(msgs)
+        displayBattlePlayerTurn(self, msgs)
 
     # add random loot
     def check_winner(self):

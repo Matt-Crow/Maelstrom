@@ -2,7 +2,6 @@ from stat_classes import Stat, Boost
 import pprint
 from utilities import ELEMENTS, roll_perc, Dp
 from customizable import AbstractCustomizable
-from util.output import Op
 from characters.actives.activeStats import ActiveStatFactory
 from util.stringUtil import entab
 
@@ -17,6 +16,11 @@ given level
 """
 def getDmgPerc(lv):
     return 16.67 * (1 + lv * 0.05)
+
+class HitType:
+    def __init__(self, multiplier, message):
+        self.multiplier = multiplier
+        self.message = message
 
 """
 The actives all characters can use
@@ -97,23 +101,21 @@ class AbstractActive(AbstractCustomizable):
     def canUse(self):
         return self.user.energy >= self.cost
 
-    def getMHCMult(self):
-        """
-        Used to calculate hit type
-        """
-        ret = 1.0
+    """
+    Used to calculate hit type
+    """
+    def getMHCMult(self)->"HitType":
+
+        ret = HitType(1.0, "")
 
         rand = roll_perc(self.user.getStatValue("luck"))
         Dp.add(["rand in getMHCMult: " + str(rand), "Crit: " + str(100 - self.getStatValue("crit chance")), "Miss: " + str(self.getStatValue("miss chance"))])
         Dp.dp()
         if rand <= self.getStatValue("miss chance"):
-            Op.add("A glancing blow!")
-            ret = self.getStatValue("miss mult")
+            ret = HitType(self.getStatValue("miss mult"), "A glancing blow!")
 
         elif rand >= 100 - self.getStatValue("crit chance"):
-            Op.add("A critical hit!")
-            ret = self.getStatValue("crit mult")
-        Op.display()
+            ret = HitType(self.getStatValue("crit mult"), "A critical hit!")
 
         return ret
 
@@ -124,7 +126,7 @@ class AbstractActive(AbstractCustomizable):
         if self.getStatValue("damage multiplier") is not 0:
             msgs.append(self.user.team.enemy.active.struckBy(self.user, self))
 
-        if self.getStatValue("cleave") is not 0.0:
+        if self.getStatValue("cleave") > 0:
             for enemy in self.user.team.enemy.membersRem:
                 if enemy is not self.user.team.enemy.active:
                     msgs.append(f'cleave damage struck {enemy.name} for {enemy.takeDmg(self.damage * self.getStatValue("cleave"))} damage')
