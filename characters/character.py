@@ -259,9 +259,6 @@ class AbstractCharacter(AbstractCustomizable):
         """
         damage = activeUsed.damage * attacker.getStatValue("control") / self.getStatValue("resistance")
 
-        if attacker.team.switched_in:
-            damage = damage * 0.75
-
         return damage
 
     def struckBy(self, attacker, activeUsed):
@@ -493,11 +490,6 @@ class EnemyCharacter(AbstractCharacter):
     to use
     """
     def whatActive(self):
-        if self.team.switched_in:
-            sw = 0.75
-        else:
-            sw = 1.0
-
         """
         Can you get multiple KOes?
         """
@@ -507,7 +499,7 @@ class EnemyCharacter(AbstractCharacter):
                 continue
             koes = 0
             for member in self.team.enemy.membersRem:
-                if member.calcDmgTaken(self, active) * sw >= member.remHp:
+                if member.calcDmgTaken(self, active) >= member.remHp:
                     koes += 1
             if koes >= 2:
                 return active
@@ -518,7 +510,7 @@ class EnemyCharacter(AbstractCharacter):
         canKo = []
         for active in self.actives:
             if active.canUse():
-                if self.team.enemy.active.calcDmgTaken(self, active) * sw >= self.team.enemy.active.remHp:
+                if self.team.enemy.active.calcDmgTaken(self, active) >= self.team.enemy.active.remHp:
                     canKo.append(active)
 
         if len(canKo) == 1:

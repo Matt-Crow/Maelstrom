@@ -75,16 +75,31 @@ class AbstractTeam(AbstractJsonSerialable):
             xp += member.level * 10
         return xp / len(self.members)
 
-    def updateMembersRem(self):
+    """
+    Updates the members remaining on the team, and returns a list of messages to
+    display
+    """
+    def updateMembersRem(self)->"List<str>":
+        msgs = []
+
         newMembersRem = []
         for member in self.membersRem:
             if not member.isKoed():
                 newMembersRem.append(member)
                 member.update()
             else:
-                Op.add(member.name + " is out of the game!")
-                Op.display()
+                msgs.append(f'{member.name} is out of the game!')
         self.membersRem = newMembersRem
+
+        return msgs
+
+    """
+    Changes the active member of this team, inflicting a one-turn penalty
+    """
+    def switchIn(self, member)->str:
+        self.active = member
+        member.boost(Boost("control", -0.25, 1, "switch in penalty"))
+        return f'{self.enemy_team.active.name} is now active'
 
     """
     Use to see if your team still exists
@@ -137,20 +152,6 @@ class AbstractTeam(AbstractJsonSerialable):
 
     def __str__(self):
         return self.name
-
-    def doTurn(self):
-        """
-        This is where stuff happens
-        """
-        if self.active.isKoed():
-            self.active = self.chooseSwitchin()
-        self.switched_in = False
-
-        displayTeamUndetailed(self)
-        if self.shouldSwitch():
-            self.active = self.chooseSwitchin()
-            self.switched_in = True
-        self.active.chooseActive()
 
     """
     Returns whether or not this team
@@ -309,3 +310,6 @@ class EnemyTeam(AbstractTeam):
 
         rand = random.randint(0, len(array) - 1)
         return array[rand]
+
+    def chooseNewActive(self):
+        return self.switchIn(self.chooseSwitchin())

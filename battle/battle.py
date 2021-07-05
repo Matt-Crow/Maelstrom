@@ -7,7 +7,7 @@ from character import EnemyCharacter
 from fileSystem import getEnemyList
 from serialize import AbstractJsonSerialable
 from util.stringUtil import entab
-from inputOutput.screens import displayBattleStart, displayTeam, displayBattleEnemyTurn
+from inputOutput.screens import displayBattleStart, displayTeam, displayBattleEnemyTurn, displayBattlePlayerTurn
 import random
 
 
@@ -97,24 +97,72 @@ class Battle(AbstractJsonSerialable):
 
         self.weather = random.choice(self.forecast)
 
+        # TODO: add a "scout" option to Area that allows the user to do this
+        # but will need to make sure they are initialized
         displayTeam(self.enemy_team)
+
         displayBattleStart(self)
 
         while not self.enemy_team.isDefeated() and not self.player_team.isDefeated():
-            weatherMsg = self.weather.applyEffect(self.enemy_team.membersRem)
-            # did the weather defeat them?
+            msgs = self.doEnemyTurn()
+            displayBattleEnemyTurn(self, msgs)
             if not self.enemy_team.isDefeated():
-                self.enemy_team.doTurn()
-                displayBattleEnemyTurn(self, [weatherMsg])
                 # only bother doing player turn if enemy survives
                 # so this way we don't get 'ghost rounds'
-                self.weather.applyEffect(self.player_team.membersRem)
-                if not self.player_team.isDefeated():
-                    self.player_team.doTurn()
+                self.doPlayerTurn()
         self.check_winner()
         self.end()
 
         self.enemy_team = None # uncache enemy team to save memory
+
+    """
+    This one doesn't display as much as doPlayerTurn, as the player needs to be
+    more informed, and there isn't much point to displaying as much for the AI's
+    turn
+    """
+    def doEnemyTurn(self)->"List<str>":
+        msgs = []
+
+        # Pre-turn steps
+        msgs.extend(self.enemy_team.updateMembersRem()) # check if any were KOed on player turn
+        msgs.append(self.weather.applyEffect(self.enemy_team.membersRem)) # yes, this is supposed to be "append", not "extend"
+        msgs.extend(self.enemy_team.updateMembersRem()) # check if the weather defeated anyone
+
+        if self.enemy_team.isDefeated():
+            # todo add message
+            pass
+        else:
+            # Pre-choose attack steps
+            if self.enemy_team.active.isKoed() or self.enemy_team.shouldSwitch():
+                msgs.append(self.enemy_team.chooseNewActive())
+
+            # Attack steps
+            self.enemy_team.active.chooseActive()
+
+        return msgs
+
+
+    def doPlayerTurn(self)->"List<str>":
+        msgs = []
+
+        # Pre-turn steps
+        msgs.extend(self.player_team.updateMembersRem()) # check if any were KOed on player turn
+        msgs.append(self.weather.applyEffect(self.player_team.membersRem)) # yes, this is supposed to be "append", not "extend"
+        msgs.extend(self.player_team.updateMembersRem()) # check if the weather defeated anyone
+        displayBattlePlayerTurn(self, msgs)
+        if self.player_team.isDefeated():
+            # todo add message
+            pass
+        else:
+            # Pre-choose attack steps
+            if self.player_team.active.isKoed() or self.player_team.shouldSwitch():
+                msgs.append(self.player_team.chooseNewActive())
+                displayBattlePlayerTurn(self, msgs)
+
+            # Attack steps
+            self.player_team.active.chooseActive()
+
+        return msgs
 
     # add random loot
     def check_winner(self):
