@@ -28,6 +28,13 @@ def displayTeamUndetailed(team):
     screen.addBodyRow(displayData)
     screen.display()
 
+def displayTeam(team):
+    screen = SimplerGameScreen()
+    screen.setTitle(f'Team: {team.name}')
+    displayData = team.getDisplayData()
+    screen.addBodyRow(displayData)
+    screen.display()
+
 def displayBattleStart(battle):
     screen = SimplerGameScreen()
     screen.setTitle(f'{battle.player_team.name} VS. {battle.enemy_team.name}')
@@ -36,6 +43,15 @@ def displayBattleStart(battle):
     screen.addSplitRow(playerTeamData, enemyTeamData)
     screen.addBodyRows(battle.prescript)
     screen.addBodyRow(battle.weather.getMsg())
+    screen.displayAndPause()
+
+def displayBattleEnemyTurn(battle, msgs: "List<str>"):
+    screen = SimplerGameScreen()
+    screen.setTitle(f'{battle.enemy_team.name}\'s turn')
+    playerTeamData = battle.player_team.getShortDisplayData()
+    enemyTeamData = battle.enemy_team.getShortDisplayData()
+    screen.addSplitRow(playerTeamData, enemyTeamData)
+    screen.addBodyRows(msgs)
     screen.displayAndPause()
 
 

@@ -107,20 +107,8 @@ class AbstractTeam(AbstractJsonSerialable):
         self.active = self.membersRem[0]
 
     """
-    Show info for a team
+    This method gives a brief overview of this team. Used for the battle UI
     """
-    def displayData(self):
-        Op.add(self.name)
-        for member in self.membersRem:
-            Op.add("* " + member.name + " " + str(int(member.remHp)) + "/" + str(int(member.maxHp)))
-        if hasattr(self, "active"):
-            Op.add("Currently active: " + self.active.name)
-            Op.add(self.active.getDisplayData())
-            Op.add(self.active.name + "'s Energy: " + str(self.active.energy))
-        if self.enemy:
-            Op.add("Active enemy: " + self.enemy.active.name + " " + str(int(self.enemy.active.remHp)) + "/" + str(int(self.enemy.active.maxHp)))
-        Op.display()
-
     def getShortDisplayData(self)->str:
         lines = [
             f'{self.name}:'
@@ -131,6 +119,20 @@ class AbstractTeam(AbstractJsonSerialable):
             lines.append(f'* {member.name.ljust(longestName)}: {str(member.remHp).rjust(longestHp)} HP')
         if hasattr(self, "active"):
             lines.append(f'Current active: {self.active.name} ({self.active.energy} energy)')
+        return "\n".join(lines)
+
+    """
+    This provides a more descriptive overview of the team, detailing all of its
+    members. It feels a little info-dump-y, so it feels tedious to scroll
+    through. Do I want some other way of providing players with team data?
+    """
+    def getDisplayData(self)->str:
+        lines = [
+            f'{self.name}:'
+        ]
+        for member in self.members:
+            lines.append(member.getDisplayData())
+
         return "\n".join(lines)
 
     def __str__(self):

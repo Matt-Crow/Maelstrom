@@ -7,13 +7,13 @@ from character import EnemyCharacter
 from fileSystem import getEnemyList
 from serialize import AbstractJsonSerialable
 from util.stringUtil import entab
-from inputOutput.screens import displayTeamUndetailed, displayBattleStart
+from inputOutput.screens import displayBattleStart, displayTeam, displayBattleEnemyTurn
 import random
 
 
 """
 The Battle class pits 2 teams
-against eachother,
+against each other,
 initializing them
 and the weather.
 """
@@ -72,7 +72,50 @@ class Battle(AbstractJsonSerialable):
         return "\n".join(ret)
 
     def __str__(self):
-        return "\n".join(self.getDisplayData())
+        return self.getDisplayData()
+
+    """
+    Used to start
+    the battle
+    """
+    def play(self, playerTeam):
+        # set teams
+        self.player_team = playerTeam
+        enemies = [EnemyCharacter.loadEnemy(enemyName) for enemyName in self.enemyNames]
+        for enemy in enemies:
+            enemy.level = self.level
+
+        self.enemy_team = EnemyTeam(
+            name="Enemy Team",
+            members=enemies
+        )
+
+        self.enemy_team.initForBattle()
+        self.enemy_team.enemy = self.player_team
+
+        self.player_team.initForBattle()
+        self.player_team.enemy = self.enemy_team
+
+        self.weather = random.choice(self.forecast)
+
+        displayTeam(self.enemy_team)
+        displayBattleStart(self)
+
+        while not self.enemy_team.isDefeated() and not self.player_team.isDefeated():
+            self.weather.applyEffect(self.enemy_team.membersRem)
+            # did the weather defeat them?
+            if not self.enemy_team.isDefeated():
+                self.enemy_team.doTurn()
+                displayBattleEnemyTurn(self, [])
+                # only bother doing player turn if enemy survives
+                # so this way we don't get 'ghost rounds'
+                self.weather.applyEffect(self.player_team.membersRem)
+                if not self.player_team.isDefeated():
+                    self.player_team.doTurn()
+        self.check_winner()
+        self.end()
+
+        self.enemy_team = None # uncache enemy team to save memory
 
     # add random loot
     def check_winner(self):
@@ -100,57 +143,6 @@ class Battle(AbstractJsonSerialable):
         xp = self.enemy_team.getXpGiven()
         for member in self.player_team.members:
             member.gainXp(xp)
-
-    """
-    Used to start
-    the battle
-    """
-    def play(self, playerTeam):
-        # set teams
-        self.player_team = playerTeam
-        enemies = [EnemyCharacter.loadEnemy(enemyName) for enemyName in self.enemyNames]
-        for enemy in enemies:
-            enemy.level = self.level
-            enemy.displayData()
-
-        self.enemy_team = EnemyTeam(
-            name="Enemy Team",
-            members=enemies
-        )
-
-        for line in self.prescript:
-            Op.add(line)
-            Op.display()
-
-        self.enemy_team.initForBattle()
-        self.enemy_team.enemy = self.player_team
-
-        self.player_team.initForBattle()
-        self.player_team.enemy = self.enemy_team
-
-        displayTeamUndetailed(self.enemy_team)
-        displayTeamUndetailed(self.player_team)
-
-        self.weather = random.choice(self.forecast)
-        Op.add(self.weather.getMsg())
-        Op.display()
-
-        displayBattleStart(self)
-
-        while not self.enemy_team.isDefeated() and not self.player_team.isDefeated():
-            self.weather.applyEffect(self.enemy_team.membersRem)
-            # did the weather defeat them?
-            if not self.enemy_team.isDefeated():
-                self.enemy_team.doTurn()
-                # only bother doing player turn if enemy survives
-                # so this way we don't get 'ghost rounds'
-                self.weather.applyEffect(self.player_team.membersRem)
-                if not self.player_team.isDefeated():
-                    self.player_team.doTurn()
-        self.check_winner()
-        self.end()
-
-        self.enemy_team = None # uncache enemy team to save memory
 
     """
     Creates a random level
