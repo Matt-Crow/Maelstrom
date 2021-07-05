@@ -223,7 +223,6 @@ class AbstractCharacter(AbstractCustomizable):
     def takeDmg(self, dmg):
         self.remHp -= dmg
         self.remHp = int(self.remHp)
-        self.team.updateMembersRem()
 
     """
     Returns the amount of energy gained
@@ -261,20 +260,17 @@ class AbstractCharacter(AbstractCustomizable):
 
         return damage
 
-    def struckBy(self, attacker, activeUsed):
+    def struckBy(self, attacker, activeUsed)->str:
         dmg = self.calcDmgTaken(attacker, activeUsed)
-        dmg = dmg * activeUsed.getMHCMult()
-        Op.add(attacker.name + " struck " + self.name)
-        Op.add("for " + str(int(dmg)) + " damage")
-        Op.add("using " + activeUsed.name + "!")
-        Op.display()
+        dmg = int(dmg * activeUsed.getMHCMult())
 
         event = OnHitEvent("Attack", attacker, self, activeUsed, dmg)
-        event.displayData()
 
         self.fireActionListeners(HIT_TAKEN_EVENT, event)
         attacker.fireActionListeners(HIT_GIVEN_EVENT, event)
         self.takeDmg(dmg)
+
+        return f'{attacker.name} struck {self.name} for {dmg} damage using {activeUsed.name}!'
 
     def isKoed(self):
         return self.remHp <= 0
@@ -290,13 +286,17 @@ class PlayerCharacter(AbstractCharacter):
     def __init__(self, **kwargs):
         super(self.__class__, self).__init__(**dict(kwargs, type="PlayerCharacter"))
 
-    def chooseActive(self):
+    """
+    Allows the player to choose and then use one of this character's active
+    abilities, then returns a message
+    """
+    def chooseActive(self)->str:
         options = []
         for active in self.actives:
             if active.canUse():
                 options.append(active)
 
-        choose("What active do you wish to use?", options).use()
+        return choose("What active do you wish to use?", options).use()
 
     """
     Post-battle actions:
@@ -520,5 +520,9 @@ class EnemyCharacter(AbstractCharacter):
         """
         return self.bestActive()
 
+    """
+    Causes the AI to choose an active ability to use, uses it, then returns a
+    message
+    """
     def chooseActive(self):
-        self.whatActive().use()
+        return self.whatActive().use()

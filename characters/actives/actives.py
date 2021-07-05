@@ -117,14 +117,19 @@ class AbstractActive(AbstractCustomizable):
 
         return ret
 
-    def use(self):
+    def use(self)->str:
+        msgs = []
+
         self.user.loseEnergy(self.cost)
         if self.getStatValue("damage multiplier") is not 0:
-            self.user.team.enemy.active.struckBy(self.user, self)
+            msgs.append(self.user.team.enemy.active.struckBy(self.user, self))
+
         if self.getStatValue("cleave") is not 0.0:
             for enemy in self.user.team.enemy.membersRem:
                 if enemy is not self.user.team.enemy.active:
-                    enemy.takeDmg(self.damage * self.getStatValue("cleave"))
+                    msgs.append(f'cleave damage struck {enemy.name} for {enemy.takeDmg(self.damage * self.getStatValue("cleave"))} damage')
+
+        return "\n".join(msgs)
 
     """
     Returns the default actives that every

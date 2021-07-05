@@ -6,6 +6,7 @@ from serialize import AbstractJsonSerialable
 from fileSystem import USER_DIR, saveSerializable, loadSerializable
 from util.stringUtil import entab, lengthOfLongest
 from inputOutput.screens import displayTeamUndetailed
+from characters.stat_classes import Boost
 import os
 import random
 

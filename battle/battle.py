@@ -104,8 +104,7 @@ class Battle(AbstractJsonSerialable):
         displayBattleStart(self)
 
         while not self.enemy_team.isDefeated() and not self.player_team.isDefeated():
-            msgs = self.doEnemyTurn()
-            displayBattleEnemyTurn(self, msgs)
+            self.doEnemyTurn()
             if not self.enemy_team.isDefeated():
                 # only bother doing player turn if enemy survives
                 # so this way we don't get 'ghost rounds'
@@ -137,9 +136,9 @@ class Battle(AbstractJsonSerialable):
                 msgs.append(self.enemy_team.chooseNewActive())
 
             # Attack steps
-            self.enemy_team.active.chooseActive()
+            msgs.append(self.enemy_team.active.chooseActive())
 
-        return msgs
+        self.displayBattleEnemyTurn(msgs)
 
 
     def doPlayerTurn(self)->"List<str>":
@@ -160,9 +159,9 @@ class Battle(AbstractJsonSerialable):
                 displayBattlePlayerTurn(self, msgs)
 
             # Attack steps
-            self.player_team.active.chooseActive()
+            msgs.append(self.player_team.active.chooseActive())
 
-        return msgs
+        self.displayBattlePlayerTurn(msgs)
 
     # add random loot
     def check_winner(self):
