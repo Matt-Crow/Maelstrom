@@ -3,6 +3,7 @@ from serialize import AbstractJsonSerialable
 from stat_classes import Stat
 from utilities import choose
 from abc import abstractmethod
+from inputOutput.screens import SimplerGameScreen
 
 class AbstractCustomizable(AbstractJsonSerialable):
     nextId = 0
@@ -64,9 +65,11 @@ class AbstractCustomizable(AbstractJsonSerialable):
     """
     def customizeMenu(self):
         done = False
+        screen = SimplerGameScreen()
+        screen.setTitle(f'Cusomizing {self.name}')
         while not done and self.customizationPoints > 0:
-            Op.add(self.getStatDisplayList())
-            Op.display()
+            screen.addBodyRows(self.getStatDisplayList())
+            screen.display()
             exit = "Save changes and exit"
             options = [exit]
             canIncrease = []
@@ -97,6 +100,7 @@ class AbstractCustomizable(AbstractJsonSerialable):
                     self.setStatBase(decreaseMe, self.stats[decreaseMe].get_base() - 1)
                     self.calcStats()
                     self.customizationPoints -= 1
+                    screen.clearBody()
 
     """
     Subclasses should override this method to return a textual description of

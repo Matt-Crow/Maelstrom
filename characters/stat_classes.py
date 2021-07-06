@@ -108,16 +108,6 @@ class Stat(object):
     def toString(self):
         return self.description(self.base)
 
-    def displayData(self):
-        Dp.add(self.name);
-        Dp.add("Raw: " + str(self.base_value))
-        Dp.add("Boosts:")
-        for boost in self.boosts:
-            boost.displayData()
-        Dp.add("Calculated: " + str(self.value))
-        Dp.dp()
-
-
 class Boost(object):
     def __init__(self, stat_name, amount, duration, id = "NoIDSet"):
         self.stat_name = stat_name

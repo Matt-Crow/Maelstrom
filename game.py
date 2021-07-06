@@ -1,4 +1,3 @@
-from util.output import Op
 from teams import PlayerTeam, AbstractTeam
 from character import AbstractCharacter, EnemyCharacter
 from utilities import choose, ELEMENTS
@@ -74,8 +73,9 @@ class Game:
     Displayes the main menu
     """
     def mainMenu(self):
-        Op.add("MAELSTROM")
-        Op.display()
+        screen = SimplerGameScreen()
+        screen.setTitle("MAELSTROM")
+        screen.display()
         action = choose("Choose an option: ", ["Play", "About", "Quit"])
         if action == "Play":
             self.loginMenu()

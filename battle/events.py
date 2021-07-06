@@ -53,10 +53,3 @@ class OnHitEvent:
         self.hitee = hitee
         self.hit_by = hit_by
         self.damage = damage
-
-    def displayData(self):
-        Dp.add("OnHitEvent " + self.id)
-        Dp.add(self.hitter.name + " struck " + self.hitee.name)
-        Dp.add("using " + self.hit_by.name)
-        Dp.add("dealing " + str(self.damage) + " damage")
-        Dp.dp()

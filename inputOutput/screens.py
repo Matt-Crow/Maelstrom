@@ -209,18 +209,26 @@ class SimplerGameScreen:
     def write(self, out): # can use a file as out
         bodyLines = len(self.body)
         currLine = 0
+
+        self.writeTitle(out)
         """
         Displays NUM_BODY_ROWS rows of the body at a time
         """
+        if bodyLines == 0:
+            self.writeBody(out, 0) # print blank body
+
         while currLine < bodyLines:
-            self.writeTitle(out)
             self.writeBody(out, currLine)
             currLine += NUM_BODY_ROWS
             if currLine < bodyLines: # more lines
                 self.writeOptions(out, []) # just print empty options box
                 input("press enter or return to continue")
+
         self.writeOptions(out, self.options)
-        print("Choose an option:")
+        if len(self.options) > 0:
+            input("Choose an option:")
+        else:
+            input("press enter or return to continue")
 
     def writeTitle(self, out):
         print(BORDER * SCREEN_COLS, file=out)
