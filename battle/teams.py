@@ -5,6 +5,7 @@ from serialize import AbstractJsonSerialable
 from fileSystem import USER_DIR, saveSerializable, loadSerializable
 from util.stringUtil import entab, lengthOfLongest
 from characters.stat_classes import Boost
+from inputOutput.screens import SimplerGameScreen
 import os
 import random
 
@@ -220,15 +221,18 @@ class PlayerTeam(AbstractTeam):
                 new_array.append(item)
         return new_array
 
+    """
+    Displays the team management menu
+    """
     def manage(self):
-        """
-        Displays the team management menu
-        """
+        screen = SimplerGameScreen()
+        screen.setTitle(f'Manage {self.name}')
         options = ["Exit"]
         for member in self.members:
-            member.displayData()
+            screen.addBodyRow(member.getDisplayData())
             options.append(member)
 
+        screen.display()
         options.reverse()
         managing = choose("Who do you wish to manage?", options)
 
