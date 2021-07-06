@@ -344,6 +344,9 @@ class PlayerCharacter(AbstractCharacter):
         self.displayItems()
 
         if len(self.equippedItems) == 0 or choose("Do you wish to change these items?", ("yes", "no")) == "yes":
+            screen = SimplerGameScreen()
+            screen.setTitle("Choose items to equip")
+
             for item in self.equippedItems:
                 item.unequip()
 
@@ -355,8 +358,9 @@ class PlayerCharacter(AbstractCharacter):
                     self.equippedItems.append(item)
             else:
                 for item in items:
-                    item.displayData()
+                    screen.addBodyRow(item.getDisplayData())
 
+            screen.display()
             items = self.team.get_available_items()
             while (len(self.equippedItems) < 3) and (len(items) is not 0):
                 item = choose("Which item do you want to equip?", items)

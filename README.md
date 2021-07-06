@@ -9,5 +9,6 @@ TODO:
 * better output
 * use my application directory system from ARCDHWebAutomator
 * make the game fun
+* separate object deserialization from the classes themselves
 * random campaign generator: Have the program chop up a Shakespere play and make
   characters and locations based off of that?
