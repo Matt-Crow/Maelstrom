@@ -5,7 +5,6 @@ from passives import AbstractPassive
 from item import Item
 from events import OnHitEvent, ActionRegister, HIT_GIVEN_EVENT, HIT_TAKEN_EVENT, UPDATE_EVENT
 from customizable import AbstractCustomizable
-from util.output import Op
 from fileSystem import saveSerializable, loadSerializable, ENEMY_DIR
 from util.stringUtil import entab, lengthOfLongest
 
@@ -304,25 +303,29 @@ class PlayerCharacter(AbstractCharacter):
     Post-battle actions:
     Occur after battle
     """
-    def gainXp(self, amount):
-        """
-        Give experience.
-        Caps at the most xp required for a battle
-        (Can't level up twice after one battle)
-        """
-        self.xp = self.xp + amount
-        while self.xp >= self.level * 10:
-            Op.add(self.name + " leveled up!")
-            Op.display()
-            self.levelUp()
 
+    """
+    Give experience, possibly leveling up this character.
+
+    Returns a list of messages to display, if any.
+    """
+    def gainXp(self, amount)->"List<str>":
+        msgs = []
+        self.xp += amount
+        while self.xp >= self.level * 10:
+            msgs.append(f'{self.name} leveled up!')
+            self.xp -= self.level * 10
+            self.levelUp()
+            msgs.append(self.getDisplayData())
+        return msgs
+
+    """
+    Increases level
+    """
     def levelUp(self):
-        """
-        Increases level
-        """
-        self.xp = 0
         self.level += 1
         self.customizationPoints += 1
+
         for active in self.actives:
             active.customizationPoints += 1
         for passive in self.passives:
@@ -332,7 +335,6 @@ class PlayerCharacter(AbstractCharacter):
 
         self.calcStats()
         self.remHp = self.maxHp
-        self.displayData()
 
     """
     Character management

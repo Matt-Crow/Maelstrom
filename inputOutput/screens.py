@@ -63,6 +63,13 @@ def displayBattlePlayerTurn(battle, msgs: "List<str>"):
     screen.addBodyRows(msgs)
     screen.displayAndPause() # todo add options
 
+def displayBattleEnd(battle, msgs: "List<str>"):
+    screen = SimplerGameScreen()
+    screen.setTitle(f'{battle.player_team.name} VS. {battle.enemy_team.name}')
+    screen.addBodyRow(battle.getDisplayData())
+    screen.addBodyRows(msgs)
+    screen.displayAndPause()
+
 SCREEN_COLS = 80
 SCREEN_ROWS = 40
 

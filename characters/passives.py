@@ -3,7 +3,6 @@ from stat_classes import Stat, Boost
 
 from customizable import AbstractCustomizable
 from events import HIT_GIVEN_EVENT, HIT_TAKEN_EVENT, UPDATE_EVENT
-from util.output import Op
 from util.stringUtil import entab
 
 """

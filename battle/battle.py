@@ -2,12 +2,11 @@ from utilities import *
 from item import Item
 from weather import WEATHERS, NO_WEATHER, Weather
 from teams import EnemyTeam
-from util.output import Op
 from character import EnemyCharacter
 from fileSystem import getEnemyList
 from serialize import AbstractJsonSerialable
 from util.stringUtil import entab
-from inputOutput.screens import displayBattleStart, displayTeam, displayBattleEnemyTurn, displayBattlePlayerTurn
+from inputOutput.screens import displayBattleStart, displayTeam, displayBattleEnemyTurn, displayBattlePlayerTurn, displayBattleEnd
 import random
 
 
@@ -75,8 +74,7 @@ class Battle(AbstractJsonSerialable):
         return self.getDisplayData()
 
     """
-    Used to start
-    the battle
+    Used to start and run the battle
     """
     def play(self, playerTeam):
         # set teams
@@ -109,8 +107,9 @@ class Battle(AbstractJsonSerialable):
                 # only bother doing player turn if enemy survives
                 # so this way we don't get 'ghost rounds'
                 self.doPlayerTurn()
-        self.check_winner()
-        self.end()
+
+        # By now, one team has been eliminated
+        self.gameEnd()
 
         self.enemy_team = None # uncache enemy team to save memory
 
@@ -164,31 +163,28 @@ class Battle(AbstractJsonSerialable):
         displayBattlePlayerTurn(self, msgs)
 
     # add random loot
-    def check_winner(self):
-        """
-        Runs when one
-        teams loses all
-        members.
-        """
-        if not self.player_team.isDefeated():
-            Op.add(self.player_team.name + " won!")
-            Op.display()
+    """
+    The stuff that takes place after battle. Runs when one team loses all
+    members.
+    """
+    def gameEnd(self):
+        msgs = []
 
-            for line in self.postscript:
-                Op.add(line)
-                Op.display()
+        if self.player_team.isDefeated():
+            msgs.append("Regretably, you have not won this day. Though someday, you will grow strong enough to overcome this challenge...")
+        else:
+            msgs.append(f'{self.player_team.name} won!')
+            msgs.extend(self.postscript)
 
             for reward in self.rewards:
                 if reward != None:
                     reward.give(self.player_team)
 
-    def end(self):
-        """
-        The stuff that takes place after battle
-        """
         xp = self.enemy_team.getXpGiven()
         for member in self.player_team.members:
-            member.gainXp(xp)
+            msgs.extend(member.gainXp(xp))
+
+        displayBattleEnd(self, msgs)
 
     """
     Creates a random level
