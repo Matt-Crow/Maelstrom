@@ -1,4 +1,3 @@
-from util.output import Op
 from serialize import AbstractJsonSerialable
 from stat_classes import Stat
 from utilities import choose
@@ -109,10 +108,6 @@ class AbstractCustomizable(AbstractJsonSerialable):
     @abstractmethod
     def getDisplayData(self)->str:
         pass
-
-    def displayData(self):
-        Op.add(self.getDisplayData())
-        Op.display()
 
     """
     Calculates all this' stats

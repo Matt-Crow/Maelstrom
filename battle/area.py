@@ -137,4 +137,4 @@ class Location(AbstractJsonSerialable):
         screen = SimplerGameScreen()
         screen.setTitle(self.name)
         screen.addBodyRows(self.script)
-        screen.displayAndPause()
+        screen.display()

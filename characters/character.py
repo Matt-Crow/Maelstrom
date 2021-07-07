@@ -7,6 +7,7 @@ from events import OnHitEvent, ActionRegister, HIT_GIVEN_EVENT, HIT_TAKEN_EVENT,
 from customizable import AbstractCustomizable
 from fileSystem import saveSerializable, loadSerializable, ENEMY_DIR
 from util.stringUtil import entab, lengthOfLongest
+from inputOutput.screens import displayCharacterStats, SimplerGameScreen
 
 """
 Characters
@@ -372,24 +373,27 @@ class PlayerCharacter(AbstractCharacter):
 
     def manage(self):
         options = ["Quit", self]
+        screen = SimplerGameScreen()
+        screen.setTitle(f'Manage {self.name}')
 
         if len(self.team.inventory) > 0:
             options.append("Equipped items")
 
         for item in self.equippedItems:
-            item.displayData()
+            screen.addBodyRow(item.getDisplayData())
             options.append(item)
 
         for passive in self.passives:
-            passive.displayData()
+            screen.addBodyRow(passive.getDisplayData())
             options.append(passive)
 
         for active in self.actives:
-            active.displayData()
+            screen.addBodyRow(active.getDisplayData())
             options.append(active)
 
-        options.reverse()
+        screen.display()
 
+        options.reverse()
         customize = choose("What do you want to customize?", options)
         if customize != "Quit":
             if customize == 'Equipped items':
@@ -414,7 +418,7 @@ class EnemyCharacter(AbstractCharacter):
                 "resistance" : -10
             }
         )
-        #lightning.displayData()
+        displayCharacterStats(lightning)
         lightning.save()
 
         rain = EnemyCharacter(
@@ -425,7 +429,7 @@ class EnemyCharacter(AbstractCharacter):
                 "control" : -10
             }
         )
-        #rain.displayData()
+        displayCharacterStats(rain)
         rain.save()
 
         hail = EnemyCharacter(
@@ -436,7 +440,7 @@ class EnemyCharacter(AbstractCharacter):
                 "luck" : -10
             }
         )
-        #hail.displayData()
+        displayCharacterStats(hail)
         hail.save()
 
         wind = EnemyCharacter(
@@ -447,7 +451,7 @@ class EnemyCharacter(AbstractCharacter):
                 "potency" : -10
             }
         )
-        #wind.displayData()
+        displayCharacterStats(wind)
         wind.save()
 
         stone = EnemyCharacter(
@@ -461,7 +465,7 @@ class EnemyCharacter(AbstractCharacter):
                 "potency":-5
             }
         )
-        #stone.displayData()
+        displayCharacterStats(stone)
         stone.save()
 
     """

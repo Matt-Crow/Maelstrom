@@ -38,7 +38,7 @@ class Game:
         scr.addOption("Jeff")
         scr.display()
 
-        #EnemyCharacter.generateEnemies()
+        EnemyCharacter.generateEnemies()
 
     def chooseAction(self):
         options = ["explore", "view character info", "customize character", "exit"]

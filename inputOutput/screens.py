@@ -4,12 +4,25 @@ This module provides the basic structure of the screens the program displays
 Primary exports:
 * displayCharacterStats(Character)
 * displayTeamUndetailed(Team)
+* displayTeam(Team)
+* displayBattleStart(Battle)
+* displayBattleEnemyTurn(Battle, List<str>)
+* displayBattlePlayerTurn(Battle, List<str>)
+* displayBattleEnd(Battle, List<str>)
+
+* Class SimplerGameScreen
+    - setTitle(str)
+    - addBodyRows(List<str>)
+    - addBodyRow(str) # automatically splits newlines into new rows
+    - addSplitRow(left: str, right: str)
+    - display()
 """
 
 from enum import Enum, auto
 import math
 import sys
 import re
+import subprocess
 from util.stringUtil import lengthOfLongest
 
 
@@ -43,7 +56,7 @@ def displayBattleStart(battle):
     screen.addSplitRow(playerTeamData, enemyTeamData)
     screen.addBodyRows(battle.prescript)
     screen.addBodyRow(battle.weather.getMsg())
-    screen.displayAndPause()
+    screen.display()
 
 def displayBattleEnemyTurn(battle, msgs: "List<str>"):
     screen = SimplerGameScreen()
@@ -52,7 +65,7 @@ def displayBattleEnemyTurn(battle, msgs: "List<str>"):
     enemyTeamData = battle.enemy_team.getShortDisplayData()
     screen.addSplitRow(playerTeamData, enemyTeamData)
     screen.addBodyRows(msgs)
-    screen.displayAndPause()
+    screen.display()
 
 def displayBattlePlayerTurn(battle, msgs: "List<str>"):
     screen = SimplerGameScreen()
@@ -61,14 +74,16 @@ def displayBattlePlayerTurn(battle, msgs: "List<str>"):
     enemyTeamData = battle.enemy_team.getShortDisplayData()
     screen.addSplitRow(playerTeamData, enemyTeamData)
     screen.addBodyRows(msgs)
-    screen.displayAndPause() # todo add options
+    screen.display() # todo add options
 
 def displayBattleEnd(battle, msgs: "List<str>"):
     screen = SimplerGameScreen()
     screen.setTitle(f'{battle.player_team.name} VS. {battle.enemy_team.name}')
     screen.addBodyRow(battle.getDisplayData())
     screen.addBodyRows(msgs)
-    screen.displayAndPause()
+    screen.display()
+
+CLS_BEFORE_DISPLAY = True
 
 SCREEN_COLS = 80
 SCREEN_ROWS = 40
@@ -125,7 +140,6 @@ class RowContentStyle(RowStyle):
 
         return [row.ljust(self.rowWidth) for row in rows]
 
-
 class BorderedRowStyle(RowStyle):
     def __init__(self, rowWidth=SCREEN_COLS, border="#", padding=" "):
         super().__init__()
@@ -164,6 +178,7 @@ class SplitRowStyle(RowStyle):
         return rows
 
 
+
 class SimplerGameScreen:
     def __init__(self):
         self.title = "Maelstrom"
@@ -178,7 +193,14 @@ class SimplerGameScreen:
             self.addBodyRow(row)
 
     def addBodyRow(self, row: str):
-        self.body.extend(BorderedRowStyle().format(row))
+        if type(row) == type("Hello world!"):
+            self.body.extend(BorderedRowStyle().format(row))
+        else: # check if iterable AFTER checking if string
+            try: # https://stackoverflow.com/questions/1952464/in-python-how-do-i-determine-if-an-object-is-iterable
+                for item in iter(row):
+                    self.body.extend(BorderedRowStyle().format(item))
+            except TypeError as neitherIterNorStr:
+                self.body.extend(BorderedRowStyle().format(str(row)))
 
     def addSplitRow(self, left: str, right: str):
         self.body.extend(SplitRowStyle().format(left, right))
@@ -202,22 +224,33 @@ class SimplerGameScreen:
     def display(self):
         self.write(sys.stdout)
 
-    def displayAndPause(self):
-        self.display()
-        input("press enter or return to continue")
-
     def write(self, out): # can use a file as out
         bodyLines = len(self.body)
         currLine = 0
 
-        self.writeTitle(out)
         """
         Displays NUM_BODY_ROWS rows of the body at a time
         """
         if bodyLines == 0:
+            if CLS_BEFORE_DISPLAY:
+                try:
+                    works = subprocess.call("cls", shell=True)
+                    if works != 0: #is false, didn't run
+                        works = subprocess.call("clear", shell=True)
+                except:
+                    print("couldn't clear screen in SimplerGameScreen::display", file=sys.stderr)
+            self.writeTitle(out)
             self.writeBody(out, 0) # print blank body
 
         while currLine < bodyLines:
+            if CLS_BEFORE_DISPLAY:
+                try:
+                    works = subprocess.call("cls", shell=True)
+                    if works != 0: #is false, didn't run
+                        works = subprocess.call("clear", shell=True)
+                except:
+                    print("couldn't clear screen in SimplerGameScreen::display", file=sys.stderr)
+            self.writeTitle(out)
             self.writeBody(out, currLine)
             currLine += NUM_BODY_ROWS
             if currLine < bodyLines: # more lines
