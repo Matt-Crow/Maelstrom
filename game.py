@@ -5,7 +5,7 @@ from area import Area
 import json
 from fileSystem import getUserList
 
-from inputOutput.screens import Screen, AreaScreen, GameScreen, SimplerGameScreen, displayCharacterStats
+from inputOutput.screens import SimplerGameScreen, displayCharacterStats
 
 
 """
@@ -19,17 +19,6 @@ class Game:
         self.exit = False
 
     def test(self):
-        """
-        screen = Screen()
-        screen.add(77, 0, "Yum")
-        screen.add(79, 10, "Vertical")
-        screen.add(40, 20, "Hello world!")
-        screen.add(60, 25, "This line will be cut off")
-        screen.add(70, 30, "This has a bunch of \n new \n lines")
-        screen.display()
-        AreaScreen(Area.createDefaultArea()).display()
-        GameScreen().display()
-        """
         scr = SimplerGameScreen()
         scr.addSplitRow("\t" + "alpha team " * 20, "beta\ngamma\n\tdelta\n\tsomething else entirely")
         scr.addBodyRow("ahh " * 50)

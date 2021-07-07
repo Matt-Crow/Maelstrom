@@ -29,7 +29,7 @@ class AbstractCharacter(AbstractCustomizable):
     - customizationPoints : int (defaults to 0)
     - element : str
     - level : int (defaults to 1)
-    - xp : int (defaults to 0)
+    -  : int (defaults to 0)
     - actives : list (defaults to AbstractActive.getDefaults(element))
     - passives : list (default to AbstractPassive.getDefaults())
     - equippedItems : list (defaults to Item.getDefaults())
@@ -41,7 +41,7 @@ class AbstractCharacter(AbstractCustomizable):
 
         self.element = kwargs["element"]
         self.level = kwargs.get("level", 1)
-        self.xp = kwargs.get("xp", 0)
+        self.xp = int(kwargs.get("xp", 0))
 
         self.actives = []
         self.passives = []
@@ -318,6 +318,7 @@ class PlayerCharacter(AbstractCharacter):
             self.xp -= self.level * 10
             self.levelUp()
             msgs.append(self.getDisplayData())
+        self.xp = int(self.xp)
         return msgs
 
     """
