@@ -7,7 +7,7 @@ from events import OnHitEvent, ActionRegister, HIT_GIVEN_EVENT, HIT_TAKEN_EVENT,
 from customizable import AbstractCustomizable
 from fileSystem import saveSerializable, loadSerializable, ENEMY_DIR
 from util.stringUtil import entab, lengthOfLongest
-from inputOutput.screens import displayCharacterStats, SimplerGameScreen
+from inputOutput.screens import displayCharacterStats, Screen
 
 """
 Characters
@@ -346,7 +346,7 @@ class PlayerCharacter(AbstractCharacter):
         self.displayItems()
 
         if len(self.equippedItems) == 0 or choose("Do you wish to change these items?", ("yes", "no")) == "yes":
-            screen = SimplerGameScreen()
+            screen = Screen()
             screen.setTitle("Choose items to equip")
 
             for item in self.equippedItems:
@@ -374,7 +374,7 @@ class PlayerCharacter(AbstractCharacter):
 
     def manage(self):
         options = ["Quit", self]
-        screen = SimplerGameScreen()
+        screen = Screen()
         screen.setTitle(f'Manage {self.name}')
 
         if len(self.team.inventory) > 0:

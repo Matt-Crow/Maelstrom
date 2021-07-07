@@ -2,7 +2,7 @@ from serialize import AbstractJsonSerialable
 from fileSystem import AREA_DIR, loadSerializable, saveSerializable
 from utilities import *
 from battle import Battle
-from inputOutput.screens import SimplerGameScreen
+from inputOutput.screens import Screen
 from util.stringUtil import entab
 
 class Area(AbstractJsonSerialable):
@@ -73,7 +73,7 @@ class Area(AbstractJsonSerialable):
             options.append("Level")
         options.append("Quit")
 
-        screen = SimplerGameScreen()
+        screen = Screen()
         screen.setTitle(self.name)
         screen.addBodyRow(self.getDisplayData())
         screen.display() # todo add options
@@ -134,7 +134,7 @@ class Location(AbstractJsonSerialable):
     Prints this location's story
     """
     def travelTo(self):
-        screen = SimplerGameScreen()
+        screen = Screen()
         screen.setTitle(self.name)
         screen.addBodyRows(self.script)
         screen.display()

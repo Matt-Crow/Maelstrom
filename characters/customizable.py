@@ -2,7 +2,7 @@ from serialize import AbstractJsonSerialable
 from stat_classes import Stat
 from utilities import choose
 from abc import abstractmethod
-from inputOutput.screens import SimplerGameScreen
+from inputOutput.screens import Screen
 
 class AbstractCustomizable(AbstractJsonSerialable):
     nextId = 0
@@ -64,7 +64,7 @@ class AbstractCustomizable(AbstractJsonSerialable):
     """
     def customizeMenu(self):
         done = False
-        screen = SimplerGameScreen()
+        screen = Screen()
         screen.setTitle(f'Cusomizing {self.name}')
         while not done and self.customizationPoints > 0:
             screen.addBodyRows(self.getStatDisplayList())

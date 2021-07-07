@@ -5,7 +5,7 @@ from area import Area
 import json
 from fileSystem import getUserList
 
-from inputOutput.screens import SimplerGameScreen, displayCharacterStats
+from inputOutput.screens import Screen, displayCharacterStats
 
 
 """
@@ -19,7 +19,7 @@ class Game:
         self.exit = False
 
     def test(self):
-        scr = SimplerGameScreen()
+        scr = Screen()
         scr.addSplitRow("\t" + "alpha team " * 20, "beta\ngamma\n\tdelta\n\tsomething else entirely")
         scr.addBodyRow("ahh " * 50)
         for i in range(20):
@@ -62,7 +62,7 @@ class Game:
     Displayes the main menu
     """
     def mainMenu(self):
-        screen = SimplerGameScreen()
+        screen = Screen()
         screen.setTitle("MAELSTROM")
         screen.display()
         action = choose("Choose an option: ", ["Play", "About", "Quit"])

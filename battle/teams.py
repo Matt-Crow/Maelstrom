@@ -5,7 +5,7 @@ from serialize import AbstractJsonSerialable
 from fileSystem import USER_DIR, saveSerializable, loadSerializable
 from util.stringUtil import entab, lengthOfLongest
 from characters.stat_classes import Boost
-from inputOutput.screens import SimplerGameScreen
+from inputOutput.screens import Screen
 import os
 import random
 
@@ -225,7 +225,7 @@ class PlayerTeam(AbstractTeam):
     Displays the team management menu
     """
     def manage(self):
-        screen = SimplerGameScreen()
+        screen = Screen()
         screen.setTitle(f'Manage {self.name}')
         options = ["Exit"]
         for member in self.members:

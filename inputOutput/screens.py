@@ -10,7 +10,7 @@ Primary exports:
 * displayBattlePlayerTurn(Battle, List<str>)
 * displayBattleEnd(Battle, List<str>)
 
-* Class SimplerGameScreen
+* Class Screen
     - setTitle(str)
     - addBodyRows(List<str>)
     - addBodyRow(str) # automatically splits newlines into new rows
@@ -28,28 +28,28 @@ from util.stringUtil import lengthOfLongest
 
 
 def displayCharacterStats(character):
-    screen = SimplerGameScreen()
+    screen = Screen()
     screen.setTitle(f'{character.name} Lv. {character.level}')
     displayData = character.getDisplayData()
     screen.addBodyRows(displayData.split("\n"))
     screen.display()
 
 def displayTeamUndetailed(team):
-    screen = SimplerGameScreen()
+    screen = Screen()
     screen.setTitle(f'Team: {team.name}')
     displayData = team.getShortDisplayData()
     screen.addBodyRow(displayData)
     screen.display()
 
 def displayTeam(team):
-    screen = SimplerGameScreen()
+    screen = Screen()
     screen.setTitle(f'Team: {team.name}')
     displayData = team.getDisplayData()
     screen.addBodyRow(displayData)
     screen.display()
 
 def displayBattleStart(battle):
-    screen = SimplerGameScreen()
+    screen = Screen()
     screen.setTitle(f'{battle.player_team.name} VS. {battle.enemy_team.name}')
     playerTeamData = battle.player_team.getShortDisplayData()
     enemyTeamData = battle.enemy_team.getShortDisplayData()
@@ -59,7 +59,7 @@ def displayBattleStart(battle):
     screen.display()
 
 def displayBattleEnemyTurn(battle, msgs: "List<str>"):
-    screen = SimplerGameScreen()
+    screen = Screen()
     screen.setTitle(f'{battle.enemy_team.name}\'s turn')
     playerTeamData = battle.player_team.getShortDisplayData()
     enemyTeamData = battle.enemy_team.getShortDisplayData()
@@ -68,7 +68,7 @@ def displayBattleEnemyTurn(battle, msgs: "List<str>"):
     screen.display()
 
 def displayBattlePlayerTurn(battle, msgs: "List<str>"):
-    screen = SimplerGameScreen()
+    screen = Screen()
     screen.setTitle(f'{battle.player_team.name}\'s turn')
     playerTeamData = battle.player_team.getShortDisplayData()
     enemyTeamData = battle.enemy_team.getShortDisplayData()
@@ -77,7 +77,7 @@ def displayBattlePlayerTurn(battle, msgs: "List<str>"):
     screen.display() # todo add options
 
 def displayBattleEnd(battle, msgs: "List<str>"):
-    screen = SimplerGameScreen()
+    screen = Screen()
     screen.setTitle(f'{battle.player_team.name} VS. {battle.enemy_team.name}')
     screen.addBodyRow(battle.getDisplayData())
     screen.addBodyRows(msgs)
@@ -94,7 +94,7 @@ NUM_BODY_ROWS = 10
 
 
 
-class SimplerGameScreen:
+class Screen:
     def __init__(self):
         self.title = "Maelstrom"
         self.body = [] # List of str
@@ -153,7 +153,7 @@ class SimplerGameScreen:
                     if works != 0: #is false, didn't run
                         works = subprocess.call("clear", shell=True)
                 except:
-                    print("couldn't clear screen in SimplerGameScreen::display", file=sys.stderr)
+                    print("couldn't clear screen in Screen::display", file=sys.stderr)
             self.writeTitle(out)
             self.writeBody(out, 0) # print blank body
 
@@ -164,7 +164,7 @@ class SimplerGameScreen:
                     if works != 0: #is false, didn't run
                         works = subprocess.call("clear", shell=True)
                 except:
-                    print("couldn't clear screen in SimplerGameScreen::display", file=sys.stderr)
+                    print("couldn't clear screen in Screen::display", file=sys.stderr)
             self.writeTitle(out)
             self.writeBody(out, currLine)
             currLine += NUM_BODY_ROWS
