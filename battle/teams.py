@@ -1,4 +1,4 @@
-from utilities import Dp, choose, to_list
+from utilities import Dp, choose
 from character import PlayerCharacter, EnemyCharacter, AbstractCharacter
 from item import Item
 from serialize import AbstractJsonSerialable

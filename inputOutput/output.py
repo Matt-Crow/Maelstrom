@@ -7,7 +7,7 @@ Primary exports:
 * debug(msg)
 """
 
-DEBUG = false
+DEBUG = False
 
 class OutputConsumer:
     def print(self, msg):

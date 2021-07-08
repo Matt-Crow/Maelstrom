@@ -8,7 +8,9 @@ Primary export:
     - addBodyRows(List<str>)
     - addBodyRow(str) # automatically splits newlines into new rows
     - addSplitRow(left: str, right: str)
+    - addOption()
     - display()
+    - displayAndChoose()
 """
 
 from enum import Enum, auto
@@ -16,6 +18,7 @@ import math
 import sys
 import re
 import subprocess
+from inputOutput.input import choose
 from util.stringUtil import lengthOfLongest
 
 CLS_BEFORE_DISPLAY = True
@@ -58,7 +61,7 @@ class Screen:
     """
     There may need to be some limit on the number of options this can be given
     """
-    def addOption(self, option: str):
+    def addOption(self, option: "any"):
         self.options.append(option)
 
     def clear(self):
@@ -140,6 +143,8 @@ class Screen:
     def writeOptions(self, out, options):
         print(BORDER * SCREEN_COLS, file=out)
 
+        options = [str(option) for option in options]
+
         # get column widths
         colWidths = []
         colStart = 0
@@ -169,6 +174,9 @@ class Screen:
 
         print(BORDER * SCREEN_COLS, file=out)
 
+    def displayAndChoose(self, prompt: str)->"any":
+        self.display()
+        choose(str, self.options, False)
 
 
 """
