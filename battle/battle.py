@@ -6,7 +6,7 @@ from character import EnemyCharacter
 from fileSystem import getEnemyList
 from serialize import AbstractJsonSerialable
 from util.stringUtil import entab
-from inputOutput.screens import displayBattleStart, displayTeam, displayBattleEnemyTurn, displayBattlePlayerTurn, displayBattleEnd
+from inputOutput.screens import Screen
 import random
 
 
@@ -97,9 +97,9 @@ class Battle(AbstractJsonSerialable):
 
         # TODO: add a "scout" option to Area that allows the user to do this
         # but will need to make sure they are initialized
-        displayTeam(self.enemy_team)
+        self.enemy_team.display()
 
-        displayBattleStart(self)
+        self.displayIntro()
 
         while not self.enemy_team.isDefeated() and not self.player_team.isDefeated():
             self.doEnemyTurn()
@@ -112,6 +112,19 @@ class Battle(AbstractJsonSerialable):
         self.gameEnd()
 
         self.enemy_team = None # uncache enemy team to save memory
+
+    """
+    Displays the introduction to this Battle
+    """
+    def displayIntro(self):
+        screen = Screen()
+        screen.setTitle(f'{self.player_team.name} VS. {self.enemy_team.name}')
+        playerTeamData = self.player_team.getShortDisplayData()
+        enemyTeamData = self.enemy_team.getShortDisplayData()
+        screen.addSplitRow(playerTeamData, enemyTeamData)
+        screen.addBodyRows(self.prescript)
+        screen.addBodyRow(self.weather.getMsg())
+        screen.display()
 
     """
     This one doesn't display as much as doPlayerTurn, as the player needs to be
@@ -137,8 +150,16 @@ class Battle(AbstractJsonSerialable):
             # Attack steps
             msgs.append(self.enemy_team.active.chooseActive())
 
-        displayBattleEnemyTurn(self, msgs)
+        self.displayEnemyTurn(msgs)
 
+    def displayEnemyTurn(self, msgs: "List<str>"):
+        screen = Screen()
+        screen.setTitle(f'{self.enemy_team.name}\'s turn')
+        playerTeamData = self.player_team.getShortDisplayData()
+        enemyTeamData = self.enemy_team.getShortDisplayData()
+        screen.addSplitRow(playerTeamData, enemyTeamData)
+        screen.addBodyRows(msgs)
+        screen.display()
 
     def doPlayerTurn(self)->"List<str>":
         msgs = []
@@ -147,7 +168,7 @@ class Battle(AbstractJsonSerialable):
         msgs.extend(self.player_team.updateMembersRem()) # check if any were KOed on player turn
         msgs.append(self.weather.applyEffect(self.player_team.membersRem)) # yes, this is supposed to be "append", not "extend"
         msgs.extend(self.player_team.updateMembersRem()) # check if the weather defeated anyone
-        displayBattlePlayerTurn(self, msgs)
+        self.displayPlayerTurn(msgs)
         if self.player_team.isDefeated():
             # todo add message
             pass
@@ -155,12 +176,26 @@ class Battle(AbstractJsonSerialable):
             # Pre-choose attack steps
             if self.player_team.active.isKoed() or self.player_team.shouldSwitch():
                 msgs.append(self.player_team.chooseNewActive())
-                displayBattlePlayerTurn(self, msgs)
+                self.displayPlayerTurn(msgs)
 
             # Attack steps
+            # todo add options
             msgs.append(self.player_team.active.chooseActive())
 
-        displayBattlePlayerTurn(self, msgs)
+        self.displayPlayerTurn(msgs)
+
+    """
+    This method is called multiple times to keep the user up to date on what is
+    happening
+    """
+    def displayPlayerTurn(self, msgs):
+        screen = Screen()
+        screen.setTitle(f'{self.player_team.name}\'s turn')
+        playerTeamData = self.player_team.getShortDisplayData()
+        enemyTeamData = self.enemy_team.getShortDisplayData()
+        screen.addSplitRow(playerTeamData, enemyTeamData)
+        screen.addBodyRows(msgs)
+        screen.display()
 
     # add random loot
     """
@@ -184,7 +219,14 @@ class Battle(AbstractJsonSerialable):
         for member in self.player_team.members:
             msgs.extend(member.gainXp(xp))
 
-        displayBattleEnd(self, msgs)
+        self.displayEnd(msgs)
+
+    def displayEnd(self, msgs):
+        screen = Screen()
+        screen.setTitle(f'{self.player_team.name} VS. {self.enemy_team.name}')
+        screen.addBodyRow(self.getDisplayData())
+        screen.addBodyRows(msgs)
+        screen.display()
 
     """
     Creates a random level

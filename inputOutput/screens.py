@@ -1,14 +1,7 @@
 """
 This module provides the basic structure of the screens the program displays
 
-Primary exports:
-* displayCharacterStats(Character)
-* displayTeamUndetailed(Team)
-* displayTeam(Team)
-* displayBattleStart(Battle)
-* displayBattleEnemyTurn(Battle, List<str>)
-* displayBattlePlayerTurn(Battle, List<str>)
-* displayBattleEnd(Battle, List<str>)
+Primary export:
 
 * Class Screen
     - setTitle(str)
@@ -24,64 +17,6 @@ import sys
 import re
 import subprocess
 from util.stringUtil import lengthOfLongest
-
-
-
-def displayCharacterStats(character):
-    screen = Screen()
-    screen.setTitle(f'{character.name} Lv. {character.level}')
-    displayData = character.getDisplayData()
-    screen.addBodyRows(displayData.split("\n"))
-    screen.display()
-
-def displayTeamUndetailed(team):
-    screen = Screen()
-    screen.setTitle(f'Team: {team.name}')
-    displayData = team.getShortDisplayData()
-    screen.addBodyRow(displayData)
-    screen.display()
-
-def displayTeam(team):
-    screen = Screen()
-    screen.setTitle(f'Team: {team.name}')
-    displayData = team.getDisplayData()
-    screen.addBodyRow(displayData)
-    screen.display()
-
-def displayBattleStart(battle):
-    screen = Screen()
-    screen.setTitle(f'{battle.player_team.name} VS. {battle.enemy_team.name}')
-    playerTeamData = battle.player_team.getShortDisplayData()
-    enemyTeamData = battle.enemy_team.getShortDisplayData()
-    screen.addSplitRow(playerTeamData, enemyTeamData)
-    screen.addBodyRows(battle.prescript)
-    screen.addBodyRow(battle.weather.getMsg())
-    screen.display()
-
-def displayBattleEnemyTurn(battle, msgs: "List<str>"):
-    screen = Screen()
-    screen.setTitle(f'{battle.enemy_team.name}\'s turn')
-    playerTeamData = battle.player_team.getShortDisplayData()
-    enemyTeamData = battle.enemy_team.getShortDisplayData()
-    screen.addSplitRow(playerTeamData, enemyTeamData)
-    screen.addBodyRows(msgs)
-    screen.display()
-
-def displayBattlePlayerTurn(battle, msgs: "List<str>"):
-    screen = Screen()
-    screen.setTitle(f'{battle.player_team.name}\'s turn')
-    playerTeamData = battle.player_team.getShortDisplayData()
-    enemyTeamData = battle.enemy_team.getShortDisplayData()
-    screen.addSplitRow(playerTeamData, enemyTeamData)
-    screen.addBodyRows(msgs)
-    screen.display() # todo add options
-
-def displayBattleEnd(battle, msgs: "List<str>"):
-    screen = Screen()
-    screen.setTitle(f'{battle.player_team.name} VS. {battle.enemy_team.name}')
-    screen.addBodyRow(battle.getDisplayData())
-    screen.addBodyRows(msgs)
-    screen.display()
 
 CLS_BEFORE_DISPLAY = True
 

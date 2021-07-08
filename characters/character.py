@@ -7,7 +7,7 @@ from events import OnHitEvent, ActionRegister, HIT_GIVEN_EVENT, HIT_TAKEN_EVENT,
 from customizable import AbstractCustomizable
 from fileSystem import saveSerializable, loadSerializable, ENEMY_DIR
 from util.stringUtil import entab, lengthOfLongest
-from inputOutput.screens import displayCharacterStats, Screen
+from inputOutput.screens import Screen
 
 """
 Characters
@@ -152,6 +152,13 @@ class AbstractCharacter(AbstractCustomizable):
     """
     def getHpPerc(self):
         return int((float(self.remHp) / float(self.maxHp) * 100.0))
+
+    def displayStats(self):
+        screen = Screen()
+        screen.setTitle(f'{self.name} Lv. {self.level}')
+        displayData = self.getDisplayData()
+        screen.addBodyRow(displayData)
+        screen.display()
 
     def getDisplayData(self)->str:
         self.calcStats()
@@ -419,7 +426,7 @@ class EnemyCharacter(AbstractCharacter):
                 "resistance" : -10
             }
         )
-        displayCharacterStats(lightning)
+        lightning.displayStats()
         lightning.save()
 
         rain = EnemyCharacter(
@@ -430,7 +437,7 @@ class EnemyCharacter(AbstractCharacter):
                 "control" : -10
             }
         )
-        displayCharacterStats(rain)
+        rain.displayStats()
         rain.save()
 
         hail = EnemyCharacter(
@@ -441,7 +448,7 @@ class EnemyCharacter(AbstractCharacter):
                 "luck" : -10
             }
         )
-        displayCharacterStats(hail)
+        hail.displayStats()
         hail.save()
 
         wind = EnemyCharacter(
@@ -452,7 +459,7 @@ class EnemyCharacter(AbstractCharacter):
                 "potency" : -10
             }
         )
-        displayCharacterStats(wind)
+        wind.displayStats()
         wind.save()
 
         stone = EnemyCharacter(
@@ -466,7 +473,7 @@ class EnemyCharacter(AbstractCharacter):
                 "potency":-5
             }
         )
-        displayCharacterStats(stone)
+        stone.displayStats()
         stone.save()
 
     """

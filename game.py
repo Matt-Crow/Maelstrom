@@ -5,7 +5,7 @@ from area import Area
 import json
 from fileSystem import getUserList
 
-from inputOutput.screens import Screen, displayCharacterStats
+from inputOutput.screens import Screen
 
 
 """
@@ -37,7 +37,7 @@ class Game:
         elif choice == "view character info":
             # This will change to display the entire team if I change back to
             # more than one member per player team
-            displayCharacterStats(self.playerTeam.getMember())
+            self.playerTeam.getMember().displayStats()
         elif choice == "customize character":
             self.playerTeam.manage()
         elif choice == "exit":

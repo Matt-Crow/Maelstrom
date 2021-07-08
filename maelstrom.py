@@ -37,6 +37,7 @@ Week 2: Revised/improved/reordered functions
 9/12/2017 - 11/12/2017 : Split files, working on campagne
 12/12/2017: Working on save file
 May 2020: Working on lots of cleanup and redoing serialization
+June-July 2021: Reworked input and output
 
 Version 0.9
 """

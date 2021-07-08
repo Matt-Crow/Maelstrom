@@ -121,6 +121,13 @@ class AbstractTeam(AbstractJsonSerialable):
             self.membersRem.append(member)
         self.active = self.membersRem[0]
 
+    def displayShortDescription(self):
+        screen = Screen()
+        screen.setTitle(f'Team: {self.name}')
+        displayData = self.getShortDisplayData()
+        screen.addBodyRow(displayData)
+        screen.display()
+
     """
     This method gives a brief overview of this team. Used for the battle UI
     """
@@ -135,6 +142,13 @@ class AbstractTeam(AbstractJsonSerialable):
         if hasattr(self, "active"):
             lines.append(f'Current active: {self.active.name} ({self.active.energy} energy)')
         return "\n".join(lines)
+
+    def display(self):
+        screen = Screen()
+        screen.setTitle(f'Team: {self.name}')
+        displayData = self.getDisplayData()
+        screen.addBodyRow(displayData)
+        screen.display()
 
     """
     This provides a more descriptive overview of the team, detailing all of its
