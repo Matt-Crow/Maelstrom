@@ -1,6 +1,7 @@
 import random
 
-debug = False
+from inputOutput.output import debug
+
 
 ELEMENTS = ("lightning", "rain", "hail", "wind")
 STATS = ("control", "resistance", "potency", "luck", "energy")
@@ -24,13 +25,13 @@ def roll_perc(base = 0):
     ret = 100
     base = int(base)
     # don't roll if base is more than 100
-    if base > 100:
-        Dp.add("Cannot roll: " + str(base) + " is too high")
+    if base > 100 or 0 > base:
+        raise ValueError(f'base must be between 0 and 100, so {base} is not allowed')
     else:
         ret = random.randint(base, 100)
-        Dp.add("Rolling between " + str(base) + " and 100")
-        Dp.add("Rolled " + str(ret))
-    Dp.dp()
+        debug(f'Rolling between {base} and 100')
+        debug(f'Rolled {ret}')
+
     return ret
 
 def choose(question, options):
@@ -92,43 +93,3 @@ def askIntInput(msg: str)->int:
         except:
             print("Invalid input: Enter an integer:")
     return ip
-
-
-class AbstractOutput:
-    """
-    This abstract class serves as a base
-    for the two output types:
-    normal and debug
-    """
-    msgs = []
-    indentation = " "
-
-    @classmethod
-    def indent(op):
-        op.indentation += "    "
-
-    @classmethod
-    def unindent(op):
-        op.indentation = " "
-
-    @classmethod
-    def add(op, msg):
-        msg = to_list(msg)
-        for line in msg:
-            op.msgs.append(op.indentation + str(line))
-
-    @classmethod
-    def reset(op):
-        op.msgs = []
-        op.unindent()
-
-class Dp(AbstractOutput):
-    @staticmethod
-    def dp():
-        if debug and len(Dp.msgs) is not 0:
-            print('\n')
-            print("<*DEBUG*>")
-            for msg in Dp.msgs:
-                print(str(msg))
-            Dp.reset()
-            input("Press enter or return to continue")

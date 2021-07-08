@@ -1,8 +1,9 @@
 from stat_classes import Stat, Boost
 import pprint
-from utilities import ELEMENTS, roll_perc, Dp
+from utilities import ELEMENTS, roll_perc
 from customizable import AbstractCustomizable
 from characters.actives.activeStats import ActiveStatFactory
+from inputOutput.output import debug
 from util.stringUtil import entab
 
 
@@ -109,8 +110,9 @@ class AbstractActive(AbstractCustomizable):
         ret = HitType(1.0, "")
 
         rand = roll_perc(self.user.getStatValue("luck"))
-        Dp.add(["rand in getMHCMult: " + str(rand), "Crit: " + str(100 - self.getStatValue("crit chance")), "Miss: " + str(self.getStatValue("miss chance"))])
-        Dp.dp()
+        debug(f'Crit: {100 - self.getStatValue("crit chance")}')
+        debug(f'Miss: {self.getStatValue("miss chance")}')
+        debug(f'Rand in getMHCMult: {rand}')
         if rand <= self.getStatValue("miss chance"):
             ret = HitType(self.getStatValue("miss mult"), "A glancing blow!")
 

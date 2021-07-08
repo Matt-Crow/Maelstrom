@@ -5,10 +5,8 @@ poured countless hours of work into. I learned so much while making this game,
 both about programming and game design in general.
 
 TODO:
-* better logging
 * better output
     * display choices in Screen
-    * debug output
     * implement inputOutput.output
 * use my application directory system from ARCDHWebAutomator
 * make the game fun

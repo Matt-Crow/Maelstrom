@@ -3,18 +3,18 @@ This file details which functions will receive program output and debug
 information
 
 Primary exports:
-* print(msg)
+* output(msg)
 * debug(msg)
 """
 
 DEBUG = False
 
 class OutputConsumer:
-    def print(self, msg):
+    def output(self, msg):
         raise NotImplementedError("OutputConsumer::print is an abstract method")
 
 class TerminalLogger(OutputConsumer):
-    def print(self, msg):
+    def output(self, msg):
         print(msg);
 
 """
@@ -22,21 +22,18 @@ class FileLogger(OutputConsumer):
 """
 
 class DevNull(OutputConsumer):
-    def print(self, msg):
+    def output(self, msg):
         pass
 
 
 outputConsumers = [TerminalLogger()]
-debugConsumers = []
-if DEBUG:
-    debugConsumers.append(TerminalLogger())
-else:
-    debugConsumers.append(DevNull())
+debugConsumers = [TerminalLogger()]
 
-def print(msg):
+def output(msg):
     for consumer in outputConsumers:
-        consumer.print(msg)
+        consumer.output(msg)
 
 def debug(msg):
-    for consumer in debugConsumers:
-        consumer.print(msg)
+    if DEBUG:
+        for consumer in debugConsumers:
+            consumer.output(f'DEBUG: {msg}')

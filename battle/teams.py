@@ -1,4 +1,4 @@
-from utilities import Dp, choose
+from utilities import choose
 from character import PlayerCharacter, EnemyCharacter, AbstractCharacter
 from item import Item
 from serialize import AbstractJsonSerialable
@@ -8,6 +8,7 @@ from characters.stat_classes import Boost
 from inputOutput.screens import Screen
 import os
 import random
+from inputOutput.output import debug
 
 """
 Teams are used to group characters
@@ -302,11 +303,9 @@ class EnemyTeam(AbstractTeam):
             if self.enemy.active.calcDmgTaken(member, member.bestActive()) * 0.75 >= self.enemy.active.remHp:
                 can_ko.append(member)
 
+        debug("These team members can KO:")
         for member in can_ko:
-            Dp.add(member.name)
-
-        Dp.add("can KO")
-        Dp.dp()
+            debug(f'- {member.name}')
 
         """
         If one person can KO,

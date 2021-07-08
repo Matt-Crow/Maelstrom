@@ -1,9 +1,9 @@
-from utilities import *
 from stat_classes import Stat, Boost
-
 from customizable import AbstractCustomizable
 from events import HIT_GIVEN_EVENT, HIT_TAKEN_EVENT, UPDATE_EVENT
+from inputOutput.output import debug
 from util.stringUtil import entab
+from util.utilities import roll_perc
 
 """
 Passives
@@ -101,13 +101,12 @@ class Threshhold(AbstractPassive):
         self.user.addActionListener(UPDATE_EVENT, self.checkTrigger)
 
     def checkTrigger(self, updated):
-        Dp.add("Checking trigger for " + self.name)
-        Dp.add(str(self.getStatValue("threshhold") * 100) + "% threshhold")
-        Dp.add(str(updated.getHpPerc()) + "% user health")
-        if updated.getHpPerc() <= self.getStatValue("threshhold"):
-            Dp.add("activated")
+        debug(f'Checking trigger for {self.name}')
+        debug(f'{(self.getStatValue("threshhold") * 100)}% threshhold')
+        debug(f'{updated.getHpPerc()}% user health')
+        if updated.getHpPerc() <= self.getStatValue("threshhold") * 100:
+            debug("activated")
             self.applyBoost()
-        Dp.dp()
 
     """
     returns a text representation of this object
@@ -136,13 +135,12 @@ class OnHitGiven(AbstractPassive):
 
     def checkTrigger(self, onHitEvent):
         rand = roll_perc(self.user.getStatValue("luck"))
-        Dp.add("Checking trigger for " + self.name)
-        Dp.add("Need to roll " + str(100 - self.getStatValue('chance')) + " or higher to activate")
-        Dp.add("Rolled " + str(rand))
-        if rand > 100 - self.getStatValue('chance'):
-            Dp.add("activated")
+        debug(f'Checking trigger for {self.name}')
+        debug(f'Need to roll {(100 - self.getStatValue("chance"))} or higher to activate')
+        debug(f'Rolled {rand}')
+        if rand > 100 - self.getStatValue("chance"):
+            debug("activated")
             self.applyBoost()
-        Dp.dp()
 
     """
     returns a text representation of this object
@@ -171,13 +169,12 @@ class OnHitTaken(AbstractPassive):
 
     def checkTrigger(self, onHitEvent):
         rand = roll_perc(self.user.getStatValue("luck"))
-        Dp.add("Checking trigger for " + self.name)
-        Dp.add("Need to roll " + str(100 - self.getStatValue('chance')) + " or higher to activate")
-        Dp.add("Rolled " + str(rand))
-        if rand > 100 - self.getStatValue('chance'):
-            Dp.add("activated")
+        debug(f'Checking trigger for {self.name}')
+        debug(f'Need to roll {(100 - self.getStatValue("chance"))} or higher to activate')
+        debug(f'Rolled {rand}')
+        if rand > 100 - self.getStatValue("chance"):
+            debug("activated")
             self.applyBoost()
-        Dp.dp()
 
     """
     returns a text representation of this object

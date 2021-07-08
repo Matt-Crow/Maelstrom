@@ -1,4 +1,4 @@
-from utilities import choose, ELEMENTS, STATS, Dp
+from utilities import choose, ELEMENTS, STATS
 from stat_classes import Stat
 from characters.actives.actives import AbstractActive
 from passives import AbstractPassive
@@ -8,6 +8,7 @@ from customizable import AbstractCustomizable
 from fileSystem import saveSerializable, loadSerializable, ENEMY_DIR
 from util.stringUtil import entab, lengthOfLongest
 from inputOutput.screens import Screen
+from inputOutput.output import debug
 
 """
 Characters
@@ -492,16 +493,15 @@ class EnemyCharacter(AbstractCharacter):
     def bestActive(self):
         best = self.actives[0]
         bestDmg = 0
-        Dp.add("----------")
+        debug("-" * 10)
         for active in self.actives:
             if active.canUse():
                 dmg = self.team.enemy.active.calcDmgTaken(self, active)
                 if dmg > bestDmg:
                     best = active
                     bestDmg = dmg
-                Dp.add("Damage with " + active.name + ": " + str(dmg))
-        Dp.add("----------")
-        Dp.dp()
+                debug(f'Damage with {active.name}: {dmg}')
+        debug("-" * 10)
         return best
 
     """
