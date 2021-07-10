@@ -50,6 +50,7 @@ def error(*args, **kwargs):
 
     for consumer in errorConsumers:
         consumer.output(*localArgs, **localKwargs)
+    input("press any key to continue")
 
 def debug(*args, **kwargs):
     if DEBUG:

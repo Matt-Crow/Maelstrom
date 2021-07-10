@@ -174,13 +174,17 @@ class Battle(AbstractJsonSerialable):
             pass
         else:
             # Pre-choose attack steps
-            if self.player_team.active.isKoed() or self.player_team.shouldSwitch():
+            if self.player_team.shouldSwitch():
                 msgs.append(self.player_team.chooseNewActive())
                 self.displayPlayerTurn(msgs)
 
             # Attack steps
-            # todo add options
-            msgs.append(self.player_team.active.chooseActive())
+            screen = Screen()
+            screen.setTitle(f'{self.player_team.active}\'s turn')
+            for option in self.player_team.active.getActiveChoices():
+                screen.addOption(option)
+            active = screen.displayAndChoose("What active do you wish to use?");
+            msgs.append(active.use())
 
         self.displayPlayerTurn(msgs)
 

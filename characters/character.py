@@ -1,4 +1,4 @@
-from utilities import choose, ELEMENTS, STATS
+from utilities import ELEMENTS, STATS
 from stat_classes import Stat
 from characters.actives.actives import AbstractActive
 from passives import AbstractPassive
@@ -296,17 +296,12 @@ class PlayerCharacter(AbstractCharacter):
     def __init__(self, **kwargs):
         super(self.__class__, self).__init__(**dict(kwargs, type="PlayerCharacter"))
 
-    """
-    Allows the player to choose and then use one of this character's active
-    abilities, then returns a message
-    """
-    def chooseActive(self)->str:
+    def getActiveChoices(self)->"List<Active>":
         options = []
         for active in self.actives:
             if active.canUse():
                 options.append(active)
-
-        return choose("What active do you wish to use?", options).use()
+        return options
 
     """
     Post-battle actions:
@@ -408,10 +403,12 @@ class PlayerCharacter(AbstractCharacter):
             screen.addBodyRow(active.getDisplayData())
             options.append(active)
 
-        screen.display()
-
         options.reverse()
-        customize = choose("What do you want to customize?", options)
+
+        for option in options:
+            screen.addOption(option)
+
+        customize = screen.displayAndChoose("What do you want to customize?")
         if customize != "Quit":
             if customize == "Equipped items":
                 self.chooseItems()

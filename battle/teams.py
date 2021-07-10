@@ -1,4 +1,3 @@
-from utilities import choose
 from character import PlayerCharacter, EnemyCharacter, AbstractCharacter
 from item import Item
 from serialize import AbstractJsonSerialable
@@ -169,6 +168,9 @@ class AbstractTeam(AbstractJsonSerialable):
     def __str__(self):
         return self.name
 
+    def chooseNewActive(self)->str:
+        return self.switchIn(self.chooseSwitchin())
+
     """
     Returns whether or not this team
     should change who is active
@@ -206,23 +208,30 @@ class PlayerTeam(AbstractTeam):
     """
     Choices are made using these functions
     """
+
+    """
+    Asks the user if they want to
+    switch before attacking
+    """
     def shouldSwitch(self) -> bool:
-        """
-        Asks the user if they want to
-        switch before attacking
-        """
+        screen = Screen()
+        screen.setTitle(f'{self.name}\'s turn')
+        screen.addBodyRow(self.getShortDisplayData())
+        screen.addOption("Yes")
+        screen.addOption("No")
+        return self.active.isKoed() or (len(self.members) > 1 and screen.displayAndChoose("Do you want to switch your active character?") == 'Yes')
 
-        return len(self.members) > 1 and choose('Do you want to switch your active character?', ['Yes', 'No']) == 'Yes'
-
-    def chooseSwitchin(self):
-        """
-        Who will fight?
-        """
-        choices = []
+    """
+    Who will fight?
+    """
+    def chooseSwitchin(self)->"AbstractCharacter":
+        screen = Screen()
+        screen.setTitle("Choose Switchin")
+        screen.addBodyRow(self.getShortDisplayData())
         for member in self.membersRem:
             if member != self.active:
-                choices.append(member)
-        self.switch(choose("Who do you want to bring in?", choices))
+                screen.addOption(member)
+        return screen.displayAndChoose("Who do you want to bring in?")
 
     """
     Customization options
@@ -327,6 +336,3 @@ class EnemyTeam(AbstractTeam):
 
         rand = random.randint(0, len(array) - 1)
         return array[rand]
-
-    def chooseNewActive(self):
-        return self.switchIn(self.chooseSwitchin())
