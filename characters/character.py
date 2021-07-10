@@ -351,34 +351,42 @@ class PlayerCharacter(AbstractCharacter):
     """
 
     def chooseItems(self):
-        self.displayItems()
+        screen = Screen()
+        screen.setTitle("Equipped Items")
+        for item in self.equippedItems:
+            screen.addBodyRow(item.getDisplayData())
+        screen.addOption("Yes")
+        screen.addOption("No")
 
-        if len(self.equippedItems) == 0 or choose("Do you wish to change these items?", ("yes", "no")) == "yes":
-            screen = Screen()
+        if len(self.equippedItems) == 0 or screen.displayAndChoose("Do you wish to change these items?") == "Yes":
+            screen.clear()
             screen.setTitle("Choose items to equip")
 
             for item in self.equippedItems:
                 item.unequip()
+                self.team.inventory.append(item)
+            self.equippedItems.clear()
 
             items = self.team.get_available_items()
 
             if len(items) <= 3:
                 for item in items:
                     item.equip(self)
+                    self.team.inventory.remove(item)
                     self.equippedItems.append(item)
-            else:
-                for item in items:
-                    screen.addBodyRow(item.getDisplayData())
 
-            screen.display()
             items = self.team.get_available_items()
             while (len(self.equippedItems) < 3) and (len(items) is not 0):
-                item = choose("Which item do you want to equip?", items)
+                screen.clear()
+                screen.setTitle("Choose items to equip")
+                for item in items:
+                    screen.addBodyRow(item.getDisplayData())
+                    screen.addOption(item)
+                item = screen.displayAndChoose("Which item do you want to equip?")
                 item.equip(self)
+                self.team.inventory.remove(item)
                 self.equippedItems.append(item)
                 items = self.team.get_available_items()
-
-            self.displayItems()
 
     def manage(self):
         options = ["Quit", self]
@@ -405,9 +413,10 @@ class PlayerCharacter(AbstractCharacter):
         options.reverse()
         customize = choose("What do you want to customize?", options)
         if customize != "Quit":
-            if customize == 'Equipped items':
+            if customize == "Equipped items":
                 self.chooseItems()
-            customize.customizeMenu()
+            else:
+                customize.customizeMenu()
 
 class EnemyCharacter(AbstractCharacter):
     def __init__(self, **kwargs):

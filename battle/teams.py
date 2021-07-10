@@ -41,6 +41,7 @@ class AbstractTeam(AbstractJsonSerialable):
         ret = None
         if type == "PlayerTeam":
             jdict["member"] = AbstractCharacter.deserializeJson(jdict["members"][0])
+            jdict["inventory"] = [Item.deserializeJson(item) for item in jdict["inventory"]]
             ret = PlayerTeam(**jdict)
         elif type =="EnemyTeam":
             jdict["members"] = [AbstractCharacter.deserializeJson(member) for member in jdict["members"]]
@@ -247,9 +248,11 @@ class PlayerTeam(AbstractTeam):
             screen.addBodyRow(member.getDisplayData())
             options.append(member)
 
-        screen.display()
+
         options.reverse()
-        managing = choose("Who do you wish to manage?", options)
+        for option in options:
+            screen.addOption(option)
+        managing = screen.displayAndChoose("Who do you wish to manage?")
 
         if managing is not "Exit":
             managing.manage()

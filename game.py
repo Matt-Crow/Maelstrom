@@ -1,6 +1,6 @@
 from teams import PlayerTeam, AbstractTeam
 from character import AbstractCharacter, EnemyCharacter
-from utilities import choose, ELEMENTS
+from utilities import ELEMENTS
 from area import Area
 import json
 from fileSystem import getUserList
@@ -21,8 +21,12 @@ class Game:
         #EnemyCharacter.generateEnemies()
 
     def chooseAction(self):
+        screen = Screen()
         options = ["explore", "view character info", "customize character", "exit"]
-        choice = choose("What do you wish to do?", options)
+        for option in options:
+            screen.addOption(option)
+
+        choice = screen.displayAndChoose("What do you wish to do?")
         if choice == "explore":
             self.currentArea.chooseAction(self.playerTeam)
         elif choice == "view character info":
@@ -55,8 +59,9 @@ class Game:
     def mainMenu(self):
         screen = Screen()
         screen.setTitle("MAELSTROM")
-        screen.display()
-        action = choose("Choose an option: ", ["Play", "About", "Quit"])
+        for option in ["Play", "About", "Quit"]:
+            screen.addOption(option)
+        action = screen.displayAndChoose("Choose an option: ")
         if action == "Play":
             self.loginMenu()
         elif action == "About":
@@ -68,16 +73,23 @@ class Game:
     Asks the user to log in
     """
     def loginMenu(self):
+        screen = Screen()
+        screen.setTitle("Login")
         users = getUserList()
         userName = None
         options = ["Create game"]
         if len(users) > 0:
             options.append("Load game")
-
-        action = choose("Do you wish to load a game, or start a new one?", options)
+        options.reverse()
+        for option in options:
+            screen.addOption(option)
+        action = screen.displayAndChoose("Do you wish to load a game or start a new one?")
         if action == "Load game":
+            screen.clearOptions()
             users.append("None of these")
-            userName = choose("Which user are you?", users)
+            for user in users:
+                screen.addOption(user)
+            userName = screen.displayAndChoose("Which user are you?")
             if userName == "None of these":
                 self.newUserMenu()
                 self.loginMenu()
@@ -99,7 +111,12 @@ class Game:
     """
     def newUserMenu(self):
         name = input("What do you want your character\'s name to be? ")
-        element = choose("Each character has elemental powers, what element do you want yours to control?", ELEMENTS)
+        screen = Screen()
+        screen.setTitle("New User")
+        screen.addBodyRow("Each character has elemental powers, what element do you want yours to control?")
+        for element in ELEMENTS:
+            screen.addOption(element)
+        element = screen.displayAndChoose("Choose an element: ")
         result = self.createUser(name, element)
         if result == 'User added successfully!':
             self.loginUser(name)

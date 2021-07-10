@@ -66,6 +66,7 @@ class Screen:
     def clear(self):
         self.title = "Maelstrom"
         self.clearBody()
+        self.clearOptions()
 
     def clearBody(self):
         self.body.clear()
