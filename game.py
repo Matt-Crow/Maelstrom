@@ -101,7 +101,6 @@ class Game:
         name = input("What do you want your character\'s name to be? ")
         element = choose("Each character has elemental powers, what element do you want yours to control?", ELEMENTS)
         result = self.createUser(name, element)
-        print(result)
         if result == 'User added successfully!':
             self.loginUser(name)
         else:

@@ -6,7 +6,7 @@ it is used by screens.py
 
 
 
-import inputOutput.output
+from inputOutput.output import output
 
 
 
@@ -22,11 +22,11 @@ def choose(prompt: str, options: "List<any>", displayOptions=True)->"any":
     only bother asking if there is more than one option
     """
     if len(options) > 1:
-        output.print(prompt)
+        output(prompt)
 
         if displayOptions:
             for i in range(0, len(options)):
-                output.print(f'{i + 1}: {names[i]}')
+                output(f'{i + 1}: {names[i]}')
 
         # get user input
         ip = askIntInput(f'Enter a number [1 - {len(options)}): ')
@@ -64,5 +64,5 @@ def askIntInput(msg: str)->int:
             ip = int(float(ip))
             valid = True
         except:
-            output.print("Invalid input: Enter an integer:")
+            output("Invalid input: Enter an integer:")
     return ip

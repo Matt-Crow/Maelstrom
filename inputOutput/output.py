@@ -14,6 +14,7 @@ so anything that works for print will work for these
 import sys
 
 DEBUG = False
+CLS_BEFORE_DISPLAY = True
 
 class OutputConsumer:
     def output(self, *args, **kwargs):

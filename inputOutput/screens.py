@@ -19,9 +19,8 @@ import sys
 import re
 import subprocess
 from inputOutput.input import choose
+from inputOutput.output import output, error, CLS_BEFORE_DISPLAY
 from util.stringUtil import lengthOfLongest
-
-CLS_BEFORE_DISPLAY = True
 
 SCREEN_COLS = 80
 
@@ -91,7 +90,7 @@ class Screen:
                     if works != 0: #is false, didn't run
                         works = subprocess.call("clear", shell=True)
                 except:
-                    print("couldn't clear screen in Screen::display", file=sys.stderr)
+                    error("couldn't clear screen in Screen::display")
             self.writeTitle(out)
             self.writeBody(out, 0) # print blank body
 
@@ -102,7 +101,7 @@ class Screen:
                     if works != 0: #is false, didn't run
                         works = subprocess.call("clear", shell=True)
                 except:
-                    print("couldn't clear screen in Screen::display", file=sys.stderr)
+                    error("couldn't clear screen in Screen::display")
             self.writeTitle(out)
             self.writeBody(out, currLine)
             currLine += NUM_BODY_ROWS
@@ -117,17 +116,17 @@ class Screen:
             input("press enter or return to continue")
 
     def writeTitle(self, out):
-        print(BORDER * SCREEN_COLS, file=out)
-        print(CenterAlignedRow(self.title), file=out)
-        print(BORDER * SCREEN_COLS, file=out)
+        output(BORDER * SCREEN_COLS, file=out)
+        output(CenterAlignedRow(self.title), file=out)
+        output(BORDER * SCREEN_COLS, file=out)
 
     """
     Writes the body lines within [firstLineNum, firstLineNum + NUM_BODY_ROWS)
     """
     def writeBody(self, out, firstLineNum=0):
-        print(BORDER * SCREEN_COLS, file=out)
+        output(BORDER * SCREEN_COLS, file=out)
         self.writeOneCol(out, firstLineNum)
-        print(BORDER * SCREEN_COLS, file=out)
+        output(BORDER * SCREEN_COLS, file=out)
 
     def writeOneCol(self, out, firstLineNum=0):
         rowNum = 0
@@ -135,13 +134,13 @@ class Screen:
         while rowNum < NUM_BODY_ROWS:
             if rowNum + firstLineNum < len(self.body):
                 row = self.body[rowNum + firstLineNum]
-                print(row, file=out)
+                output(row, file=out)
             else:
-                print(f'{BORDER} {" " * (SCREEN_COLS - 4)} {BORDER}')
+                output(f'{BORDER} {" " * (SCREEN_COLS - 4)} {BORDER}', file=out)
             rowNum = rowNum + 1
 
     def writeOptions(self, out, options):
-        print(BORDER * SCREEN_COLS, file=out)
+        output(BORDER * SCREEN_COLS, file=out)
 
         options = [str(option) for option in options]
 
@@ -170,9 +169,9 @@ class Screen:
                         msg += f'{BORDER} ' # separate columns with border
                     msg += f'{(i + 1):2}: {options[i].ljust(colWidths[colNum])}'
             msg = msg.ljust(SCREEN_COLS - 4)[:(SCREEN_COLS - 4)] # justify and trim it to fit exactly
-            print(f'{BORDER} {msg} {BORDER}', file=out)
+            output(f'{BORDER} {msg} {BORDER}', file=out)
 
-        print(BORDER * SCREEN_COLS, file=out)
+        output(BORDER * SCREEN_COLS, file=out)
 
     def displayAndChoose(self, prompt: str)->"any":
         self.display()

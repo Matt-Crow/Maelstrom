@@ -1,6 +1,6 @@
 import random
 
-from inputOutput.output import debug
+from inputOutput.output import output, debug
 
 
 ELEMENTS = ("lightning", "rain", "hail", "wind")
@@ -49,9 +49,9 @@ def choose(question, options):
     """
     if len(options) != 1:
         # output their options
-        print(question)
+        output(question)
         for num in range(0, len(options)):
-            print(str(num + 1) + ": " + names[num])
+            output(str(num + 1) + ": " + names[num])
 
         #get their input
         ret = options[setInBounds(askIntInput("Enter a number: ") - 1, 0, len(options) - 1)]
@@ -91,5 +91,5 @@ def askIntInput(msg: str)->int:
             ip = int(float(ip))
             valid = True
         except:
-            print("Invalid input: Enter an integer:")
+            output("Invalid input: Enter an integer:")
     return ip
