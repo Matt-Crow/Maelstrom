@@ -1,6 +1,5 @@
 from serialize import AbstractJsonSerialable
 from fileSystem import AREA_DIR, loadSerializable, saveSerializable
-from utilities import *
 from battle import Battle
 from inputOutput.screens import Screen
 from util.stringUtil import entab
@@ -76,14 +75,22 @@ class Area(AbstractJsonSerialable):
         screen = Screen()
         screen.setTitle(self.name)
         screen.addBodyRow(self.getDisplayData())
-        screen.display() # todo add options
 
-        choice = choose("What do you wish to do?", options)
+        for option in options:
+            screen.addOption(option)
+
+        choice = screen.displayAndChoose("What do you wish to do?")
         if choice == "Level":
-            lvChoice = choose("Which level do you want to play?", self.levels)
+            screen.clearOptions()
+            for level in self.levels:
+                screen.addOption(level)
+            lvChoice = screen.displayAndChoose("Which level do you want to play?")
             lvChoice.play(player)
         elif choice == "Location":
-            travelChoice = choose("Where do you want to go?", self.locations)
+            screen.clearOptions()
+            for loc in self.locations:
+                screen.addOption(loc)
+            travelChoice = screen.displayAndChoose("Where do you want to go?")
             travelChoice.travelTo()
 
 """

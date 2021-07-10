@@ -32,7 +32,7 @@ def choose(prompt: str, options: "List<any>", displayOptions=True)->"any":
         ip = askIntInput(f'Enter a number [1 - {len(options)}): ')
         ip -= 1 # convert choice number to index in array
 
-        while ip < 0 or len(options) >= ip:
+        while ip < 0 or len(options) <= ip:
             ip = askIntInput(f'Enter a number [1 - {len(options)}): ') - 1
 
         chosen = options[ip]

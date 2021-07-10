@@ -1,6 +1,5 @@
 from serialize import AbstractJsonSerialable
 from stat_classes import Stat
-from utilities import choose
 from abc import abstractmethod
 from inputOutput.screens import Screen
 
@@ -68,7 +67,7 @@ class AbstractCustomizable(AbstractJsonSerialable):
         screen.setTitle(f'Cusomizing {self.name}')
         while not done and self.customizationPoints > 0:
             screen.addBodyRows(self.getStatDisplayList())
-            screen.display()
+
             exit = "Save changes and exit"
             options = [exit]
             canIncrease = []
@@ -81,17 +80,24 @@ class AbstractCustomizable(AbstractJsonSerialable):
             options.extend(canIncrease) # choose stat to increase first
             options.reverse()
 
-            increaseMe = choose("Which stat do you want to increase?", options)
+            for option in options:
+                screen.addOption(option)
+            increaseMe = screen.displayAndChoose("Which stat do you want to increase?")
             if increaseMe == exit:
                 done = True
             else:
+                screen.clearOptions()
                 options = [exit]
                 for statName in canDecrease:
                     if statName != increaseMe:
                         options.append(statName)
                 options.reverse()
 
-                decreaseMe = choose("Which stat do you want to decrease?", options)
+                for option in options:
+                    screen.addOption(option)
+
+                decreaseMe = screen.displayAndChoose("Which stat do you want to decrease?")
+
                 if decreaseMe == exit:
                     done = True
                 else:

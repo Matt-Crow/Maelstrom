@@ -10,7 +10,7 @@ Primary export:
     - addSplitRow(left: str, right: str)
     - addOption()
     - display()
-    - displayAndChoose()
+    - displayAndChoose(prompt)
 """
 
 from enum import Enum, auto
@@ -111,7 +111,8 @@ class Screen:
 
         self.writeOptions(out, self.options)
         if len(self.options) > 0:
-            input("Choose an option:")
+            pass
+            #input("Choose an option:")
         else:
             input("press enter or return to continue")
 
@@ -175,7 +176,7 @@ class Screen:
 
     def displayAndChoose(self, prompt: str)->"any":
         self.display()
-        choose(str, self.options, False)
+        return choose(prompt, self.options, False)
 
 
 """
