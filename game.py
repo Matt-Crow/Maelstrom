@@ -4,9 +4,7 @@ from utilities import choose, ELEMENTS
 from area import Area
 import json
 from fileSystem import getUserList
-
 from inputOutput.screens import Screen
-
 
 """
 The Game class is used to store data on the game the user is currently playing,
@@ -19,15 +17,8 @@ class Game:
         self.exit = False
 
     def test(self):
-        scr = Screen()
-        scr.addSplitRow("\t" + "alpha team " * 20, "beta\ngamma\n\tdelta\n\tsomething else entirely")
-        scr.addBodyRow("ahh " * 50)
-        for i in range(20):
-            scr.addOption(f'f({i}) = {32 - i * i}')
-        scr.addOption("Jeff")
-        scr.display()
-
-        EnemyCharacter.generateEnemies()
+        print("Goes Nowhere, Does Nothing")
+        #EnemyCharacter.generateEnemies()
 
     def chooseAction(self):
         options = ["explore", "view character info", "customize character", "exit"]
