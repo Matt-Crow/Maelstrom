@@ -5,7 +5,7 @@ from passives import AbstractPassive
 from item import Item
 from events import OnHitEvent, ActionRegister, HIT_GIVEN_EVENT, HIT_TAKEN_EVENT, UPDATE_EVENT
 from customizable import AbstractCustomizable
-from fileSystem import saveSerializable, loadSerializable, ENEMY_DIR
+from fileSystem import saveSerializable, ENEMY_DIR
 from util.stringUtil import entab, lengthOfLongest
 from inputOutput.screens import Screen
 from inputOutput.output import debug
@@ -80,32 +80,6 @@ class AbstractCharacter(AbstractCustomizable):
             element=element
         )
         return player
-
-    """
-    Returns a deep copy of this character
-    """
-    def copy(self)->"AbstractCharacter":
-        return AbstractCharacter.deserializeJson(self.toJsonDict())
-
-    """
-    Reads a JSON object as a dictionary, then converts it to an AbstractCharacter
-    """
-    @classmethod
-    def deserializeJson(cls, jdict: dict)->"AbstractCharacter":
-        ctype = jdict["type"]
-        jdict["actives"] = [AbstractActive.deserializeJson(data) for data in jdict["actives"]]
-        jdict["passives"]= [AbstractPassive.deserializeJson(data) for data in jdict["passives"]]
-        jdict["equippedItems"] = [Item.deserializeJson(data) for data in jdict["equippedItems"]]
-        ret = None
-
-        if ctype == "PlayerCharacter":
-            ret = PlayerCharacter(**jdict)
-        elif ctype == "EnemyCharacter":
-            ret = EnemyCharacter(**jdict)
-        else:
-            raise Exception("Type not found! " + ctype)
-
-        return ret
 
     def addActive(self, active: "AbstractActive"):
         self.actives.append(active)
@@ -488,10 +462,6 @@ class EnemyCharacter(AbstractCharacter):
     """
     def save(self):
         saveSerializable(self, ENEMY_DIR)
-
-    @classmethod
-    def loadEnemy(cls, enemyName: str)->"EnemyCharacter":
-        return loadSerializable(enemyName, ENEMY_DIR, AbstractCharacter)
 
     """
     AI stuff

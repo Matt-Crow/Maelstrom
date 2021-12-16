@@ -53,9 +53,8 @@ class AbstractJsonSerialable(ABC): # allows this to use the "abstractmethod" ann
         return ret
 
     @classmethod
-    @abstractmethod
     def deserializeJson(cls, json: dict)->"AbstractJsonSerialable":
-        pass
+        raise Exception("deprecate this")
 
 class CustomJsonEncoder(json.JSONEncoder):
     def default(self, obj):

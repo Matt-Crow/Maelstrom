@@ -22,7 +22,7 @@ class Game:
         self.exit = False
 
     def test(self):
-        PlayerTeamLoader().load("John").displayShortDescription()
+        PlayerTeamLoader().load("John").display()
         #EnemyCharacter.generateEnemies()
 
     def chooseAction(self):
@@ -108,7 +108,7 @@ class Game:
     Play a game as the given user
     """
     def loginUser(self, userName):
-        self.playerTeam = PlayerTeam.loadUser(userName)
+        self.playerTeam = PlayerTeamLoader().load(userName)
         self.playerTeam.initForBattle()
 
     """

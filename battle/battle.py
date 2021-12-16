@@ -3,6 +3,7 @@ from item import Item
 from weather import WEATHERS, NO_WEATHER, Weather
 from teams import EnemyTeam
 from character import EnemyCharacter
+from characterLoader import EnemyLoader
 from fileSystem import getEnemyList
 from serialize import AbstractJsonSerialable
 from util.stringUtil import entab
@@ -51,6 +52,7 @@ class Battle(AbstractJsonSerialable):
             "level",
             "rewards"
         )
+        self.enemyLoader = EnemyLoader()
 
 
     @classmethod
@@ -79,7 +81,7 @@ class Battle(AbstractJsonSerialable):
     def play(self, playerTeam):
         # set teams
         self.player_team = playerTeam
-        enemies = [EnemyCharacter.loadEnemy(enemyName) for enemyName in self.enemyNames]
+        enemies = [self.enemyLoader.load(enemyName) for enemyName in self.enemyNames]
         for enemy in enemies:
             enemy.level = self.level
         self.enemy_team = EnemyTeam(

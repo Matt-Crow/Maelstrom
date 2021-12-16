@@ -2,6 +2,9 @@
 This file provides the utilities that handle the conversion of JSON files to
 objects within the program. In this way, the process of creating objects is
 decoupled from the objects themselves.
+
+Will need to split into file loaders and JSON decoders, as those fulfill
+different tasks
 """
 
 
@@ -19,7 +22,7 @@ class AbstractJsonLoader(object):
             this may change if I add app data folders instead of storing in the
             project folder
         """
-        self.dirPath = os.path.abspath(dirPath)
+        self.dirPath = os.path.abspath(os.path.join(*dirPath.split(".")))
 
     def getOptions(self)->"List<str>":
         """

@@ -1,11 +1,9 @@
-from character import PlayerCharacter, EnemyCharacter, AbstractCharacter
 from item import Item
 from serialize import AbstractJsonSerialable
-from fileSystem import USER_DIR, saveSerializable, loadSerializable
+from fileSystem import USER_DIR, saveSerializable
 from util.stringUtil import entab, lengthOfLongest
 from characters.stat_classes import Boost
 from inputOutput.screens import Screen
-import os
 import random
 from inputOutput.output import debug
 
@@ -33,21 +31,6 @@ class AbstractTeam(AbstractJsonSerialable):
             "name",
             "members"
         )
-
-    @classmethod
-    def deserializeJson(cls, jdict: dict)->"AbstractTeam":
-        type = jdict["type"]
-        ret = None
-        if type == "PlayerTeam":
-            jdict["member"] = AbstractCharacter.deserializeJson(jdict["members"][0])
-            jdict["inventory"] = [Item.deserializeJson(item) for item in jdict["inventory"]]
-            ret = PlayerTeam(**jdict)
-        elif type =="EnemyTeam":
-            jdict["members"] = [AbstractCharacter.deserializeJson(member) for member in jdict["members"]]
-            ret = EnemyTeam(**jdict)
-        else:
-            raise Error("Type not found for AbstractTeam: {0}".format(type))
-        return ret
 
     """
     Use this to access team members
@@ -197,10 +180,6 @@ class PlayerTeam(AbstractTeam):
         super(PlayerTeam, self).__init__(**dict(kwargs, type="PlayerTeam", members=[kwargs["member"]]))
         self.inventory = kwargs.get("inventory", [])
         self.addSerializedAttribute("inventory")
-
-    @classmethod
-    def loadUser(cls, userName: str)->"PlayerTeam":
-        return loadSerializable(userName, USER_DIR, AbstractTeam)
 
     def save(self):
         saveSerializable(self, USER_DIR)

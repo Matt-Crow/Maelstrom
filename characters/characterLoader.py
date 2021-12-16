@@ -42,7 +42,27 @@ class PlayerTeamLoader(AbstractJsonLoader):
         self.characterLoader = CharacterLoader()
 
     def doLoad(self, asJson: dict)->"PlayerTeam":
-        asJson = asJson.copy()
-        asJson["member"] = self.characterLoader.doLoad(asJson["members"][0])
+        return loadTeam(self.characterLoader, asJson)
+
+class EnemyLoader(AbstractJsonLoader):
+    def __init__(self):
+        super().__init__("data.enemies")
+        self.characterLoader = CharacterLoader()
+
+    def doLoad(self, asJson: dict)->"EnemyCharacter":
+        return self.characterLoader.doLoad(asJson)
+
+# needs to be kept separate from PlayerTeamLoader, as EnemyTeamLoader also needs this
+def loadTeam(characterLoader: "CharacterLoader", asJson: dict)->"AbstractTeam":
+    type = asJson["type"]
+    ret = None
+    if type == "PlayerTeam":
+        asJson["member"] = characterLoader.doLoad(asJson["members"][0])
         asJson["inventory"] = [Item.deserializeJson(item) for item in asJson["inventory"]]
-        return PlayerTeam(**asJson)
+        ret = PlayerTeam(**asJson)
+    elif type =="EnemyTeam":
+        asJson["members"] = [characterLoader.doLoad(member) for member in asJson["members"]]
+        ret = EnemyTeam(**asJson)
+    else:
+        raise Error("Type not found for AbstractTeam: {0}".format(type))
+    return ret
