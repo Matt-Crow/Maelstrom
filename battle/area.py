@@ -1,6 +1,6 @@
 from serialize import AbstractJsonSerialable
 from fileSystem import AREA_DIR, loadSerializable, saveSerializable
-from battle import Battle
+from battle.battle import Battle
 from inputOutput.screens import Screen
 from util.stringUtil import entab
 

@@ -6,6 +6,11 @@ import json
 from fileSystem import getUserList
 from inputOutput.screens import Screen
 
+
+from characters.characterLoader import PlayerTeamLoader
+
+
+
 """
 The Game class is used to store data on the game the user is currently playing,
 so this way, there don't have to be any globals.
@@ -17,7 +22,7 @@ class Game:
         self.exit = False
 
     def test(self):
-        print("Goes Nowhere, Does Nothing")
+        PlayerTeamLoader().load("John").displayShortDescription()
         #EnemyCharacter.generateEnemies()
 
     def chooseAction(self):
