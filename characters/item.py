@@ -47,13 +47,6 @@ class Item(AbstractCustomizable):
             Item.randomItemNumber += 1
         return ret
 
-    """
-    Reads a JSON object as a dictionary, then converts it to an Item
-    """
-    @classmethod
-    def deserializeJson(cls, jdict: dict)->"Item":
-        return Item(**jdict)
-
     @staticmethod
     def getDefaults() -> list:
         return [Item()]

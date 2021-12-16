@@ -7,7 +7,7 @@ from fileSystem import getUserList
 from inputOutput.screens import Screen
 
 
-from characters.characterLoader import PlayerTeamLoader
+from characters.characterLoader import AreaLoader
 
 
 
@@ -22,7 +22,7 @@ class Game:
         self.exit = False
 
     def test(self):
-        PlayerTeamLoader().load("John").display()
+        AreaLoader().load("temp").display()
         #EnemyCharacter.generateEnemies()
 
     def chooseAction(self):

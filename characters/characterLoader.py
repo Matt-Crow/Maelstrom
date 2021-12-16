@@ -11,7 +11,30 @@ from passives import AbstractPassive
 from item import Item
 from character import PlayerCharacter, EnemyCharacter
 from battle.teams import PlayerTeam
+from battle.area import Area, Location
+from battle.battle import Battle
+from battle.weather import Weather
 
+
+
+class AreaLoader(AbstractJsonLoader):
+    def __init__(self):
+        super().__init__("data.areas")
+
+    def doLoad(self, asJson: dict)->"Area":
+        asJson = asJson.copy()
+        asJson["locations"] = [self.loadLocation(j) for j in asJson["locations"]]
+        asJson["levels"] = [self.loadBattle(j) for j in asJson["levels"]]
+        return Area(**asJson)
+
+    def loadLocation(self, asJson: dict)->"Location":
+        return Location(**asJson)
+
+    def loadBattle(self, asJson: dict)->"Battle":
+        asJson = asJson.copy()
+        asJson["forecast"] = [Weather.deserializeJson(data) for data in asJson["forecast"]]
+        asJson["rewards"] = [loadItem(data) for data in asJson["rewards"]]
+        return Battle(**asJson)
 
 
 class CharacterLoader(AbstractJsonLoader):
@@ -24,7 +47,7 @@ class CharacterLoader(AbstractJsonLoader):
         ctype = asJson["type"]
         asJson["actives"] = [AbstractActive.deserializeJson(data) for data in asJson["actives"]]
         asJson["passives"]= [AbstractPassive.deserializeJson(data) for data in asJson["passives"]]
-        asJson["equippedItems"] = [Item.deserializeJson(data) for data in asJson["equippedItems"]]
+        asJson["equippedItems"] = [loadItem(data) for data in asJson["equippedItems"]]
         ret = None
 
         if ctype == "PlayerCharacter":
@@ -58,7 +81,7 @@ def loadTeam(characterLoader: "CharacterLoader", asJson: dict)->"AbstractTeam":
     ret = None
     if type == "PlayerTeam":
         asJson["member"] = characterLoader.doLoad(asJson["members"][0])
-        asJson["inventory"] = [Item.deserializeJson(item) for item in asJson["inventory"]]
+        asJson["inventory"] = [loadItem(item) for item in asJson["inventory"]]
         ret = PlayerTeam(**asJson)
     elif type =="EnemyTeam":
         asJson["members"] = [characterLoader.doLoad(member) for member in asJson["members"]]
@@ -66,3 +89,6 @@ def loadTeam(characterLoader: "CharacterLoader", asJson: dict)->"AbstractTeam":
     else:
         raise Error("Type not found for AbstractTeam: {0}".format(type))
     return ret
+
+def loadItem(asJson: dict)->"Item":
+    return Item(**asJson)

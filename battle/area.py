@@ -1,5 +1,5 @@
 from serialize import AbstractJsonSerialable
-from fileSystem import AREA_DIR, loadSerializable, saveSerializable
+from fileSystem import AREA_DIR, saveSerializable
 from battle.battle import Battle
 from inputOutput.screens import Screen
 from util.stringUtil import entab
@@ -34,16 +34,6 @@ class Area(AbstractJsonSerialable):
             name="Test Area",
             desc="No description"
         )
-
-    @classmethod
-    def deserializeJson(cls, jdict: dict)->"Area":
-        jdict["locations"] = [Location.deserializeJson(j) for j in jdict["locations"]]
-        jdict["levels"] = [Battle.deserializeJson(j) for j in jdict["levels"]]
-        return Area(**jdict)
-
-    @classmethod
-    def loadArea(cls, areaName: str)->"Area":
-        return loadSerializable(areaName, AREA_DIR, Area)
 
     def save(self):
         saveSerializable(self, AREA_DIR)
@@ -126,10 +116,6 @@ class Location(AbstractJsonSerialable):
                 "or soft?"
             ]
         )
-
-    @classmethod
-    def deserializeJson(cls, jdict: dict)->"Location":
-        return Location(**jdict)
 
     """
     Get data for outputting

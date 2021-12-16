@@ -45,15 +45,5 @@ def getEnemyList()->"list<str>":
 def getAreaList()->"list<str>":
     return getJsonFileList(AREA_DIR)
 
-# this should be implemented into each AbstractJsonSerialable
-def loadSerializable(serializableName: str, fromDir: str, cls: "class")->"AbstractJsonSerialable":
-    ret = None
-    filePath = os.path.join(fromDir, formatFileName(serializableName))
-    if os.path.isfile(filePath):
-        ret = cls.deserializeJson(cls.readFile(filePath))
-    else:
-        raise FileNotFoundError(filePath)
-    return ret
-
 def saveSerializable(serializable: "AbstractJsonSerialable", toDir: str):
     serializable.writeToFile(os.path.join(toDir, formatFileName(serializable.name)))

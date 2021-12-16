@@ -54,13 +54,6 @@ class Battle(AbstractJsonSerialable):
         )
         self.enemyLoader = EnemyLoader()
 
-
-    @classmethod
-    def deserializeJson(cls, jdict: dict)->"Battle":
-        jdict["forecast"] = [Weather.deserializeJson(data) for data in jdict["forecast"]]
-        jdict["rewards"] = [Item.deserializeJson(data) for data in jdict["rewards"]]
-        return Battle(**jdict)
-
     def getDisplayData(self)->str:
         ret = [
             self.name,
