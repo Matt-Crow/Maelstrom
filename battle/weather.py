@@ -34,18 +34,6 @@ class Weather(AbstractJsonSerialable):
     def doApplyEffect(self, target: "AbstractCharacter")->str:
         pass
 
-    @classmethod
-    def deserializeJson(cls, jdict: dict)->"Weather":
-        name = jdict["name"]
-        ret = None
-        for weather in WEATHERS:
-            if weather.name == name:
-                ret = weather
-                break
-        if ret is None:
-            raise Error("No weather found with name '{0}'".format(name))
-        return ret
-
 class Lightning(Weather):
     def __init__(self):
         super().__init__("lightning", "The sky rains down its fire upon the field...")

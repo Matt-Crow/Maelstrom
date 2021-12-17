@@ -4,7 +4,7 @@
 from util.loader import AbstractJsonLoader
 from battle.battle import Battle
 from battle.area import Area, Location
-from battle.weather import Weather
+from battle.weather import WEATHERS
 from characters.characterLoader import loadItem
 
 
@@ -24,6 +24,17 @@ class AreaLoader(AbstractJsonLoader):
 
     def loadBattle(self, asJson: dict)->"Battle":
         asJson = asJson.copy()
-        asJson["forecast"] = [Weather.deserializeJson(data) for data in asJson["forecast"]]
+        asJson["forecast"] = [self.loadWeather(data) for data in asJson["forecast"]]
         asJson["rewards"] = [loadItem(data) for data in asJson["rewards"]]
         return Battle(**asJson)
+
+    def loadWeather(self, asJson: dict)->"Weather":
+        name = asJson["name"]
+        ret = None
+        for weather in WEATHERS:
+            if weather.name == name:
+                ret = weather
+                break
+        if ret is None:
+            raise Error("No weather found with name '{0}'".format(name))
+        return ret

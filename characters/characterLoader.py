@@ -6,8 +6,8 @@ Character objects in the program
 
 
 from util.loader import AbstractJsonLoader
-from actives.actives import AbstractActive
-from passives import AbstractPassive
+from actives.actives import AbstractActive, MeleeAttack
+from passives import AbstractPassive, Threshhold, OnHitGiven, OnHitTaken
 from item import Item
 from character import PlayerCharacter, EnemyCharacter
 from battle.teams import PlayerTeam
@@ -22,8 +22,8 @@ class CharacterLoader(AbstractJsonLoader):
     def doLoad(self, asJson: dict)->"AbstractCharacter":
         asJson = asJson.copy()
         ctype = asJson["type"]
-        asJson["actives"] = [AbstractActive.deserializeJson(data) for data in asJson["actives"]]
-        asJson["passives"]= [AbstractPassive.deserializeJson(data) for data in asJson["passives"]]
+        asJson["actives"] = [self.loadActive(data) for data in asJson["actives"]]
+        asJson["passives"]= [self.loadPassive(data) for data in asJson["passives"]]
         asJson["equippedItems"] = [loadItem(data) for data in asJson["equippedItems"]]
         ret = None
 
@@ -34,6 +34,32 @@ class CharacterLoader(AbstractJsonLoader):
         else:
             raise Exception("Type not found! " + ctype)
 
+        return ret
+
+    def loadActive(self, asJson: dict)->"AbstractActive":
+        ret = None
+        type = asJson["type"]
+
+        if type == "AbstractActive":
+            ret = AbstractActive(**asJson)
+        elif type == "MeleeAttack":
+            ret = MeleeAttack(**asJson)
+        else:
+            raise Exception("Type not found for AbstractActive: " + type)
+
+        return ret
+
+    def loadPassive(self, asJson: dict)->"AbstractPassive":
+        ret = None
+        type = asJson["type"]
+        if type == "Threshhold Passive":
+            ret = Threshhold(**asJson)
+        elif type == "On Hit Given Passive":
+            ret = OnHitGiven(**asJson)
+        elif type == "On Hit Taken Passive":
+            ret = OnHitTaken(**asJson)
+        else:
+            raise Exception("Type not found for AbstractPassive: " + type)
         return ret
 
 class PlayerTeamLoader(AbstractJsonLoader):

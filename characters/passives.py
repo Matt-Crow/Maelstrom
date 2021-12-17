@@ -32,20 +32,6 @@ class AbstractPassive(AbstractCustomizable):
             "targetsUser"
         )
 
-    @classmethod
-    def deserializeJson(cls, jdict: dict)->"AbstractPassive":
-        ret = None
-        type = jdict["type"]
-        if type == "Threshhold Passive":
-            ret = Threshhold(**jdict)
-        elif type == "On Hit Given Passive":
-            ret = OnHitGiven(**jdict)
-        elif type == "On Hit Taken Passive":
-            ret = OnHitTaken(**jdict)
-        else:
-            raise Exception("Type not found for AbstractPassive: " + type)
-        return ret
-
     """
     Returns the Boost this will inflict
     """

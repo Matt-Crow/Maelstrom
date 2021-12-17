@@ -41,21 +41,6 @@ class AbstractJsonSerialable(ABC): # allows this to use the "abstractmethod" ann
         with open(filePath, "w") as file:
             file.write(json.dumps(self.toJsonDict()))
 
-    """
-    Reads a JSON file, returning
-    its content as a dictionary.
-    """
-    @staticmethod
-    def readFile(filePath: str)->dict:
-        ret = {}
-        with open(filePath, "r") as file:
-            ret = json.loads(file.read())
-        return ret
-
-    @classmethod
-    def deserializeJson(cls, json: dict)->"AbstractJsonSerialable":
-        raise Exception("deprecate this")
-
 class CustomJsonEncoder(json.JSONEncoder):
     def default(self, obj):
         ret = None

@@ -42,8 +42,6 @@ def getUserList()->"list<str>":
     return getJsonFileList(USER_DIR)
 def getEnemyList()->"list<str>":
     return getJsonFileList(ENEMY_DIR)
-def getAreaList()->"list<str>":
-    return getJsonFileList(AREA_DIR)
 
 def saveSerializable(serializable: "AbstractJsonSerialable", toDir: str):
     serializable.writeToFile(os.path.join(toDir, formatFileName(serializable.name)))

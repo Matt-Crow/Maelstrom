@@ -1,6 +1,5 @@
 from stat_classes import Stat, Boost
-import pprint
-from utilities import ELEMENTS, roll_perc
+from utilities import roll_perc
 from customizable import AbstractCustomizable
 from characters.actives.activeStats import ActiveStatFactory
 from inputOutput.output import debug
@@ -58,23 +57,6 @@ class AbstractActive(AbstractCustomizable):
         self.damage = getDmgPerc(1) * self.getStatValue("damage multiplier")
 
         self.addSerializedAttribute("cost")
-
-    """
-    Reads a JSON object as a dictionary, then converts it to an Active
-    """
-    @classmethod
-    def deserializeJson(cls, jdict: dict)->"AbstractActive":
-        ret = None
-        type = jdict["type"]
-
-        if type == "AbstractActive":
-            ret = AbstractActive(**jdict)
-        elif type == "MeleeAttack":
-            ret = MeleeAttack(**jdict)
-        else:
-            raise Exception("Type not found for AbstractActive: " + type)
-
-        return ret
 
     def setUser(self, user):
         super(AbstractActive, self).setUser(user)
