@@ -5,9 +5,9 @@ from area import Area
 import json
 from fileSystem import getUserList
 from inputOutput.screens import Screen
+from characters.characterLoader import PlayerTeamLoader
 
-
-from characters.characterLoader import AreaLoader
+from battle.battleLoader import AreaLoader
 
 
 
@@ -22,7 +22,7 @@ class Game:
         self.exit = False
 
     def test(self):
-        AreaLoader().load("temp").display()
+        print(AreaLoader().load("temp").getDisplayData())
         #EnemyCharacter.generateEnemies()
 
     def chooseAction(self):
