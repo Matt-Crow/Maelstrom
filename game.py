@@ -7,8 +7,8 @@ from fileSystem import getUserList
 from inputOutput.screens import Screen
 from characters.characterLoader import PlayerTeamLoader
 
-from battle.battleLoader import AreaLoader
-
+from characters.characterSerializer import PlayerTeamSerializer
+import pprint
 
 
 """
@@ -22,8 +22,8 @@ class Game:
         self.exit = False
 
     def test(self):
-        print(AreaLoader().load("temp").getDisplayData())
         #EnemyCharacter.generateEnemies()
+        pass
 
     def chooseAction(self):
         screen = Screen()
@@ -110,6 +110,7 @@ class Game:
     def loginUser(self, userName):
         self.playerTeam = PlayerTeamLoader().load(userName)
         self.playerTeam.initForBattle()
+        #pprint.pprint(PlayerTeamSerializer().toJsonDict(self.playerTeam))
 
     """
     Creates the menu for creating a new user

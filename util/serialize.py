@@ -3,6 +3,8 @@ import json
 from stat_classes import Stat
 
 
+import pprint
+
 
 # new code here
 class JsonSerializer:
@@ -12,22 +14,23 @@ class JsonSerializer:
     a file, as not every individual JSON object must be written to a file.
     """
 
-    def __init__(self, type: str, serializedAttributes: "List<str>", helpers = Dict()):
+    def __init__(self, type: str, serializedAttributes = [], helpers = dict()):
         self.type = type
         self.serializedAttributes = serializedAttributes.copy()
         self.helpers = helpers.copy()
 
     def toJsonDict(self, obj)->dict:
-        rawDict = Dict()
+        rawDict = dict()
         rawDict[type] = self.type
         value = None
         for attribute in self.serializedAttributes:
-            value = obj[value]
+            value = obj.__dict__[attribute]
             if value.__class__.__name__ in self.helpers.keys(): # not sure about this part
                 rawDict[attribute] = self.helpers[value.__class__.__name__].toJsonDict
             else:
                 rawDict[attribute] = value
-        return rawDict # or do I need to use JSON here?
+        pprint.pprint(rawDict)
+        return json.loads(json.dumps(rawDict))
 
 
 
@@ -60,8 +63,6 @@ class AbstractJsonSerialable(ABC): # allows this to use the "abstractmethod" ann
     Subclasses will likely want to add keys to what this returns.
     """
     def toJsonDict(self)->dict:
-        #for attr in self.serializedAttributes:
-        #    print(attr, self.__dict__[attr])
         return json.loads(json.dumps({attr: self.__dict__[attr] for attr in self.serializedAttributes}, cls=CustomJsonEncoder))
 
     """
