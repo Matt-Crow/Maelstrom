@@ -2,6 +2,37 @@ from abc import ABC, abstractmethod
 import json
 from stat_classes import Stat
 
+
+
+# new code here
+class JsonSerializer:
+    """
+    The JsonSerializer class handles the serialization of objects within the
+    program as JSON objects. Another class or function should handle writing to
+    a file, as not every individual JSON object must be written to a file.
+    """
+
+    def __init__(self, type: str, serializedAttributes: "List<str>", helpers = Dict()):
+        self.type = type
+        self.serializedAttributes = serializedAttributes.copy()
+        self.helpers = helpers.copy()
+
+    def toJsonDict(self, obj)->dict:
+        rawDict = Dict()
+        rawDict[type] = self.type
+        value = None
+        for attribute in self.serializedAttributes:
+            value = obj[value]
+            if value.__class__.__name__ in self.helpers.keys(): # not sure about this part
+                rawDict[attribute] = self.helpers[value.__class__.__name__].toJsonDict
+            else:
+                rawDict[attribute] = value
+        return rawDict # or do I need to use JSON here?
+
+
+
+
+# old code down here
 class AbstractJsonSerialable(ABC): # allows this to use the "abstractmethod" annotation
     """
     Required kwargs:
