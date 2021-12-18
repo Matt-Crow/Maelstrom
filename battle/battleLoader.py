@@ -1,7 +1,7 @@
 
 
 
-from util.loader import AbstractJsonLoader
+from util.serialize import AbstractJsonLoader
 from battle.battle import Battle
 from battle.area import Area, Location
 from battle.weather import WEATHERS

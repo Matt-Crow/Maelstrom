@@ -1,6 +1,6 @@
 import random
 from stat_classes import Boost
-from serialize import AbstractJsonSerialable
+from util.serialize import AbstractJsonSerialable
 
 """
 This is what gives Maelstrom its name. Weather provides in-battle effects that

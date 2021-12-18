@@ -2,13 +2,10 @@ from teams import PlayerTeam, AbstractTeam
 from character import AbstractCharacter, EnemyCharacter
 from utilities import ELEMENTS
 from area import Area
-import json
 from fileSystem import getUserList
 from inputOutput.screens import Screen
 from characters.characterLoader import PlayerTeamLoader
 
-from characters.characterSerializer import PlayerTeamSerializer
-import pprint
 
 
 """
@@ -110,7 +107,6 @@ class Game:
     def loginUser(self, userName):
         self.playerTeam = PlayerTeamLoader().load(userName)
         self.playerTeam.initForBattle()
-        pprint.pprint(PlayerTeamSerializer().toJsonDict(self.playerTeam))
 
     """
     Creates the menu for creating a new user

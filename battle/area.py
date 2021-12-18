@@ -1,4 +1,4 @@
-from serialize import AbstractJsonSerialable
+from util.serialize import AbstractJsonSerialable
 from fileSystem import AREA_DIR, saveSerializable
 from battle.battle import Battle
 from inputOutput.screens import Screen

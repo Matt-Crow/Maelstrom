@@ -5,7 +5,7 @@ Character objects in the program
 
 
 
-from util.loader import AbstractJsonLoader
+from util.serialize import AbstractJsonLoader
 from actives.actives import AbstractActive, MeleeAttack
 from passives import AbstractPassive, Threshhold, OnHitGiven, OnHitTaken
 from item import Item

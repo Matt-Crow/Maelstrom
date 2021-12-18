@@ -1,11 +1,10 @@
 from utilities import *
 from util.stringUtil import entab
+from util.serialize import AbstractJsonSerialable
 
-"""
-Stat stuff
-"""
 
-class Stat(object):
+
+class Stat(AbstractJsonSerialable):
     """
     A class used to store
     information about a stat,
@@ -27,6 +26,7 @@ class Stat(object):
 
         TODO: add min max
         """
+        super().__init__(type="Stat")
         self.name = name
         self.formula = formula
         self.boosts = []
@@ -36,6 +36,9 @@ class Stat(object):
 
         self.set_base(base)
         self.value = None
+
+    def toJson(self): # override default method
+        return self.base
 
     def calc(self):
         """

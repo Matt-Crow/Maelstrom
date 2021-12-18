@@ -5,7 +5,7 @@ from teams import EnemyTeam
 from character import EnemyCharacter
 from characterLoader import EnemyLoader
 from fileSystem import getEnemyList
-from serialize import AbstractJsonSerialable
+from util.serialize import AbstractJsonSerialable
 from util.stringUtil import entab
 from inputOutput.screens import Screen
 import random

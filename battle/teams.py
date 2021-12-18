@@ -1,5 +1,5 @@
 from item import Item
-from serialize import AbstractJsonSerialable
+from util.serialize import AbstractJsonSerialable
 from fileSystem import USER_DIR, saveSerializable
 from util.stringUtil import entab, lengthOfLongest
 from characters.stat_classes import Boost
