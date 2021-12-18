@@ -18,10 +18,11 @@ class JsonSerializer:
         self.type = type
         self.serializedAttributes = serializedAttributes.copy()
         self.helpers = helpers.copy()
+        pprint.pprint(self.helpers)
 
     def toJsonDict(self, obj)->dict:
         rawDict = dict()
-        rawDict[type] = self.type
+        rawDict["type"] = self.type
         value = None
         for attribute in self.serializedAttributes:
             value = obj.__dict__[attribute]
@@ -32,6 +33,11 @@ class JsonSerializer:
         pprint.pprint(rawDict)
         return json.loads(json.dumps(rawDict))
 
+class AbstractNewEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if self.shouldEncode(obj):
+            return self.encode(obj)
+        return None
 
 
 

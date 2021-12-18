@@ -110,7 +110,7 @@ class Game:
     def loginUser(self, userName):
         self.playerTeam = PlayerTeamLoader().load(userName)
         self.playerTeam.initForBattle()
-        #pprint.pprint(PlayerTeamSerializer().toJsonDict(self.playerTeam))
+        pprint.pprint(PlayerTeamSerializer().toJsonDict(self.playerTeam))
 
     """
     Creates the menu for creating a new user
