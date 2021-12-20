@@ -3,24 +3,17 @@ Since many of the objects created by the program must persist across gameplay
 sessions, this module allows them to be serialized as JSON, then stored to a
 file, from whence they can later be loaded.
 """
-"""
-This file provides the utilities that handle the conversion of JSON files to
-objects within the program. In this way, the process of creating objects is
-decoupled from the objects themselves.
-
-Will need to split into file loaders and JSON decoders, as those fulfill
-different tasks
-"""
 
 
+
+import abc
 import json
 import os.path
-import abc
-from fileSystem import formatFileName, unFormatFileName, getJsonFileList
+from os import walk
 
 
 
-class AbstractJsonSerialable:
+class AbstractJsonSerialable(object):
     """
     handles the serialization of objects within the
     program as JSON objects.
@@ -48,25 +41,16 @@ class AbstractJsonSerialable:
         for attr in attrNames:
             self.addSerializedAttribute(attr)
 
-    """
-    returns this' attributes to serialize,
-    as a json dictionary.
-    Subclasses will likely want to add keys to what this returns.
-    """
     def toJson(self)->dict:
-        return json.loads(json.dumps({attr: self.__dict__[attr] for attr in self.serializedAttributes}, cls=CustomJsonEncoder))
-
-    """
-    Converts this' data to a json file,
-    then saves it to a file
-    """
-    def writeToFile(self, filePath: str):
-        with open(filePath, "w") as file:
-            file.write(json.dumps(self.toJson()))
+        """
+        returns this' attributes to serialize,
+        as a json dictionary.
+        """
+        return json.loads(json.dumps({attr: self.__dict__[attr] for attr in self.serializedAttributes}, cls=MaelstromJsonEncoder))
 
 
 
-class CustomJsonEncoder(json.JSONEncoder):
+class MaelstromJsonEncoder(json.JSONEncoder):
     def default(self, obj):
         ret = None
         if isinstance(obj, AbstractJsonSerialable):
@@ -102,3 +86,31 @@ class AbstractJsonLoader(object):
     @abc.abstractmethod
     def doLoad(self, asJson: dict):
         pass
+
+def formatFileName(serializableName: str)->str:
+    """
+    Formats an AbstractJsonSerialable's name (or any string for that matter)
+    into an appropriate file name
+    """
+    return serializableName.replace(" ", "_") + ".json"
+
+def unFormatFileName(fileName: str)->str:
+    """
+    Undoes the formatting from formatFileName
+    """
+    return fileName.replace(".json", "").replace("_", " ")
+
+def getJsonFileList(dirPath: str)->"list<str>":
+    """
+    Returns a list of all filenames of JSON files
+    in the given dir, with the unFormatFileName applied
+    to each of them.
+    """
+    ret = []
+    ext = []
+    for (dirPath, dirNames, fileNames) in walk(dirPath):
+        for fileName in fileNames:
+            ext = os.path.splitext(fileName)
+            if len(ext) >= 2 and ext[1] == ".json":
+                ret.append(unFormatFileName(fileName))
+    return ret

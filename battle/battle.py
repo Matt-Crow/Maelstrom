@@ -4,7 +4,6 @@ from weather import WEATHERS, NO_WEATHER, Weather
 from teams import EnemyTeam
 from character import EnemyCharacter
 from characterLoader import EnemyLoader
-from fileSystem import getEnemyList
 from util.serialize import AbstractJsonSerialable
 from util.stringUtil import entab
 from inputOutput.screens import Screen
@@ -235,7 +234,7 @@ class Battle(AbstractJsonSerialable):
         enemyNames = []
         numEnemies = random.randint(1, 4)
 
-        allEnemyNames = getEnemyList()
+        allEnemyNames = EnemyLoader().getOptions()
 
         for i in range(0, numEnemies):
             enemyNames.append(random.choice(allEnemyNames))

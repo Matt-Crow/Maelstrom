@@ -2,9 +2,12 @@ from teams import PlayerTeam, AbstractTeam
 from character import AbstractCharacter, EnemyCharacter
 from utilities import ELEMENTS
 from area import Area
-from fileSystem import getUserList
 from inputOutput.screens import Screen
 from characters.characterLoader import PlayerTeamLoader
+
+
+
+from battle.battleLoader import AreaLoader
 
 
 
@@ -17,10 +20,11 @@ class Game:
         self.playerTeam = None
         self.currentArea = None
         self.exit = False
+        self.userLoader = PlayerTeamLoader()
 
     def test(self):
+        print(AreaLoader().load("temp").getDisplayData())
         #EnemyCharacter.generateEnemies()
-        pass
 
     def chooseAction(self):
         screen = Screen()
@@ -77,7 +81,7 @@ class Game:
     def loginMenu(self):
         screen = Screen()
         screen.setTitle("Login")
-        users = getUserList()
+        users = self.userLoader.getOptions()
         userName = None
         options = ["Create game"]
         if len(users) > 0:
@@ -105,7 +109,7 @@ class Game:
     Play a game as the given user
     """
     def loginUser(self, userName):
-        self.playerTeam = PlayerTeamLoader().load(userName)
+        self.playerTeam = self.userLoader.load(userName)
         self.playerTeam.initForBattle()
 
     """
@@ -133,7 +137,7 @@ class Game:
         ret = "User added successfully!"
         success = True
 
-        if userName in getUserList():
+        if userName in self.userLoader.getOptions():
             ret = "The name " + userName + " is already taken."
             success = False
 
