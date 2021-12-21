@@ -5,7 +5,6 @@ from passives import AbstractPassive
 from item import Item
 from events import OnHitEvent, ActionRegister, HIT_GIVEN_EVENT, HIT_TAKEN_EVENT, UPDATE_EVENT
 from customizable import AbstractCustomizable
-from fileSystem import saveSerializable, ENEMY_DIR
 from util.stringUtil import entab, lengthOfLongest
 from inputOutput.screens import Screen
 from inputOutput.output import debug
@@ -392,76 +391,6 @@ class PlayerCharacter(AbstractCharacter):
 class EnemyCharacter(AbstractCharacter):
     def __init__(self, **kwargs):
         super(self.__class__, self).__init__(**dict(kwargs, type="EnemyCharacter"))
-
-    """
-    Creates all the default
-    enemies in the enemy directory
-    """
-    @classmethod
-    def generateEnemies(cls):
-        lightning = EnemyCharacter(
-            name="Lightning Entity",
-            element="lightning",
-            stats={
-                "energy" : 10,
-                "resistance" : -10
-            }
-        )
-        lightning.displayStats()
-        lightning.save()
-
-        rain = EnemyCharacter(
-            name="Rain Entity",
-            element="rain",
-            stats={
-                "potency" : 10,
-                "control" : -10
-            }
-        )
-        rain.displayStats()
-        rain.save()
-
-        hail = EnemyCharacter(
-            name="Hail Entity",
-            element = "hail",
-            stats={
-                "resistance" : 10,
-                "luck" : -10
-            }
-        )
-        hail.displayStats()
-        hail.save()
-
-        wind = EnemyCharacter(
-            name="Wind Entity",
-            element = "wind",
-            stats={
-                "luck" : 10,
-                "potency" : -10
-            }
-        )
-        wind.displayStats()
-        wind.save()
-
-        stone = EnemyCharacter(
-            name="Stone Soldier",
-            element="stone",
-            stats={
-                "control":5,
-                "resistance":10,
-                "luck":-5,
-                "energy":-5,
-                "potency":-5
-            }
-        )
-        stone.displayStats()
-        stone.save()
-
-    """
-    saves this enemy to the enemy directory
-    """
-    def save(self):
-        saveSerializable(self, ENEMY_DIR)
 
     """
     AI stuff

@@ -11,7 +11,7 @@ TODO:
   Visitor design pattern using Python's JSONEncoder. The current method may
   break the suggestion of one purpose per class, but it's elegant compared to
   the alternative
-* move writing to a file out of serialize.py
+* move "create default" options from classes to createDefaults.py
 * random campaign generator: Have the program chop up a Shakespere play and make
   characters and locations based off of that?
 * do away with "Customization Points" system. Change to allow player to choose

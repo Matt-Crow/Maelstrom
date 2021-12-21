@@ -3,11 +3,11 @@ from character import AbstractCharacter, EnemyCharacter
 from utilities import ELEMENTS
 from area import Area
 from inputOutput.screens import Screen
-from characters.characterLoader import PlayerTeamLoader
+from characters.characterLoader import PlayerTeamLoader, EnemyLoader
 
 
 
-from battle.battleLoader import AreaLoader
+from characters.createDefaults import saveDefaultData
 
 
 
@@ -23,8 +23,10 @@ class Game:
         self.userLoader = PlayerTeamLoader()
 
     def test(self):
-        print(AreaLoader().load("Test Area").getDisplayData())
-        #EnemyCharacter.generateEnemies()
+        enemyLoader = EnemyLoader()
+        for option in enemyLoader.getOptions():
+            print(enemyLoader.load(option).getDisplayData())
+        #saveDefaultData()
 
     def chooseAction(self):
         screen = Screen()
