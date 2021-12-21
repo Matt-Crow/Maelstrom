@@ -83,6 +83,11 @@ class AbstractJsonLoader(object):
             obj = self.doLoad(json.loads(file.read()))
         return obj
 
+    def save(self, obj: "AbstractJsonSerialable"):
+        path = os.path.join(self.dirPath, formatFileName(obj.name))
+        with open(path, "w") as file:
+            file.write(json.dumps(obj.toJson()))
+
     @abc.abstractmethod
     def doLoad(self, asJson: dict):
         pass

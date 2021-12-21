@@ -1,5 +1,4 @@
 from util.serialize import AbstractJsonSerialable
-from fileSystem import AREA_DIR, saveSerializable
 from battle.battle import Battle
 from inputOutput.screens import Screen
 from util.stringUtil import entab
@@ -34,9 +33,6 @@ class Area(AbstractJsonSerialable):
             name="Test Area",
             desc="No description"
         )
-
-    def save(self):
-        saveSerializable(self, AREA_DIR)
 
     def getDisplayData(self)->str:
         ret = [

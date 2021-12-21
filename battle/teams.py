@@ -1,11 +1,10 @@
 from item import Item
 from util.serialize import AbstractJsonSerialable
-from fileSystem import USER_DIR, saveSerializable
 from util.stringUtil import entab, lengthOfLongest
 from characters.stat_classes import Boost
 from inputOutput.screens import Screen
-import random
 from inputOutput.output import debug
+import random
 
 """
 Teams are used to group characters
@@ -180,9 +179,6 @@ class PlayerTeam(AbstractTeam):
         super(PlayerTeam, self).__init__(**dict(kwargs, type="PlayerTeam", members=[kwargs["member"]]))
         self.inventory = kwargs.get("inventory", [])
         self.addSerializedAttribute("inventory")
-
-    def save(self):
-        saveSerializable(self, USER_DIR)
 
     """
     Choices are made using these functions

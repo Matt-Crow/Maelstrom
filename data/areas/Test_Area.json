@@ -1,0 +1,56 @@
+{
+    "type": "Area",
+    "name": "Test Area",
+    "desc": "No description",
+    "locations": [
+        {
+            "type": "Location",
+            "name": "Shoreline",
+            "desc": "Gentle waves lap at the shore.",
+            "script": [
+                "I'm not sure how I feel about the sand...",
+                "is it course and rough?",
+                "or soft?"
+            ]
+        }
+    ],
+    "levels": [
+        {
+            "type": "Battle",
+            "name": "Random encounter",
+            "desc": "Random battle",
+            "prescript": [],
+            "postscript": [],
+            "forecast": [
+                {
+                    "type": "Weather",
+                    "name": "lightning"
+                },
+                {
+                    "type": "Weather",
+                    "name": "rain"
+                },
+                {
+                    "type": "Weather",
+                    "name": "hail"
+                },
+                {
+                    "type": "Weather",
+                    "name": "wind"
+                },
+                {
+                    "type": "Weather",
+                    "name": "no weather"
+                }
+            ],
+            "enemyNames": [
+                "Hail Entity",
+                "Stone Soldier",
+                "Hail Entity",
+                "Wind Entity"
+            ],
+            "level": 1,
+            "rewards": []
+        }
+    ]
+}

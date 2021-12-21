@@ -23,7 +23,7 @@ class Game:
         self.userLoader = PlayerTeamLoader()
 
     def test(self):
-        print(AreaLoader().load("temp").getDisplayData())
+        print(AreaLoader().load("Test Area").getDisplayData())
         #EnemyCharacter.generateEnemies()
 
     def chooseAction(self):
@@ -57,7 +57,7 @@ class Game:
             else:
                 self.chooseAction()
         if self.playerTeam is not None:
-            self.playerTeam.save()
+            self.userLoader.save(self.playerTeam)
 
     """
     Displayes the main menu
@@ -147,6 +147,6 @@ class Game:
                 name=userName,
                 member=character
             )
-            team.save()
+            self.userLoader.save(team)
 
         return ret
