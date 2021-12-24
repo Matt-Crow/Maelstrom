@@ -1,8 +1,5 @@
-from utilities import ELEMENTS, STATS
+from utilities import STATS
 from stat_classes import Stat
-from characters.actives.actives import AbstractActive
-from passives import AbstractPassive
-from item import Item
 from events import OnHitEvent, ActionRegister, HIT_GIVEN_EVENT, HIT_TAKEN_EVENT, UPDATE_EVENT
 from customizable import AbstractCustomizable
 from util.stringUtil import entab, lengthOfLongest
@@ -30,9 +27,9 @@ class AbstractCharacter(AbstractCustomizable):
     - element : str
     - level : int (defaults to 1)
     -  : int (defaults to 0)
-    - actives : list (defaults to AbstractActive.getDefaults(element))
-    - passives : list (default to AbstractPassive.getDefaults())
-    - equippedItems : list (defaults to Item.getDefaults())
+    - actives : list of AbstractActives. Throws an error if not set
+    - passives : list of AbstractPassives. Defaults to empty list
+    - equippedItems : list of Items. Defaults to an empty list
     - stats: object{ str : int } (defaults to 0 for each stat in STATS not given in the object)
     """
     def __init__(self, **kwargs):
@@ -46,11 +43,11 @@ class AbstractCharacter(AbstractCustomizable):
         self.actives = []
         self.passives = []
         self.equippedItems = []
-        for active in kwargs.get("actives", AbstractActive.getDefaults(self.element)):
+        for active in kwargs["actives"]:
             self.addActive(active)
-        for passive in kwargs.get("passives", AbstractPassive.getDefaults()):
+        for passive in kwargs.get("passives", []):
             self.addPassive(passive)
-        for item in kwargs.get("equippedItems", Item.getDefaults()):
+        for item in kwargs.get("equippedItems", []):
             self.equipItem(item)
 
         for stat in STATS:
@@ -68,17 +65,6 @@ class AbstractCharacter(AbstractCustomizable):
             "passives",
             "equippedItems"
         )
-
-    """
-    The new default method.
-    """
-    @staticmethod
-    def createDefaultPlayer(name="Name not set", element=ELEMENTS[0])->"PlayerCharacter":
-        player = PlayerCharacter(
-            name=name,
-            element=element
-        )
-        return player
 
     def addActive(self, active: "AbstractActive"):
         self.actives.append(active)

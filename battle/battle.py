@@ -1,8 +1,6 @@
 from utilities import *
-from item import Item
 from weather import WEATHERS, NO_WEATHER, Weather
 from teams import EnemyTeam
-from character import EnemyCharacter
 from characterLoader import EnemyLoader
 from util.serialize import AbstractJsonSerialable
 from util.stringUtil import entab
@@ -210,8 +208,7 @@ class Battle(AbstractJsonSerialable):
             msgs.extend(self.postscript)
 
             for reward in self.rewards:
-                if reward != None:
-                    reward.give(self.player_team)
+                self.player_team.obtain(reward)
 
         xp = self.enemy_team.getXpGiven()
         for member in self.player_team.members:
@@ -225,23 +222,3 @@ class Battle(AbstractJsonSerialable):
         screen.addBodyRow(self.getDisplayData())
         screen.addBodyRows(msgs)
         screen.display()
-
-    """
-    Creates a random level
-    """
-    @staticmethod
-    def generateRandom():
-        enemyNames = []
-        numEnemies = random.randint(1, 4)
-
-        allEnemyNames = EnemyLoader().getOptions()
-
-        for i in range(0, numEnemies):
-            enemyNames.append(random.choice(allEnemyNames))
-
-        return Battle(
-            name="Random encounter",
-            desc="Random battle",
-            enemyNames=enemyNames,
-            level=1
-        )

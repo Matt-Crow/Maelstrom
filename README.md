@@ -5,13 +5,13 @@ poured countless hours of work into. I learned so much while making this game,
 both about programming and game design in general.
 
 TODO:
+* migrate over to """maelstrom""" folder
 * use my application directory system from ARCDHWebAutomator
 * make the game fun
 * I might want to replace the current method of serializing in-class with the
   Visitor design pattern using Python's JSONEncoder. The current method may
   break the suggestion of one purpose per class, but it's elegant compared to
   the alternative
-* move "create default" options from classes to createDefaults.py
 * random campaign generator: Have the program chop up a Shakespere play and make
   characters and locations based off of that?
 * do away with "Customization Points" system. Change to allow player to choose

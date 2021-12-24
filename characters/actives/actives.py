@@ -117,42 +117,6 @@ class AbstractActive(AbstractCustomizable):
 
         return "\n".join(msgs)
 
-    """
-    Returns the default actives that every
-    character can use
-    """
-    @staticmethod
-    def getDefaults(element: str) -> list:
-        bolt = AbstractActive(
-            name=element+" bolt",
-            stats={
-                "cleave":-5,
-                "crit chance":-2,
-                "damage multiplier":7
-            }
-        )
-
-        slash = MeleeAttack(name="Slash")
-        jab = MeleeAttack(
-            name="Jab",
-            stats={
-                "miss chance":-5,
-                "crit chance":5,
-                "miss mult":-5,
-                "crit mult":5
-            }
-        )
-        slam = MeleeAttack(
-            name="Slam",
-            stats={
-                "damage multiplier":5,
-                "miss chance":-5
-            }
-        )
-
-        return [bolt, slash, jab, slam]
-
-
 class MeleeAttack(AbstractActive):
     def __init__(self, **kwargs):
         super(MeleeAttack, self).__init__(**dict(kwargs, type="MeleeAttack", cost=0))
