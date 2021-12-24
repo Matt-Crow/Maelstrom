@@ -1,6 +1,5 @@
-from teams import PlayerTeam, AbstractTeam
-from character import AbstractCharacter, EnemyCharacter
-from utilities import ELEMENTS
+from battle.teams import PlayerTeam, AbstractTeam
+from util.utilities import ELEMENTS
 from inputOutput.screens import Screen
 from characters.characterLoader import PlayerTeamLoader, EnemyLoader
 from characters.createDefaults import createDefaultArea, createDefaultPlayer

@@ -1,5 +1,5 @@
 from util.serialize import AbstractJsonSerialable
-from stat_classes import Stat
+from characters.stat_classes import Stat
 from abc import abstractmethod
 from inputOutput.screens import Screen
 

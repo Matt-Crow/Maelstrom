@@ -1,4 +1,3 @@
-from item import Item
 from util.serialize import AbstractJsonSerialable
 from util.stringUtil import entab, lengthOfLongest
 from characters.stat_classes import Boost

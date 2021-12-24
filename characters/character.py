@@ -1,7 +1,7 @@
-from utilities import STATS
-from stat_classes import Stat
-from events import OnHitEvent, ActionRegister, HIT_GIVEN_EVENT, HIT_TAKEN_EVENT, UPDATE_EVENT
-from customizable import AbstractCustomizable
+from util.utilities import STATS
+from characters.stat_classes import Stat
+from battle.events import OnHitEvent, ActionRegister, HIT_GIVEN_EVENT, HIT_TAKEN_EVENT, UPDATE_EVENT
+from characters.customizable import AbstractCustomizable
 from util.stringUtil import entab, lengthOfLongest
 from inputOutput.screens import Screen
 from inputOutput.output import debug

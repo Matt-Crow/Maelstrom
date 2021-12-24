@@ -43,12 +43,6 @@ Version 0.9
 """
 
 import sys
-#get rid of this in the future
-from util.path import add_subdir
-
-add_subdir("battle")
-add_subdir("util")
-add_subdir("characters")
 
 from game import Game
 

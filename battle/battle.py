@@ -1,7 +1,7 @@
-from utilities import *
-from weather import WEATHERS, NO_WEATHER, Weather
-from teams import EnemyTeam
-from characterLoader import EnemyLoader
+from util.utilities import *
+from battle.weather import WEATHERS, NO_WEATHER, Weather
+from battle.teams import EnemyTeam
+from characters.characterLoader import EnemyLoader
 from util.serialize import AbstractJsonSerialable
 from util.stringUtil import entab
 from inputOutput.screens import Screen

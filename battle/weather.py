@@ -1,5 +1,5 @@
 import random
-from stat_classes import Boost
+from characters.stat_classes import Boost
 from util.serialize import AbstractJsonSerialable
 
 """

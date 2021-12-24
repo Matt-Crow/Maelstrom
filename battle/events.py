@@ -1,4 +1,4 @@
-from utilities import *
+from util.utilities import *
 
 HIT_GIVEN_EVENT = 0
 HIT_TAKEN_EVENT = 1

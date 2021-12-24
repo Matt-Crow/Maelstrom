@@ -2,7 +2,7 @@
 This module contains the definitions for all the stats of active abilities
 """
 
-from stat_classes import Stat
+from characters.stat_classes import Stat
 
 class ActiveStatFactory(object):
     def makeDamageMultiplier(self, base: int):

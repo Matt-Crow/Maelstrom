@@ -1,6 +1,6 @@
-from stat_classes import Stat, Boost
-from customizable import AbstractCustomizable
-from events import HIT_GIVEN_EVENT, HIT_TAKEN_EVENT, UPDATE_EVENT
+from characters.stat_classes import Stat, Boost
+from characters.customizable import AbstractCustomizable
+from battle.events import HIT_GIVEN_EVENT, HIT_TAKEN_EVENT, UPDATE_EVENT
 from inputOutput.output import debug
 from util.stringUtil import entab
 from util.utilities import roll_perc

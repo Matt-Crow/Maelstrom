@@ -1,6 +1,6 @@
-from utilities import STATS
-from stat_classes import *
-from customizable import AbstractCustomizable
+from util.utilities import STATS
+from characters.stat_classes import *
+from characters.customizable import AbstractCustomizable
 from util.stringUtil import entab
 import random
 

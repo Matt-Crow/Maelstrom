@@ -6,10 +6,10 @@ Character objects in the program
 
 
 from util.serialize import AbstractJsonLoader
-from actives.actives import AbstractActive, MeleeAttack
-from passives import AbstractPassive, Threshhold, OnHitGiven, OnHitTaken
-from item import Item
-from character import PlayerCharacter, EnemyCharacter
+from characters.actives.actives import AbstractActive, MeleeAttack
+from characters.passives import AbstractPassive, Threshhold, OnHitGiven, OnHitTaken
+from characters.item import Item
+from characters.character import PlayerCharacter, EnemyCharacter
 from battle.teams import PlayerTeam
 
 

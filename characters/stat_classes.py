@@ -1,4 +1,4 @@
-from utilities import *
+from util.utilities import *
 from util.stringUtil import entab
 from util.serialize import AbstractJsonSerialable
 

@@ -1,6 +1,6 @@
-from stat_classes import Stat, Boost
-from utilities import roll_perc
-from customizable import AbstractCustomizable
+from characters.stat_classes import Stat, Boost
+from util.utilities import roll_perc
+from characters.customizable import AbstractCustomizable
 from characters.actives.activeStats import ActiveStatFactory
 from inputOutput.output import debug
 from util.stringUtil import entab
