@@ -1,5 +1,4 @@
 from util.serialize import AbstractJsonSerialable
-from battle.battle import Battle
 from inputOutput.screens import Screen
 from util.stringUtil import entab
 
@@ -10,28 +9,21 @@ class Area(AbstractJsonSerialable):
     required kwargs:
     - name : str
     - desc : str
-    - locations : list of Locations. Defaults to [Location.createDefaultLocation]
-    - levels : list of Battles. Defaults to [Battle.generateRandom]
+    - locations : list of Locations. Defaults to no locations
+    - levels : list of Battles. Defaults to no battles
     """
     def __init__(self, **kwargs):
         super(Area, self).__init__(**dict(kwargs, type="Area"))
         self.name = kwargs["name"]
         self.desc = kwargs["desc"]
-        self.locations = kwargs.get("locations", [Location.createDefaultLocation()])
-        self.levels = kwargs.get("levels", [Battle.generateRandom()])
+        self.locations = kwargs.get("locations", [])
+        self.levels = kwargs.get("levels", [])
 
         self.addSerializedAttributes(
             "name",
             "desc",
             "locations",
             "levels"
-        )
-
-    @staticmethod
-    def createDefaultArea()->"Area":
-        return Area(
-            name="Test Area",
-            desc="No description"
         )
 
     def getDisplayData(self)->str:
@@ -99,18 +91,6 @@ class Location(AbstractJsonSerialable):
             "name",
             "desc",
             "script"
-        )
-
-    @staticmethod
-    def createDefaultLocation():
-        return Location(
-            name="Shoreline",
-            desc="Gentle waves lap at the shore.",
-            script=[
-                "I'm not sure how I feel about the sand...",
-                "is it course and rough?",
-                "or soft?"
-            ]
         )
 
     """

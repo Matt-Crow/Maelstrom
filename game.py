@@ -1,9 +1,9 @@
 from teams import PlayerTeam, AbstractTeam
 from character import AbstractCharacter, EnemyCharacter
 from utilities import ELEMENTS
-from area import Area
 from inputOutput.screens import Screen
 from characters.characterLoader import PlayerTeamLoader, EnemyLoader
+from characters.createDefaults import createDefaultArea, createDefaultPlayer
 
 
 
@@ -23,10 +23,7 @@ class Game:
         self.userLoader = PlayerTeamLoader()
 
     def test(self):
-        enemyLoader = EnemyLoader()
-        for option in enemyLoader.getOptions():
-            print(enemyLoader.load(option).getDisplayData())
-        #saveDefaultData()
+        saveDefaultData()
 
     def chooseAction(self):
         screen = Screen()
@@ -52,7 +49,7 @@ class Game:
     Begins the program
     """
     def run(self):
-        self.currentArea = Area.createDefaultArea()
+        self.currentArea = createDefaultArea()
         while not self.exit:
             if self.playerTeam == None:
                 self.mainMenu()
@@ -144,7 +141,7 @@ class Game:
             success = False
 
         if success:
-            character = AbstractCharacter.createDefaultPlayer(userName, element)
+            character = createDefaultPlayer(userName, element)
             team = PlayerTeam(
                 name=userName,
                 member=character

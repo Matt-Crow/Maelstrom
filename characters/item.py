@@ -1,8 +1,8 @@
-from utilities import STATS, ELEMENTS
+from utilities import STATS
 from stat_classes import *
 from customizable import AbstractCustomizable
-import random
 from util.stringUtil import entab
+import random
 
 #          isn't really customizable
 class Item(AbstractCustomizable):
@@ -17,13 +17,13 @@ class Item(AbstractCustomizable):
 
     """
     kwargs:
-    - name : str (defaults to random name)
+    - name : str
     - itemType : str (default to a random type)
     - desc : str (defaults to the given itemType's description, or 'no description')
     - boostedStat : str (defaults to a random stat)
     """
     def __init__(self, **kwargs):
-        super(Item, self).__init__(**dict(kwargs, name=Item.getItemName(kwargs), type="Item"))
+        super(Item, self).__init__(**dict(kwargs, name=kwargs["name"], type="Item"))
 
         self.itemType = kwargs.get("itemType", random.choice(list(Item.types.keys())))
         self.desc = kwargs.get("desc", Item.types.get(self.itemType, "no description"))
@@ -36,20 +36,6 @@ class Item(AbstractCustomizable):
             "desc",
             "boostedStat"
         )
-
-    @staticmethod
-    def getItemName(kwargs: dict)->str:
-        ret = None
-        if hasattr(kwargs, "name"):
-            ret = kwargs["name"]
-        else:
-            ret = "Random Item #" + str(Item.randomItemNumber)
-            Item.randomItemNumber += 1
-        return ret
-
-    @staticmethod
-    def getDefaults() -> list:
-        return [Item()]
 
     """
     Returns the boost this will provide when equipped

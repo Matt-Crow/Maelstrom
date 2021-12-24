@@ -49,30 +49,6 @@ class AbstractPassive(AbstractCustomizable):
         target = self.user if self.targetsUser else self.user.team.enemy.active
         target.boost(self.getBoost())
 
-    """
-    Returns the default passives
-    """
-    @staticmethod
-    def getDefaults() -> list:
-        p = Threshhold(
-            name="Threshhold test",
-            boostedStat="resistance",
-        )
-
-        o = OnHitGiven(
-            name="On Hit Given Test",
-            boostedStat="luck",
-        )
-
-        h = OnHitTaken(
-            name="On Hit Taken Test",
-            boostedStat="control",
-            targetsUser=False
-        )
-
-        return [p, o, h]
-
-
 class Threshhold(AbstractPassive):
     """
     Additional kwargs:
