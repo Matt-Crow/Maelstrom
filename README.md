@@ -14,6 +14,9 @@ TODO:
   the alternative
 * random campaign generator: Have the program chop up a Shakespere play and make
   characters and locations based off of that?
+
+
+
 * do away with "Customization Points" system. Change to allow player to choose
   from sets of pre-generated content. Add "guidebooks" the player can use to
   look up info on enemies, actives, passives, and items to avoid info-dumping
