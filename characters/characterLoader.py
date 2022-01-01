@@ -60,7 +60,7 @@ def loadCharacter(asJson: dict)->"AbstractCharacter":
     asJson = asJson.copy()
     ctype = asJson["type"]
     asJson["actives"] = [loadActive(data) for data in asJson["actives"]]
-    asJson["passives"]= [loadPassive(data) for data in asJson["passives"]]
+    asJson["passives"]= [loadPassive(name) for name in asJson["passives"]]
     asJson["equippedItems"] = [loadItem(data) for data in asJson["equippedItems"]]
     ret = None
 
@@ -86,8 +86,13 @@ def loadActive(asJson: dict)->"AbstractActive":
 
     return ret
 
-def loadPassive(asJson: dict)->"AbstractPassive":
+def loadPassive(name: str)->"AbstractPassive":
+    if name not in NAME_TO_PASSIVE:
+        raise Exception(f'no passives defined with name "{name}"')
+    return NAME_TO_PASSIVE[name]
+    """
     ret = None
+
     type = asJson["type"]
     if type == "Threshhold Passive":
         ret = Threshhold(**asJson)
@@ -101,6 +106,7 @@ def loadPassive(asJson: dict)->"AbstractPassive":
     #print(NAME_TO_PASSIVE[asJson["name"]].description)
 
     return ret
+    """
 
 def loadItem(asJson: dict)->"Item":
     return Item(**asJson)

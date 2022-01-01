@@ -6,6 +6,7 @@ object creation process a bit.
 
 
 
+from maelstrom.dataClasses.passiveAbilities import getPassiveAbilityList
 from battle.area import Area, Location
 from battle.battle import Battle
 from characters.actives.actives import AbstractActive, MeleeAttack
@@ -104,23 +105,7 @@ def createDefaultActives(element: str)->"List<AbstractActive>":
     return [bolt, slash, jab, slam]
 
 def createDefaultPassives()->"List<AbstractPassive>":
-    p = Threshhold(
-        name="Threshhold test",
-        boostedStat="resistance",
-    )
-
-    o = OnHitGiven(
-        name="On Hit Given Test",
-        boostedStat="luck",
-    )
-
-    h = OnHitTaken(
-        name="On Hit Taken Test",
-        boostedStat="control",
-        targetsUser=False
-    )
-
-    return [p, o, h]
+    return [p.copy() for p in getPassiveAbilityList()]
 
 def createRandomItem()->"Item":
     global NEXT_ITEM_NUM

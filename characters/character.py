@@ -73,8 +73,6 @@ class AbstractCharacter(AbstractCustomizable):
 
     def addPassive(self, passive: "AbstractPassive"):
         self.passives.append(passive)
-        passive.setUser(self)
-        passive.calcStats()
 
     def equipItem(self, item: "Item"):
         self.equippedItems.append(item)
@@ -92,8 +90,7 @@ class AbstractCharacter(AbstractCustomizable):
             active.initForBattle()
 
         for passive in self.passives:
-            passive.setUser(self)
-            passive.initForBattle()
+            passive.registerTo(self)
 
         for item in self.equippedItems:
             item.setUser(self)
@@ -138,7 +135,7 @@ class AbstractCharacter(AbstractCustomizable):
 
         ret.append("PASSIVES:")
         for passive in self.passives:
-            ret.append(entab(passive.getDisplayData()))
+            ret.append(entab(passive.description))
 
         ret.append("ITEMS:")
         for item in self.equippedItems:
@@ -292,8 +289,6 @@ class PlayerCharacter(AbstractCharacter):
 
         for active in self.actives:
             active.customizationPoints += 1
-        for passive in self.passives:
-            passive.customizationPoints += 1
         for item in self.equippedItems:
             item.customizationPoints += 1
 
@@ -354,9 +349,7 @@ class PlayerCharacter(AbstractCharacter):
             screen.addBodyRow(item.getDisplayData())
             options.append(item)
 
-        for passive in self.passives:
-            screen.addBodyRow(passive.getDisplayData())
-            options.append(passive)
+        # todo: add option to change passives
 
         for active in self.actives:
             screen.addBodyRow(active.getDisplayData())

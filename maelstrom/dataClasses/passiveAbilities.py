@@ -8,7 +8,7 @@ of health
 
 from characters.stat_classes import Boost
 from util.serialize import AbstractJsonSerialable
-from util.utilities import ELEMENTS
+from util.utilities import ELEMENTS, roll_perc
 from battle.events import HIT_GIVEN_EVENT, HIT_TAKEN_EVENT, UPDATE_EVENT
 from abc import abstractmethod
 
@@ -85,7 +85,7 @@ class OnHitGivenPassive(AbstractPassive):
             if self.targetsUser:
                 onHitEvent.hitter.boost(self.boost.copy())
             else:
-                onHitEvent.hittee.boost(self.boost.copy())
+                onHitEvent.hitee.boost(self.boost.copy())
 
 class OnHitTakenPassive(AbstractPassive):
     def __init__(self, name, boost, chance, targetsUser):
@@ -107,9 +107,9 @@ class OnHitTakenPassive(AbstractPassive):
         user.addActionListener(HIT_TAKEN_EVENT, self.checkTrigger)
 
     def checkTrigger(self, onHitEvent):
-        if roll_perc(onHitEvent.hittee.getStatValue("luck")) > 100 - self.chance * 100:
+        if roll_perc(onHitEvent.hitee.getStatValue("luck")) > 100 - self.chance * 100:
             if self.targetsUser:
-                onHitEvent.hittee.boost(self.boost.copy())
+                onHitEvent.hitee.boost(self.boost.copy())
             else:
                 onHitEvent.hitter.boost(self.boost.copy())
 
