@@ -13,7 +13,6 @@ from characters.actives.actives import AbstractActive, MeleeAttack
 from characters.character import EnemyCharacter, PlayerCharacter
 from characters.characterLoader import EnemyLoader
 from characters.item import Item
-from characters.passives import Threshhold, OnHitGiven, OnHitTaken
 import random
 
 

@@ -8,7 +8,6 @@ Character objects in the program
 from maelstrom.dataClasses.passiveAbilities import getPassiveAbilityList
 from util.serialize import AbstractJsonLoader
 from characters.actives.actives import AbstractActive, MeleeAttack
-from characters.passives import AbstractPassive, Threshhold, OnHitGiven, OnHitTaken
 from characters.item import Item
 from characters.character import PlayerCharacter, EnemyCharacter
 from battle.teams import PlayerTeam
@@ -90,23 +89,6 @@ def loadPassive(name: str)->"AbstractPassive":
     if name not in NAME_TO_PASSIVE:
         raise Exception(f'no passives defined with name "{name}"')
     return NAME_TO_PASSIVE[name]
-    """
-    ret = None
-
-    type = asJson["type"]
-    if type == "Threshhold Passive":
-        ret = Threshhold(**asJson)
-    elif type == "On Hit Given Passive":
-        ret = OnHitGiven(**asJson)
-    elif type == "On Hit Taken Passive":
-        ret = OnHitTaken(**asJson)
-    else:
-        raise Exception("Type not found for AbstractPassive: " + type)
-
-    #print(NAME_TO_PASSIVE[asJson["name"]].description)
-
-    return ret
-    """
 
 def loadItem(asJson: dict)->"Item":
     return Item(**asJson)
