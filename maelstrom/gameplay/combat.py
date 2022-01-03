@@ -5,6 +5,10 @@ functions that act on their data, preventing classes from become cumbersome
 
 
 
+from inputOutput.screens import Screen
+
+
+
 class Encounter:
     """
     An encounter handles team versus team conflict.
@@ -33,17 +37,53 @@ class Encounter:
         return self.team1.isDefeated() or self.team2.isDefeated()
 
     def team1Turn(self):
-        return self.teamTurn(self.team1)
+        msgs = []
+        screen = self.teamTurn(self.team1, self.team2, msgs)
+        for option in self.team1.active.getActiveChoices():
+            screen.addOption(option)
+        active = screen.displayAndChoose("What active do you wish to use?");
+        screen.addBodyRow(active.use())
+        newMsgs = []
+        self.team2.updateMembersRem(newMsgs)
+        screen.addBodyRows(newMsgs)
+        screen.display()
 
     def team2Turn(self):
-        return self.teamTurn(self.team2)
+        msgs = []
+        screen = self.teamTurn(self.team2, self.team1, msgs)
+        #TODO here
 
-    def teamTurn(self, team):
-        pass
+    def teamTurn(self, attacker, defender, msgs):
+        """
+        applies weather effects and sets up screen. Still needs to choose action
+        """
+
+        attacker.updateMembersRem(msgs)
+        self.weather.applyEffect(attacker.membersRem, msgs)
+        attacker.updateMembersRem(msgs)
+
+        screen = Screen()
+        screen.setTitle(f'{attacker.name}\'s turn')
+        screen.addSplitRow(
+            attacker.getShortDisplayData(),
+            defender.getShortDisplayData()
+        )
+        screen.addBodyRows(msgs)
+
+        return screen
+
 
 
 
 def getActiveTargets(attackerOrdinal: int, targetTeam: "List<AbstractCharacter>")->"List<AbstractCharacter>":
+    """
+    'active' enemies are those across from the attacker and the enemy
+    immediately below that. This gives a slight advantage to the 1 in a 1 vs 2,
+    as both enemies cannot attack them at the same time
+
+    O-X
+     \X
+    """
     options = []
     if attackerOrdinal < len(targetTeam):
         options.append(targetTeam[attackerOrdinal])
@@ -52,12 +92,23 @@ def getActiveTargets(attackerOrdinal: int, targetTeam: "List<AbstractCharacter>"
     return options
 
 def getCleaveTargets(attackerOrdinal: int, targetTeam: "List<AbstractCharacter>")->"List<AbstractCharacter>":
+    """
+    enemies are 'cleaveable' (for want of a better word) if they are no more
+    than 1 array slot away from the enemy across from the attacker
+     /X
+    O-X
+     \X
+    """
     options = getActiveTargets(attackerOrdinal, targetTeam)
     if attackerOrdinal - 1 >= 0:
         options.insert(0, targetTeam[attackerOrdinal - 1])
     return options
 
 def getDistantTargets(attackerOrdinal: int, targetTeam: "List<AbstractCharacter>")->"List<AbstractCharacter>":
+    """
+    the union of distant targets and cleave targets is all enemies, with no
+    overlap
+    """
     notTargets = getCleaveTargets(attackerOrdinal, targetTeam)
     return [member for member in targetTeam if member not in notTargets]
 

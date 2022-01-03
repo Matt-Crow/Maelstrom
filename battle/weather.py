@@ -22,14 +22,12 @@ class Weather(AbstractJsonSerialable):
         return self.msg
 
     """
-    Apply stat changes to a list of AbstractCharacters. Returns a string message
-    that will be output
+    Apply stat changes to a list of AbstractCharacters. Appends messages to the
+    given list of messages based on how it effects them
     """
-    def applyEffect(self, affected: "List<AbstractCharacter>")->str:
-        msgs = []
+    def applyEffect(self, affected: "List<AbstractCharacter>", msgs: "List<str>"):
         for person in affected:
             msgs.append(self.doApplyEffect(person))
-        return "\n".join(msgs)
 
     def doApplyEffect(self, target: "AbstractCharacter")->str:
         pass

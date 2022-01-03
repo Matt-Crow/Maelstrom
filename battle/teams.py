@@ -58,12 +58,10 @@ class AbstractTeam(AbstractJsonSerialable):
         return xp / len(self.members)
 
     """
-    Updates the members remaining on the team, and returns a list of messages to
-    display
+    Updates the members remaining on the team, and appends to a list of messages
+    to display
     """
-    def updateMembersRem(self)->"List<str>":
-        msgs = []
-
+    def updateMembersRem(self, msgs):
         newMembersRem = []
         for member in self.membersRem:
             if not member.isKoed():
@@ -72,8 +70,6 @@ class AbstractTeam(AbstractJsonSerialable):
             else:
                 msgs.append(f'{member.name} is out of the game!')
         self.membersRem = newMembersRem
-
-        return msgs
 
     """
     Changes the active member of this team, inflicting a one-turn penalty

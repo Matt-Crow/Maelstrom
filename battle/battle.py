@@ -127,9 +127,9 @@ class Battle(AbstractJsonSerialable):
         msgs = []
 
         # Pre-turn steps
-        msgs.extend(self.enemy_team.updateMembersRem()) # check if any were KOed on player turn
-        msgs.append(self.weather.applyEffect(self.enemy_team.membersRem)) # yes, this is supposed to be "append", not "extend"
-        msgs.extend(self.enemy_team.updateMembersRem()) # check if the weather defeated anyone
+        self.enemy_team.updateMembersRem(msgs) # check if any were KOed on player turn
+        self.weather.applyEffect(self.enemy_team.membersRem, msgs)
+        self.enemy_team.updateMembersRem(msgs) # check if the weather defeated anyone
 
         if self.enemy_team.isDefeated():
             # todo add message
@@ -153,13 +153,13 @@ class Battle(AbstractJsonSerialable):
         screen.addBodyRows(msgs)
         screen.display()
 
-    def doPlayerTurn(self)->"List<str>":
+    def doPlayerTurn(self):
         msgs = []
 
         # Pre-turn steps
-        msgs.extend(self.player_team.updateMembersRem()) # check if any were KOed on player turn
-        msgs.append(self.weather.applyEffect(self.player_team.membersRem)) # yes, this is supposed to be "append", not "extend"
-        msgs.extend(self.player_team.updateMembersRem()) # check if the weather defeated anyone
+        self.player_team.updateMembersRem(msgs) # check if any were KOed on player turn
+        self.weather.applyEffect(self.player_team.membersRem, msgs)
+        self.player_team.updateMembersRem(msgs) # check if the weather defeated anyone
         self.displayPlayerTurn(msgs)
         if self.player_team.isDefeated():
             # todo add message
