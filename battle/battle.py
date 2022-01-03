@@ -7,8 +7,7 @@ it as a data class later.
 
 from maelstrom.gameplay.combat import Encounter
 
-from util.utilities import *
-from battle.weather import WEATHERS, NO_WEATHER, Weather
+from battle.weather import WEATHERS, NO_WEATHER
 from battle.teams import EnemyTeam
 from characters.characterLoader import EnemyLoader
 from util.serialize import AbstractJsonSerialable
@@ -114,44 +113,6 @@ class Battle(AbstractJsonSerialable):
 
         self.displayEnd(msgs)
 
-        """
-        # set teams
-        self.player_team = playerTeam
-        enemies = [self.enemyLoader.load(enemyName) for enemyName in self.enemyNames]
-        for enemy in enemies:
-            enemy.level = self.level
-        self.enemy_team = EnemyTeam(
-            name="Enemy Team",
-            members=enemies
-        )
-
-        self.enemy_team.initForBattle()
-        self.enemy_team.enemy = self.player_team
-
-        self.player_team.initForBattle()
-        self.player_team.enemy = self.enemy_team
-
-        self.weather = random.choice(self.forecast)
-
-        # TODO: add a "scout" option to Area that allows the user to do this
-        # but will need to make sure they are initialized
-        self.enemy_team.display()
-
-        self.displayIntro()
-
-        while not self.enemy_team.isDefeated() and not self.player_team.isDefeated():
-            self.doEnemyTurn()
-            if not self.enemy_team.isDefeated():
-                # only bother doing player turn if enemy survives
-                # so this way we don't get 'ghost rounds'
-                self.doPlayerTurn()
-
-        # By now, one team has been eliminated
-        self.gameEnd()
-
-        self.enemy_team = None # uncache enemy team to save memory
-        """
-
     """
     Displays the introduction to this Battle
     """
@@ -164,104 +125,6 @@ class Battle(AbstractJsonSerialable):
         screen.addBodyRows(self.prescript)
         screen.addBodyRow(self.weather.getMsg())
         screen.display()
-
-    """
-    This one doesn't display as much as doPlayerTurn, as the player needs to be
-    more informed, and there isn't much point to displaying as much for the AI's
-    turn
-    """
-    def doEnemyTurn(self)->"List<str>":
-        msgs = []
-
-        # Pre-turn steps
-        self.enemy_team.updateMembersRem(msgs) # check if any were KOed on player turn
-        self.weather.applyEffect(self.enemy_team.membersRem, msgs)
-        self.enemy_team.updateMembersRem(msgs) # check if the weather defeated anyone
-
-        if self.enemy_team.isDefeated():
-            # todo add message
-            pass
-        else:
-            # Pre-choose attack steps
-            if self.enemy_team.active.isKoed() or self.enemy_team.shouldSwitch():
-                msgs.append(self.enemy_team.chooseNewActive())
-
-            # Attack steps
-            msgs.append(self.enemy_team.active.chooseActive())
-
-        self.displayEnemyTurn(msgs)
-
-    def displayEnemyTurn(self, msgs: "List<str>"):
-        screen = Screen()
-        screen.setTitle(f'{self.enemy_team.name}\'s turn')
-        playerTeamData = self.player_team.getShortDisplayData()
-        enemyTeamData = self.enemy_team.getShortDisplayData()
-        screen.addSplitRow(playerTeamData, enemyTeamData)
-        screen.addBodyRows(msgs)
-        screen.display()
-
-    def doPlayerTurn(self):
-        msgs = []
-
-        # Pre-turn steps
-        self.player_team.updateMembersRem(msgs) # check if any were KOed on player turn
-        self.weather.applyEffect(self.player_team.membersRem, msgs)
-        self.player_team.updateMembersRem(msgs) # check if the weather defeated anyone
-        self.displayPlayerTurn(msgs)
-        if self.player_team.isDefeated():
-            # todo add message
-            pass
-        else:
-            # Pre-choose attack steps
-            if self.player_team.shouldSwitch():
-                msgs.append(self.player_team.chooseNewActive())
-                self.displayPlayerTurn(msgs)
-
-            # Attack steps
-            screen = Screen()
-            screen.setTitle(f'{self.player_team.active}\'s turn')
-            for option in self.player_team.active.getActiveChoices():
-                screen.addOption(option)
-            active = screen.displayAndChoose("What active do you wish to use?")
-            msgs.append(active.use())
-
-        self.displayPlayerTurn(msgs)
-
-    """
-    This method is called multiple times to keep the user up to date on what is
-    happening
-    """
-    def displayPlayerTurn(self, msgs):
-        screen = Screen()
-        screen.setTitle(f'{self.player_team.name}\'s turn')
-        playerTeamData = self.player_team.getShortDisplayData()
-        enemyTeamData = self.enemy_team.getShortDisplayData()
-        screen.addSplitRow(playerTeamData, enemyTeamData)
-        screen.addBodyRows(msgs)
-        screen.display()
-
-    # add random loot
-    """
-    The stuff that takes place after battle. Runs when one team loses all
-    members.
-    """
-    def gameEnd(self):
-        msgs = []
-
-        if self.player_team.isDefeated():
-            msgs.append("Regretably, you have not won this day. Though someday, you will grow strong enough to overcome this challenge...")
-        else:
-            msgs.append(f'{self.player_team.name} won!')
-            msgs.extend(self.postscript)
-
-            for reward in self.rewards:
-                self.player_team.obtain(reward)
-
-        xp = self.enemy_team.getXpGiven()
-        for member in self.player_team.members:
-            msgs.extend(member.gainXp(xp))
-
-        self.displayEnd(msgs)
 
     def displayEnd(self, msgs):
         screen = Screen()

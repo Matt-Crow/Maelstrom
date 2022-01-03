@@ -1,6 +1,5 @@
 from util.serialize import AbstractJsonSerialable
 from util.stringUtil import entab, lengthOfLongest
-from characters.stat_classes import Boost
 from inputOutput.screens import Screen
 from inputOutput.output import debug
 import random
@@ -74,14 +73,6 @@ class AbstractTeam(AbstractJsonSerialable):
             self.active = self.membersRem[0]
 
     """
-    Changes the active member of this team, inflicting a one-turn penalty
-    """
-    def switchIn(self, member)->str:
-        self.active = member
-        member.boost(Boost("control", -0.25, 1, "switch in penalty"))
-        return f'{self.active.name} is now active'
-
-    """
     Use to see if your team still exists
     """
     def isDefeated(self):
@@ -147,22 +138,6 @@ class AbstractTeam(AbstractJsonSerialable):
     def __str__(self):
         return self.name
 
-    def chooseNewActive(self)->str:
-        return self.switchIn(self.chooseSwitchin())
-
-    """
-    Returns whether or not this team
-    should change who is active
-    """
-    def shouldSwitch(self) -> bool:
-        raise NotImplementedError('Team method shouldSwitch is abstract')
-
-    """
-    This is abstract: each subclass should implement it
-    """
-    def chooseSwitchin(self) -> 'AbstractCharacter':
-        raise NotImplementedError('Team method chooseSwitchin is abstract')
-
 
 
 class PlayerTeam(AbstractTeam):
@@ -176,34 +151,6 @@ class PlayerTeam(AbstractTeam):
         super(PlayerTeam, self).__init__(**dict(kwargs, type="PlayerTeam", members=[kwargs["member"]]))
         self.inventory = kwargs.get("inventory", [])
         self.addSerializedAttribute("inventory")
-
-    """
-    Choices are made using these functions
-    """
-
-    """
-    Asks the user if they want to
-    switch before attacking
-    """
-    def shouldSwitch(self) -> bool:
-        screen = Screen()
-        screen.setTitle(f'{self.name}\'s turn')
-        screen.addBodyRow(self.getShortDisplayData())
-        screen.addOption("Yes")
-        screen.addOption("No")
-        return self.active.isKoed() or (len(self.members) > 1 and screen.displayAndChoose("Do you want to switch your active character?") == 'Yes')
-
-    """
-    Who will fight?
-    """
-    def chooseSwitchin(self)->"AbstractCharacter":
-        screen = Screen()
-        screen.setTitle("Choose Switchin")
-        screen.addBodyRow(self.getShortDisplayData())
-        for member in self.membersRem:
-            if member != self.active:
-                screen.addOption(member)
-        return screen.displayAndChoose("Who do you want to bring in?")
 
     """
     Customization options
@@ -246,65 +193,3 @@ class EnemyTeam(AbstractTeam):
     """
     def __init__(self, **kwargs):
         super(self.__class__, self).__init__(**dict(kwargs, type="EnemyTeam"))
-
-    """
-    AI stuff
-    BENCHIT NEEDS FIX
-    general improvements needed
-    """
-    def shouldSwitch(self):
-        """
-        First, check if our active can KO
-        """
-        if self.oneLeft() or self.enemy.active.calcDmgTaken(self.active, self.active.bestActive()) >= self.enemy.active.remHp:
-            return False
-
-
-        """
-        Second, check if an ally can KO
-        """
-        for member in self.membersRem:
-            if self.enemy.active.calcDmgTaken(member, member.bestActive()) * 0.75 >= self.enemy.active.remHp:
-                return True
-
-
-        # Default
-        return False
-
-
-    # comment
-    def chooseSwitchin(self):
-        """
-        Used to help the AI
-        decide who to switch in
-        """
-
-        """
-        Can anyone KO?
-        """
-        can_ko = []
-        for member in self.membersRem:
-            if self.enemy.active.calcDmgTaken(member, member.bestActive()) * 0.75 >= self.enemy.active.remHp:
-                can_ko.append(member)
-
-        debug("These team members can KO:")
-        for member in can_ko:
-            debug(f'- {member.name}')
-
-        """
-        If one person can KO,
-        bring them in.
-        If nobody can,
-        change nothing.
-        If someone can KO,
-        only use them.
-        """
-        if len(can_ko) == 1:
-            return can_ko[0]
-        elif len(can_ko) == 0:
-            array = self.membersRem
-        else:
-            array = can_ko
-
-        rand = random.randint(0, len(array) - 1)
-        return array[rand]
