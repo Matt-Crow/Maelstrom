@@ -9,6 +9,7 @@ from characters.createDefaults import createDefaultArea, createDefaultPlayer
 
 
 from characters.createDefaults import saveDefaultData
+from maelstrom.gameplay.combat import testTargettingSystem
 
 
 
@@ -24,7 +25,8 @@ class Game:
         self.userLoader = PlayerTeamLoader()
 
     def test(self):
-        saveDefaultData()
+        #saveDefaultData()
+        testTargettingSystem()
 
     def chooseAction(self):
         screen = Screen()
