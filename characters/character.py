@@ -148,6 +148,9 @@ class AbstractCharacter(AbstractCustomizable):
     Used during battle
     """
 
+    def getActiveChoices(self)->"List<Active>":
+        return [active for active in self.actives if active.canUse()]
+
     """
     Increase or lower stats in battle. Returns the boost this receives with its
     potency stat factored in
@@ -251,13 +254,6 @@ leave that open to adjustment
 class PlayerCharacter(AbstractCharacter):
     def __init__(self, **kwargs):
         super(self.__class__, self).__init__(**dict(kwargs, type="PlayerCharacter"))
-
-    def getActiveChoices(self)->"List<Active>":
-        options = []
-        for active in self.actives:
-            if active.canUse():
-                options.append(active)
-        return options
 
     """
     Post-battle actions:
@@ -394,20 +390,8 @@ class EnemyCharacter(AbstractCharacter):
     to use
     """
     def whatActive(self):
-        """
-        Can you get multiple KOes?
-        """
-        """
-        for active in self.actives:
-            if not active.canUse(self) or not type(active) == type(AllAttack("test", 0)):
-                continue
-            koes = 0
-            for member in self.team.enemy.membersRem:
-                if member.calcDmgTaken(self, active) >= member.remHp:
-                    koes += 1
-            if koes >= 2:
-                return active
-        """
+
+
         """
         Can you get a KO?
         """

@@ -24,8 +24,8 @@ class Encounter:
         """
         self.team1.initForBattle()
         self.team2.initForBattle()
-
-        # TODO: do I need to set enemy_team properties?
+        self.team1.enemy = self.team2
+        self.team2.enemy = self.team1
 
         while not self.isOver():
             self.team2Turn()
@@ -37,26 +37,16 @@ class Encounter:
         return self.team1.isDefeated() or self.team2.isDefeated()
 
     def team1Turn(self):
-        msgs = []
-        screen = self.teamTurn(self.team1, self.team2, msgs)
-        for option in self.team1.active.getActiveChoices():
-            screen.addOption(option)
-        active = screen.displayAndChoose("What active do you wish to use?");
-        screen.addBodyRow(active.use())
-        newMsgs = []
-        self.team2.updateMembersRem(newMsgs)
-        screen.addBodyRows(newMsgs)
-        screen.display()
+        self.teamTurn(self.team1, self.team2, self.userChoose)
 
     def team2Turn(self):
-        msgs = []
-        screen = self.teamTurn(self.team2, self.team1, msgs)
-        #TODO here
+        self.teamTurn(self.team2, self.team1, self.aiChoose)
 
-    def teamTurn(self, attacker, defender, msgs):
-        """
-        applies weather effects and sets up screen. Still needs to choose action
-        """
+    def teamTurn(self, attacker, defender, chooseAction: "function(screen)"):
+        if attacker.isDefeated():
+            return
+
+        msgs = []
 
         attacker.updateMembersRem(msgs)
         self.weather.applyEffect(attacker.membersRem, msgs)
@@ -69,10 +59,34 @@ class Encounter:
             defender.getShortDisplayData()
         )
         screen.addBodyRows(msgs)
+        for option in attacker.active.getActiveChoices():
+            screen.addOption(option)
 
-        return screen
+        choice = chooseAction(screen) # this part differs between players and AI
+
+        screen.clearBody()
+        screen.clearOptions() # prevents a bug where the the next call to display didn't work
+        msgs.append(choice.use())
+        defender.updateMembersRem(msgs)
+        screen.addSplitRow(
+            attacker.getShortDisplayData(),
+            defender.getShortDisplayData()
+        )
+        screen.addBodyRows(msgs)
+        screen.display()
+
+    def userChoose(self, screen):
+        return screen.displayAndChoose("What active do you wish to use?")
+
+    def aiChoose(self, screen):
+        screen.clearOptions() # don't let user see AI's choices
+        return self.team2.active.whatActive()
 
 
+"""
+Use these to decide which enemies to target. Should only allow user to choose
+attacks that can hit anyone
+"""
 
 
 def getActiveTargets(attackerOrdinal: int, targetTeam: "List<AbstractCharacter>")->"List<AbstractCharacter>":

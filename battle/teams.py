@@ -70,6 +70,8 @@ class AbstractTeam(AbstractJsonSerialable):
             else:
                 msgs.append(f'{member.name} is out of the game!')
         self.membersRem = newMembersRem
+        if len(self.membersRem) > 0:
+            self.active = self.membersRem[0]
 
     """
     Changes the active member of this team, inflicting a one-turn penalty

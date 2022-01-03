@@ -1,3 +1,12 @@
+"""
+Battle's responsibilities are mostly being phased into combat.py, but I'll keep
+it as a data class later.
+"""
+
+
+
+from maelstrom.gameplay.combat import Encounter
+
 from util.utilities import *
 from battle.weather import WEATHERS, NO_WEATHER, Weather
 from battle.teams import EnemyTeam
@@ -69,6 +78,43 @@ class Battle(AbstractJsonSerialable):
     Used to start and run the battle
     """
     def play(self, playerTeam):
+        enemies = [self.enemyLoader.load(enemyName) for enemyName in self.enemyNames]
+        for enemy in enemies:
+            enemy.level = self.level
+        enemyTeam = EnemyTeam(
+            name="Enemy Team",
+            members=enemies
+        )
+
+        playerTeam.initForBattle()
+        enemyTeam.initForBattle()
+        self.player_team = playerTeam
+        self.enemy_team = enemyTeam
+        self.weather = random.choice(self.forecast)
+        self.displayIntro()
+
+        msgs = []
+
+        if Encounter(
+            playerTeam,
+            enemyTeam,
+            self.weather
+        ).resolve():
+            msgs.append(f'{self.player_team.name} won!')
+            msgs.extend(self.postscript)
+
+            for reward in self.rewards:
+                self.player_team.obtain(reward)
+        else:
+            msgs.append("Regretably, you have not won this day. Though someday, you will grow strong enough to overcome this challenge...")
+
+        xp = self.enemy_team.getXpGiven()
+        for member in self.player_team.members:
+            msgs.extend(member.gainXp(xp))
+
+        self.displayEnd(msgs)
+
+        """
         # set teams
         self.player_team = playerTeam
         enemies = [self.enemyLoader.load(enemyName) for enemyName in self.enemyNames]
@@ -104,6 +150,7 @@ class Battle(AbstractJsonSerialable):
         self.gameEnd()
 
         self.enemy_team = None # uncache enemy team to save memory
+        """
 
     """
     Displays the introduction to this Battle
@@ -175,7 +222,7 @@ class Battle(AbstractJsonSerialable):
             screen.setTitle(f'{self.player_team.active}\'s turn')
             for option in self.player_team.active.getActiveChoices():
                 screen.addOption(option)
-            active = screen.displayAndChoose("What active do you wish to use?");
+            active = screen.displayAndChoose("What active do you wish to use?")
             msgs.append(active.use())
 
         self.displayPlayerTurn(msgs)
