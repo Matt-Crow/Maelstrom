@@ -5,10 +5,28 @@ to trigger on their turn.
 
 
 
+from inputOutput.output import debug
 from util.serialize import AbstractJsonSerialable
 from util.stringUtil import formatPercent
-from util.utilities import ELEMENTS
+from util.utilities import ELEMENTS, roll_perc
 from abc import abstractmethod
+
+
+
+# copy-paste from actives.py
+
+"""
+Calculates the average amount of damage an attack should do to a target at a
+given level
+"""
+def getDmgPerc(lv):
+    return 16.67 * (1 + lv * 0.05)
+
+class HitType:
+    def __init__(self, multiplier, message):
+        self.multiplier = multiplier
+        self.message = message
+# end copy-paste
 
 
 
@@ -27,10 +45,16 @@ class AbstractActive(AbstractJsonSerialable):
         pass
 
     def canUse(self, user: "AbstractCharacter", userOrdinal: int, targetTeam: "List<AbstractCharacter>")->bool:
-        return self.cost <= user.energe and len(self.getTargets(userOrdinal, targetTeam)) > 0
+        return self.cost <= user.energe and len(self.getTargetOptions(userOrdinal, targetTeam)) > 0
 
     @abstractmethod
-    def getTargets(self, userOrdinal: int, targetTeam: "List<AbstractCharacter>")->"List<AbstractCharacter>":
+    def getTargetOptions(self, userOrdinal: int, targetTeam: "List<AbstractCharacter>")->"List<List<AbstractCharacter>>":
+        """
+        subclasses must override this option to return the enemies this could
+        potentially hit. Each element of the returned list represents a choice
+        the user or AI can make, with each of those elements containing the
+        enemies that attack would hit.
+        """
         pass
 
     def toJson(self): # override default method
@@ -46,6 +70,42 @@ class AbstractDamagingActive(AbstractActive):
         self.critChance = critChance
         self.critMult = critMult
 
+    def randomHitType(self, user: "AbstractCharacter")->"HitType":
+        """
+        randomly chooses a HitType based on this AbstractDamagingActive's crit
+        chance, miss chance, and the user's luck
+        """
+        hit = HitType(1.0, "") # don't put a space at the end of the message
+        rng = roll_perc(user.getStatValue("luck")) / 100
+
+        debug(f'rolled {rng}')
+        debug(f'miss requires {self.missChance}')
+        debug(f'crit requires {1.0 - self.critChance}')
+
+        if rng <= self.missChance:
+            hit = HitType(self.missMult, "A glancing blow! ") # need space on end
+        elif rng >= 1.0 - self.critChance:
+            hit = HitType(self.critMult, "A critical hit! ") # need space on end
+
+        return hit
+
+    def use(self, user: "AbstractCharacter", userOrdinal: int, targetTeam: "List<AbstractCharacter>", choice: int)->"List<str>":
+        """
+        the caller must invoke user.loseEnergy()
+        """
+
+        msgs = []
+
+        hitType = self.randomHitType(user)
+        targets = self.getTargetOptions(userOrdinal, targetTeam)[choice]
+
+        for target in targets:
+            dmg = int(user.getDamageAgainst(target) * self.damageMult * hitType.multiplier)
+            msgs.append(f'{hitType.message}{user.name} struck {target.name} for {dmg} damage!')
+            target.takeDamage(dmg)
+
+        return msgs
+
 class MeleeActive(AbstractDamagingActive):
     # not sure if I like so many paramters
     def __init__(self, name, description, damageMult, missChance, missMult, critChance, critMult):
@@ -56,8 +116,22 @@ class MeleeActive(AbstractDamagingActive):
         self.critChance = critChance
         self.critMult = critMult
 
-    def getTargets(self, userOrdinal: int, targetTeam: "List<AbstractCharacter>")->"List<AbstractCharacter>":
-        return getActiveTargets(userOrdinal, targetTeam)
+    def copy(self):
+        return MeleeActive(
+            self.name,
+            self.description,
+            self.damageMult,
+            self.missChance,
+            self.missMult,
+            self.critChance,
+            self.critMult
+        )
+
+    def getTargetOptions(self, userOrdinal: int, targetTeam: "List<AbstractCharacter>")->"List<List<AbstractCharacter>>":
+        """
+        MeleeActives can hit a single active target
+        """
+        return [[option] for option in getActiveTargets(userOrdinal, targetTeam)]
 
 class ElementalActive(AbstractDamagingActive):
     def __init__(self, name):
@@ -72,8 +146,14 @@ class ElementalActive(AbstractDamagingActive):
             0
         )
 
-    def getTargets(self, userOrdinal: int, targetTeam: "List<AbstractCharacter>")->"List<AbstractCharacter>":
-        return getCleaveTargets(userOrdinal, targetTeam)
+    def copy(self):
+        return ElementalActive(self.name)
+
+    def getTargetOptions(self, userOrdinal: int, targetTeam: "List<AbstractCharacter>")->"List<List<AbstractCharacter>>":
+        """
+        ElementalActives can hit a single cleave target
+        """
+        return [[option] for option in getCleaveTargets(userOrdinal, targetTeam)]
 
 
 
@@ -152,4 +232,5 @@ def getActiveAbilityList()->"List<AbstractActive":
         MeleeActive("slam", "strike recklessly at a nearby enemy", 1.5, 0.4, 0.5, 0.15, 2.0)
     ]
     options.extend([ElementalActive(f'{element} bolt') for element in ELEMENTS])
+    options.append(ElementalActive("stone bolt"))
     return options

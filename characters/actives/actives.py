@@ -64,7 +64,9 @@ class AbstractActive(AbstractCustomizable):
 
     def initForBattle(self):
         self.calcStats()
-        lv = 1 if not hasattr(self, "user") else self.user.level
+        lv = 1
+        if hasattr(self, "user") and self.user is not None:
+            lv = self.user.level
         self.damage = getDmgPerc(lv) * self.getStatValue("damage multiplier")
 
     def getDisplayData(self)->str:
