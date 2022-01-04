@@ -9,7 +9,7 @@ from characters.createDefaults import createDefaultArea, createDefaultPlayer
 
 
 from characters.createDefaults import saveDefaultData
-from maelstrom.gameplay.combat import testTargettingSystem
+from maelstrom.dataClasses.activeAbilities import getActiveAbilityList
 
 
 
@@ -26,7 +26,7 @@ class Game:
 
     def test(self):
         #saveDefaultData()
-        testTargettingSystem()
+        print([a.description for a in getActiveAbilityList()])
 
     def chooseAction(self):
         screen = Screen()

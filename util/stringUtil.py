@@ -6,6 +6,9 @@ import functools
 
 
 
+def formatPercent(percentage: float)->str:
+    return f'{percentage * 100}%'
+
 def entab(original)->str:
     nl = "\n" # not allowed to have '\' in f string
     tab = "\t"
