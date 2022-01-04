@@ -93,10 +93,8 @@ def loadActive(asJson: dict)->"AbstractActive":
     if name not in NAME_TO_ACTIVE:
         raise Exception(f'no active defined with name "{name}"')
     newActive = NAME_TO_ACTIVE[name]
-    print(ret.getDisplayData())
-    print(newActive.description)
 
-    return ret
+    return newActive # ret
 
 def loadPassive(name: str)->"AbstractPassive":
     if name not in NAME_TO_PASSIVE:

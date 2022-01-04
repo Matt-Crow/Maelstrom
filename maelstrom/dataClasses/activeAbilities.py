@@ -96,13 +96,10 @@ class AbstractDamagingActive(AbstractActive):
 
         msgs = []
 
-        hitType = self.randomHitType(user)
         targets = self.getTargetOptions(userOrdinal, targetTeam)[choice]
 
         for target in targets:
-            dmg = int(user.getDamageAgainst(target) * self.damageMult * hitType.multiplier)
-            msgs.append(f'{hitType.message}{user.name} struck {target.name} for {dmg} damage!')
-            target.takeDamage(dmg)
+            msgs.append(target.struckBy(user, self))
 
         return msgs
 

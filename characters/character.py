@@ -5,10 +5,34 @@ from characters.customizable import AbstractCustomizable
 from util.stringUtil import entab, lengthOfLongest
 from inputOutput.screens import Screen
 from inputOutput.output import debug
+import functools
 
-"""
-Characters
-"""
+
+
+def dmgAtLv(lv)->int:
+    return int(16.67 * (1 + lv * 0.05))
+
+class ActiveChoice:
+    """
+    command design pattern
+    """
+
+    def __init__(self, active, user, userOrdinal, targets):
+        self.active = active
+        self.user = user
+        self.userOrdinal = userOrdinal
+        self.targets = targets
+        self.msg = f'{active.name}->{", ".join([target.name for target in targets])}'
+        self.totalDamage = functools.reduce(lambda total, next: total + next, [
+            target.calcDmgTaken(user, active) for target in targets
+        ])
+
+    def __str__(self):
+        return msg
+
+    def use(self):
+        pass
+
 
 """
 A Class containing all the info for a character
@@ -16,23 +40,21 @@ May move the inheritance from AbstractCustomizable up to PlayerCharacter,
 and make this instead inherit from AbstractJsonSerialable
 """
 class AbstractCharacter(AbstractCustomizable):
-    """
-    Initializers:
-    Used to 'build' the characters
 
-    required kwargs:
-    - type : str
-    - name : str
-    - customizationPoints : int (defaults to 0)
-    - element : str
-    - level : int (defaults to 1)
-    -  : int (defaults to 0)
-    - actives : list of AbstractActives. Throws an error if not set
-    - passives : list of AbstractPassives. Defaults to empty list
-    - equippedItems : list of Items. Defaults to an empty list
-    - stats: object{ str : int } (defaults to 0 for each stat in STATS not given in the object)
-    """
     def __init__(self, **kwargs):
+        """
+        required kwargs:
+        - type : str
+        - name : str
+        - customizationPoints : int (defaults to 0)
+        - element : str
+        - level : int (defaults to 1)
+        -  : int (defaults to 0)
+        - actives : list of AbstractActives. Throws an error if not set
+        - passives : list of AbstractPassives. Defaults to empty list
+        - equippedItems : list of Items. Defaults to an empty list
+        - stats: object{ str : int } (defaults to 0 for each stat in STATS not given in the object)
+        """
         super(AbstractCharacter, self).__init__(**kwargs)
         self.maxHp = 100
 
@@ -68,8 +90,8 @@ class AbstractCharacter(AbstractCustomizable):
 
     def addActive(self, active: "AbstractActive"):
         self.actives.append(active)
-        active.setUser(self)
-        active.calcStats()
+        #active.setUser(self)
+        #active.calcStats()
 
     def addPassive(self, passive: "AbstractPassive"):
         self.passives.append(passive)
@@ -85,9 +107,11 @@ class AbstractCharacter(AbstractCustomizable):
         self.actionRegister.clear()
         self.calcStats()
 
+        """
         for active in self.actives:
             active.setUser(self)
             active.initForBattle()
+        """
 
         for passive in self.passives:
             passive.registerTo(self)
@@ -104,10 +128,10 @@ class AbstractCharacter(AbstractCustomizable):
     def fireActionListeners(self, enumType, event=None):
         self.actionRegister.fire(enumType, event)
 
-    """
-    Returns as a value between 0 and 100
-    """
     def getHpPerc(self):
+        """
+        Returns as a value between 0 and 100
+        """
         return int((float(self.remHp) / float(self.maxHp) * 100.0))
 
     def displayStats(self):
@@ -131,7 +155,8 @@ class AbstractCharacter(AbstractCustomizable):
 
         ret.append("ACTIVES:")
         for active in self.actives:
-            ret.append(entab(active.getDisplayData()))
+            ret.append(entab(active.description))
+            #ret.append(entab(active.getDisplayData()))
 
         ret.append("PASSIVES:")
         for passive in self.passives:
@@ -151,23 +176,23 @@ class AbstractCharacter(AbstractCustomizable):
     def getActiveChoices(self)->"List<Active>":
         return [active for active in self.actives if active.canUse()]
 
-    """
-    Increase or lower stats in battle. Returns the boost this receives with its
-    potency stat factored in
-    """
     # TODO add ID checking to prevent doubling up
     def boost(self, boost):
+        """
+        Increase or lower stats in battle. Returns the boost this receives with its
+        potency stat factored in
+        """
         mult = 1 + self.getStatValue("potency") / 100
         boost = boost.copy()
         boost.amount *= mult
         self.stats[boost.stat_name].boost(boost)
         return boost
 
-    """
-    Restores HP. Converts an INTEGER to a percentage. Returns the amount of HP
-    healed.
-    """
     def heal(self, percent):
+        """
+        Restores HP. Converts an INTEGER to a percentage. Returns the amount of HP
+        healed.
+        """
         mult = 1 + self.getStatValue("potency") / 100
         healing = self.maxHp * (float(percent) / 100)
         self.remHp = self.remHp + healing * mult
@@ -177,10 +202,10 @@ class AbstractCharacter(AbstractCustomizable):
 
         return int(healing)
 
-    """
-    returns the actual amount of damage inflicted
-    """
     def harm(self, percent):
+        """
+        returns the actual amount of damage inflicted
+        """
         mult = 1 - self.getStatValue("potency") / 100
         harming = self.maxHp * (float(percent) / 100)
         amount = int(harming * mult)
@@ -192,10 +217,10 @@ class AbstractCharacter(AbstractCustomizable):
         self.remHp = int(self.remHp)
         return dmg
 
-    """
-    Returns the amount of energy gained
-    """
     def gainEnergy(self, amount):
+        """
+        Returns the amount of energy gained
+        """
         mult = 1 + self.getStatValue("potency") / 100
         amount = int(amount * mult)
         self.energy += amount
@@ -216,21 +241,23 @@ class AbstractCharacter(AbstractCustomizable):
         for stat in self.stats.values():
             stat.update()
 
+
+
     """
-    Damage calculation
+    old damage calculation
     """
     def calcDmgTaken(self, attacker, activeUsed):
         """
         MHC is not checked here so that it doesn't
         mess with AI
         """
-        damage = activeUsed.damage * attacker.getStatValue("control") / self.getStatValue("resistance")
+        damage = dmgAtLv(attacker.lv) * activeUsed.damageMult * attacker.getStatValue("control") / self.getStatValue("resistance")
 
         return damage
 
     def struckBy(self, attacker, activeUsed)->str:
         dmg = self.calcDmgTaken(attacker, activeUsed)
-        hitType = activeUsed.getMHCMult()
+        hitType = activeUsed.randomHitType(attacker)
         dmg = int(dmg * hitType.multiplier)
 
         event = OnHitEvent("Attack", attacker, self, activeUsed, dmg)
@@ -239,7 +266,7 @@ class AbstractCharacter(AbstractCustomizable):
         attacker.fireActionListeners(HIT_GIVEN_EVENT, event)
         self.takeDmg(dmg)
 
-        return f'{hitType.message} {attacker.name} struck {self.name} for {dmg} damage using {activeUsed.name}!'
+        return f'{hitType.message}{attacker.name} struck {self.name} for {dmg} damage using {activeUsed.name}!'
 
     def isKoed(self):
         return self.remHp <= 0
@@ -284,7 +311,8 @@ class PlayerCharacter(AbstractCharacter):
         self.customizationPoints += 1
 
         for active in self.actives:
-            active.customizationPoints += 1
+            pass
+            #active.customizationPoints += 1
         for item in self.equippedItems:
             item.customizationPoints += 1
 
@@ -346,10 +374,13 @@ class PlayerCharacter(AbstractCharacter):
             options.append(item)
 
         # todo: add option to change passives
+        # todo: add option to change actives
 
+        """
         for active in self.actives:
             screen.addBodyRow(active.getDisplayData())
             options.append(active)
+        """
 
         options.reverse()
 
@@ -384,13 +415,12 @@ class EnemyCharacter(AbstractCharacter):
         debug("-" * 10)
         return best
 
-    """
-    Used to help the AI
-    choose what active
-    to use
-    """
     def whatActive(self):
-
+        """
+        Used to help the AI
+        choose what active
+        to use
+        """
 
         """
         Can you get a KO?
@@ -407,10 +437,3 @@ class EnemyCharacter(AbstractCharacter):
         If you cannot KO...
         """
         return self.bestActive()
-
-    """
-    Causes the AI to choose an active ability to use, uses it, then returns a
-    message
-    """
-    def chooseActive(self):
-        return self.whatActive().use()
