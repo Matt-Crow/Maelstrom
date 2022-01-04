@@ -45,7 +45,7 @@ class AbstractActive(AbstractJsonSerialable):
         pass
 
     def canUse(self, user: "AbstractCharacter", userOrdinal: int, targetTeam: "List<AbstractCharacter>")->bool:
-        return self.cost <= user.energe and len(self.getTargetOptions(userOrdinal, targetTeam)) > 0
+        return self.cost <= user.energy and len(self.getTargetOptions(userOrdinal, targetTeam)) > 0
 
     @abstractmethod
     def getTargetOptions(self, userOrdinal: int, targetTeam: "List<AbstractCharacter>")->"List<List<AbstractCharacter>>":
@@ -222,12 +222,24 @@ def testTargettingSystem():
 
 
 
-def getActiveAbilityList()->"List<AbstractActive":
-    options =  [
+def getUniversalActives()->"List<AbstractActive>":
+    return [
         MeleeActive("slash", "strike a nearby enemy", 1.0, 0.2, 0.75, 0.2, 1.5),
         MeleeActive("jab", "strike a nearby enemy, with a high chance for a critical hit", 0.8, 0.1, 0.5, 0.5, 3.0),
         MeleeActive("slam", "strike recklessly at a nearby enemy", 1.5, 0.4, 0.5, 0.15, 2.0)
     ]
-    options.extend([ElementalActive(f'{element} bolt') for element in ELEMENTS])
-    options.append(ElementalActive("stone bolt"))
+
+def getActivesForElement(element)->"List<AbstractActive>":
+    return [ElementalActive(f'{element} bolt')]
+
+def getActiveAbilityList()->"List<AbstractActive":
+    options = getUniversalActives()
+    for element in ELEMENTS:
+        options.extend(getActivesForElement(element))
+    options.extend(getActivesForElement("stone"))
     return options
+
+def createDefaultActives(element)->"List<AbstractActive>":
+    options = getUniversalActives()
+    options.extend(getActivesForElement(element))
+    return [option.copy() for option in options]

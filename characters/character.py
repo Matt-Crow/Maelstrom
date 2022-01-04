@@ -28,10 +28,13 @@ class ActiveChoice:
         ])
 
     def __str__(self):
-        return msg
+        return self.msg
 
     def use(self):
-        pass
+        msgs = []
+        for target in self.targets:
+            msgs.append(target.struckBy(self.user, self.active))
+        return "\n".join(msgs)
 
 
 """
@@ -90,8 +93,6 @@ class AbstractCharacter(AbstractCustomizable):
 
     def addActive(self, active: "AbstractActive"):
         self.actives.append(active)
-        #active.setUser(self)
-        #active.calcStats()
 
     def addPassive(self, passive: "AbstractPassive"):
         self.passives.append(passive)
@@ -107,11 +108,7 @@ class AbstractCharacter(AbstractCustomizable):
         self.actionRegister.clear()
         self.calcStats()
 
-        """
-        for active in self.actives:
-            active.setUser(self)
-            active.initForBattle()
-        """
+        # don't need to do anything with actives
 
         for passive in self.passives:
             passive.registerTo(self)
@@ -156,7 +153,6 @@ class AbstractCharacter(AbstractCustomizable):
         ret.append("ACTIVES:")
         for active in self.actives:
             ret.append(entab(active.description))
-            #ret.append(entab(active.getDisplayData()))
 
         ret.append("PASSIVES:")
         for passive in self.passives:
@@ -173,8 +169,13 @@ class AbstractCharacter(AbstractCustomizable):
     Used during battle
     """
 
-    def getActiveChoices(self)->"List<Active>":
-        return [active for active in self.actives if active.canUse()]
+    def getActiveChoices(self, ordinal: int, targetTeam: "List<AbstractCharacter>")->"List<ActiveChoice>":
+        useableActives = [active for active in self.actives if active.canUse(self, ordinal, targetTeam)]
+        choices = []
+        for active in useableActives:
+            targetOptions = active.getTargetOptions(ordinal, targetTeam)
+            choices.extend([ActiveChoice(active, self, ordinal, targets) for targets in targetOptions])
+        return choices
 
     # TODO add ID checking to prevent doubling up
     def boost(self, boost):
@@ -251,7 +252,7 @@ class AbstractCharacter(AbstractCustomizable):
         MHC is not checked here so that it doesn't
         mess with AI
         """
-        damage = dmgAtLv(attacker.lv) * activeUsed.damageMult * attacker.getStatValue("control") / self.getStatValue("resistance")
+        damage = dmgAtLv(attacker.level) * activeUsed.damageMult * attacker.getStatValue("control") / self.getStatValue("resistance")
 
         return damage
 
@@ -401,39 +402,19 @@ class EnemyCharacter(AbstractCharacter):
     """
     AI stuff
     """
-    def bestActive(self):
-        best = self.actives[0]
+    def bestActive(self, ordinal: int, targetTeam: "List<AbstractCharacter>")->"ActiveChoice":
+        choices = self.getActiveChoices(ordinal, targetTeam)
+        if len(choices) == 0:
+            return None
+
+        best = choices[0]
         bestDmg = 0
         debug("-" * 10)
-        for active in self.actives:
-            if active.canUse():
-                dmg = self.team.enemy.active.calcDmgTaken(self, active)
-                if dmg > bestDmg:
-                    best = active
-                    bestDmg = dmg
-                debug(f'Damage with {active.name}: {dmg}')
+        for choice in choices:
+            if choice.totalDamage > bestDmg:
+                best = choice
+                bestDmg = choice.totalDamage
+            debug(f'Damage with {choice}: {choice.totalDamage}')
         debug("-" * 10)
+
         return best
-
-    def whatActive(self):
-        """
-        Used to help the AI
-        choose what active
-        to use
-        """
-
-        """
-        Can you get a KO?
-        """
-        canKo = []
-        for active in self.actives:
-            if active.canUse():
-                if self.team.enemy.active.calcDmgTaken(self, active) >= self.team.enemy.active.remHp:
-                    canKo.append(active)
-
-        if len(canKo) == 1:
-            return canKo[0]
-        """
-        If you cannot KO...
-        """
-        return self.bestActive()

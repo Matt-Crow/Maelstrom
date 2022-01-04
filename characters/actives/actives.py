@@ -118,7 +118,3 @@ class AbstractActive(AbstractCustomizable):
                     msgs.append(f'cleave damage struck {enemy.name} for {enemy.takeDmg(self.damage * self.getStatValue("cleave"))} damage')
 
         return "\n".join(msgs)
-
-class MeleeAttack(AbstractActive):
-    def __init__(self, **kwargs):
-        super(MeleeAttack, self).__init__(**dict(kwargs, type="MeleeAttack", cost=0))

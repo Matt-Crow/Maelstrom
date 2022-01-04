@@ -66,14 +66,17 @@ class Encounter:
             defender.getShortDisplayData()
         )
         screen.addBodyRows(msgs)
-        for option in attacker.active.getActiveChoices():
+        for option in attacker.active.getActiveChoices(0, defender.membersRem):
             screen.addOption(option)
 
         choice = chooseAction(screen) # this part differs between players and AI
 
         screen.clearBody()
         screen.clearOptions() # prevents a bug where the the next call to display didn't work
-        msgs.append(choice.use())
+
+        if choice is not None: # some characters may have no valid targets
+            msgs.append(choice.use())
+
         defender.updateMembersRem(msgs)
         screen.addSplitRow(
             attacker.getShortDisplayData(),
@@ -87,4 +90,4 @@ class Encounter:
 
     def aiChoose(self, screen):
         screen.clearOptions() # don't let user see AI's choices
-        return self.team2.active.whatActive()
+        return self.team2.active.bestActive(0, self.team1.membersRem)

@@ -6,10 +6,10 @@ object creation process a bit.
 
 
 
+from maelstrom.dataClasses.activeAbilities import createDefaultActives
 from maelstrom.dataClasses.passiveAbilities import getPassiveAbilityList
 from battle.area import Area, Location
 from battle.battle import Battle
-from characters.actives.actives import AbstractActive, MeleeAttack
 from characters.character import EnemyCharacter, PlayerCharacter
 from characters.characterLoader import EnemyLoader
 from characters.item import Item
@@ -72,36 +72,6 @@ def createDefaultPlayer(name, element)->"PlayerCharacter":
         actives=createDefaultActives(element),
         passives=createDefaultPassives()
     )
-
-def createDefaultActives(element: str)->"List<AbstractActive>":
-    bolt = AbstractActive(
-        name=element+" bolt",
-        stats={
-            "cleave":-5,
-            "crit chance":-2,
-            "damage multiplier":7
-        }
-    )
-
-    slash = MeleeAttack(name="Slash")
-    jab = MeleeAttack(
-        name="Jab",
-        stats={
-            "miss chance":-5,
-            "crit chance":5,
-            "miss mult":-5,
-            "crit mult":5
-        }
-    )
-    slam = MeleeAttack(
-        name="Slam",
-        stats={
-            "damage multiplier":5,
-            "miss chance":-5
-        }
-    )
-
-    return [bolt, slash, jab, slam]
 
 def createDefaultPassives()->"List<AbstractPassive>":
     return [p.copy() for p in getPassiveAbilityList()]
