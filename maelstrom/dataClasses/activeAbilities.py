@@ -90,9 +90,7 @@ class AbstractDamagingActive(AbstractActive):
         return hit
 
     def use(self, user: "AbstractCharacter", userOrdinal: int, targetTeam: "List<AbstractCharacter>", choice: int)->"List<str>":
-        """
-        the caller must invoke user.loseEnergy()
-        """
+        user.loseEnergy(self.cost)
 
         msgs = []
 

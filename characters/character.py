@@ -30,7 +30,11 @@ class ActiveChoice:
     def __str__(self):
         return self.msg
 
-    def use(self):
+    def use(self)->str:
+        """
+        todo: change this to inoke active.use
+        """
+        self.user.loseEnergy(self.active.cost)
         msgs = []
         for target in self.targets:
             msgs.append(target.struckBy(self.user, self.active))
