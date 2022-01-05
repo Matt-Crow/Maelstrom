@@ -1,23 +1,27 @@
-from util.serialize import AbstractJsonSerialable
-from util.stringUtil import entab, lengthOfLongest
-from inputOutput.screens import Screen
-from inputOutput.output import debug
-import random
-
 """
 Teams are used to group characters
 together so that the program knows
 who are enemies, and who are allies.
 """
+
+
+
+from util.serialize import AbstractJsonSerialable
+from util.stringUtil import lengthOfLongest
+from inputOutput.screens import Screen
+
+
+
 class AbstractTeam(AbstractJsonSerialable):
-    """
-    Required kwargs:
-    - type : str
-    - name : str
-    - members : list of AbstractCharacters
-    """
+
     def __init__(self, **kwargs):
-        super(AbstractTeam, self).__init__(**dict(kwargs, type=kwargs["type"]))
+        """
+        Required kwargs:
+        - type : str
+        - name : str
+        - members : list of AbstractCharacters
+        """
+        super().__init__(**dict(kwargs, type=kwargs["type"]))
         self.name = kwargs["name"]
         self.members = []
         for member in kwargs["members"]:
@@ -69,20 +73,13 @@ class AbstractTeam(AbstractJsonSerialable):
             else:
                 msgs.append(f'{member.name} is out of the game!')
         self.membersRem = newMembersRem
-        if len(self.membersRem) > 0:
-            self.active = self.membersRem[0]
 
-    """
-    Use to see if your team still exists
-    """
     def isDefeated(self):
+        """
+        Use to see if your team still exists
+        """
         return len(self.membersRem) == 0
 
-    """
-    Detects when you have only one member left
-    """
-    def oneLeft(self):
-        return len(self.membersRem) == 1
 
     def initForBattle(self):
         # I will definitely want to add a forEach sort of method
@@ -90,7 +87,6 @@ class AbstractTeam(AbstractJsonSerialable):
         for member in self.members:
             member.initForBattle()
             self.membersRem.append(member)
-        self.active = self.membersRem[0]
 
     def displayShortDescription(self):
         screen = Screen()
@@ -110,8 +106,6 @@ class AbstractTeam(AbstractJsonSerialable):
         longestHp = lengthOfLongest((str(member.remHp) for member in self.membersRem))
         for member in self.membersRem:
             lines.append(f'* {member.name.ljust(longestName)}: {str(member.remHp).rjust(longestHp)} HP')
-        if hasattr(self, "active"):
-            lines.append(f'Current active: {self.active.name} ({self.active.energy} energy)')
         return "\n".join(lines)
 
     def display(self):
@@ -121,12 +115,13 @@ class AbstractTeam(AbstractJsonSerialable):
         screen.addBodyRow(displayData)
         screen.display()
 
-    """
-    This provides a more descriptive overview of the team, detailing all of its
-    members. It feels a little info-dump-y, so it feels tedious to scroll
-    through. Do I want some other way of providing players with team data?
-    """
     def getDisplayData(self)->str:
+        """
+        This provides a more descriptive overview of the team, detailing all of its
+        members. It feels a little info-dump-y, so it feels tedious to scroll
+        through. Do I want some other way of providing players with team data?
+        """
+
         lines = [
             f'{self.name}:'
         ]

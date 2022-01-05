@@ -47,8 +47,16 @@ class AbstractActive(AbstractJsonSerialable):
     def canUse(self, user: "AbstractCharacter", userOrdinal: int, targetTeam: "List<AbstractCharacter>")->bool:
         return self.cost <= user.energy and len(self.getTargetOptions(userOrdinal, targetTeam)) > 0
 
-    @abstractmethod
     def getTargetOptions(self, userOrdinal: int, targetTeam: "List<AbstractCharacter>")->"List<List<AbstractCharacter>>":
+        """
+        don't override this one
+        """
+        if len(targetTeam) == 0:
+            return []
+        return self.doGetTargetOptions(userOrdinal, targetTeam)
+
+    @abstractmethod
+    def doGetTargetOptions(self, userOrdinal: int, targetTeam: "List<AbstractCharacter>")->"List<List<AbstractCharacter>>":
         """
         subclasses must override this option to return the enemies this could
         potentially hit. Each element of the returned list represents a choice
@@ -122,7 +130,7 @@ class MeleeActive(AbstractDamagingActive):
             self.critMult
         )
 
-    def getTargetOptions(self, userOrdinal: int, targetTeam: "List<AbstractCharacter>")->"List<List<AbstractCharacter>>":
+    def doGetTargetOptions(self, userOrdinal: int, targetTeam: "List<AbstractCharacter>")->"List<List<AbstractCharacter>>":
         """
         MeleeActives can hit a single active target
         """
@@ -144,7 +152,7 @@ class ElementalActive(AbstractDamagingActive):
     def copy(self):
         return ElementalActive(self.name)
 
-    def getTargetOptions(self, userOrdinal: int, targetTeam: "List<AbstractCharacter>")->"List<List<AbstractCharacter>>":
+    def doGetTargetOptions(self, userOrdinal: int, targetTeam: "List<AbstractCharacter>")->"List<List<AbstractCharacter>>":
         """
         ElementalActives can hit a single cleave target
         """
@@ -183,8 +191,9 @@ def getCleaveTargets(attackerOrdinal: int, targetTeam: "List<AbstractCharacter>"
      \X
     """
     options = getActiveTargets(attackerOrdinal, targetTeam)
-    if attackerOrdinal - 1 >= 0:
-        options.insert(0, targetTeam[attackerOrdinal - 1])
+    if attackerOrdinal - 1 >= 0 and attackerOrdinal - 1 < len(targetTeam):
+        m = targetTeam[attackerOrdinal - 1]
+        options.insert(0, m)
     return options
 
 def getDistantTargets(attackerOrdinal: int, targetTeam: "List<AbstractCharacter>")->"List<AbstractCharacter>":

@@ -2,10 +2,7 @@
 This module handles combat gameplay. This separates the data classes from the
 functions that act on their data, preventing classes from become cumbersome
 
-
-
-Still need to implement the new attack methods at the bottom, as well as
-removing the old "active character" field.
+remove the old "active character" field.
 
 Maybe move "membersRem" into the Encounter class
 """
@@ -49,7 +46,7 @@ class Encounter:
     def team2Turn(self):
         self.teamTurn(self.team2, self.team1, self.aiChoose)
 
-    def teamTurn(self, attacker, defender, chooseAction: "function(screen)"):
+    def teamTurn(self, attacker, defender, chooseAction: "function(screen, character, characterOrdinal, defenderTeam)"):
         if attacker.isDefeated():
             return
 
@@ -59,35 +56,43 @@ class Encounter:
         self.weather.applyEffect(attacker.membersRem, msgs)
         attacker.updateMembersRem(msgs)
 
+        for memberOrdinal, member in enumerate(attacker.membersRem):
+            options = member.getActiveChoices(memberOrdinal, defender.membersRem)
+            if len(options) == 0:
+                msgs.append(f'{member.name} has no valid targets!')
+            else:
+                self.characterChoose(attacker, member, memberOrdinal, defender, chooseAction, msgs)
+
+    def characterChoose(self, attackerTeam, character, characterOrdinal, defenderTeam, chooseAction, msgs):
         screen = Screen()
-        screen.setTitle(f'{attacker.name}\'s turn')
+        screen.setTitle(f'{character}\'s turn')
         screen.addSplitRow(
-            attacker.getShortDisplayData(),
-            defender.getShortDisplayData()
+            attackerTeam.getShortDisplayData(),
+            defenderTeam.getShortDisplayData()
         )
         screen.addBodyRows(msgs)
-        for option in attacker.active.getActiveChoices(0, defender.membersRem):
-            screen.addOption(option)
 
-        choice = chooseAction(screen) # this part differs between players and AI
+        options = character.getActiveChoices(characterOrdinal, defenderTeam.membersRem)
+        if len(options) == 0:
+            screen.addBodyRow(f'{character.name} has no valid targets!')
+        else: # let them choose their active and target
+            choice = chooseAction(screen, character, characterOrdinal, defenderTeam.membersRem)
 
-        screen.clearBody()
-        screen.clearOptions() # prevents a bug where the the next call to display didn't work
-
-        if choice is not None: # some characters may have no valid targets
+            screen.clearBody()
+            screen.clearOptions() # prevents a bug where the screen wouldn't display
             msgs.append(choice.use())
-
-        defender.updateMembersRem(msgs)
-        screen.addSplitRow(
-            attacker.getShortDisplayData(),
-            defender.getShortDisplayData()
-        )
-        screen.addBodyRows(msgs)
+            defenderTeam.updateMembersRem(msgs)
+            screen.addSplitRow(
+                attackerTeam.getShortDisplayData(),
+                defenderTeam.getShortDisplayData()
+            )
+            screen.addBodyRows(msgs)
         screen.display()
 
-    def userChoose(self, screen):
+    def userChoose(self, screen, character, characterOrdinal, defenderTeam):
+        for option in character.getActiveChoices(characterOrdinal, defenderTeam):
+            screen.addOption(option)
         return screen.displayAndChoose("What active do you wish to use?")
 
-    def aiChoose(self, screen):
-        screen.clearOptions() # don't let user see AI's choices
-        return self.team2.active.bestActive(0, self.team1.membersRem)
+    def aiChoose(self, screen, character, characterOrdinal, defenderTeam):
+        return character.bestActive(characterOrdinal, defenderTeam)

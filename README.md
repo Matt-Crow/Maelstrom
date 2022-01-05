@@ -23,6 +23,4 @@ TODO:
   before every battle
     * de-tangle attack choosing in combat.py, character.py, and
       activeAbilities.py
-    * remove "active character" system
-    * make each team member attack, if able
     * migrate AI from EnemyCharacter and EnemyTeam to elsewhere
