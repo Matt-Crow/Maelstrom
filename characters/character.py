@@ -315,9 +315,6 @@ class PlayerCharacter(AbstractCharacter):
         self.level += 1
         self.customizationPoints += 1
 
-        for active in self.actives:
-            pass
-            #active.customizationPoints += 1
         for item in self.equippedItems:
             item.customizationPoints += 1
 
@@ -380,12 +377,6 @@ class PlayerCharacter(AbstractCharacter):
 
         # todo: add option to change passives
         # todo: add option to change actives
-
-        """
-        for active in self.actives:
-            screen.addBodyRow(active.getDisplayData())
-            options.append(active)
-        """
 
         options.reverse()
 

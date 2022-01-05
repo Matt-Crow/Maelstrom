@@ -151,7 +151,7 @@ class PlayerTeam(AbstractTeam):
     Customization options
     """
     def obtain(self, item):
-      self.inventory.append(item)
+        self.inventory.append(item)
 
     def get_available_items(self):
         new_array = []
