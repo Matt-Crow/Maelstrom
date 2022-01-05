@@ -1,1 +1,38 @@
-{"type": "User", "name": "Test", "team": {"type": "PlayerTeam", "name": "Test", "members": [{"type": "PlayerCharacter", "name": "Test", "customizationPoints": 1, "stats": {"control": 0, "resistance": 0, "potency": 0, "luck": 0, "energy": 0}, "element": "hail", "xp": 0, "level": 2, "actives": ["slash", "jab", "slam", "hail bolt"], "passives": ["Threshhold test", "On Hit Given Test", "On Hit Taken Test"], "equippedItems": []}], "inventory": []}, "inventory": []}
+{
+    "type": "User",
+    "name": "Test",
+    "team": {
+        "type": "PlayerTeam",
+        "name": "Test",
+        "members": [
+            {
+                "type": "PlayerCharacter",
+                "name": "Test",
+                "customizationPoints": 1,
+                "stats": {
+                    "control": 0,
+                    "resistance": 0,
+                    "potency": 0,
+                    "luck": 0,
+                    "energy": 0
+                },
+                "element": "hail",
+                "xp": 0,
+                "level": 2,
+                "actives": [
+                    "slash",
+                    "jab",
+                    "slam",
+                    "hail bolt"
+                ],
+                "passives": [
+                    "Threshhold test",
+                    "On Hit Given Test",
+                    "On Hit Taken Test"
+                ],
+                "equippedItems": []
+            }
+        ]
+    },
+    "inventory": []
+}

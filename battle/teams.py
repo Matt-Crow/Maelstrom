@@ -140,45 +140,9 @@ class PlayerTeam(AbstractTeam):
     Required kwargs:
     - name : str
     - member : PlayerCharacter
-    - inventory : list of Items, defaults to []
     """
     def __init__(self, **kwargs):
         super(PlayerTeam, self).__init__(**dict(kwargs, type="PlayerTeam", members=[kwargs["member"]]))
-        self.inventory = kwargs.get("inventory", [])
-        self.addSerializedAttribute("inventory")
-
-    """
-    Customization options
-    """
-    def obtain(self, item):
-        self.inventory.append(item)
-
-    def get_available_items(self):
-        new_array = []
-        for item in self.inventory:
-            if not item.equipped:
-                new_array.append(item)
-        return new_array
-
-    """
-    Displays the team management menu
-    """
-    def manage(self):
-        screen = Screen()
-        screen.setTitle(f'Manage {self.name}')
-        options = ["Exit"]
-        for member in self.members:
-            screen.addBodyRow(member.getDisplayData())
-            options.append(member)
-
-
-        options.reverse()
-        for option in options:
-            screen.addOption(option)
-        managing = screen.displayAndChoose("Who do you wish to manage?")
-
-        if managing is not "Exit":
-            managing.manage()
 
 class EnemyTeam(AbstractTeam):
     """

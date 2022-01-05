@@ -38,6 +38,7 @@ class User(AbstractJsonSerialable):
         """
         Displays the team management menu
         """
+
         screen = Screen()
         screen.setTitle(f'Manage {self.name}')
         options = ["Exit"]

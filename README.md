@@ -24,3 +24,5 @@ TODO:
     * de-tangle attack choosing in combat.py, character.py, and
       activeAbilities.py
     * migrate AI from EnemyCharacter and EnemyTeam to elsewhere
+    * redo item equipping choice system
+    * merge together AbstractTeam, PlayerTeam, and EnemyTeam

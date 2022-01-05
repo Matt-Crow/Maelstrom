@@ -326,49 +326,14 @@ class PlayerCharacter(AbstractCharacter):
     """
 
     def chooseItems(self):
-        screen = Screen()
-        screen.setTitle("Equipped Items")
-        for item in self.equippedItems:
-            screen.addBodyRow(item.getDisplayData())
-        screen.addOption("Yes")
-        screen.addOption("No")
-
-        if len(self.equippedItems) == 0 or screen.displayAndChoose("Do you wish to change these items?") == "Yes":
-            screen.clear()
-            screen.setTitle("Choose items to equip")
-
-            for item in self.equippedItems:
-                item.unequip()
-                self.team.inventory.append(item)
-            self.equippedItems.clear()
-
-            items = self.team.get_available_items()
-
-            if len(items) <= 3:
-                for item in items:
-                    item.equip(self)
-                    self.team.inventory.remove(item)
-                    self.equippedItems.append(item)
-
-            items = self.team.get_available_items()
-            while (len(self.equippedItems) < 3) and (len(items) is not 0):
-                screen.clear()
-                screen.setTitle("Choose items to equip")
-                for item in items:
-                    screen.addBodyRow(item.getDisplayData())
-                    screen.addOption(item)
-                item = screen.displayAndChoose("Which item do you want to equip?")
-                item.equip(self)
-                self.team.inventory.remove(item)
-                self.equippedItems.append(item)
-                items = self.team.get_available_items()
+        raise Exception("todo move item choosing to user instead of character")
 
     def manage(self):
         options = ["Quit", self]
         screen = Screen()
         screen.setTitle(f'Manage {self.name}')
 
-        if len(self.team.inventory) > 0:
+        if True: # needs to check it items available
             options.append("Equipped items")
 
         for item in self.equippedItems:

@@ -1,1 +1,85 @@
-{"type": "User", "name": "Dummy", "team": {"type": "PlayerTeam", "name": "Dummy", "members": [{"type": "PlayerCharacter", "name": "Dummy", "customizationPoints": 7, "stats": {"control": 0, "resistance": 0, "potency": 0, "luck": 0, "energy": 0}, "element": "rain", "xp": 30, "level": 8, "actives": ["rain bolt", "slash", "jab", "slam"], "passives": ["Threshhold test", "On Hit Given Test", "On Hit Taken Test"], "equippedItems": [{"type": "Item", "name": "Random Item #1", "customizationPoints": 5, "stats": {}, "itemType": "gear", "desc": "It comes from another dimension.", "boostedStat": "potency"}]}], "inventory": [{"type": "Item", "name": "Random Item #1", "customizationPoints": 0, "stats": {}, "itemType": "greeble", "desc": "It looks incredible fun to play with.", "boostedStat": "control"}, {"type": "Item", "name": "Random Item #1", "customizationPoints": 0, "stats": {}, "itemType": "greeble", "desc": "It looks incredible fun to play with.", "boostedStat": "potency"}, {"type": "Item", "name": "Random Item #1", "customizationPoints": 0, "stats": {}, "itemType": "greeble", "desc": "It looks incredible fun to play with.", "boostedStat": "control"}]}, "inventory": [{"type": "Item", "name": "Random Item #1", "customizationPoints": 0, "stats": {}, "itemType": "greeble", "desc": "It looks incredible fun to play with.", "boostedStat": "control"}, {"type": "Item", "name": "Random Item #1", "customizationPoints": 0, "stats": {}, "itemType": "greeble", "desc": "It looks incredible fun to play with.", "boostedStat": "potency"}, {"type": "Item", "name": "Random Item #1", "customizationPoints": 0, "stats": {}, "itemType": "greeble", "desc": "It looks incredible fun to play with.", "boostedStat": "control"}, {"type": "Item", "name": "Random Item #1", "customizationPoints": 0, "stats": {}, "itemType": "greeble", "desc": "It looks incredible fun to play with.", "boostedStat": "potency"}]}
+{
+    "type": "User",
+    "name": "Dummy",
+    "team": {
+        "type": "PlayerTeam",
+        "name": "Dummy",
+        "members": [
+            {
+                "type": "PlayerCharacter",
+                "name": "Dummy",
+                "customizationPoints": 7,
+                "stats": {
+                    "control": 0,
+                    "resistance": 0,
+                    "potency": 0,
+                    "luck": 0,
+                    "energy": 0
+                },
+                "element": "rain",
+                "xp": 30,
+                "level": 8,
+                "actives": [
+                    "rain bolt",
+                    "slash",
+                    "jab",
+                    "slam"
+                ],
+                "passives": [
+                    "Threshhold test",
+                    "On Hit Given Test",
+                    "On Hit Taken Test"
+                ],
+                "equippedItems": [
+                    {
+                        "type": "Item",
+                        "name": "Random Item #1",
+                        "customizationPoints": 5,
+                        "stats": {},
+                        "itemType": "gear",
+                        "desc": "It comes from another dimension.",
+                        "boostedStat": "potency"
+                    }
+                ]
+            }
+        ]
+    },
+    "inventory": [
+        {
+            "type": "Item",
+            "name": "Random Item #1",
+            "customizationPoints": 0,
+            "stats": {},
+            "itemType": "greeble",
+            "desc": "It looks incredible fun to play with.",
+            "boostedStat": "control"
+        },
+        {
+            "type": "Item",
+            "name": "Random Item #1",
+            "customizationPoints": 0,
+            "stats": {},
+            "itemType": "greeble",
+            "desc": "It looks incredible fun to play with.",
+            "boostedStat": "potency"
+        },
+        {
+            "type": "Item",
+            "name": "Random Item #1",
+            "customizationPoints": 0,
+            "stats": {},
+            "itemType": "greeble",
+            "desc": "It looks incredible fun to play with.",
+            "boostedStat": "control"
+        },
+        {
+            "type": "Item",
+            "name": "Random Item #1",
+            "customizationPoints": 0,
+            "stats": {},
+            "itemType": "greeble",
+            "desc": "It looks incredible fun to play with.",
+            "boostedStat": "potency"
+        }
+    ]
+}

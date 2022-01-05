@@ -43,7 +43,6 @@ def loadTeam(asJson: dict)->"AbstractTeam":
     ret = None
     if type == "PlayerTeam":
         asJson["member"] = loadCharacter(asJson["members"][0])
-        asJson["inventory"] = [loadItem(item) for item in asJson["inventory"]]
         ret = PlayerTeam(**asJson)
     elif type =="EnemyTeam":
         asJson["members"] = [loadCharacter(member) for member in asJson["members"]]
