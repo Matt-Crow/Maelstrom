@@ -42,7 +42,7 @@ class Area(AbstractJsonSerialable):
 
         return "\n".join(ret)
 
-    def chooseAction(self, player):
+    def chooseAction(self, user: "User"):
         options = []
         if len(self.locations) > 0:
             options.append("Location")
@@ -63,7 +63,7 @@ class Area(AbstractJsonSerialable):
             for level in self.levels:
                 screen.addOption(level)
             lvChoice = screen.displayAndChoose("Which level do you want to play?")
-            lvChoice.play(player)
+            lvChoice.play(user)
         elif choice == "Location":
             screen.clearOptions()
             for loc in self.locations:

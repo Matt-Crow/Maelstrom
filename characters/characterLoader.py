@@ -24,13 +24,6 @@ for passive in getPassiveAbilityList():
 
 
 
-class PlayerTeamLoader(AbstractJsonLoader):
-    def __init__(self):
-        super().__init__("users")
-
-    def doLoad(self, asJson: dict)->"PlayerTeam":
-        return loadTeam(asJson)
-
 class EnemyLoader(AbstractJsonLoader):
     def __init__(self):
         super().__init__("data.enemies")

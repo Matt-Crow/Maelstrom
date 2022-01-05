@@ -1,12 +1,11 @@
 from maelstrom.dataClasses.passiveAbilities import getPassiveAbilityList
+from maelstrom.util.user import User
+from maelstrom.util.userLoader import UserLoader
 
 from battle.teams import PlayerTeam, AbstractTeam
 from util.utilities import ELEMENTS
 from inputOutput.screens import Screen
-from characters.characterLoader import PlayerTeamLoader, EnemyLoader
 from characters.createDefaults import createDefaultArea, createDefaultPlayer
-
-
 
 from characters.createDefaults import saveDefaultData
 
@@ -18,10 +17,10 @@ so this way, there don't have to be any globals.
 """
 class Game:
     def __init__(self):
-        self.playerTeam = None
+        self.user = None
         self.currentArea = None
         self.exit = False
-        self.userLoader = PlayerTeamLoader()
+        self.userLoader = UserLoader()
 
     def test(self):
         saveDefaultData()
@@ -34,13 +33,13 @@ class Game:
 
         choice = screen.displayAndChoose("What do you wish to do?")
         if choice == "explore":
-            self.currentArea.chooseAction(self.playerTeam)
+            self.currentArea.chooseAction(self.user)
         elif choice == "view character info":
-            # This will change to display the entire team if I change back to
-            # more than one member per player team
-            self.playerTeam.getMember().displayStats()
+            # todo This will change to display the entire team if I change back
+            # to more than one member per player team
+            self.user.team.getMember().displayStats()
         elif choice == "customize character":
-            self.playerTeam.manage()
+            self.user.manage()
         elif choice == "list passives":
             screen = Screen()
             for passive in getPassiveAbilityList():
@@ -57,12 +56,12 @@ class Game:
     def run(self):
         self.currentArea = createDefaultArea()
         while not self.exit:
-            if self.playerTeam == None:
+            if self.user == None:
                 self.mainMenu()
             else:
                 self.chooseAction()
-        if self.playerTeam is not None:
-            self.userLoader.save(self.playerTeam)
+        if self.user is not None:
+            self.userLoader.save(self.user)
 
     """
     Displayes the main menu
@@ -114,8 +113,8 @@ class Game:
     Play a game as the given user
     """
     def loginUser(self, userName):
-        self.playerTeam = self.userLoader.load(userName)
-        self.playerTeam.initForBattle()
+        self.user = self.userLoader.load(userName)
+        self.user.team.initForBattle()
 
     """
     Creates the menu for creating a new user
@@ -152,6 +151,7 @@ class Game:
                 name=userName,
                 member=character
             )
-            self.userLoader.save(team)
+            user = User(name=userName, team=team)
+            self.userLoader.save(user)
 
         return ret

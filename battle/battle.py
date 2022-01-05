@@ -76,7 +76,7 @@ class Battle(AbstractJsonSerialable):
     """
     Used to start and run the battle
     """
-    def play(self, playerTeam):
+    def play(self, user: "User"):
         enemies = [self.enemyLoader.load(enemyName) for enemyName in self.enemyNames]
         for enemy in enemies:
             enemy.level = self.level
@@ -85,6 +85,7 @@ class Battle(AbstractJsonSerialable):
             members=enemies
         )
 
+        playerTeam = user.team
         playerTeam.initForBattle()
         enemyTeam.initForBattle()
         self.player_team = playerTeam
@@ -103,7 +104,7 @@ class Battle(AbstractJsonSerialable):
             msgs.extend(self.postscript)
 
             for reward in self.rewards:
-                self.player_team.obtain(reward)
+                user.acquire(reward)
         else:
             msgs.append("Regretably, you have not won this day. Though someday, you will grow strong enough to overcome this challenge...")
 
