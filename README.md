@@ -25,5 +25,3 @@ TODO:
       activeAbilities.py
     * migrate AI from EnemyCharacter to elsewhere
     * redo item equipping choice system
-
-    * implement maelstrom.dataClasses.team.Team

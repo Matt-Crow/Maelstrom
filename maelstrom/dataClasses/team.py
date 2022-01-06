@@ -41,7 +41,7 @@ class Team(AbstractJsonSerialable):
         """
         provides how much XP this Team provides when encountered
         """
-        totalLevel = functools.reduce(lambda xp, member: member.level + xp, self.members)
+        totalLevel = functools.reduce(lambda xp, member: member.level + xp, self.members, 0)
         return int(10 * totalLevel / len(self.members))
 
     def eachMember(self, consumer: "function(AbstractCharacter)"):
@@ -73,6 +73,7 @@ class Team(AbstractJsonSerialable):
 
     def updateMembersRemaining(self)->"List<str>":
         msgs = []
+
         newList = []
         for member in self.membersRemaining:
             if member.isKoed():
@@ -81,4 +82,5 @@ class Team(AbstractJsonSerialable):
                 newList.append(member)
                 member.update()
         self.membersRemaining = newList
+
         return msgs

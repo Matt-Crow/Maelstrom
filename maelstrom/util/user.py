@@ -19,7 +19,7 @@ class User(AbstractJsonSerialable):
         """
         required kwargs:
         - name: str
-        - team: AbstractTeam
+        - team: Team
         - inventory: list of Items (defaults to [])
         """
         super().__init__(**dict(kwargs, type="User"))

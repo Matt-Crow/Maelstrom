@@ -7,10 +7,11 @@ Character objects in the program
 
 from maelstrom.dataClasses.activeAbilities import getActiveAbilityList
 from maelstrom.dataClasses.passiveAbilities import getPassiveAbilityList
+from maelstrom.dataClasses.team import Team
+
 from util.serialize import AbstractJsonLoader
 from characters.item import Item
 from characters.character import PlayerCharacter, EnemyCharacter
-from battle.teams import AbstractTeam
 
 
 
@@ -38,9 +39,9 @@ These types of objects are not stored in a directory, so don't subclass
 AbstractJsonLoader for them.
 """
 
-def loadTeam(asJson: dict)->"AbstractTeam":
+def loadTeam(asJson: dict)->"Team":
     asJson["members"] = [loadCharacter(member) for member in asJson["members"]]
-    return AbstractTeam(**asJson)
+    return Team(**asJson)
 
 def loadCharacter(asJson: dict)->"AbstractCharacter":
     asJson = asJson.copy()

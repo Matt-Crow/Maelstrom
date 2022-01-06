@@ -14,7 +14,7 @@ class Encounter:
     """
     An encounter handles team versus team conflict.
     """
-    def __init__(self, team1: "AbstractTeam", team2: "AbstractTeam", weather: "Weather"):
+    def __init__(self, team1: "Team", team2: "Team", weather: "Weather"):
         self.team1 = team1
         self.team2 = team2
         self.weather = weather
@@ -25,8 +25,6 @@ class Encounter:
         """
         self.team1.initForBattle()
         self.team2.initForBattle()
-        self.team1.enemy = self.team2
-        self.team2.enemy = self.team1
 
         while not self.isOver():
             self.team2Turn()
@@ -49,9 +47,9 @@ class Encounter:
 
         msgs = []
 
-        attacker.updateMembersRem(msgs)
+        msgs.extend(attacker.updateMembersRemaining())
         self.weather.applyEffect(attacker.membersRemaining, msgs)
-        attacker.updateMembersRem(msgs)
+        msgs.extend(attacker.updateMembersRemaining())
 
         for memberOrdinal, member in enumerate(attacker.membersRemaining):
             options = member.getActiveChoices(memberOrdinal, defender.membersRemaining)
@@ -78,7 +76,7 @@ class Encounter:
             screen.clearBody()
             screen.clearOptions() # prevents a bug where the screen wouldn't display
             msgs.append(choice.use())
-            defenderTeam.updateMembersRem(msgs)
+            msgs.extend(defenderTeam.updateMembersRemaining())
             screen.addSplitRow(
                 getTeamDisplayData(attackerTeam),
                 getTeamDisplayData(defenderTeam)
