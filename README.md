@@ -25,4 +25,5 @@ TODO:
       activeAbilities.py
     * migrate AI from EnemyCharacter and EnemyTeam to elsewhere
     * redo item equipping choice system
+    
     * merge together AbstractTeam, PlayerTeam, and EnemyTeam

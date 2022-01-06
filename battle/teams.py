@@ -88,13 +88,6 @@ class AbstractTeam(AbstractJsonSerialable):
             member.initForBattle()
             self.membersRem.append(member)
 
-    def displayShortDescription(self):
-        screen = Screen()
-        screen.setTitle(f'Team: {self.name}')
-        displayData = self.getShortDisplayData()
-        screen.addBodyRow(displayData)
-        screen.display()
-
     """
     This method gives a brief overview of this team. Used for the battle UI
     """
@@ -107,13 +100,6 @@ class AbstractTeam(AbstractJsonSerialable):
         for member in self.membersRem:
             lines.append(f'* {member.name.ljust(longestName)}: {str(member.remHp).rjust(longestHp)} HP')
         return "\n".join(lines)
-
-    def display(self):
-        screen = Screen()
-        screen.setTitle(f'Team: {self.name}')
-        displayData = self.getDisplayData()
-        screen.addBodyRow(displayData)
-        screen.display()
 
     def getDisplayData(self)->str:
         """
