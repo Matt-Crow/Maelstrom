@@ -35,9 +35,10 @@ class Game:
         if choice == "explore":
             self.currentArea.chooseAction(self.user)
         elif choice == "view character info":
-            # todo This will change to display the entire team if I change back
-            # to more than one member per player team
-            self.user.team.getMember().displayStats()
+            screen = Screen()
+            screen.setTitle(self.user.name)
+            screen.addBodyRows(self.user.getDisplayData())
+            screen.display()
         elif choice == "customize character":
             self.user.manage()
         elif choice == "list passives":

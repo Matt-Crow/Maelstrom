@@ -5,6 +5,7 @@ functions that act on their data, preventing classes from become cumbersome
 
 
 
+from maelstrom.inputOutput.teamDisplay import getTeamDisplayData
 from inputOutput.screens import Screen
 
 
@@ -49,11 +50,11 @@ class Encounter:
         msgs = []
 
         attacker.updateMembersRem(msgs)
-        self.weather.applyEffect(attacker.membersRem, msgs)
+        self.weather.applyEffect(attacker.membersRemaining, msgs)
         attacker.updateMembersRem(msgs)
 
-        for memberOrdinal, member in enumerate(attacker.membersRem):
-            options = member.getActiveChoices(memberOrdinal, defender.membersRem)
+        for memberOrdinal, member in enumerate(attacker.membersRemaining):
+            options = member.getActiveChoices(memberOrdinal, defender.membersRemaining)
             if len(options) == 0:
                 msgs.append(f'{member.name} has no valid targets!')
             else:
@@ -63,24 +64,24 @@ class Encounter:
         screen = Screen()
         screen.setTitle(f'{character}\'s turn')
         screen.addSplitRow(
-            attackerTeam.getShortDisplayData(),
-            defenderTeam.getShortDisplayData()
+            getTeamDisplayData(attackerTeam),
+            getTeamDisplayData(defenderTeam)
         )
         screen.addBodyRows(msgs)
 
-        options = character.getActiveChoices(characterOrdinal, defenderTeam.membersRem)
+        options = character.getActiveChoices(characterOrdinal, defenderTeam.membersRemaining)
         if len(options) == 0:
             screen.addBodyRow(f'{character.name} has no valid targets!')
         else: # let them choose their active and target
-            choice = chooseAction(screen, character, characterOrdinal, defenderTeam.membersRem)
+            choice = chooseAction(screen, character, characterOrdinal, defenderTeam.membersRemaining)
 
             screen.clearBody()
             screen.clearOptions() # prevents a bug where the screen wouldn't display
             msgs.append(choice.use())
             defenderTeam.updateMembersRem(msgs)
             screen.addSplitRow(
-                attackerTeam.getShortDisplayData(),
-                defenderTeam.getShortDisplayData()
+                getTeamDisplayData(attackerTeam),
+                getTeamDisplayData(defenderTeam)
             )
             screen.addBodyRows(msgs)
         screen.display()

@@ -6,6 +6,7 @@ it as a data class later.
 
 
 from maelstrom.gameplay.combat import Encounter
+from maelstrom.inputOutput.teamDisplay import getTeamDisplayData
 
 from battle.weather import WEATHERS, NO_WEATHER
 from battle.teams import AbstractTeam
@@ -120,8 +121,8 @@ class Battle(AbstractJsonSerialable):
     def displayIntro(self):
         screen = Screen()
         screen.setTitle(f'{self.player_team.name} VS. {self.enemy_team.name}')
-        playerTeamData = self.player_team.getShortDisplayData()
-        enemyTeamData = self.enemy_team.getShortDisplayData()
+        playerTeamData = getTeamDisplayData(self.player_team)
+        enemyTeamData = getTeamDisplayData(self.enemy_team)
         screen.addSplitRow(playerTeamData, enemyTeamData)
         screen.addBodyRows(self.prescript)
         screen.addBodyRow(self.weather.getMsg())

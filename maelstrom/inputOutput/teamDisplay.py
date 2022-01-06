@@ -6,7 +6,7 @@ from util.stringUtil import lengthOfLongest # old util package
 
 
 
-def getTeamDisplayData(team: "Team")->"List<str>":
+def getTeamDisplayData(team: "Team")->str:
     """
     Used in the in-battle HUD
     """
@@ -18,9 +18,9 @@ def getTeamDisplayData(team: "Team")->"List<str>":
     for member in team.membersRemaining:
         lines.append(f'* {member.name.ljust(longestName)}: {str(member.remHp).rjust(longestHp)} HP')
 
-    return lines
+    return "\n".join(lines)
 
-    
+
 def getDetailedTeamData(team: "Team")->"List<str>":
     """
     This provides a more descriptive overview of the team, detailing all of its

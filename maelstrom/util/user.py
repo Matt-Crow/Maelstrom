@@ -4,6 +4,7 @@ This module replaces the old distinction between player and AI teams
 
 
 
+from maelstrom.inputOutput.teamDisplay import getDetailedTeamData
 from util.serialize import AbstractJsonSerialable # old util package
 
 
@@ -58,6 +59,6 @@ class User(AbstractJsonSerialable):
         return [
             f'User {self.name}',
             f'Team:',
-            self.team.getDisplayData(),
+            "\n".join(getDetailedTeamData(self.team)),
             f'Items: {", ".join([str(item) for item in self.inventory])}'
         ]

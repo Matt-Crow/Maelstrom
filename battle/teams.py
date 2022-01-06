@@ -25,18 +25,12 @@ class AbstractTeam(AbstractJsonSerialable):
         self.members = []
         for member in kwargs["members"]:
             self.addMember(member)
-        self.membersRem = self.members
+        self.membersRemaining = self.members
         self.enemy = None
         self.addSerializedAttributes(
             "name",
             "members"
         )
-
-    """
-    Use this to access team members
-    """
-    def getMember(self, num=0)->"AbstractCharacter":
-        return self.members[num]
 
     """
     Adds a character to this' team, if they are not
@@ -65,55 +59,27 @@ class AbstractTeam(AbstractJsonSerialable):
     """
     def updateMembersRem(self, msgs):
         newMembersRem = []
-        for member in self.membersRem:
+        for member in self.membersRemaining:
             if not member.isKoed():
                 newMembersRem.append(member)
                 member.update()
             else:
                 msgs.append(f'{member.name} is out of the game!')
-        self.membersRem = newMembersRem
+        self.membersRemaining = newMembersRem
 
     def isDefeated(self):
         """
         Use to see if your team still exists
         """
-        return len(self.membersRem) == 0
+        return len(self.membersRemaining) == 0
 
 
     def initForBattle(self):
         # I will definitely want to add a forEach sort of method
-        self.membersRem = []
+        self.membersRemaining = []
         for member in self.members:
             member.initForBattle()
-            self.membersRem.append(member)
-
-    """
-    This method gives a brief overview of this team. Used for the battle UI
-    """
-    def getShortDisplayData(self)->str:
-        lines = [
-            f'{self.name}:'
-        ]
-        longestName = lengthOfLongest((member.name for member in self.membersRem))
-        longestHp = lengthOfLongest((str(member.remHp) for member in self.membersRem))
-        for member in self.membersRem:
-            lines.append(f'* {member.name.ljust(longestName)}: {str(member.remHp).rjust(longestHp)} HP')
-        return "\n".join(lines)
-
-    def getDisplayData(self)->str:
-        """
-        This provides a more descriptive overview of the team, detailing all of its
-        members. It feels a little info-dump-y, so it feels tedious to scroll
-        through. Do I want some other way of providing players with team data?
-        """
-
-        lines = [
-            f'{self.name}:'
-        ]
-        for member in self.members:
-            lines.append(member.getDisplayData())
-
-        return "\n".join(lines)
+            self.membersRemaining.append(member)
 
     def __str__(self):
         return self.name
