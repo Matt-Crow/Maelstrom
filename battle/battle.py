@@ -8,7 +8,7 @@ it as a data class later.
 from maelstrom.gameplay.combat import Encounter
 
 from battle.weather import WEATHERS, NO_WEATHER
-from battle.teams import EnemyTeam
+from battle.teams import AbstractTeam
 from characters.characterLoader import EnemyLoader
 from util.serialize import AbstractJsonSerialable
 from util.stringUtil import entab
@@ -80,7 +80,7 @@ class Battle(AbstractJsonSerialable):
         enemies = [self.enemyLoader.load(enemyName) for enemyName in self.enemyNames]
         for enemy in enemies:
             enemy.level = self.level
-        enemyTeam = EnemyTeam(
+        enemyTeam = AbstractTeam(
             name="Enemy Team",
             members=enemies
         )

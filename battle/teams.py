@@ -17,11 +17,10 @@ class AbstractTeam(AbstractJsonSerialable):
     def __init__(self, **kwargs):
         """
         Required kwargs:
-        - type : str
         - name : str
         - members : list of AbstractCharacters
         """
-        super().__init__(**dict(kwargs, type=kwargs["type"]))
+        super().__init__(**dict(kwargs, type="Team"))
         self.name = kwargs["name"]
         self.members = []
         for member in kwargs["members"]:
@@ -118,23 +117,3 @@ class AbstractTeam(AbstractJsonSerialable):
 
     def __str__(self):
         return self.name
-
-
-
-class PlayerTeam(AbstractTeam):
-    """
-    Required kwargs:
-    - name : str
-    - member : PlayerCharacter
-    """
-    def __init__(self, **kwargs):
-        super(PlayerTeam, self).__init__(**dict(kwargs, type="PlayerTeam", members=[kwargs["member"]]))
-
-class EnemyTeam(AbstractTeam):
-    """
-    Required kwargs:
-    - name : str,
-    - members : list of EnemyCharacters
-    """
-    def __init__(self, **kwargs):
-        super(self.__class__, self).__init__(**dict(kwargs, type="EnemyTeam"))

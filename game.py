@@ -2,7 +2,7 @@ from maelstrom.dataClasses.passiveAbilities import getPassiveAbilityList
 from maelstrom.util.user import User
 from maelstrom.util.userLoader import UserLoader
 
-from battle.teams import PlayerTeam, AbstractTeam
+from battle.teams import AbstractTeam
 from util.utilities import ELEMENTS
 from inputOutput.screens import Screen
 from characters.createDefaults import createDefaultArea, createDefaultPlayer
@@ -147,9 +147,9 @@ class Game:
 
         if success:
             character = createDefaultPlayer(userName, element)
-            team = PlayerTeam(
+            team = AbstractTeam(
                 name=userName,
-                member=character
+                members=[character]
             )
             user = User(name=userName, team=team)
             self.userLoader.save(user)

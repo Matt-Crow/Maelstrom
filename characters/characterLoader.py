@@ -10,7 +10,7 @@ from maelstrom.dataClasses.passiveAbilities import getPassiveAbilityList
 from util.serialize import AbstractJsonLoader
 from characters.item import Item
 from characters.character import PlayerCharacter, EnemyCharacter
-from battle.teams import PlayerTeam
+from battle.teams import AbstractTeam
 
 
 
@@ -39,17 +39,8 @@ AbstractJsonLoader for them.
 """
 
 def loadTeam(asJson: dict)->"AbstractTeam":
-    type = asJson["type"]
-    ret = None
-    if type == "PlayerTeam":
-        asJson["member"] = loadCharacter(asJson["members"][0])
-        ret = PlayerTeam(**asJson)
-    elif type =="EnemyTeam":
-        asJson["members"] = [loadCharacter(member) for member in asJson["members"]]
-        ret = EnemyTeam(**asJson)
-    else:
-        raise Error("Type not found for AbstractTeam: {0}".format(type))
-    return ret
+    asJson["members"] = [loadCharacter(member) for member in asJson["members"]]
+    return AbstractTeam(**asJson)
 
 def loadCharacter(asJson: dict)->"AbstractCharacter":
     asJson = asJson.copy()

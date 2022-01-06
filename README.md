@@ -23,7 +23,7 @@ TODO:
   before every battle
     * de-tangle attack choosing in combat.py, character.py, and
       activeAbilities.py
-    * migrate AI from EnemyCharacter and EnemyTeam to elsewhere
+    * migrate AI from EnemyCharacter to elsewhere
     * redo item equipping choice system
-    
-    * merge together AbstractTeam, PlayerTeam, and EnemyTeam
+
+    * implement maelstrom.dataClasses.team.Team

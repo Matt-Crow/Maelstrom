@@ -2,7 +2,7 @@
     "type": "User",
     "name": "Test",
     "team": {
-        "type": "PlayerTeam",
+        "type": "Team",
         "name": "Test",
         "members": [
             {
