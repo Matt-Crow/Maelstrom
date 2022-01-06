@@ -5,6 +5,7 @@ to trigger on their turn.
 
 
 
+from maelstrom.gameplay.combat import resolveAttack
 from inputOutput.output import debug
 from util.serialize import AbstractJsonSerialable
 from util.stringUtil import formatPercent
@@ -13,20 +14,10 @@ from abc import abstractmethod
 
 
 
-# copy-paste from actives.py
-
-"""
-Calculates the average amount of damage an attack should do to a target at a
-given level
-"""
-def getDmgPerc(lv):
-    return 16.67 * (1 + lv * 0.05)
-
 class HitType:
     def __init__(self, multiplier, message):
         self.multiplier = multiplier
         self.message = message
-# end copy-paste
 
 
 
@@ -105,7 +96,7 @@ class AbstractDamagingActive(AbstractActive):
         targets = self.getTargetOptions(userOrdinal, targetTeam)[choice]
 
         for target in targets:
-            msgs.append(target.struckBy(user, self))
+            msgs.append(resolveAttack((user, target, self)))
 
         return msgs
 

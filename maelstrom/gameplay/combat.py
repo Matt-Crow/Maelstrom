@@ -6,7 +6,11 @@ functions that act on their data, preventing classes from become cumbersome
 
 
 from maelstrom.inputOutput.teamDisplay import getTeamDisplayData
+
+from battle.events import OnHitEvent, HIT_GIVEN_EVENT, HIT_TAKEN_EVENT
+from inputOutput.output import debug
 from inputOutput.screens import Screen
+import functools
 
 
 
@@ -52,7 +56,7 @@ class Encounter:
         msgs.extend(attacker.updateMembersRemaining())
 
         for memberOrdinal, member in enumerate(attacker.membersRemaining):
-            options = member.getActiveChoices(memberOrdinal, defender.membersRemaining)
+            options = getActiveChoices(member, memberOrdinal, defender.membersRemaining)
             if len(options) == 0:
                 msgs.append(f'{member.name} has no valid targets!')
             else:
@@ -67,7 +71,7 @@ class Encounter:
         )
         screen.addBodyRows(msgs)
 
-        options = character.getActiveChoices(characterOrdinal, defenderTeam.membersRemaining)
+        options = getActiveChoices(character, characterOrdinal, defenderTeam.membersRemaining)
         if len(options) == 0:
             screen.addBodyRow(f'{character.name} has no valid targets!')
         else: # let them choose their active and target
@@ -85,9 +89,82 @@ class Encounter:
         screen.display()
 
     def userChoose(self, screen, character, characterOrdinal, defenderTeam):
-        for option in character.getActiveChoices(characterOrdinal, defenderTeam):
+        for option in getActiveChoices(character, characterOrdinal, defenderTeam):
             screen.addOption(option)
         return screen.displayAndChoose("What active do you wish to use?")
 
     def aiChoose(self, screen, character, characterOrdinal, defenderTeam):
-        return character.bestActive(characterOrdinal, defenderTeam)
+        choices = getActiveChoices(character, characterOrdinal, defenderTeam)
+        if len(choices) == 0:
+            return None
+
+        best = choices[0]
+        bestDmg = 0
+        debug("-" * 10)
+        for choice in choices:
+            if choice.totalDamage > bestDmg:
+                best = choice
+                bestDmg = choice.totalDamage
+            debug(f'Damage with {choice}: {choice.totalDamage}')
+        debug("-" * 10)
+
+        return best
+
+def getActiveChoices(character: "AbstractCharacter", ordinal: int, targetTeam: "List<AbstractCharacter>")->"List<ActiveChoice>":
+    useableActives = [active for active in character.actives if active.canUse(character, ordinal, targetTeam)]
+    choices = []
+    for active in useableActives:
+        targetOptions = active.getTargetOptions(ordinal, targetTeam)
+        choices.extend([ActiveChoice(active, character, ordinal, targets) for targets in targetOptions])
+    return choices
+
+def dmgAtLv(lv)->int:
+    return int(16.67 * (1 + lv * 0.05))
+    
+def resolveAttack(attacker, target, activeUsed)->str:
+    dmg = calcDmgTaken(attacker, target, activeUsed)
+    hitType = activeUsed.randomHitType(attacker)
+    dmg = int(dmg * hitType.multiplier)
+
+    event = OnHitEvent("Attack", attacker, target, activeUsed, dmg)
+
+    target.fireActionListeners(HIT_TAKEN_EVENT, event)
+    attacker.fireActionListeners(HIT_GIVEN_EVENT, event)
+    target.takeDmg(dmg)
+
+    return f'{hitType.message}{attacker.name} struck {target.name} for {dmg} damage using {activeUsed.name}!'
+
+def calcDmgTaken(attacker, target, activeUsed):
+    """
+    MHC is not checked here so that it doesn't
+    mess with AI
+    """
+    return dmgAtLv(attacker.level) * activeUsed.damageMult * attacker.getStatValue("control") / target.getStatValue("resistance")
+
+class ActiveChoice:
+    """
+    command design pattern
+    """
+
+    def __init__(self, active, user, userOrdinal, targets):
+        self.active = active
+        self.user = user
+        self.userOrdinal = userOrdinal
+        self.targets = targets
+        self.msg = f'{active.name}->{", ".join([target.name for target in targets])}'
+        self.totalDamage = functools.reduce(lambda total, next: total + next, [
+            calcDmgTaken(user, target, active) for target in targets
+        ])
+
+    def __str__(self):
+        return self.msg
+
+    def use(self)->str:
+        """
+        todo: change this to inoke active.use
+        """
+        self.user.loseEnergy(self.active.cost)
+        msgs = []
+        for target in self.targets:
+            msgs.append(resolveAttack(self.user, target, self.active))
+        return "\n".join(msgs)

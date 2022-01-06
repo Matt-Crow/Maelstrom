@@ -1,52 +1,18 @@
 from util.utilities import STATS
 from characters.stat_classes import Stat
-from battle.events import OnHitEvent, ActionRegister, HIT_GIVEN_EVENT, HIT_TAKEN_EVENT, UPDATE_EVENT
+from battle.events import ActionRegister, UPDATE_EVENT
 from characters.customizable import AbstractCustomizable
 from util.stringUtil import entab, lengthOfLongest
 from inputOutput.screens import Screen
-from inputOutput.output import debug
-import functools
 
 
 
-def dmgAtLv(lv)->int:
-    return int(16.67 * (1 + lv * 0.05))
-
-class ActiveChoice:
-    """
-    command design pattern
-    """
-
-    def __init__(self, active, user, userOrdinal, targets):
-        self.active = active
-        self.user = user
-        self.userOrdinal = userOrdinal
-        self.targets = targets
-        self.msg = f'{active.name}->{", ".join([target.name for target in targets])}'
-        self.totalDamage = functools.reduce(lambda total, next: total + next, [
-            target.calcDmgTaken(user, active) for target in targets
-        ])
-
-    def __str__(self):
-        return self.msg
-
-    def use(self)->str:
-        """
-        todo: change this to inoke active.use
-        """
-        self.user.loseEnergy(self.active.cost)
-        msgs = []
-        for target in self.targets:
-            msgs.append(target.struckBy(self.user, self.active))
-        return "\n".join(msgs)
-
-
-"""
-A Class containing all the info for a character
-May move the inheritance from AbstractCustomizable up to PlayerCharacter,
-and make this instead inherit from AbstractJsonSerialable
-"""
 class AbstractCharacter(AbstractCustomizable):
+    """
+    A Class containing all the info for a character
+    May move the inheritance from AbstractCustomizable up to PlayerCharacter,
+    and make this instead inherit from AbstractJsonSerialable
+    """
 
     def __init__(self, **kwargs):
         """
@@ -62,7 +28,7 @@ class AbstractCharacter(AbstractCustomizable):
         - equippedItems : list of Items. Defaults to an empty list
         - stats: object{ str : int } (defaults to 0 for each stat in STATS not given in the object)
         """
-        super(AbstractCharacter, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.maxHp = 100
 
         self.element = kwargs["element"]
@@ -173,14 +139,6 @@ class AbstractCharacter(AbstractCustomizable):
     Used during battle
     """
 
-    def getActiveChoices(self, ordinal: int, targetTeam: "List<AbstractCharacter>")->"List<ActiveChoice>":
-        useableActives = [active for active in self.actives if active.canUse(self, ordinal, targetTeam)]
-        choices = []
-        for active in useableActives:
-            targetOptions = active.getTargetOptions(ordinal, targetTeam)
-            choices.extend([ActiveChoice(active, self, ordinal, targets) for targets in targetOptions])
-        return choices
-
     # TODO add ID checking to prevent doubling up
     def boost(self, boost):
         """
@@ -246,44 +204,15 @@ class AbstractCharacter(AbstractCustomizable):
         for stat in self.stats.values():
             stat.update()
 
-
-
-    """
-    old damage calculation
-    """
-    def calcDmgTaken(self, attacker, activeUsed):
-        """
-        MHC is not checked here so that it doesn't
-        mess with AI
-        """
-        damage = dmgAtLv(attacker.level) * activeUsed.damageMult * attacker.getStatValue("control") / self.getStatValue("resistance")
-
-        return damage
-
-    def struckBy(self, attacker, activeUsed)->str:
-        dmg = self.calcDmgTaken(attacker, activeUsed)
-        hitType = activeUsed.randomHitType(attacker)
-        dmg = int(dmg * hitType.multiplier)
-
-        event = OnHitEvent("Attack", attacker, self, activeUsed, dmg)
-
-        self.fireActionListeners(HIT_TAKEN_EVENT, event)
-        attacker.fireActionListeners(HIT_GIVEN_EVENT, event)
-        self.takeDmg(dmg)
-
-        return f'{hitType.message}{attacker.name} struck {self.name} for {dmg} damage using {activeUsed.name}!'
-
     def isKoed(self):
         return self.remHp <= 0
 
 
-
-"""
-A PlayerCharacter is a Character controlled by a player.
-Currently, each player has only one character, but I will
-leave that open to adjustment
-"""
 class PlayerCharacter(AbstractCharacter):
+    """
+    A PlayerCharacter is a Character controlled by a player.
+    """
+
     def __init__(self, **kwargs):
         super(self.__class__, self).__init__(**dict(kwargs, type="PlayerCharacter"))
 
@@ -355,26 +284,7 @@ class PlayerCharacter(AbstractCharacter):
             else:
                 customize.customizeMenu()
 
+# ready to merge into AbstractCharacter
 class EnemyCharacter(AbstractCharacter):
     def __init__(self, **kwargs):
         super(self.__class__, self).__init__(**dict(kwargs, type="EnemyCharacter"))
-
-    """
-    AI stuff
-    """
-    def bestActive(self, ordinal: int, targetTeam: "List<AbstractCharacter>")->"ActiveChoice":
-        choices = self.getActiveChoices(ordinal, targetTeam)
-        if len(choices) == 0:
-            return None
-
-        best = choices[0]
-        bestDmg = 0
-        debug("-" * 10)
-        for choice in choices:
-            if choice.totalDamage > bestDmg:
-                best = choice
-                bestDmg = choice.totalDamage
-            debug(f'Damage with {choice}: {choice.totalDamage}')
-        debug("-" * 10)
-
-        return best
