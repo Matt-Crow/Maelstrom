@@ -1,3 +1,4 @@
+from maelstrom.dataClasses.item import getItemList
 from maelstrom.dataClasses.passiveAbilities import getPassiveAbilityList
 from maelstrom.dataClasses.team import Team
 from maelstrom.util.user import User
@@ -27,7 +28,7 @@ class Game:
 
     def chooseAction(self):
         screen = Screen()
-        options = ["explore", "view character info", "customize character", "list passives", "exit"]
+        options = ["explore", "view character info", "customize character", "list passives", "list items", "exit"]
         for option in options:
             screen.addOption(option)
 
@@ -45,6 +46,11 @@ class Game:
             screen = Screen()
             for passive in getPassiveAbilityList():
                 screen.addBodyRow(passive.description)
+            screen.display()
+        elif choice == "list items":
+            screen = Screen()
+            for item in getItemList():
+                screen.addBodyRow(str(item))
             screen.display()
         elif choice == "exit":
             self.exit = True
