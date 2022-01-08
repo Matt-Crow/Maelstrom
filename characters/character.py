@@ -69,9 +69,7 @@ class AbstractCharacter(AbstractCustomizable):
 
     def equipItem(self, item: "Item"):
         self.equippedItems.append(item)
-        item.setUser(self)
-        item.equip(self)
-        item.calcStats()
+        item.setEquipped(True)
 
     # HP defined here
     def initForBattle(self):
@@ -84,8 +82,7 @@ class AbstractCharacter(AbstractCustomizable):
             passive.registerTo(self)
 
         for item in self.equippedItems:
-            item.setUser(self)
-            item.applyBoost()
+            item.registerTo(self)
 
         self.remHp = self.maxHp
         self.energy = int(self.getStatValue("energy") / 2.0)
@@ -122,15 +119,15 @@ class AbstractCharacter(AbstractCustomizable):
 
         ret.append("ACTIVES:")
         for active in self.actives:
-            ret.append(entab(active.description))
+            ret.append(f'* {active.description}')
 
         ret.append("PASSIVES:")
         for passive in self.passives:
-            ret.append(entab(passive.description))
+            ret.append(f'* {passive.description}')
 
         ret.append("ITEMS:")
         for item in self.equippedItems:
-            ret.append(entab(item.getDisplayData()))
+            ret.append(f'* {str(item)}')
 
         return "\n".join(ret)
 
@@ -266,7 +263,7 @@ class PlayerCharacter(AbstractCharacter):
             options.append("Equipped items")
 
         for item in self.equippedItems:
-            screen.addBodyRow(item.getDisplayData())
+            screen.addBodyRow(str(item))
             options.append(item)
 
         # todo: add option to change passives

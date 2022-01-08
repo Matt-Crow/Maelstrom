@@ -23,11 +23,23 @@ class Item(AbstractJsonSerialable):
         self.name = name
         self.description = description
         self.register = register
+        self.equipped = False
 
     def copy()->"Item":
         return Item(self.name, self.description, self.register)
 
+    def setEquipped(self, equipped: bool):
+        self.equipped = equipped
+
+    def isEquipped(self)->bool:
+        return self.equipped
+
     def registerTo(self, user):
+        """
+        applies this Item's bonus to the given user.
+
+        This is not the same as calling setEquipped
+        """
         self.register(user)
 
     def toJson(self): # override

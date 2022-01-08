@@ -6,11 +6,11 @@ Character objects in the program
 
 
 from maelstrom.dataClasses.activeAbilities import getActiveAbilityList
+from maelstrom.dataClasses.item import getItemList
 from maelstrom.dataClasses.passiveAbilities import getPassiveAbilityList
 from maelstrom.dataClasses.team import Team
 
 from util.serialize import AbstractJsonLoader
-from characters.item import Item
 from characters.character import PlayerCharacter, EnemyCharacter
 
 
@@ -18,6 +18,10 @@ from characters.character import PlayerCharacter, EnemyCharacter
 NAME_TO_ACTIVE = dict()
 for active in getActiveAbilityList():
     NAME_TO_ACTIVE[active.name] = active
+
+NAME_TO_ITEM = dict()
+for item in getItemList():
+    NAME_TO_ITEM[item.name] = item
 
 NAME_TO_PASSIVE = dict()
 for passive in getPassiveAbilityList():
@@ -70,5 +74,7 @@ def loadPassive(name: str)->"AbstractPassive":
         raise Exception(f'no passives defined with name "{name}"')
     return NAME_TO_PASSIVE[name]
 
-def loadItem(asJson: dict)->"Item":
-    return Item(**asJson)
+def loadItem(name: str)->"Item":
+    if name not in NAME_TO_ITEM:
+        raise Exception(f'no item defined with name "{name}"')
+    return NAME_TO_ITEM[name]

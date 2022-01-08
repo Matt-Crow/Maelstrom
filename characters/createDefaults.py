@@ -7,12 +7,12 @@ object creation process a bit.
 
 
 from maelstrom.dataClasses.activeAbilities import createDefaultActives
+from maelstrom.dataClasses.item import getItemList
 from maelstrom.dataClasses.passiveAbilities import getPassiveAbilityList
 from battle.area import Area, Location
 from battle.battle import Battle
 from characters.character import EnemyCharacter, PlayerCharacter
 from characters.characterLoader import EnemyLoader
-from characters.item import Item
 import random
 
 
@@ -77,10 +77,7 @@ def createDefaultPassives()->"List<AbstractPassive>":
     return [p.copy() for p in getPassiveAbilityList()]
 
 def createRandomItem()->"Item":
-    global NEXT_ITEM_NUM
-    name = f'Random Item #{NEXT_ITEM_NUM}'
-    NEXT_ITEM_NUM += 1
-    return Item(name=name)
+    return random.choice(getItemList())
 
 def createDefaultEnemies():
     enemies = []

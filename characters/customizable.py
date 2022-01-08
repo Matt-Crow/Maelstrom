@@ -31,8 +31,6 @@ class AbstractCustomizable(AbstractJsonSerialable):
             "stats"
         )
 
-    #def addStat(self, name, base):
-    #    self.stats[name.lower()] = Stat(name, base)
     def addStat(self, stat):
         self.stats[stat.name.lower()] = stat
 
