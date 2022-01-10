@@ -22,21 +22,21 @@ class Weather(AbstractJsonSerialable):
         return self.msg
 
     """
-    Apply stat changes to a list of AbstractCharacters. Appends messages to the
+    Apply stat changes to a list of Characters. Appends messages to the
     given list of messages based on how it effects them
     """
-    def applyEffect(self, affected: "List<AbstractCharacter>", msgs: "List<str>"):
+    def applyEffect(self, affected: "List<Character>", msgs: "List<str>"):
         for person in affected:
             msgs.append(self.doApplyEffect(person))
 
-    def doApplyEffect(self, target: "AbstractCharacter")->str:
+    def doApplyEffect(self, target: "Character")->str:
         pass
 
 class Lightning(Weather):
     def __init__(self):
         super().__init__("lightning", "The sky rains down its fire upon the field...")
 
-    def doApplyEffect(self, target: "AbstractCharacter")->str:
+    def doApplyEffect(self, target: "Character")->str:
         amount = target.gainEnergy(3)
         return f'The charged atmosphere provides {target.name} with {amount} energy'
 
@@ -44,7 +44,7 @@ class Rain(Weather):
     def __init__(self):
         super().__init__("rain", "A deluge of water pours forth from the sky...")
 
-    def doApplyEffect(self, target: "AbstractCharacter")->str:
+    def doApplyEffect(self, target: "Character")->str:
         amount = target.heal(9)
         return f'The restorative rain heals {target.name} by {amount} HP'
 
@@ -52,7 +52,7 @@ class Hail(Weather):
     def __init__(self):
         super().__init__("hail", "A light snow was falling...")
 
-    def doApplyEffect(self, target: "AbstractCharacter")->str:
+    def doApplyEffect(self, target: "Character")->str:
         dmg = target.harm(12)
         return f'The battering hail inflicts {target.name} with {dmg} damage'
 
@@ -60,7 +60,7 @@ class Wind(Weather):
     def __init__(self):
         super().__init__("wind", "The strong winds blow mightily...")
 
-    def doApplyEffect(self, target: "AbstractCharacter")->str:
+    def doApplyEffect(self, target: "Character")->str:
         boost = Boost("control", 15, 1, "Weather")
         withPotencyApplied = target.boost(boost)
         return f'The driving wind inflicts {target.name} with {withPotencyApplied.getDisplayData()}'
@@ -69,7 +69,7 @@ class Clear(Weather):
     def __init__(self):
         super().__init__("no weather", "The land is seized by an undying calm...")
 
-    def doApplyEffect(self, target: "AbstractCharacter")->str:
+    def doApplyEffect(self, target: "Character")->str:
         return ""
 
 

@@ -12,7 +12,6 @@ from maelstrom.dataClasses.item import getItemList
 from maelstrom.dataClasses.passiveAbilities import getPassiveAbilityList
 from battle.area import Area, Location
 from battle.battle import Battle
-from characters.character import PlayerCharacter
 from characters.characterLoader import EnemyLoader
 import random
 
@@ -66,8 +65,8 @@ def createDefaultLocation():
         ]
     )
 
-def createDefaultPlayer(name, element)->"PlayerCharacter":
-    return PlayerCharacter(
+def createDefaultPlayer(name, element)->"Character":
+    return Character(
         name=name,
         element=element,
         actives=createDefaultActives(element),

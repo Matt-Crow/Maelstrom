@@ -110,7 +110,7 @@ class Encounter:
 
         return best
 
-def getActiveChoices(character: "AbstractCharacter", ordinal: int, targetTeam: "List<AbstractCharacter>")->"List<ActiveChoice>":
+def getActiveChoices(character: "Character", ordinal: int, targetTeam: "List<Character>")->"List<ActiveChoice>":
     useableActives = [active for active in character.actives if active.canUse(character, ordinal, targetTeam)]
     choices = []
     for active in useableActives:

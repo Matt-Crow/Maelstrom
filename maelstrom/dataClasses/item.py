@@ -16,7 +16,7 @@ class Item(AbstractJsonSerialable):
     def __init__(self, name, description, register):
         """
         name should be a unique identifier.
-        register is a function that accepts an AbstractCharacter, and is called
+        register is a function that accepts an Character, and is called
         on this item's wielder at the start of an Encounter
         """
         super().__init__(type="Item")

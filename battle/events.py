@@ -2,7 +2,7 @@ from util.utilities import *
 
 HIT_GIVEN_EVENT = 0
 HIT_TAKEN_EVENT = 1
-UPDATE_EVENT = 2 # should accept an AbstractCharacter as an argument
+UPDATE_EVENT = 2 # should accept an Character as an argument
 
 EVENT_TYPES = (HIT_GIVEN_EVENT, HIT_TAKEN_EVENT, UPDATE_EVENT)
 

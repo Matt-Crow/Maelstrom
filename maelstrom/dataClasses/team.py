@@ -1,5 +1,5 @@
 """
-This module handles teams - collections of AbstractCharacters
+This module handles teams - collections of Characters
 """
 
 
@@ -11,14 +11,14 @@ import functools
 
 class Team(AbstractJsonSerialable):
     """
-    stores and manages AbstractCharacters
+    stores and manages Characters
     """
 
     def __init__(self, **kwargs):
         """
         Required kwargs:
         - name: str
-        - members: list of AbstractCharacters. Expects at least 1 member
+        - members: list of Characters. Expects at least 1 member
         """
         super().__init__(**dict(kwargs, type="Team"))
         self.name = kwargs["name"]
@@ -31,7 +31,7 @@ class Team(AbstractJsonSerialable):
     def __str__(self):
         return self.name
 
-    def addMember(self, member: "AbstractCharacter"):
+    def addMember(self, member: "Character"):
         if member in self.members:
             raise Exception(f'cannot add duplicate member {str(member)}')
         self.members.append(member)
@@ -44,14 +44,14 @@ class Team(AbstractJsonSerialable):
         totalLevel = functools.reduce(lambda xp, member: member.level + xp, self.members, 0)
         return int(10 * totalLevel / len(self.members))
 
-    def eachMember(self, consumer: "function(AbstractCharacter)"):
+    def eachMember(self, consumer: "function(Character)"):
         """
         calls the given consumer on each member of this Team
         """
         for member in self.members:
             consumer(member)
 
-    def eachMemberRemaining(self, consumer: "function(AbstractCharacter)"):
+    def eachMemberRemaining(self, consumer: "function(Character)"):
         """
         calls the given consumer on each member of this Team who isn't out of
         the game

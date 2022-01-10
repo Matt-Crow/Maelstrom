@@ -35,10 +35,10 @@ class AbstractActive(AbstractJsonSerialable):
     def copy(self):
         pass
 
-    def canUse(self, user: "AbstractCharacter", userOrdinal: int, targetTeam: "List<AbstractCharacter>")->bool:
+    def canUse(self, user: "Character", userOrdinal: int, targetTeam: "List<Character>")->bool:
         return self.cost <= user.energy and len(self.getTargetOptions(userOrdinal, targetTeam)) > 0
 
-    def getTargetOptions(self, userOrdinal: int, targetTeam: "List<AbstractCharacter>")->"List<List<AbstractCharacter>>":
+    def getTargetOptions(self, userOrdinal: int, targetTeam: "List<Character>")->"List<List<Character>>":
         """
         don't override this one
         """
@@ -47,7 +47,7 @@ class AbstractActive(AbstractJsonSerialable):
         return self.doGetTargetOptions(userOrdinal, targetTeam)
 
     @abstractmethod
-    def doGetTargetOptions(self, userOrdinal: int, targetTeam: "List<AbstractCharacter>")->"List<List<AbstractCharacter>>":
+    def doGetTargetOptions(self, userOrdinal: int, targetTeam: "List<Character>")->"List<List<Character>>":
         """
         subclasses must override this option to return the enemies this could
         potentially hit. Each element of the returned list represents a choice
@@ -69,7 +69,7 @@ class AbstractDamagingActive(AbstractActive):
         self.critChance = critChance
         self.critMult = critMult
 
-    def randomHitType(self, user: "AbstractCharacter")->"HitType":
+    def randomHitType(self, user: "Character")->"HitType":
         """
         randomly chooses a HitType based on this AbstractDamagingActive's crit
         chance, miss chance, and the user's luck
@@ -88,7 +88,7 @@ class AbstractDamagingActive(AbstractActive):
 
         return hit
 
-    def use(self, user: "AbstractCharacter", userOrdinal: int, targetTeam: "List<AbstractCharacter>", choice: int)->"List<str>":
+    def use(self, user: "Character", userOrdinal: int, targetTeam: "List<Character>", choice: int)->"List<str>":
         user.loseEnergy(self.cost)
 
         msgs = []
@@ -121,7 +121,7 @@ class MeleeActive(AbstractDamagingActive):
             self.critMult
         )
 
-    def doGetTargetOptions(self, userOrdinal: int, targetTeam: "List<AbstractCharacter>")->"List<List<AbstractCharacter>>":
+    def doGetTargetOptions(self, userOrdinal: int, targetTeam: "List<Character>")->"List<List<Character>>":
         """
         MeleeActives can hit a single active target
         """
@@ -143,7 +143,7 @@ class ElementalActive(AbstractDamagingActive):
     def copy(self):
         return ElementalActive(self.name)
 
-    def doGetTargetOptions(self, userOrdinal: int, targetTeam: "List<AbstractCharacter>")->"List<List<AbstractCharacter>>":
+    def doGetTargetOptions(self, userOrdinal: int, targetTeam: "List<Character>")->"List<List<Character>>":
         """
         ElementalActives can hit a single cleave target
         """
@@ -157,7 +157,7 @@ attacks that can hit anyone
 """
 
 
-def getActiveTargets(attackerOrdinal: int, targetTeam: "List<AbstractCharacter>")->"List<AbstractCharacter>":
+def getActiveTargets(attackerOrdinal: int, targetTeam: "List<Character>")->"List<Character>":
     """
     'active' enemies are those across from the attacker and the enemy
     immediately below that. This gives a slight advantage to the 1 in a 1 vs 2,
@@ -173,7 +173,7 @@ def getActiveTargets(attackerOrdinal: int, targetTeam: "List<AbstractCharacter>"
         options.append(targetTeam[attackerOrdinal + 1])
     return options
 
-def getCleaveTargets(attackerOrdinal: int, targetTeam: "List<AbstractCharacter>")->"List<AbstractCharacter>":
+def getCleaveTargets(attackerOrdinal: int, targetTeam: "List<Character>")->"List<Character>":
     """
     enemies are 'cleaveable' (for want of a better word) if they are no more
     than 1 array slot away from the enemy across from the attacker
@@ -187,7 +187,7 @@ def getCleaveTargets(attackerOrdinal: int, targetTeam: "List<AbstractCharacter>"
         options.insert(0, m)
     return options
 
-def getDistantTargets(attackerOrdinal: int, targetTeam: "List<AbstractCharacter>")->"List<AbstractCharacter>":
+def getDistantTargets(attackerOrdinal: int, targetTeam: "List<Character>")->"List<Character>":
     """
     the union of distant targets and cleave targets is all enemies, with no
     overlap
