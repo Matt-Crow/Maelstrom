@@ -44,14 +44,13 @@ Version 0.9
 
 
 
-from characters.createDefaults import saveDefaultData
+from maelstrom.dataClasses.createDefaults import saveDefaultData
 from game import Game
-from maelstrom.util.arguments import getOptions
+from maelstrom.util.arguments import options
 
 
 
 if __name__ == "__main__":
-    options = getOptions()
     print(options)
 
     if options.store:

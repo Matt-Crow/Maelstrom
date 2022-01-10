@@ -1,6 +1,6 @@
 import random
 
-from inputOutput.output import debug
+from maelstrom.inputOutput.output import debug
 
 
 ELEMENTS = ("lightning", "rain", "hail", "wind")

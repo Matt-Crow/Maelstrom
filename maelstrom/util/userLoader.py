@@ -3,7 +3,7 @@
 
 from maelstrom.util.user import User
 
-from characters.characterLoader import loadItem, loadTeam
+from maelstrom.loaders.characterLoader import loadItem, loadTeam
 from util.serialize import AbstractJsonLoader # old util package
 
 

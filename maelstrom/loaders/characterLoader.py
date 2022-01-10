@@ -1,6 +1,6 @@
 """
-This module handles the conversion of JSON files of player characters into
-Character objects in the program
+This module handles the conversion of JSON files of characters into Character
+objects in the program
 """
 
 

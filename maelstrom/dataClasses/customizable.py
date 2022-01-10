@@ -1,7 +1,7 @@
 from util.serialize import AbstractJsonSerialable
-from characters.stat_classes import Stat
+from maelstrom.dataClasses.stat_classes import Stat
 from abc import abstractmethod
-from inputOutput.screens import Screen
+from maelstrom.inputOutput.screens import Screen
 
 class AbstractCustomizable(AbstractJsonSerialable):
     nextId = 0

@@ -1,7 +1,7 @@
 
 
 
-from inputOutput.screens import Screen # old io package
+from maelstrom.inputOutput.screens import Screen # old io package
 from util.stringUtil import lengthOfLongest # old util package
 
 

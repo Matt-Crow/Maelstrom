@@ -8,8 +8,8 @@ functions that act on their data, preventing classes from become cumbersome
 from maelstrom.inputOutput.teamDisplay import getTeamDisplayData
 
 from battle.events import OnHitEvent, HIT_GIVEN_EVENT, HIT_TAKEN_EVENT
-from inputOutput.output import debug
-from inputOutput.screens import Screen
+from maelstrom.inputOutput.output import debug
+from maelstrom.inputOutput.screens import Screen
 import functools
 
 

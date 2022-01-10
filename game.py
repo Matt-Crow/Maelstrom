@@ -5,8 +5,8 @@ from maelstrom.util.user import User
 from maelstrom.util.userLoader import UserLoader
 
 from util.utilities import ELEMENTS
-from inputOutput.screens import Screen
-from characters.createDefaults import createDefaultArea, createDefaultPlayer
+from maelstrom.inputOutput.screens import Screen
+from maelstrom.dataClasses.createDefaults import createDefaultArea, createDefaultPlayer
 
 
 

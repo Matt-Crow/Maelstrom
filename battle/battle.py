@@ -10,10 +10,10 @@ from maelstrom.gameplay.combat import Encounter
 from maelstrom.inputOutput.teamDisplay import getTeamDisplayData
 
 from battle.weather import WEATHERS, NO_WEATHER
-from characters.characterLoader import EnemyLoader
+from maelstrom.loaders.characterLoader import EnemyLoader
 from util.serialize import AbstractJsonSerialable
 from util.stringUtil import entab
-from inputOutput.screens import Screen
+from maelstrom.inputOutput.screens import Screen
 import random
 
 

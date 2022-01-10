@@ -6,7 +6,7 @@ to trigger on their turn.
 
 
 from maelstrom.gameplay.combat import resolveAttack
-from inputOutput.output import debug
+from maelstrom.inputOutput.output import debug
 from util.serialize import AbstractJsonSerialable
 from util.stringUtil import formatPercent
 from util.utilities import ELEMENTS, roll_perc

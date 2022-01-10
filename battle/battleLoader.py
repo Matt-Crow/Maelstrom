@@ -5,7 +5,7 @@ from util.serialize import AbstractJsonLoader
 from battle.battle import Battle
 from battle.area import Area, Location
 from battle.weather import WEATHERS
-from characters.characterLoader import loadItem
+from maelstrom.loaders.characterLoader import loadItem
 
 
 

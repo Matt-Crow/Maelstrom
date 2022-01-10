@@ -1,5 +1,5 @@
 import random
-from characters.stat_classes import Boost
+from maelstrom.dataClasses.stat_classes import Boost
 from util.serialize import AbstractJsonSerialable
 
 """

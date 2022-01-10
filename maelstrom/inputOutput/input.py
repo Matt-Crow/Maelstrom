@@ -6,7 +6,7 @@ it is used by screens.py
 
 
 
-from inputOutput.output import output
+from maelstrom.inputOutput.output import output
 
 
 
@@ -29,11 +29,11 @@ def choose(prompt: str, options: "List<any>", displayOptions=True)->"any":
                 output(f'{i + 1}: {names[i]}')
 
         # get user input
-        ip = askIntInput(f'Enter a number [1 - {len(options)}): ')
+        ip = askIntInput(f'Enter a number [1 - {len(options)}]: ')
         ip -= 1 # convert choice number to index in array
 
         while ip < 0 or len(options) <= ip:
-            ip = askIntInput(f'Enter a number [1 - {len(options)}): ') - 1
+            ip = askIntInput(f'Enter a number [1 - {len(options)}]: ') - 1
 
         chosen = options[ip]
 

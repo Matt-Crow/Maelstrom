@@ -11,10 +11,17 @@ These functions forward their paramters to the official Python print function,
 so anything that works for print will work for these
 """
 
+
+
+from maelstrom.util.arguments import options
 import sys
 
-DEBUG = False
-CLS_BEFORE_DISPLAY = True
+
+
+DEBUG = options.debug
+CLS_BEFORE_DISPLAY = not options.noCls
+
+
 
 class OutputConsumer:
     def output(self, *args, **kwargs):

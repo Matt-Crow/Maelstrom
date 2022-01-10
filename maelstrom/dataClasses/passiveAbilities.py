@@ -6,7 +6,7 @@ of health
 
 
 
-from characters.stat_classes import Boost
+from maelstrom.dataClasses.stat_classes import Boost
 from util.serialize import AbstractJsonSerialable
 from util.utilities import ELEMENTS, roll_perc
 from battle.events import HIT_GIVEN_EVENT, HIT_TAKEN_EVENT, UPDATE_EVENT

@@ -12,12 +12,8 @@ from maelstrom.dataClasses.item import getItemList
 from maelstrom.dataClasses.passiveAbilities import getPassiveAbilityList
 from battle.area import Area, Location
 from battle.battle import Battle
-from characters.characterLoader import EnemyLoader
+from maelstrom.loaders.characterLoader import EnemyLoader
 import random
-
-
-
-NEXT_ITEM_NUM = 1 # I don't like globals, but need this for now
 
 
 
@@ -35,12 +31,11 @@ def createDefaultArea()->"Area":
         name="Test Area",
         desc="No description",
         locations=[createDefaultLocation()],
-        levels=[createRandomBattle()]
+        levels=[createRandomBattle(i) for i in range(1, 5)]
     )
 
-def createRandomBattle()->"Battle":
+def createRandomBattle(numEnemies: int)->"Battle":
     enemyNames = []
-    numEnemies = random.randint(1, 4)
     allEnemyNames = EnemyLoader().getOptions()
 
     for i in range(numEnemies):

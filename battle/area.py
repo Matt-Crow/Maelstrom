@@ -1,5 +1,5 @@
 from util.serialize import AbstractJsonSerialable
-from inputOutput.screens import Screen
+from maelstrom.inputOutput.screens import Screen
 from util.stringUtil import entab
 
 class Area(AbstractJsonSerialable):
