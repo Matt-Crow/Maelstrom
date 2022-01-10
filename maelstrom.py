@@ -42,12 +42,22 @@ June-July 2021: Reworked input and output
 Version 0.9
 """
 
-import sys
 
+
+from characters.createDefaults import saveDefaultData
 from game import Game
+from maelstrom.util.arguments import getOptions
+
+
 
 if __name__ == "__main__":
-    if(len(sys.argv) > 1 and sys.argv[1] == "--test"):
+    options = getOptions()
+    print(options)
+
+    if options.store:
+        saveDefaultData()
+
+    if options.test:
         Game().test()
     else:
         Game().run()

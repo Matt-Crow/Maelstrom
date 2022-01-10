@@ -8,8 +8,6 @@ from util.utilities import ELEMENTS
 from inputOutput.screens import Screen
 from characters.createDefaults import createDefaultArea, createDefaultPlayer
 
-from characters.createDefaults import saveDefaultData
-
 
 
 """
@@ -24,7 +22,7 @@ class Game:
         self.userLoader = UserLoader()
 
     def test(self):
-        saveDefaultData()
+        print("nothing to test")
 
     def chooseAction(self):
         screen = Screen()

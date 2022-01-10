@@ -7,11 +7,12 @@ object creation process a bit.
 
 
 from maelstrom.dataClasses.activeAbilities import createDefaultActives
+from maelstrom.dataClasses.character import Character
 from maelstrom.dataClasses.item import getItemList
 from maelstrom.dataClasses.passiveAbilities import getPassiveAbilityList
 from battle.area import Area, Location
 from battle.battle import Battle
-from characters.character import EnemyCharacter, PlayerCharacter
+from characters.character import PlayerCharacter
 from characters.characterLoader import EnemyLoader
 import random
 
@@ -82,7 +83,7 @@ def createRandomItem()->"Item":
 def createDefaultEnemies():
     enemies = []
 
-    enemies.append(EnemyCharacter(
+    enemies.append(Character(
         name="Lightning Entity",
         element="lightning",
         stats={
@@ -93,7 +94,7 @@ def createDefaultEnemies():
         passives=createDefaultPassives() # each needs their own copy
     ))
 
-    enemies.append(EnemyCharacter(
+    enemies.append(Character(
         name="Rain Entity",
         element="rain",
         stats={
@@ -104,7 +105,7 @@ def createDefaultEnemies():
         passives=createDefaultPassives()
     ))
 
-    enemies.append(EnemyCharacter(
+    enemies.append(Character(
         name="Hail Entity",
         element = "hail",
         stats={
@@ -115,7 +116,7 @@ def createDefaultEnemies():
         passives=createDefaultPassives()
     ))
 
-    enemies.append(EnemyCharacter(
+    enemies.append(Character(
         name="Wind Entity",
         element = "wind",
         stats={
@@ -126,7 +127,7 @@ def createDefaultEnemies():
         passives=createDefaultPassives()
     ))
 
-    enemies.append(EnemyCharacter(
+    enemies.append(Character(
         name="Stone Soldier",
         element="stone",
         stats={

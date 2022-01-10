@@ -6,12 +6,13 @@ Character objects in the program
 
 
 from maelstrom.dataClasses.activeAbilities import getActiveAbilityList
+from maelstrom.dataClasses.character import Character
 from maelstrom.dataClasses.item import getItemList
 from maelstrom.dataClasses.passiveAbilities import getPassiveAbilityList
 from maelstrom.dataClasses.team import Team
 
 from util.serialize import AbstractJsonLoader
-from characters.character import PlayerCharacter, EnemyCharacter
+from characters.character import PlayerCharacter
 
 
 
@@ -33,7 +34,7 @@ class EnemyLoader(AbstractJsonLoader):
     def __init__(self):
         super().__init__("data.enemies")
 
-    def doLoad(self, asJson: dict)->"EnemyCharacter":
+    def doLoad(self, asJson: dict)->"Character":
         return loadCharacter(asJson)
 
 
@@ -57,8 +58,8 @@ def loadCharacter(asJson: dict)->"AbstractCharacter":
 
     if ctype == "PlayerCharacter":
         ret = PlayerCharacter(**asJson)
-    elif ctype == "EnemyCharacter":
-        ret = EnemyCharacter(**asJson)
+    elif ctype == "Character":
+        ret = Character(**asJson)
     else:
         raise Exception("Type not found! " + ctype)
 

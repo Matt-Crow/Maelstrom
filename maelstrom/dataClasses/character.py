@@ -1,34 +1,34 @@
-from util.utilities import STATS
-from characters.stat_classes import Stat
+"""
+A Character is an entity within the game who has various stats and attributes.
+"""
+
+
+
 from battle.events import ActionRegister, UPDATE_EVENT
 from characters.customizable import AbstractCustomizable
+from characters.stat_classes import Stat
 from util.stringUtil import entab, lengthOfLongest
-from inputOutput.screens import Screen
+from util.utilities import STATS
 
 
 
-class AbstractCharacter(AbstractCustomizable):
-    """
-    A Class containing all the info for a character
-    May move the inheritance from AbstractCustomizable up to PlayerCharacter,
-    and make this instead inherit from AbstractJsonSerialable
-    """
+class Character(AbstractCustomizable):
 
     def __init__(self, **kwargs):
         """
         required kwargs:
-        - type : str
         - name : str
         - customizationPoints : int (defaults to 0)
         - element : str
         - level : int (defaults to 1)
-        -  : int (defaults to 0)
+        - xp : int (defaults to 0)
         - actives : list of AbstractActives. Throws an error if not set
         - passives : list of AbstractPassives. Defaults to empty list
         - equippedItems : list of Items. Defaults to an empty list
         - stats: object{ str : int } (defaults to 0 for each stat in STATS not given in the object)
         """
-        super().__init__(**kwargs)
+
+        super().__init__(**dict(kwargs, type="Character"))
         self.maxHp = 100
 
         self.element = kwargs["element"]
@@ -39,9 +39,10 @@ class AbstractCharacter(AbstractCustomizable):
         self.passives = []
         self.equippedItems = []
         for active in kwargs["actives"]:
-            self.addActive(active)
+            self.actives.append(active)
         for passive in kwargs.get("passives", []):
-            self.addPassive(passive)
+            self.passives.append
+            (passive)
         for item in kwargs.get("equippedItems", []):
             self.equipItem(item)
 
@@ -60,12 +61,6 @@ class AbstractCharacter(AbstractCustomizable):
             "passives",
             "equippedItems"
         )
-
-    def addActive(self, active: "AbstractActive"):
-        self.actives.append(active)
-
-    def addPassive(self, passive: "AbstractPassive"):
-        self.passives.append(passive)
 
     def equipItem(self, item: "Item"):
         self.equippedItems.append(item)
@@ -98,13 +93,6 @@ class AbstractCharacter(AbstractCustomizable):
         Returns as a value between 0 and 100
         """
         return int((float(self.remHp) / float(self.maxHp) * 100.0))
-
-    def displayStats(self):
-        screen = Screen()
-        screen.setTitle(f'{self.name} Lv. {self.level}')
-        displayData = self.getDisplayData()
-        screen.addBodyRow(displayData)
-        screen.display()
 
     def getDisplayData(self)->str:
         self.calcStats()
@@ -205,26 +193,17 @@ class AbstractCharacter(AbstractCustomizable):
     def isKoed(self):
         return self.remHp <= 0
 
-
-class PlayerCharacter(AbstractCharacter):
-    """
-    A PlayerCharacter is a Character controlled by a player.
-    """
-
-    def __init__(self, **kwargs):
-        super(self.__class__, self).__init__(**dict(kwargs, type="PlayerCharacter"))
-
     """
     Post-battle actions:
     Occur after battle
     """
 
-    """
-    Give experience, possibly leveling up this character.
-
-    Returns a list of messages to display, if any.
-    """
     def gainXp(self, amount)->"List<str>":
+        """
+        Give experience, possibly leveling up this character.
+
+        Returns a list of messages to display, if any.
+        """
         msgs = []
         self.xp += amount
         while self.xp >= self.level * 10:
@@ -235,49 +214,9 @@ class PlayerCharacter(AbstractCharacter):
         self.xp = int(self.xp)
         return msgs
 
-    """
-    Increases level
-    """
     def levelUp(self):
         self.level += 1
         self.customizationPoints += 1
 
-        for item in self.equippedItems:
-            item.customizationPoints += 1
-
         self.calcStats()
         self.remHp = self.maxHp
-
-    """
-    Character management
-    """
-
-    def chooseItems(self):
-        raise Exception("todo move item choosing to user instead of character")
-
-    def manage(self):
-        options = ["Quit", self]
-        screen = Screen()
-        screen.setTitle(f'Manage {self.name}')
-
-        if True: # needs to check it items available
-            options.append("Equipped items")
-
-        for item in self.equippedItems:
-            screen.addBodyRow(str(item))
-            options.append(item)
-
-        # todo: add option to change passives
-        # todo: add option to change actives
-
-        options.reverse()
-
-        for option in options:
-            screen.addOption(option)
-
-        customize = screen.displayAndChoose("What do you want to customize?")
-        if customize != "Quit":
-            if customize == "Equipped items":
-                self.chooseItems()
-            else:
-                customize.customizeMenu()
