@@ -3,13 +3,18 @@
 
 from util.serialize import AbstractJsonLoader
 from battle.battle import Battle
-from battle.area import Area, Location
+from battle.area import Area
 from battle.weather import WEATHERS
+from maelstrom.dataClasses.campaign import Location
 from maelstrom.loaders.characterLoader import loadItem
 
 
 
 class AreaLoader(AbstractJsonLoader):
+    """
+    this will be replaced with a CampaignLoader later
+    """
+    
     def __init__(self):
         super().__init__("data.areas")
 

@@ -11,7 +11,6 @@ program. After that, you can run using """python maelstrom.py""".
 Use """python maelstrom.py -h""" to view command line options.
 
 TODO:
-* migrate over to """maelstrom""" folder
 * use my application directory system from ARCDHWebAutomator
 * make the game fun
 * I might want to replace the current method of serializing in-class with the
@@ -20,12 +19,14 @@ TODO:
   the alternative
 * random campaign generator: Have the program chop up a Shakespere play and make
   characters and locations based off of that?
-
-
-
-* do away with "Customization Points" system. Change to allow player to choose
-  from sets of pre-generated content. Add "guidebooks" the player can use to
-  look up info on enemies, actives, passives, and items to avoid info-dumping
-  before every battle
-    * de-tangle attack choosing in combat.py and activeAbilities.py
+* Replacement for Customization Points system:
+    * replace Items with a new "stat DNA block" class that provides minor
+      bonuses to stats
+    * a level X character can have up to X stat DNA blocks equipped
     * redo item equipping choice system
+* Add "guidebooks" the player can use to look up info on enemies, actives,
+  passives, and items to avoid info-dumping before every battle
+
+  
+* de-tangle attack choosing in combat.py and activeAbilities.py
+* migrate over to """maelstrom""" folder

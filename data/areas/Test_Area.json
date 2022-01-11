@@ -1,12 +1,12 @@
 {
     "type": "Area",
     "name": "Test Area",
-    "desc": "No description",
+    "description": "No description",
     "locations": [
         {
             "type": "Location",
             "name": "Shoreline",
-            "desc": "Gentle waves lap at the shore.",
+            "description": "Gentle waves lap at the shore.",
             "script": [
                 "I'm not sure how I feel about the sand...",
                 "is it course and rough?",
@@ -18,7 +18,7 @@
         {
             "type": "Battle",
             "name": "Random encounter",
-            "desc": "Random battle",
+            "description": "Random battle",
             "prescript": [],
             "postscript": [],
             "forecast": [

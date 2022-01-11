@@ -44,8 +44,6 @@ class Area(AbstractJsonSerialable):
 
     def chooseAction(self, user: "User"):
         options = []
-        if len(self.locations) > 0:
-            options.append("Location")
         if len(self.levels) > 0:
             options.append("Level")
         options.append("Quit")
@@ -64,46 +62,3 @@ class Area(AbstractJsonSerialable):
                 screen.addOption(level)
             lvChoice = screen.displayAndChoose("Which level do you want to play?")
             lvChoice.play(user)
-        elif choice == "Location":
-            screen.clearOptions()
-            for loc in self.locations:
-                screen.addOption(loc)
-            travelChoice = screen.displayAndChoose("Where do you want to go?")
-            travelChoice.travelTo()
-
-"""
-Locations are used to store text descriptions of an area,
-providing a bit of atmosphere
-"""
-class Location(AbstractJsonSerialable):
-    """
-    required kwargs:
-    - name : str
-    - desc : str
-    - script : list of strings. Defaults to []
-    """
-    def __init__(self, **kwargs):#name: str, desc: str, script: list):
-        super(Location, self).__init__(**dict(kwargs, type="Location"))
-        self.name = kwargs["name"]
-        self.desc = kwargs["desc"]
-        self.script = kwargs.get("script", [])
-        self.addSerializedAttributes(
-            "name",
-            "desc",
-            "script"
-        )
-
-    """
-    Get data for outputting
-    """
-    def getDisplayData(self)->str:
-        return f'{self.name}: {self.desc}'
-
-    """
-    Prints this location's story
-    """
-    def travelTo(self):
-        screen = Screen()
-        screen.setTitle(self.name)
-        screen.addBodyRows(self.script)
-        screen.display()

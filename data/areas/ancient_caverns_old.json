@@ -1,21 +1,21 @@
 {
-    "name": "Ancient caverns", 
-    "type": "area", 
-    "desc": " What once lay forgoten now lies renewed", 
+    "name": "Ancient caverns",
+    "type": "area",
+    "description": " What once lay forgoten now lies renewed",
     "locations": [
         {
-            "name": "Ancient library caverns", 
-            "type": "location", 
-            "desc": "These caves seem as old as time itself.", 
+            "name": "Ancient library caverns",
+            "type": "location",
+            "description": "These caves seem as old as time itself.",
             "script": [
-                "LIBRARIAN: These caves have only recently by our scholars.", 
-                "Everything here is estimated to be ancient", 
-                "perhaps even older than Altostromia itself!", 
-                "But what concerns me are these statues...", 
+                "LIBRARIAN: These caves have only recently by our scholars.",
+                "Everything here is estimated to be ancient",
+                "perhaps even older than Altostromia itself!",
+                "But what concerns me are these statues...",
                 "...hundreds of them..."
             ]
         }
-    ], 
+    ],
     "levels": [
         {
             "name": "Origin Beaches",
@@ -23,7 +23,7 @@
                 "Rain Entity"
             ],
             "level": 1,
-            "desc": "All heroes have to start somewhere",
+            "description": "All heroes have to start somewhere",
             "script": [
                 "Encounter! Rain Entity",
                 "Quick! Knock its hit points down to zero and escape!"
@@ -36,20 +36,20 @@
             "rewards": []
         },
         {
-            "name": "Stone Rising", 
+            "name": "Stone Rising",
             "enemies": [
                 "Stone Soldier"
-            ], 
-            "level": 1, 
-            "desc": " An ancient threat arises", 
+            ],
+            "level": 1,
+            "description": " An ancient threat arises",
             "script": [
-                "STONE SOLDIER Foolish ones seek to take our land", 
+                "STONE SOLDIER Foolish ones seek to take our land",
                 "when we ourselves are imbued with its very power!"
-            ], 
+            ],
             "final act": [
                 "The stone soldier shatters into dust"
-            ], 
-            "forecast": "TODO", 
+            ],
+            "forecast": "TODO",
             "rewards": []
         }
     ]

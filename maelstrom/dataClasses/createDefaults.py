@@ -7,10 +7,11 @@ object creation process a bit.
 
 
 from maelstrom.dataClasses.activeAbilities import createDefaultActives
+from maelstrom.dataClasses.campaign import Location
 from maelstrom.dataClasses.character import Character
 from maelstrom.dataClasses.item import getItemList
 from maelstrom.dataClasses.passiveAbilities import getPassiveAbilityList
-from battle.area import Area, Location
+from battle.area import Area
 from battle.battle import Battle
 from maelstrom.loaders.characterLoader import EnemyLoader
 import random
@@ -52,12 +53,7 @@ def createRandomBattle(numEnemies: int)->"Battle":
 def createDefaultLocation():
     return Location(
         name="Shoreline",
-        desc="Gentle waves lap at the shore.",
-        script=[
-            "I'm not sure how I feel about the sand...",
-            "is it course and rough?",
-            "or soft?"
-        ]
+        description="Gentle waves lap at the shore."
     )
 
 def createDefaultPlayer(name, element)->"Character":
