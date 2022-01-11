@@ -7,7 +7,7 @@ from maelstrom.inputOutput.screens import Screen
 from maelstrom.util.user import User
 from maelstrom.util.userLoader import UserLoader
 
-from util.utilities import ELEMENTS
+from maelstrom.dataClasses.elements import ELEMENTS
 
 
 

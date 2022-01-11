@@ -4,7 +4,7 @@ This module handles teams - collections of Characters
 
 
 
-from util.serialize import AbstractJsonSerialable # old util package
+from maelstrom.util.serialize import AbstractJsonSerialable
 import functools
 
 

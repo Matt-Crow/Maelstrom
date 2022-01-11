@@ -7,8 +7,11 @@ A Character is an entity within the game who has various stats and attributes.
 from maelstrom.gameplay.events import ActionRegister, UPDATE_EVENT
 from maelstrom.dataClasses.customizable import AbstractCustomizable
 from maelstrom.dataClasses.stat_classes import Stat
-from util.stringUtil import entab, lengthOfLongest
-from util.utilities import STATS
+from maelstrom.util.stringUtil import entab, lengthOfLongest
+
+
+
+STATS = ("control", "resistance", "potency", "luck", "energy")
 
 
 

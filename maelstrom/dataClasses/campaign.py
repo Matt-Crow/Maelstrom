@@ -4,8 +4,8 @@ this module will eventually include a Campaign class - a collection of Areas
 
 
 
-from util.stringUtil import entab
-from util.serialize import AbstractJsonSerialable
+from maelstrom.util.stringUtil import entab
+from maelstrom.util.serialize import AbstractJsonSerialable
 
 
 

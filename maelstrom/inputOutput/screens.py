@@ -20,7 +20,7 @@ import re
 import subprocess
 from maelstrom.inputOutput.input import choose
 from maelstrom.inputOutput.output import output, error, CLS_BEFORE_DISPLAY
-from util.stringUtil import lengthOfLongest
+from maelstrom.util.stringUtil import lengthOfLongest
 
 SCREEN_COLS = 80
 

@@ -7,7 +7,7 @@ This module replaces the old distinction between player and AI teams
 from maelstrom.dataClasses.characterManager import manageCharacter
 from maelstrom.inputOutput.teamDisplay import getDetailedTeamData
 from maelstrom.inputOutput.screens import Screen
-from util.serialize import AbstractJsonSerialable # old util package
+from maelstrom.util.serialize import AbstractJsonSerialable
 
 
 

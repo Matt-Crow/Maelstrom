@@ -1,4 +1,4 @@
-from util.utilities import *
+from maelstrom.dataClasses.elements import *
 
 HIT_GIVEN_EVENT = 0
 HIT_TAKEN_EVENT = 1

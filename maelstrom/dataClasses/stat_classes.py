@@ -1,6 +1,6 @@
-from util.utilities import *
-from util.stringUtil import entab
-from util.serialize import AbstractJsonSerialable
+from maelstrom.dataClasses.elements import *
+from maelstrom.util.stringUtil import entab
+from maelstrom.util.serialize import AbstractJsonSerialable
 
 
 

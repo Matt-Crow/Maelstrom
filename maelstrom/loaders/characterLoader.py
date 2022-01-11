@@ -11,7 +11,7 @@ from maelstrom.dataClasses.item import getItemList
 from maelstrom.dataClasses.passiveAbilities import getPassiveAbilityList
 from maelstrom.dataClasses.team import Team
 
-from util.serialize import AbstractJsonLoader
+from maelstrom.util.serialize import AbstractJsonLoader
 
 
 

@@ -2,7 +2,7 @@
 
 
 from maelstrom.inputOutput.screens import Screen # old io package
-from util.stringUtil import lengthOfLongest # old util package
+from maelstrom.util.stringUtil import lengthOfLongest # old util package
 
 
 

@@ -7,7 +7,7 @@ and can be acquired as rewards from Battles.
 
 
 from maelstrom.dataClasses.stat_classes import Boost
-from util.serialize import AbstractJsonSerialable
+from maelstrom.util.serialize import AbstractJsonSerialable
 
 
 

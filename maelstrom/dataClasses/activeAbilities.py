@@ -6,9 +6,10 @@ to trigger on their turn.
 
 
 from maelstrom.inputOutput.output import debug
-from util.serialize import AbstractJsonSerialable
-from util.stringUtil import formatPercent
-from util.utilities import ELEMENTS, roll_perc
+from maelstrom.util.serialize import AbstractJsonSerialable
+from maelstrom.util.stringUtil import formatPercent
+from maelstrom.util.random import rollPercentage
+from maelstrom.dataClasses.elements import ELEMENTS
 from abc import abstractmethod
 
 
@@ -74,7 +75,7 @@ class AbstractDamagingActive(AbstractActive):
         chance, miss chance, and the user's luck
         """
         hit = HitType(1.0, "") # don't put a space at the end of the message
-        rng = roll_perc(user.getStatValue("luck")) / 100
+        rng = rollPercentage(user.getStatValue("luck")) / 100
 
         debug(f'rolled {rng}')
         debug(f'miss requires {self.missChance}')

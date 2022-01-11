@@ -7,8 +7,9 @@ of health
 
 
 from maelstrom.dataClasses.stat_classes import Boost
-from util.serialize import AbstractJsonSerialable
-from util.utilities import ELEMENTS, roll_perc
+from maelstrom.util.random import rollPercentage
+from maelstrom.util.serialize import AbstractJsonSerialable
+from maelstrom.dataClasses.elements import ELEMENTS
 from maelstrom.gameplay.events import HIT_GIVEN_EVENT, HIT_TAKEN_EVENT, UPDATE_EVENT
 from abc import abstractmethod
 
@@ -81,7 +82,7 @@ class OnHitGivenPassive(AbstractPassive):
         user.addActionListener(HIT_GIVEN_EVENT, self.checkTrigger)
 
     def checkTrigger(self, onHitEvent):
-        if roll_perc(onHitEvent.hitter.getStatValue("luck")) > 100 - self.chance * 100:
+        if rollPercentage(onHitEvent.hitter.getStatValue("luck")) > 100 - self.chance * 100:
             if self.targetsUser:
                 onHitEvent.hitter.boost(self.boost.copy())
             else:
@@ -107,7 +108,7 @@ class OnHitTakenPassive(AbstractPassive):
         user.addActionListener(HIT_TAKEN_EVENT, self.checkTrigger)
 
     def checkTrigger(self, onHitEvent):
-        if roll_perc(onHitEvent.hitee.getStatValue("luck")) > 100 - self.chance * 100:
+        if rollPercentage(onHitEvent.hitee.getStatValue("luck")) > 100 - self.chance * 100:
             if self.targetsUser:
                 onHitEvent.hitee.boost(self.boost.copy())
             else:

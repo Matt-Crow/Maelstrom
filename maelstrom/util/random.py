@@ -1,17 +1,17 @@
-import random
+
+
 
 from maelstrom.inputOutput.output import debug
+import random
 
 
-ELEMENTS = ("lightning", "rain", "hail", "wind")
-STATS = ("control", "resistance", "potency", "luck", "energy")
 
-def roll_perc(base = 0):
+def rollPercentage(base = 0):
     """
     Chooses a random number
     between base and 100,
     use
-    roll_perc(self.getStatValue("luck"))
+    rollPercentage(self.getStatValue("luck"))
     """
     ret = 100
     base = int(base)

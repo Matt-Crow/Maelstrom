@@ -4,7 +4,7 @@
 from maelstrom.util.user import User
 
 from maelstrom.loaders.characterLoader import loadItem, loadTeam
-from util.serialize import AbstractJsonLoader # old util package
+from maelstrom.util.serialize import AbstractJsonLoader
 
 
 

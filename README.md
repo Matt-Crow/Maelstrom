@@ -27,6 +27,5 @@ TODO:
 * Add "guidebooks" the player can use to look up info on enemies, actives,
   passives, and items to avoid info-dumping before every battle
 
-  
+
 * de-tangle attack choosing in combat.py and activeAbilities.py
-* migrate over to """maelstrom""" folder

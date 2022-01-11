@@ -1,7 +1,7 @@
 
 
 
-from util.serialize import AbstractJsonLoader
+from maelstrom.util.serialize import AbstractJsonLoader
 from maelstrom.dataClasses.campaign import Area, Level, Location
 
 

@@ -1,4 +1,4 @@
-from util.serialize import AbstractJsonSerialable
+from maelstrom.util.serialize import AbstractJsonSerialable
 from maelstrom.dataClasses.stat_classes import Stat
 from abc import abstractmethod
 from maelstrom.inputOutput.screens import Screen
