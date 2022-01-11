@@ -68,15 +68,15 @@ class Level(AbstractJsonSerialable):
             "enemyLevel"
         )
 
-     def __str__(self)->str:
-         return f'Level: {self.name}'
+    def __str__(self)->str:
+        return f'Level: {self.name}'
 
-     def getDisplayData(self)->str:
-         lines = [
+    def getDisplayData(self)->str:
+        lines = [
             f'Level: {self.name}',
-            entab(f'"self.desc"')
-         ]
-         for name in self.enemyNames:
-             lines.append(f'* {name} Lv. {self.enemyLevel}')
+            entab(f'"{self.description}"')
+        ]
+        for name in self.enemyNames:
+            lines.append(f'* {name} Lv. {self.enemyLevel}')
 
-         return "\n".join(lines)
+        return "\n".join(lines)

@@ -42,7 +42,7 @@ def playLevel(level: "Level", user: "User"):
     playerTeamData = getTeamDisplayData(playerTeam)
     enemyTeamData = getTeamDisplayData(enemyTeam)
     screen.addSplitRow(playerTeamData, enemyTeamData)
-    screen.addBodyRows(level.prescript)
+    screen.addBodyRow(level.prescript)
     screen.addBodyRow(weather.getMsg())
     screen.display()
 
@@ -55,7 +55,7 @@ def playLevel(level: "Level", user: "User"):
         weather
     ).resolve():
         msgs.append(f'{playerTeam.name} won!')
-        msgs.extend(level.postscript)
+        msgs.append(level.postscript)
         # add rewards later
     else:
         msgs.append("Regretably, you have not won this day. Though someday, you will grow strong enough to overcome this challenge...")
@@ -69,7 +69,7 @@ def playLevel(level: "Level", user: "User"):
     screen.addBodyRows(msgs)
     screen.display()
 
-    
+
 
 class Encounter:
     """

@@ -5,7 +5,6 @@ to trigger on their turn.
 
 
 
-from maelstrom.gameplay.combat import resolveAttack
 from maelstrom.inputOutput.output import debug
 from util.serialize import AbstractJsonSerialable
 from util.stringUtil import formatPercent
@@ -88,17 +87,6 @@ class AbstractDamagingActive(AbstractActive):
 
         return hit
 
-    def use(self, user: "Character", userOrdinal: int, targetTeam: "List<Character>", choice: int)->"List<str>":
-        user.loseEnergy(self.cost)
-
-        msgs = []
-
-        targets = self.getTargetOptions(userOrdinal, targetTeam)[choice]
-
-        for target in targets:
-            msgs.append(resolveAttack((user, target, self)))
-
-        return msgs
 
 class MeleeActive(AbstractDamagingActive):
     # not sure if I like so many paramters

@@ -1,6 +1,9 @@
 from util.serialize import AbstractJsonSerialable
+from maelstrom.gameplay.combat import playLevel
 from maelstrom.inputOutput.screens import Screen
 from util.stringUtil import entab
+
+
 
 class Area(AbstractJsonSerialable):
     """
@@ -61,4 +64,4 @@ class Area(AbstractJsonSerialable):
             for level in self.levels:
                 screen.addOption(level)
             lvChoice = screen.displayAndChoose("Which level do you want to play?")
-            lvChoice.play(user)
+            playLevel(lvChoice, user)

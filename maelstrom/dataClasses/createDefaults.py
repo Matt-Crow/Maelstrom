@@ -7,12 +7,11 @@ object creation process a bit.
 
 
 from maelstrom.dataClasses.activeAbilities import createDefaultActives
-from maelstrom.dataClasses.campaign import Location
+from maelstrom.dataClasses.campaign import Level, Location
 from maelstrom.dataClasses.character import Character
 from maelstrom.dataClasses.item import getItemList
 from maelstrom.dataClasses.passiveAbilities import getPassiveAbilityList
 from battle.area import Area
-from battle.battle import Battle
 from maelstrom.loaders.characterLoader import EnemyLoader
 import random
 
@@ -32,22 +31,23 @@ def createDefaultArea()->"Area":
         name="Test Area",
         desc="No description",
         locations=[createDefaultLocation()],
-        levels=[createRandomBattle(i) for i in range(1, 5)]
+        levels=[createRandomLevel(i) for i in range(1, 5)]
     )
 
-def createRandomBattle(numEnemies: int)->"Battle":
+def createRandomLevel(numEnemies: int)->"Level":
     enemyNames = []
     allEnemyNames = EnemyLoader().getOptions()
 
     for i in range(numEnemies):
         enemyNames.append(random.choice(allEnemyNames))
 
-    return Battle(
+    return Level(
         name="Random encounter",
-        desc="Random battle",
+        description="Random battle",
+        prescript="from out of nowhere... some enemies attack!",
+        postscript="the enemies flee before your elemental might",
         enemyNames=enemyNames,
-        level=1,
-        rewards=[createRandomItem()]
+        enemyLevel=1
     )
 
 def createDefaultLocation():
