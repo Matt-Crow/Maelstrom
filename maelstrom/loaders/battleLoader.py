@@ -2,9 +2,7 @@
 
 
 from util.serialize import AbstractJsonLoader
-from battle.weather import WEATHERS
 from maelstrom.dataClasses.campaign import Area, Level, Location
-from maelstrom.loaders.characterLoader import loadItem
 
 
 
@@ -27,14 +25,3 @@ class AreaLoader(AbstractJsonLoader):
 
     def loadLevel(self, asJson: dict)->"Level":
         return Level(**asJson)
-
-    def loadWeather(self, asJson: dict)->"Weather":
-        name = asJson["name"]
-        ret = None
-        for weather in WEATHERS:
-            if weather.name == name:
-                ret = weather
-                break
-        if ret is None:
-            raise Error("No weather found with name '{0}'".format(name))
-        return ret

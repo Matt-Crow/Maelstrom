@@ -1,34 +1,31 @@
-import random
 from maelstrom.dataClasses.stat_classes import Boost
-from util.serialize import AbstractJsonSerialable
+import abc
+import random
 
-"""
-This is what gives Maelstrom its name. Weather provides in-battle effects that
-alter the stats of characters. This is an abstract class
-"""
-class Weather(AbstractJsonSerialable):
+
+
+class Weather:
+    """
+    This is what gives Maelstrom its name. Weather provides in-battle effects that
+    alter the stats of characters. This is an abstract class
+    """
 
     def __init__(self, name: str, msg: str):
-        super(Weather, self).__init__(**dict(name=name, type="Weather"))
         self.name = name
         self.msg = msg
-        self.addSerializedAttribute("name")
 
-    """
-    returns a message showing
-    the weather condition
-    """
     def getMsg(self):
         return self.msg
 
-    """
-    Apply stat changes to a list of Characters. Appends messages to the
-    given list of messages based on how it effects them
-    """
     def applyEffect(self, affected: "List<Character>", msgs: "List<str>"):
+        """
+        Apply stat changes to a list of Characters. Appends messages to the
+        given list of messages based on how it effects them
+        """
         for person in affected:
             msgs.append(self.doApplyEffect(person))
 
+    @abc.abstractmethod
     def doApplyEffect(self, target: "Character")->str:
         pass
 

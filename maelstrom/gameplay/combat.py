@@ -6,13 +6,12 @@ functions that act on their data, preventing classes from become cumbersome
 
 
 from maelstrom.dataClasses.team import Team
+from maelstrom.dataClasses.weather import WEATHERS
 from maelstrom.loaders.characterLoader import EnemyLoader
 from maelstrom.inputOutput.output import debug
 from maelstrom.inputOutput.screens import Screen
 from maelstrom.inputOutput.teamDisplay import getTeamDisplayData
-
-from battle.weather import WEATHERS
-from battle.events import OnHitEvent, HIT_GIVEN_EVENT, HIT_TAKEN_EVENT
+from maelstrom.gameplay.events import OnHitEvent, HIT_GIVEN_EVENT, HIT_TAKEN_EVENT
 
 import functools
 import random
