@@ -7,11 +7,10 @@ object creation process a bit.
 
 
 from maelstrom.dataClasses.activeAbilities import createDefaultActives
-from maelstrom.dataClasses.campaign import Level, Location
+from maelstrom.dataClasses.campaign import Area, Level, Location
 from maelstrom.dataClasses.character import Character
 from maelstrom.dataClasses.item import getItemList
 from maelstrom.dataClasses.passiveAbilities import getPassiveAbilityList
-from battle.area import Area
 from maelstrom.loaders.characterLoader import EnemyLoader
 import random
 
@@ -29,7 +28,7 @@ def saveDefaultData():
 def createDefaultArea()->"Area":
     return Area(
         name="Test Area",
-        desc="No description",
+        description="No description",
         locations=[createDefaultLocation()],
         levels=[createRandomLevel(i) for i in range(1, 5)]
     )

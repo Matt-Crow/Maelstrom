@@ -9,6 +9,49 @@ from util.serialize import AbstractJsonSerialable
 
 
 
+class Area(AbstractJsonSerialable):
+    """
+    a collection of Levels and Locations
+    """
+
+    def __init__(self, **kwargs):
+        """
+        required kwargs:
+        - name: str
+        - description: str
+        - locations: List<Location>. Defaults to []
+        - levels: List<Level>. Defaults to []
+        """
+        super().__init__(**dict(kwargs, type="Area"))
+        self.name = kwargs["name"]
+        self.description = kwargs["description"]
+        self.locations = kwargs.get("locations", [])
+        self.levels = kwargs.get("levels", [])
+        self.addSerializedAttributes("name", "description", "locations", "levels")
+
+    def __str__(self)->str:
+        return f'Area: {self.name}'
+
+    def getDisplayData(self)->str:
+        lines = [
+            f'Area: {self.name}',
+            entab(self.description)
+        ]
+
+        if len(self.locations) > 0:
+            lines.append("Locations:")
+            for location in self.locations:
+                lines.append(entab(location.getDisplayData()))
+
+        if len(self.levels) > 0:
+            lines.append("Levels:")
+            for level in self.levels:
+                lines.append(entab(level.getDisplayData()))
+
+        return "\n".join(lines)
+
+
+
 class Location(AbstractJsonSerialable):
     """
     Locations provide flavor text for an Area
@@ -77,6 +120,6 @@ class Level(AbstractJsonSerialable):
             entab(f'"{self.description}"')
         ]
         for name in self.enemyNames:
-            lines.append(f'* {name} Lv. {self.enemyLevel}')
+            lines.append(entab(f'* {name} Lv. {self.enemyLevel}'))
 
         return "\n".join(lines)

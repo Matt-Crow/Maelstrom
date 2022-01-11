@@ -1,12 +1,13 @@
+from maelstrom.dataClasses.createDefaults import createDefaultArea, createDefaultPlayer
 from maelstrom.dataClasses.item import getItemList
 from maelstrom.dataClasses.passiveAbilities import getPassiveAbilityList
 from maelstrom.dataClasses.team import Team
+from maelstrom.gameplay.levelController import chooseUserAreaAction
+from maelstrom.inputOutput.screens import Screen
 from maelstrom.util.user import User
 from maelstrom.util.userLoader import UserLoader
 
 from util.utilities import ELEMENTS
-from maelstrom.inputOutput.screens import Screen
-from maelstrom.dataClasses.createDefaults import createDefaultArea, createDefaultPlayer
 
 
 
@@ -32,7 +33,7 @@ class Game:
 
         choice = screen.displayAndChoose("What do you wish to do?")
         if choice == "explore":
-            self.currentArea.chooseAction(self.user)
+            chooseUserAreaAction(self.user, self.currentArea)
         elif choice == "view character info":
             screen = Screen()
             screen.setTitle(self.user.name)

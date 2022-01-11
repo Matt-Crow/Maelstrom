@@ -2,9 +2,8 @@
 
 
 from util.serialize import AbstractJsonLoader
-from battle.area import Area
 from battle.weather import WEATHERS
-from maelstrom.dataClasses.campaign import Level, Location
+from maelstrom.dataClasses.campaign import Area, Level, Location
 from maelstrom.loaders.characterLoader import loadItem
 
 
