@@ -5,14 +5,71 @@ functions that act on their data, preventing classes from become cumbersome
 
 
 
-from maelstrom.inputOutput.teamDisplay import getTeamDisplayData
-
-from battle.events import OnHitEvent, HIT_GIVEN_EVENT, HIT_TAKEN_EVENT
+from maelstrom.dataClasses.team import Team
+from maelstrom.loaders.characterLoader import EnemyLoader
 from maelstrom.inputOutput.output import debug
 from maelstrom.inputOutput.screens import Screen
+from maelstrom.inputOutput.teamDisplay import getTeamDisplayData
+
+from battle.weather import WEATHERS
+from battle.events import OnHitEvent, HIT_GIVEN_EVENT, HIT_TAKEN_EVENT
+
 import functools
+import random
 
 
+
+def playLevel(level: "Level", user: "User"):
+    """
+    used to start and run a Level
+    """
+
+    enemyLoader = EnemyLoader()
+    enemies = [enemyLoader.load(enemyName) for enemyName in level.enemyNames]
+    for enemy in enemies:
+        enemy.level = level.enemyLevel
+    enemyTeam = Team(name="Enemy Team", members=enemies)
+    enemyTeam.initForBattle()
+
+    playerTeam = user.team
+    playerTeam.initForBattle()
+
+    weather = random.choice(WEATHERS)
+
+
+    screen = Screen()
+    screen.setTitle(f'{playerTeam.name} VS. {enemyTeam.name}')
+    playerTeamData = getTeamDisplayData(playerTeam)
+    enemyTeamData = getTeamDisplayData(enemyTeam)
+    screen.addSplitRow(playerTeamData, enemyTeamData)
+    screen.addBodyRows(level.prescript)
+    screen.addBodyRow(weather.getMsg())
+    screen.display()
+
+
+    msgs = []
+
+    if Encounter(
+        playerTeam,
+        enemyTeam,
+        weather
+    ).resolve():
+        msgs.append(f'{playerTeam.name} won!')
+        msgs.extend(level.postscript)
+        # add rewards later
+    else:
+        msgs.append("Regretably, you have not won this day. Though someday, you will grow strong enough to overcome this challenge...")
+
+    xp = enemyTeam.getXpGiven()
+    for member in playerTeam.members:
+        msgs.extend(member.gainXp(xp))
+
+    screen = Screen()
+    screen.setTitle(f'{playerTeam.name} VS. {enemyTeam.name}')
+    screen.addBodyRows(msgs)
+    screen.display()
+
+    
 
 class Encounter:
     """
@@ -120,7 +177,7 @@ def getActiveChoices(character: "Character", ordinal: int, targetTeam: "List<Cha
 
 def dmgAtLv(lv)->int:
     return int(16.67 * (1 + lv * 0.05))
-    
+
 def resolveAttack(attacker, target, activeUsed)->str:
     dmg = calcDmgTaken(attacker, target, activeUsed)
     hitType = activeUsed.randomHitType(attacker)
