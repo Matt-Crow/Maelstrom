@@ -5,18 +5,69 @@ to trigger on their turn.
 
 
 
+from maelstrom.gameplay.events import OnHitEvent, HIT_GIVEN_EVENT, HIT_TAKEN_EVENT
 from maelstrom.inputOutput.output import debug
 from maelstrom.util.serialize import AbstractJsonSerialable
 from maelstrom.util.random import rollPercentage
 from maelstrom.dataClasses.elements import ELEMENTS
 from abc import abstractmethod
+import functools
 
+
+
+"""
+utility classes
+"""
+
+
+
+def dmgAtLv(lv)->int:
+    return int(16.67 * (1 + lv * 0.05))
 
 
 class HitType:
+    """
+    a HitType represents either a regular hit, a miss, or a critical hit (MHC)
+    """
+
     def __init__(self, multiplier, message):
         self.multiplier = multiplier
         self.message = message
+
+
+class TargetOption:
+    """
+    a TargetOption specifies who a user could potentially target using an active
+    ability. For example, a melee attack allows a user to strike at a closeby
+    enemy, while a ranged attack can target distant enemies
+
+    Command design pattern
+    """
+
+    def __init__(self, active: "AbstractActive", user: "Character", targets: "List<Character>"):
+        self.active = active
+        self.user = user
+        self.targets = targets
+        self.msg = f'{active.name}->{", ".join([target.name for target in targets])}'
+
+        # this will change when non-damaging actives are introduced
+        self.totalDamage = functools.reduce(lambda total, next: total + next, [
+            active.calcDamageAgainst(user, target) for target in targets
+        ])
+
+    def __str__(self)->str:
+        return self.msg
+
+    def use(self)->str:
+        self.user.loseEnergy(self.active.cost) # don't call this for each target
+        msgs = [self.active.resolveAgainst(self.user, target) for target in self.targets]
+        return "\n".join(msgs)
+
+
+
+"""
+data classes
+"""
 
 
 
@@ -34,16 +85,20 @@ class AbstractActive(AbstractJsonSerialable):
     def copy(self):
         pass
 
+    @abstractmethod
+    def resolveAgainst(self, target: "Character")->str:
+        pass
+
     def canUse(self, user: "Character")->bool:
         return self.cost <= user.energy and len(self.getTargetOptions(user)) > 0
 
-    def getTargetOptions(self, user: "Character")->"List<List<Character>>":
+    def getTargetOptions(self, user: "Character")->"List<TargetOption>":
         """
         don't override this one
         """
         if len(user.team.enemyTeam.getMembersRemaining()) == 0:
             return []
-        return self.doGetTargetOptions(user)
+        return [TargetOption(self, user, targets) for targets in self.doGetTargetOptions(user)]
 
     @abstractmethod
     def doGetTargetOptions(self, user: "Character")->"List<List<Character>>":
@@ -67,6 +122,29 @@ class AbstractDamagingActive(AbstractActive):
         self.missMult = missMult
         self.critChance = critChance
         self.critMult = critMult
+
+    def resolveAgainst(self, user: "Character", target: "Character")->str:
+        dmg = self.calcDamageAgainst(user, target)
+        hitType = self.randomHitType(user)
+        dmg = int(dmg * hitType.multiplier)
+
+        event = OnHitEvent("Attack", user, target, self, dmg)
+
+        target.takeDmg(dmg)
+
+        target.fireActionListeners(HIT_TAKEN_EVENT, event)
+        user.fireActionListeners(HIT_GIVEN_EVENT, event)
+
+        return f'{hitType.message}{user.name} struck {target.name} for {dmg} damage using {self.name}!'
+
+    def calcDamageAgainst(self, user: "Character", target: "Character")->int:
+        """
+        MHC is not checked here so that it doesn't mess with AI
+        """
+
+        return int(
+            dmgAtLv(user.level) * self.damageMult * user.getStatValue("control") / target.getStatValue("resistance")
+        )
 
     def randomHitType(self, user: "Character")->"HitType":
         """

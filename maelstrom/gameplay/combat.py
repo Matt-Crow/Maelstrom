@@ -11,9 +11,7 @@ from maelstrom.loaders.characterLoader import EnemyLoader
 from maelstrom.inputOutput.output import debug
 from maelstrom.inputOutput.screens import Screen
 from maelstrom.inputOutput.teamDisplay import getTeamDisplayData
-from maelstrom.gameplay.events import OnHitEvent, HIT_GIVEN_EVENT, HIT_TAKEN_EVENT
 
-import functools
 import random
 
 
@@ -171,58 +169,9 @@ class Encounter:
 
         return best
 
-def getActiveChoices(character: "Character")->"List<ActiveChoice>":
+def getActiveChoices(character: "Character")->"List<TargetOption>":
     useableActives = [active for active in character.actives if active.canUse(character)]
     choices = []
     for active in useableActives:
-        targetOptions = active.getTargetOptions(character)
-        choices.extend([ActiveChoice(active, character, character.ordinal, targets) for targets in targetOptions])
+        choices.extend(active.getTargetOptions(character))
     return choices
-
-def dmgAtLv(lv)->int:
-    return int(16.67 * (1 + lv * 0.05))
-
-def resolveAttack(attacker, target, activeUsed)->str:
-    dmg = calcDmgTaken(attacker, target, activeUsed)
-    hitType = activeUsed.randomHitType(attacker)
-    dmg = int(dmg * hitType.multiplier)
-
-    event = OnHitEvent("Attack", attacker, target, activeUsed, dmg)
-
-    target.fireActionListeners(HIT_TAKEN_EVENT, event)
-    attacker.fireActionListeners(HIT_GIVEN_EVENT, event)
-    target.takeDmg(dmg)
-
-    return f'{hitType.message}{attacker.name} struck {target.name} for {dmg} damage using {activeUsed.name}!'
-
-def calcDmgTaken(attacker, target, activeUsed):
-    """
-    MHC is not checked here so that it doesn't
-    mess with AI
-    """
-    return dmgAtLv(attacker.level) * activeUsed.damageMult * attacker.getStatValue("control") / target.getStatValue("resistance")
-
-class ActiveChoice:
-    """
-    command design pattern
-    """
-
-    def __init__(self, active, user, userOrdinal, targets):
-        self.active = active
-        self.user = user
-        self.userOrdinal = userOrdinal
-        self.targets = targets
-        self.msg = f'{active.name}->{", ".join([target.name for target in targets])}'
-        self.totalDamage = functools.reduce(lambda total, next: total + next, [
-            calcDmgTaken(user, target, active) for target in targets
-        ])
-
-    def __str__(self):
-        return self.msg
-
-    def use(self)->str:
-        self.user.loseEnergy(self.active.cost)
-        msgs = []
-        for target in self.targets:
-            msgs.append(resolveAttack(self.user, target, self.active))
-        return "\n".join(msgs)
