@@ -115,7 +115,7 @@ class Encounter:
         msgs.extend(attacker.updateMembersRemaining())
 
         for member in attacker.membersRemaining:
-            options = getActiveChoices(member)
+            options = member.getActiveChoices()
             if len(options) == 0:
                 msgs.append(f'{member.name} has no valid targets!')
             else:
@@ -130,7 +130,7 @@ class Encounter:
         )
         screen.addBodyRows(msgs)
 
-        options = getActiveChoices(character)
+        options = character.getActiveChoices()
         if len(options) == 0:
             screen.addBodyRow(f'{character.name} has no valid targets!')
         else: # let them choose their active and target
@@ -148,12 +148,12 @@ class Encounter:
         screen.display()
 
     def userChoose(self, screen, character):
-        for option in getActiveChoices(character):
+        for option in character.getActiveChoices():
             screen.addOption(option)
         return screen.displayAndChoose("What active do you wish to use?")
 
     def aiChoose(self, screen, character):
-        choices = getActiveChoices(character)
+        choices = character.getActiveChoices()
         if len(choices) == 0:
             return None
 
@@ -168,10 +168,3 @@ class Encounter:
         debug("-" * 10)
 
         return best
-
-def getActiveChoices(character: "Character")->"List<TargetOption>":
-    useableActives = [active for active in character.actives if active.canUse(character)]
-    choices = []
-    for active in useableActives:
-        choices.extend(active.getTargetOptions(character))
-    return choices

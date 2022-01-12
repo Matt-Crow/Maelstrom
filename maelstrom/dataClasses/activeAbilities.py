@@ -1,6 +1,13 @@
 """
 Active abilities are attributes a character can have that they ACTIVEly choose
 to trigger on their turn.
+
+Keep in mind that, in battle, when a Character needs to choose their active,
+there are two components to consider:
+1. what active do I want to use?
+2. who do I want to hit with that active?
+Characters make a choice of which TargetOption they wish to use, not just which
+active they wish to use.
 """
 
 

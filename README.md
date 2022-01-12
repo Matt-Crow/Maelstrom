@@ -12,6 +12,7 @@ Use """python maelstrom.py -h""" to view command line options.
 
 TODO:
 * use my application directory system from ARCDHWebAutomator
+* controller system a la maelstrom/gameplay/levelController.py
 * make the game fun
 * I might want to replace the current method of serializing in-class with the
   Visitor design pattern using Python's JSONEncoder. The current method may
@@ -26,6 +27,3 @@ TODO:
     * redo item equipping choice system
 * Add "guidebooks" the player can use to look up info on enemies, actives,
   passives, and items to avoid info-dumping before every battle
-
-
-* de-tangle attack choosing in combat.py and activeAbilities.py

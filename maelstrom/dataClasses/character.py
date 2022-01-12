@@ -128,6 +128,17 @@ class Character(AbstractCustomizable):
     Used during battle
     """
 
+    def getActiveChoices(self)->"List<TargetOption>":
+        """
+        use this to find out which enemies this Character can target and with
+        which abilities
+        """
+        useableActives = [active for active in self.actives if active.canUse(self)]
+        choices = []
+        for active in useableActives:
+            choices.extend(active.getTargetOptions(self))
+        return choices
+
     # TODO add ID checking to prevent doubling up
     def boost(self, boost):
         """
@@ -179,6 +190,8 @@ class Character(AbstractCustomizable):
 
         if self.energy > self.getStatValue("energy"):
             self.energy = self.getStatValue("energy")
+
+        self.energy = int(self.energy)
 
         return amount
 

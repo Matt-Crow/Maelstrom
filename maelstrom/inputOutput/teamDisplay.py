@@ -1,8 +1,8 @@
 
 
 
-from maelstrom.inputOutput.screens import Screen # old io package
-from maelstrom.util.stringUtil import lengthOfLongest # old util package
+from maelstrom.inputOutput.screens import Screen
+from maelstrom.util.stringUtil import lengthOfLongest
 
 
 
@@ -14,9 +14,11 @@ def getTeamDisplayData(team: "Team")->str:
         f'{team.name}'
     ]
     longestName = lengthOfLongest((member.name for member in team.membersRemaining))
+    longestHpEnergy = lengthOfLongest((f'{str(member.remHp)} HP / {str(member.energy)} energy' for member in team.membersRemaining))
     longestHp = lengthOfLongest((str(member.remHp) for member in team.membersRemaining))
     for member in team.membersRemaining:
-        lines.append(f'* {member.name.ljust(longestName)}: {str(member.remHp).rjust(longestHp)} HP')
+        uiPart = f'{str(member.remHp)} HP / {str(member.energy)} EN'
+        lines.append(f'* {member.name.ljust(longestName)}: {uiPart.rjust(longestHpEnergy)}')
 
     return "\n".join(lines)
 
