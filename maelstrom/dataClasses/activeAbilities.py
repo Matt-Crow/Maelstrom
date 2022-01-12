@@ -7,7 +7,6 @@ to trigger on their turn.
 
 from maelstrom.inputOutput.output import debug
 from maelstrom.util.serialize import AbstractJsonSerialable
-from maelstrom.util.stringUtil import formatPercent
 from maelstrom.util.random import rollPercentage
 from maelstrom.dataClasses.elements import ELEMENTS
 from abc import abstractmethod
@@ -35,19 +34,19 @@ class AbstractActive(AbstractJsonSerialable):
     def copy(self):
         pass
 
-    def canUse(self, user: "Character", userOrdinal: int, targetTeam: "List<Character>")->bool:
-        return self.cost <= user.energy and len(self.getTargetOptions(userOrdinal, targetTeam)) > 0
+    def canUse(self, user: "Character")->bool:
+        return self.cost <= user.energy and len(self.getTargetOptions(user)) > 0
 
-    def getTargetOptions(self, userOrdinal: int, targetTeam: "List<Character>")->"List<List<Character>>":
+    def getTargetOptions(self, user: "Character")->"List<List<Character>>":
         """
         don't override this one
         """
-        if len(targetTeam) == 0:
+        if len(user.team.enemyTeam.getMembersRemaining()) == 0:
             return []
-        return self.doGetTargetOptions(userOrdinal, targetTeam)
+        return self.doGetTargetOptions(user)
 
     @abstractmethod
-    def doGetTargetOptions(self, userOrdinal: int, targetTeam: "List<Character>")->"List<List<Character>>":
+    def doGetTargetOptions(self, user: "Character")->"List<List<Character>>":
         """
         subclasses must override this option to return the enemies this could
         potentially hit. Each element of the returned list represents a choice
@@ -110,33 +109,33 @@ class MeleeActive(AbstractDamagingActive):
             self.critMult
         )
 
-    def doGetTargetOptions(self, userOrdinal: int, targetTeam: "List<Character>")->"List<List<Character>>":
+    def doGetTargetOptions(self, user: "Character")->"List<List<Character>>":
         """
         MeleeActives can hit a single active target
         """
-        return [[option] for option in getActiveTargets(userOrdinal, targetTeam)]
+        return [[option] for option in getActiveTargets(user.ordinal, user.team.enemyTeam.getMembersRemaining())]
 
 class ElementalActive(AbstractDamagingActive):
     def __init__(self, name):
         super().__init__(
             name,
             'strike an enemy for 1.75X damage',
-            5,
+            10,
             1.75,
             0,
+            1.0,
             0,
-            0,
-            0
+            1.0
         )
 
     def copy(self):
         return ElementalActive(self.name)
 
-    def doGetTargetOptions(self, userOrdinal: int, targetTeam: "List<Character>")->"List<List<Character>>":
+    def doGetTargetOptions(self, user: "Character")->"List<List<Character>>":
         """
         ElementalActives can hit a single cleave target
         """
-        return [[option] for option in getCleaveTargets(userOrdinal, targetTeam)]
+        return [[option] for option in getCleaveTargets(user.ordinal, user.team.enemyTeam.getMembersRemaining())]
 
 
 
