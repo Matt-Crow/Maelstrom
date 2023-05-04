@@ -33,4 +33,3 @@ def getOptions():
         userInput.test
     )
 
-options = getOptions() # only run once

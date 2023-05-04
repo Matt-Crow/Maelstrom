@@ -13,11 +13,11 @@ so anything that works for print will work for these
 
 
 
-from maelstrom.util.arguments import options
+from maelstrom.util.arguments import getOptions
 import sys
 
 
-
+options = getOptions()
 DEBUG = options.debug
 CLS_BEFORE_DISPLAY = not options.noCls
 

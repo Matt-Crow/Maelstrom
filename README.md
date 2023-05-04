@@ -10,6 +10,9 @@ program. After that, you can run using """python maelstrom.py""".
 
 Use """python maelstrom.py -h""" to view command line options.
 
+## Testing
+`python -m unittest`
+
 TODO:
 * use my application directory system from ARCDHWebAutomator
 * controller system a la maelstrom/gameplay/levelController.py

@@ -46,11 +46,12 @@ Version 0.9
 
 from maelstrom.dataClasses.createDefaults import saveDefaultData
 from game import Game
-from maelstrom.util.arguments import options
+from maelstrom.util.arguments import getOptions
 
 
 
 if __name__ == "__main__":
+    options = getOptions()
     print(options)
 
     if options.store:

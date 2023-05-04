@@ -268,31 +268,6 @@ def getDistantTargets(attackerOrdinal: int, targetTeam: "List<Character>")->"Lis
     notTargets = getCleaveTargets(attackerOrdinal, targetTeam)
     return [member for member in targetTeam if member not in notTargets]
 
-def testTargettingSystem():
-    targetTeam = [0, 1, 2, 3]
-
-    assert getActiveTargets(0, targetTeam) == [0, 1]
-    assert getActiveTargets(1, targetTeam) == [1, 2]
-    assert getActiveTargets(2, targetTeam) == [2, 3]
-    assert getActiveTargets(3, targetTeam) == [3]
-    assert getActiveTargets(4, targetTeam) == []
-
-    assert getCleaveTargets(0, targetTeam) == [0, 1]
-    assert getCleaveTargets(1, targetTeam) == [0, 1, 2]
-    assert getCleaveTargets(2, targetTeam) == [1, 2, 3]
-    assert getCleaveTargets(3, targetTeam) == [2, 3]
-    assert getCleaveTargets(4, targetTeam) == [3]
-
-    assert getDistantTargets(0, targetTeam) == [2, 3]
-    assert getDistantTargets(1, targetTeam) == [3]
-    assert getDistantTargets(2, targetTeam) == [0]
-    assert getDistantTargets(3, targetTeam) == [0, 1]
-    assert getDistantTargets(4, targetTeam) == [0, 1, 2]
-
-    print("done testing targetting system")
-
-
-
 def getUniversalActives()->"List<AbstractActive>":
     return [
         MeleeActive("slash", "strike a nearby enemy", 1.0, 0.2, 0.75, 0.2, 1.5),
