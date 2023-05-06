@@ -4,7 +4,6 @@ import unittest
 class TestTargettingSystem(unittest.TestCase): 
     def test_targetting_system(self):
         targetTeam = [0, 1, 2, 3]
-
         self.assertTrue(getActiveTargets(0, targetTeam) == [0, 1])
         self.assertTrue(getActiveTargets(1, targetTeam) == [1, 2])
         self.assertTrue(getActiveTargets(2, targetTeam) == [2, 3])
@@ -22,8 +21,6 @@ class TestTargettingSystem(unittest.TestCase):
         self.assertTrue(getDistantTargets(2, targetTeam) == [0])
         self.assertTrue(getDistantTargets(3, targetTeam) == [0, 1])
         self.assertTrue(getDistantTargets(4, targetTeam) == [0, 1, 2])
-
-        print("done testing targetting system")
 
 if __name__ == "__main__":
     unittest.main()

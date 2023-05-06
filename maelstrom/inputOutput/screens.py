@@ -19,8 +19,9 @@ import sys
 import re
 import subprocess
 from maelstrom.inputOutput.input import choose
-from maelstrom.inputOutput.output import output, error, CLS_BEFORE_DISPLAY
+from maelstrom.inputOutput.output import output, error
 from maelstrom.util.stringUtil import lengthOfLongest
+from maelstrom.util.config import get_global_config
 
 SCREEN_COLS = 80
 
@@ -85,7 +86,7 @@ class Screen:
         Displays NUM_BODY_ROWS rows of the body at a time
         """
         if bodyLines == 0:
-            if CLS_BEFORE_DISPLAY:
+            if not get_global_config().keep_output:
                 try:
                     works = subprocess.call("cls", shell=True)
                     if works != 0: #is false, didn't run
@@ -96,7 +97,7 @@ class Screen:
             self.writeBody(out, 0) # print blank body
 
         while currLine < bodyLines:
-            if CLS_BEFORE_DISPLAY:
+            if not get_global_config().keep_output:
                 try:
                     works = subprocess.call("cls", shell=True)
                     if works != 0: #is false, didn't run

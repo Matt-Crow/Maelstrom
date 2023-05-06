@@ -11,17 +11,8 @@ These functions forward their paramters to the official Python print function,
 so anything that works for print will work for these
 """
 
-
-
-from maelstrom.util.arguments import getOptions
+from maelstrom.util.config import get_global_config
 import sys
-
-
-options = getOptions()
-DEBUG = options.debug
-CLS_BEFORE_DISPLAY = not options.noCls
-
-
 
 class OutputConsumer:
     def output(self, *args, **kwargs):
@@ -60,6 +51,6 @@ def error(*args, **kwargs):
     input("press any key to continue")
 
 def debug(*args, **kwargs):
-    if DEBUG:
+    if get_global_config().debug:
         for consumer in debugConsumers:
             consumer.output(*[f'DEBUG: {arg}' for arg in args], **kwargs)
