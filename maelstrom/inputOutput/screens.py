@@ -13,24 +13,23 @@ Primary export:
     - displayAndChoose(prompt)
 """
 
-from enum import Enum, auto
 import math
 import sys
 import re
 import subprocess
-from maelstrom.inputOutput.input import choose
 from maelstrom.inputOutput.output import output, error
+from maelstrom.io.chooser import Chooser
 from maelstrom.util.stringUtil import lengthOfLongest
 from maelstrom.util.config import get_global_config
 
 SCREEN_COLS = 80
-
 BORDER = "#"
 OPTION_ROWS = 5
-
 NUM_BODY_ROWS = 10
+CHOOSER = Chooser()
 
-
+def choose(prompt: str, options: "List<any>", displayOptions=True)->"any":
+    return CHOOSER.choose(prompt, options, displayOptions)
 
 class Screen:
     def __init__(self):
