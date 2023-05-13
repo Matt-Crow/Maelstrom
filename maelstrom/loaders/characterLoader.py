@@ -5,13 +5,13 @@ objects in the program
 
 
 
-from maelstrom.dataClasses.activeAbilities import getActiveAbilityList
+from maelstrom.dataClasses.activeAbilities import createDefaultActives, getActiveAbilityList
 from maelstrom.dataClasses.character import Character
 from maelstrom.dataClasses.item import getItemList
 from maelstrom.dataClasses.passiveAbilities import getPassiveAbilityList
 from maelstrom.dataClasses.team import Team
+from maelstrom.loaders.templateloader import MakeCharacterTemplateRepository
 
-from maelstrom.util.serialize import AbstractJsonLoader
 
 
 
@@ -29,12 +29,39 @@ for passive in getPassiveAbilityList():
 
 
 
-class EnemyLoader(AbstractJsonLoader):
+class EnemyLoader:
+    """
+    loads enemies based upon templates
+    """
+    
     def __init__(self):
-        super().__init__("data.enemies")
+        self._template_repository = MakeCharacterTemplateRepository()
 
-    def doLoad(self, asJson: dict)->"Character":
-        return loadCharacter(asJson)
+    def load(self, name: str) -> Character:
+        """
+        constructs a character with the given name, if a template for such a 
+        character exists in the repository
+        """
+        template = self._template_repository.get(name)
+        if template is None:
+            raise ValueError(f'invalid character name: {name}')
+        constructed = Character(
+            name = template.name,
+            element = template.element,
+            stats = {
+                'control': template.control,
+                'resistance': template.resistance,
+                'energy': template.energy,
+                'potency': template.potency,
+                'luck': template.luck
+            },
+            actives = createDefaultActives(template.element),
+            passives = getPassiveAbilityList()
+        )
+        return constructed        
+
+    def getOptions(self) -> 'list[str]':
+        return [option.name for option in self._template_repository.get_all()]
 
 
 
@@ -54,7 +81,7 @@ def loadCharacter(asJson: dict)->"Character":
     asJson["equippedItems"] = [loadItem(data) for data in asJson["equippedItems"]]
     return Character(**asJson)
 
-def loadActive(name: str)->"AbstractActive":
+def loadActive(name: str) -> 'AbstractActive':
     if name not in NAME_TO_ACTIVE:
         raise Exception(f'no active defined with name "{name}"')
     return NAME_TO_ACTIVE[name]

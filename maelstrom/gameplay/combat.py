@@ -16,12 +16,11 @@ import random
 
 
 
-def playLevel(level: "Level", user: "User"):
+def playLevel(level: "Level", user: "User", enemyLoader: EnemyLoader):
     """
     used to start and run a Level
     """
 
-    enemyLoader = EnemyLoader()
     enemies = [enemyLoader.load(enemyName) for enemyName in level.enemyNames]
     for enemy in enemies:
         enemy.level = level.enemyLevel

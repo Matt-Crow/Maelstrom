@@ -20,11 +20,6 @@ class Config:
     whether to clear the screen before outputting a new menu
     """
 
-    store: bool = False
-    """
-    whether to store data locally before running
-    """
-
     test: bool = False
     """
     whether to test or run

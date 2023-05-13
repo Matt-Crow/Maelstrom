@@ -4,6 +4,7 @@ from maelstrom.dataClasses.passiveAbilities import getPassiveAbilityList
 from maelstrom.dataClasses.team import Team
 from maelstrom.gameplay.levelController import chooseUserAreaAction
 from maelstrom.inputOutput.screens import Screen
+from maelstrom.loaders.characterLoader import EnemyLoader
 from maelstrom.util.user import User
 from maelstrom.util.userLoader import UserLoader
 
@@ -21,6 +22,7 @@ class Game:
         self.currentArea = None
         self.exit = False
         self.userLoader = UserLoader()
+        self.enemy_loader = EnemyLoader()
 
     def test(self):
         print("nothing to test")
@@ -33,7 +35,7 @@ class Game:
 
         choice = screen.displayAndChoose("What do you wish to do?")
         if choice == "explore":
-            chooseUserAreaAction(self.user, self.currentArea)
+            chooseUserAreaAction(self.user, self.currentArea, self.enemy_loader)
         elif choice == "view character info":
             screen = Screen()
             screen.setTitle(self.user.name)
@@ -60,7 +62,7 @@ class Game:
     Begins the program
     """
     def run(self):
-        self.currentArea = createDefaultArea()
+        self.currentArea = createDefaultArea(self.enemy_loader)
         while not self.exit:
             if self.user == None:
                 self.mainMenu()

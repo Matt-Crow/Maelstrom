@@ -1,1 +1,0 @@
-{"type": "Character", "name": "Wind Entity", "customizationPoints": 0, "stats": {"control": 0, "resistance": 0, "potency": -10, "luck": 10, "energy": 0}, "element": "wind", "xp": 0, "level": 1, "actives": ["slash", "jab", "slam", "wind bolt"], "passives": [], "equippedItems": []}

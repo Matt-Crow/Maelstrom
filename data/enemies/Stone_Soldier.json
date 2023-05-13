@@ -1,1 +1,0 @@
-{"type": "Character", "name": "Stone Soldier", "customizationPoints": 0, "stats": {"control": 5, "resistance": 10, "potency": -5, "luck": -5, "energy": -5}, "element": "stone", "xp": 0, "level": 1, "actives": ["slash", "jab", "slam", "stone bolt"], "passives": [], "equippedItems": []}

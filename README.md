@@ -5,10 +5,9 @@ poured countless hours of work into. I learned so much while making this game,
 both about programming and game design in general.
 
 ## Running the Program
-First, run using """python maelstrom.py -s""" to store the data used by the
-program. After that, you can run using """python maelstrom.py""".
+run using `python maelstrom.py`.
 
-Use """python maelstrom.py -h""" to view command line options.
+Use `python maelstrom.py -h` to view command line options.
 
 ## Testing
 `python -m unittest`

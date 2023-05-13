@@ -42,7 +42,6 @@ June-July 2021: Reworked input and output
 Version 0.9
 """
 
-from maelstrom.dataClasses.createDefaults import saveDefaultData
 from game import Game
 from maelstrom.util.arguments import parse_args
 from maelstrom.util.config import get_global_config
@@ -50,9 +49,6 @@ from maelstrom.util.config import get_global_config
 if __name__ == "__main__":
     parse_args()
     options = get_global_config()
-
-    if options.store:
-        saveDefaultData()
 
     if options.test:
         Game().test()

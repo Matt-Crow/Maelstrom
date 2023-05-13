@@ -1,1 +1,0 @@
-{"type": "Character", "name": "Rain Entity", "customizationPoints": 0, "stats": {"control": -10, "resistance": 0, "potency": 10, "luck": 0, "energy": 0}, "element": "rain", "xp": 0, "level": 1, "actives": ["slash", "jab", "slam", "rain bolt"], "passives": [], "equippedItems": []}
