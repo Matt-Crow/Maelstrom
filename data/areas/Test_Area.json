@@ -2,18 +2,6 @@
     "type": "Area",
     "name": "Test Area",
     "description": "No description",
-    "locations": [
-        {
-            "type": "Location",
-            "name": "Shoreline",
-            "description": "Gentle waves lap at the shore.",
-            "script": [
-                "I'm not sure how I feel about the sand...",
-                "is it course and rough?",
-                "or soft?"
-            ]
-        }
-    ],
     "levels": [
         {
             "type": "Battle",
@@ -43,7 +31,7 @@
                     "name": "no weather"
                 }
             ],
-            "enemyNames": [
+            "enemy_names": [
                 "Hail Entity",
                 "Stone Soldier",
                 "Hail Entity",

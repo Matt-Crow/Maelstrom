@@ -1,3 +1,4 @@
+from maelstrom.campaign.area import Area
 from maelstrom.gameplay.combat import playLevel
 from maelstrom.inputOutput.screens import Screen
 from maelstrom.loaders.characterLoader import EnemyLoader

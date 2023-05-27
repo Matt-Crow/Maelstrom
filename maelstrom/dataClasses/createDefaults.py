@@ -4,21 +4,14 @@ This helps circumvent several circular-dependency issues, and abstractifies the
 object creation process a bit.
 """
 
+from maelstrom.campaign.level import Level
 from maelstrom.dataClasses.activeAbilities import createDefaultActives
-from maelstrom.dataClasses.campaign import Area, Level, Location
 from maelstrom.dataClasses.character import Character
 from maelstrom.dataClasses.passiveAbilities import getPassiveAbilityList
 from maelstrom.loaders.characterLoader import EnemyLoader
 import random
 
-def createDefaultArea(enemy_loader: EnemyLoader)->"Area":
-    return Area(
-        name="Test Area",
-        description="No description",
-        locations=[createDefaultLocation()],
-        levels=[createRandomLevel(enemy_loader, i) for i in range(1, 5)]
-    )
-
+# will use this later
 def createRandomLevel(enemy_loader: EnemyLoader, numEnemies: int)->"Level":
     enemyNames = []
     allEnemyNames = enemy_loader.getOptions()
@@ -31,14 +24,8 @@ def createRandomLevel(enemy_loader: EnemyLoader, numEnemies: int)->"Level":
         description="Random battle",
         prescript="from out of nowhere... some enemies attack!",
         postscript="the enemies flee before your elemental might",
-        enemyNames=enemyNames,
-        enemyLevel=1
-    )
-
-def createDefaultLocation():
-    return Location(
-        name="Shoreline",
-        description="Gentle waves lap at the shore."
+        enemy_names=enemyNames,
+        enemy_level=1
     )
 
 def createDefaultPlayer(name, element)->"Character":

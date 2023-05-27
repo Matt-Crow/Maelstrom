@@ -2,20 +2,6 @@
     "name": "Ancient caverns",
     "type": "area",
     "description": " What once lay forgoten now lies renewed",
-    "locations": [
-        {
-            "name": "Ancient library caverns",
-            "type": "location",
-            "description": "These caves seem as old as time itself.",
-            "script": [
-                "LIBRARIAN: These caves have only recently by our scholars.",
-                "Everything here is estimated to be ancient",
-                "perhaps even older than Altostromia itself!",
-                "But what concerns me are these statues...",
-                "...hundreds of them..."
-            ]
-        }
-    ],
     "levels": [
         {
             "name": "Origin Beaches",

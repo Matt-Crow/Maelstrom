@@ -1,0 +1,65 @@
+{
+    "name": "Maelstrom",
+    "areas": [
+        {
+            "name": "Origin Beaches",
+            "description": "We all start somewhere.",
+            "levels": [
+                {
+                    "name": "On the shore",
+                    "description": "",
+                    "prescript": "",
+                    "postscript": "",
+                    "enemy_names": [
+                        "rain entity"
+                    ],
+                    "enemy_level": 1
+                }
+            ]
+        },
+        {
+            "name": "Ancient Cavern",
+            "description": "Old and ominous.",
+            "levels": [
+                {
+                    "name": "First encounter",
+                    "description": "",
+                    "prescript": "",
+                    "postscript": "",
+                    "enemy_names": [
+                        "stone warrior"
+                    ],
+                    "enemy_level": 2
+                },
+                {
+                    "name": "The Cotterra army",
+                    "description": "",
+                    "prescript": "",
+                    "postscript": "",
+                    "enemy_names": [
+                        "stone warrior",
+                        "stone warrior"
+                    ],
+                    "enemy_level": 2
+                }
+            ]
+        },
+        {
+            "name": "Stormfront",
+            "description": "Storms rage atop this plateau.",
+            "levels": [
+                {
+                    "name": "Thunderhead",
+                    "description": "",
+                    "prescript": "",
+                    "postscript": "",
+                    "enemy_names": [
+                        "wind entity",
+                        "lightning entity"
+                    ],
+                    "enemy_level": 3
+                }
+            ]
+        }
+    ]
+}

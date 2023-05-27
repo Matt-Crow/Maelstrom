@@ -21,7 +21,7 @@ TODO:
   break the suggestion of one purpose per class, but it's elegant compared to
   the alternative
 * random campaign generator: Have the program chop up a Shakespere play and make
-  characters and locations based off of that?
+  characters and levels based off of that?
 * Replacement for Customization Points system:
     * replace Items with a new "stat DNA block" class that provides minor
       bonuses to stats

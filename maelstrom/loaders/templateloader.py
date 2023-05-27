@@ -64,7 +64,7 @@ class CsvCharacterTemplateLoader(CharacterTemplateLoader):
     def get(self, name: str) -> CharacterTemplate:
         if not self._loaded:
             self._load_file()
-        return self._cache.get(name)
+        return self._cache.get(name.lower())
 
     def get_all(self) -> 'list[CharacterTemplate]':
         if not self._loaded:
@@ -77,7 +77,7 @@ class CsvCharacterTemplateLoader(CharacterTemplateLoader):
             # skipinitialspace ignores spaces before headers
             reader = csv.DictReader(file, skipinitialspace=True) 
             for row in reader:
-                self._cache[row['name'].strip()] = self._row_to_character(row)
+                self._cache[row['name'].strip().lower()] = self._row_to_character(row)
         self._loaded = True
 
     def _row_to_character(self, row: 'OrderedDict[str, str]') -> CharacterTemplate:

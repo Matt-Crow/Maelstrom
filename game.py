@@ -1,9 +1,10 @@
-from maelstrom.dataClasses.createDefaults import createDefaultArea, createDefaultPlayer
+from maelstrom.dataClasses.createDefaults import createDefaultPlayer
 from maelstrom.dataClasses.item import getItemList
 from maelstrom.dataClasses.passiveAbilities import getPassiveAbilityList
 from maelstrom.dataClasses.team import Team
 from maelstrom.gameplay.levelController import chooseUserAreaAction
 from maelstrom.inputOutput.screens import Screen
+from maelstrom.loaders.campaignloader import make_default_campaign_loader
 from maelstrom.loaders.characterLoader import EnemyLoader
 from maelstrom.util.user import User
 from maelstrom.util.userLoader import UserLoader
@@ -23,6 +24,7 @@ class Game:
         self.exit = False
         self.userLoader = UserLoader()
         self.enemy_loader = EnemyLoader()
+        self.campaign_loader = make_default_campaign_loader()
 
     def test(self):
         print("nothing to test")
@@ -62,7 +64,8 @@ class Game:
     Begins the program
     """
     def run(self):
-        self.currentArea = createDefaultArea(self.enemy_loader)
+        campaign = self.campaign_loader.get_all()[0] # todo current user's campaign
+        self.currentArea = campaign.get_area(0) # todo player chooses
         while not self.exit:
             if self.user == None:
                 self.mainMenu()

@@ -5,6 +5,7 @@ functions that act on their data, preventing classes from become cumbersome
 
 
 
+from maelstrom.campaign.level import Level
 from maelstrom.dataClasses.team import Team
 from maelstrom.dataClasses.weather import WEATHERS
 from maelstrom.loaders.characterLoader import EnemyLoader
@@ -21,9 +22,9 @@ def playLevel(level: "Level", user: "User", enemyLoader: EnemyLoader):
     used to start and run a Level
     """
 
-    enemies = [enemyLoader.load(enemyName) for enemyName in level.enemyNames]
+    enemies = [enemyLoader.load(enemyName) for enemyName in level.enemy_names]
     for enemy in enemies:
-        enemy.level = level.enemyLevel
+        enemy.level = level.enemy_level
     enemyTeam = Team(name="Enemy Team", members=enemies)
     enemyTeam.initForBattle()
 
