@@ -1,6 +1,6 @@
+from maelstrom.dataClasses.character import Character
 from maelstrom.dataClasses.stat_classes import Boost
 import abc
-import random
 
 
 
@@ -17,7 +17,7 @@ class Weather:
     def getMsg(self):
         return self.msg
 
-    def applyEffect(self, affected: "List<Character>", msgs: "List<str>"):
+    def applyEffect(self, affected: list[Character], msgs: list[str]):
         """
         Apply stat changes to a list of Characters. Appends messages to the
         given list of messages based on how it effects them

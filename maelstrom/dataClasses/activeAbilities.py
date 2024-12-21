@@ -12,6 +12,7 @@ active they wish to use.
 
 
 
+from maelstrom.dataClasses.character import Character
 from maelstrom.gameplay.events import OnHitEvent, HIT_GIVEN_EVENT, HIT_TAKEN_EVENT
 from maelstrom.inputOutput.output import debug
 from maelstrom.util.serialize import AbstractJsonSerialable
@@ -51,7 +52,7 @@ class TargetOption:
     Command design pattern
     """
 
-    def __init__(self, active: "AbstractActive", user: "Character", targets: "List<Character>"):
+    def __init__(self, active: "AbstractActive", user: "Character", targets: list[Character]):
         self.active = active
         self.user = user
         self.targets = targets
@@ -99,7 +100,7 @@ class AbstractActive(AbstractJsonSerialable):
     def canUse(self, user: "Character")->bool:
         return self.cost <= user.energy and len(self.getTargetOptions(user)) > 0
 
-    def getTargetOptions(self, user: "Character")->"List<TargetOption>":
+    def getTargetOptions(self, user: "Character")->list[TargetOption]:
         """
         don't override this one
         """
@@ -108,7 +109,7 @@ class AbstractActive(AbstractJsonSerialable):
         return [TargetOption(self, user, targets) for targets in self.doGetTargetOptions(user)]
 
     @abstractmethod
-    def doGetTargetOptions(self, user: "Character")->"List<List<Character>>":
+    def doGetTargetOptions(self, user: "Character")->list[list[Character]]:
         """
         subclasses must override this option to return the enemies this could
         potentially hit. Each element of the returned list represents a choice
@@ -194,7 +195,7 @@ class MeleeActive(AbstractDamagingActive):
             self.critMult
         )
 
-    def doGetTargetOptions(self, user: "Character")->"List<List<Character>>":
+    def doGetTargetOptions(self, user: "Character")->list[list[Character]]:
         """
         MeleeActives can hit a single active target
         """
@@ -216,7 +217,7 @@ class ElementalActive(AbstractDamagingActive):
     def copy(self):
         return ElementalActive(self.name)
 
-    def doGetTargetOptions(self, user: "Character")->"List<List<Character>>":
+    def doGetTargetOptions(self, user: "Character")->list[list[Character]]:
         """
         ElementalActives can hit a single cleave target
         """
@@ -230,14 +231,14 @@ attacks that can hit anyone
 """
 
 
-def getActiveTargets(attackerOrdinal: int, targetTeam: "List<Character>")->"List<Character>":
+def getActiveTargets(attackerOrdinal: int, targetTeam: list[Character])->list[Character]:
     """
     'active' enemies are those across from the attacker and the enemy
     immediately below that. This gives a slight advantage to the 1 in a 1 vs 2,
     as both enemies cannot attack them at the same time
 
-    O-X
-     \X
+    O X
+      X
     """
     options = []
     if attackerOrdinal < len(targetTeam):
@@ -246,13 +247,13 @@ def getActiveTargets(attackerOrdinal: int, targetTeam: "List<Character>")->"List
         options.append(targetTeam[attackerOrdinal + 1])
     return options
 
-def getCleaveTargets(attackerOrdinal: int, targetTeam: "List<Character>")->"List<Character>":
+def getCleaveTargets(attackerOrdinal: int, targetTeam: list[Character])->list[Character]:
     """
     enemies are 'cleaveable' (for want of a better word) if they are no more
     than 1 array slot away from the enemy across from the attacker
-     /X
-    O-X
-     \X
+      X
+    O X
+      X
     """
     options = getActiveTargets(attackerOrdinal, targetTeam)
     if attackerOrdinal - 1 >= 0 and attackerOrdinal - 1 < len(targetTeam):
@@ -260,7 +261,7 @@ def getCleaveTargets(attackerOrdinal: int, targetTeam: "List<Character>")->"List
         options.insert(0, m)
     return options
 
-def getDistantTargets(attackerOrdinal: int, targetTeam: "List<Character>")->"List<Character>":
+def getDistantTargets(attackerOrdinal: int, targetTeam: list[Character])->list[Character]:
     """
     the union of distant targets and cleave targets is all enemies, with no
     overlap
@@ -268,24 +269,24 @@ def getDistantTargets(attackerOrdinal: int, targetTeam: "List<Character>")->"Lis
     notTargets = getCleaveTargets(attackerOrdinal, targetTeam)
     return [member for member in targetTeam if member not in notTargets]
 
-def getUniversalActives()->"List<AbstractActive>":
+def getUniversalActives()->list[AbstractActive]:
     return [
         MeleeActive("slash", "strike a nearby enemy", 1.0, 0.2, 0.75, 0.2, 1.5),
         MeleeActive("jab", "strike a nearby enemy, with a high chance for a critical hit", 0.8, 0.1, 0.5, 0.5, 3.0),
         MeleeActive("slam", "strike recklessly at a nearby enemy", 1.5, 0.4, 0.5, 0.15, 2.0)
     ]
 
-def getActivesForElement(element)->"List<AbstractActive>":
+def getActivesForElement(element)->list[AbstractActive]:
     return [ElementalActive(f'{element} bolt')]
 
-def getActiveAbilityList()->"List<AbstractActive":
+def getActiveAbilityList()->list[AbstractActive]:
     options = getUniversalActives()
     for element in ELEMENTS:
         options.extend(getActivesForElement(element))
     options.extend(getActivesForElement("stone"))
     return options
 
-def createDefaultActives(element)->"List<AbstractActive>":
+def createDefaultActives(element)->list[AbstractActive]:
     options = getUniversalActives()
     options.extend(getActivesForElement(element))
     return [option.copy() for option in options]

@@ -6,8 +6,9 @@ functions that act on their data, preventing classes from become cumbersome
 
 
 from maelstrom.campaign.level import Level
+from maelstrom.dataClasses import character
 from maelstrom.dataClasses.team import Team
-from maelstrom.dataClasses.weather import WEATHERS
+from maelstrom.dataClasses.weather import WEATHERS, Weather
 from maelstrom.loaders.characterLoader import EnemyLoader
 from maelstrom.inputOutput.output import debug
 from maelstrom.inputOutput.screens import Screen
@@ -15,9 +16,11 @@ from maelstrom.inputOutput.teamDisplay import getTeamDisplayData
 
 import random
 
+from maelstrom.util.user import User
 
 
-def playLevel(level: "Level", user: "User", enemyLoader: EnemyLoader):
+
+def playLevel(level: "Level", user: User, enemyLoader: EnemyLoader):
     """
     used to start and run a Level
     """
@@ -72,7 +75,7 @@ class Encounter:
     """
     An encounter handles team versus team conflict.
     """
-    def __init__(self, team1: "Team", team2: "Team", weather: "Weather"):
+    def __init__(self, team1: "Team", team2: "Team", weather: Weather):
         self.team1 = team1
         self.team2 = team2
         self.weather = weather
@@ -104,7 +107,7 @@ class Encounter:
     def team2Turn(self):
         self.teamTurn(self.team2, self.team1, self.aiChoose)
 
-    def teamTurn(self, attacker, defender, chooseAction: "function(screen, character)"):
+    def teamTurn(self, attacker, defender, chooseAction: "function(Screen, character.Character)"):
         if attacker.isDefeated():
             return
 

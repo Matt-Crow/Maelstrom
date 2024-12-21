@@ -4,6 +4,8 @@ This module handles teams - collections of Characters
 
 
 
+from typing import Callable
+from maelstrom.dataClasses.character import Character
 from maelstrom.util.serialize import AbstractJsonSerialable
 import functools
 
@@ -31,7 +33,7 @@ class Team(AbstractJsonSerialable):
     def __str__(self):
         return self.name
 
-    def addMember(self, member: "Character"):
+    def addMember(self, member: Character):
         if member in self.members:
             raise Exception(f'cannot add duplicate member {str(member)}')
         member.team = self
@@ -45,14 +47,14 @@ class Team(AbstractJsonSerialable):
         totalLevel = functools.reduce(lambda xp, member: member.level + xp, self.members, 0)
         return int(10 * totalLevel / len(self.members))
 
-    def eachMember(self, consumer: "function(Character)"):
+    def eachMember(self, consumer: Callable[[Character], None]):
         """
         calls the given consumer on each member of this Team
         """
         for member in self.members:
             consumer(member)
 
-    def eachMemberRemaining(self, consumer: "function(Character)"):
+    def eachMemberRemaining(self, consumer: Callable[[Character], None]):
         """
         calls the given consumer on each member of this Team who isn't out of
         the game
@@ -60,7 +62,7 @@ class Team(AbstractJsonSerialable):
         for member in self.membersRemaining:
             consumer(member)
 
-    def getMembersRemaining(self)->"List<Character>":
+    def getMembersRemaining(self)->list[Character]:
         """
         returns a shallow copy of this Team's remaining members
         """
@@ -79,7 +81,7 @@ class Team(AbstractJsonSerialable):
     def isDefeated(self)->bool:
         return len(self.membersRemaining) == 0
 
-    def updateMembersRemaining(self)->"List<str>":
+    def updateMembersRemaining(self)->list[str]:
         msgs = []
 
         newList = []

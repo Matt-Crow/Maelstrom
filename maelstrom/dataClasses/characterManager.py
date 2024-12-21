@@ -1,8 +1,9 @@
+from maelstrom.dataClasses.character import Character
 from maelstrom.inputOutput.screens import Screen
 
 
 
-def manageCharacter(character: "Character"):
+def manageCharacter(character: Character):
     options = ["Quit", character]
     screen = Screen()
     screen.setTitle(f'Manage {character.name}')

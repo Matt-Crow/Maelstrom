@@ -4,6 +4,8 @@ A Character is an entity within the game who has various stats and attributes.
 
 
 
+# TODO fix this in #12 from maelstrom.dataClasses.activeAbilities import TargetOption
+from maelstrom.dataClasses.item import Item
 from maelstrom.gameplay.events import ActionRegister, UPDATE_EVENT
 from maelstrom.dataClasses.customizable import AbstractCustomizable
 from maelstrom.dataClasses.stat_classes import Stat
@@ -65,7 +67,7 @@ class Character(AbstractCustomizable):
             "equippedItems"
         )
 
-    def equipItem(self, item: "Item"):
+    def equipItem(self, item: Item):
         self.equippedItems.append(item)
         item.setEquipped(True)
 
@@ -128,7 +130,7 @@ class Character(AbstractCustomizable):
     Used during battle
     """
 
-    def getActiveChoices(self)->"List<TargetOption>":
+    def getActiveChoices(self)->'list[TargetOption]':
         """
         use this to find out which enemies this Character can target and with
         which abilities
@@ -214,7 +216,7 @@ class Character(AbstractCustomizable):
     Occur after battle
     """
 
-    def gainXp(self, amount)->"List<str>":
+    def gainXp(self, amount)->list[str]:
         """
         Give experience, possibly leveling up this character.
 

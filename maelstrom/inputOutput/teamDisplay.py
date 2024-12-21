@@ -1,12 +1,12 @@
 
 
 
-from maelstrom.inputOutput.screens import Screen
+from maelstrom.dataClasses.team import Team
 from maelstrom.util.stringUtil import lengthOfLongest
 
 
 
-def getTeamDisplayData(team: "Team")->str:
+def getTeamDisplayData(team: Team)->str:
     """
     Used in the in-battle HUD
     """
@@ -23,7 +23,7 @@ def getTeamDisplayData(team: "Team")->str:
     return "\n".join(lines)
 
 
-def getDetailedTeamData(team: "Team")->"List<str>":
+def getDetailedTeamData(team: Team)->list[str]:
     """
     This provides a more descriptive overview of the team, detailing all of its
     members. It feels a little info-dump-y, so it feels tedious to scroll

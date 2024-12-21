@@ -7,6 +7,7 @@ and can be acquired as rewards from Battles.
 
 
 from maelstrom.dataClasses.stat_classes import Boost
+from maelstrom.gameplay.events import HIT_TAKEN_EVENT
 from maelstrom.util.serialize import AbstractJsonSerialable
 
 
@@ -25,7 +26,7 @@ class Item(AbstractJsonSerialable):
         self.register = register
         self.equipped = False
 
-    def copy()->"Item":
+    def copy(self)->"Item":
         return Item(self.name, self.description, self.register)
 
     def setEquipped(self, equipped: bool):

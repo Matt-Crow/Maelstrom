@@ -17,6 +17,6 @@ def entab(original)->str:
 """
 Returns the length of the longest string in the given array
 """
-def lengthOfLongest(strs: "List<str>")->int:
+def lengthOfLongest(strs: list[str])->int:
     strs = map(lambda str: len(str), strs)
     return functools.reduce(lambda bestLenSoFar, currLen: max(bestLenSoFar, currLen), strs, 0)

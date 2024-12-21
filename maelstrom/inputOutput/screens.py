@@ -28,7 +28,7 @@ OPTION_ROWS = 5
 NUM_BODY_ROWS = 10
 CHOOSER = Chooser()
 
-def choose(prompt: str, options: "List<any>", displayOptions=True)->"any":
+def choose(prompt: str, options: list[any], displayOptions=True)->"any":
     return CHOOSER.choose(prompt, options, displayOptions)
 
 class Screen:
@@ -40,7 +40,7 @@ class Screen:
     def setTitle(self, title: str):
         self.title = title[:(SCREEN_COLS - 4)] # ensures title fits
 
-    def addBodyRows(self, rows: "List<String>"):
+    def addBodyRows(self, rows: list[str]):
         for row in rows:
             self.addBodyRow(row)
 
@@ -184,7 +184,7 @@ class Screen:
 Psuedo-abstract class
 """
 class RowStyle:
-    def format(self, msg: str)->"list<str>":
+    def format(self, msg: str)->list[str]:
         pass
 
 """
@@ -196,7 +196,7 @@ class RowContentStyle(RowStyle):
         super().__init__()
         self.rowWidth = rowWidth
 
-    def wrap(self, msg: str)->"list<str>":
+    def wrap(self, msg: str)->list[str]:
         lines = []
         line = msg.replace("\t", " " * 4)
         if len(line.strip()) is 0: # catch purposely empty lines
@@ -218,7 +218,7 @@ class RowContentStyle(RowStyle):
 
         return lines
 
-    def format(self, msg: str)->"list<str>":
+    def format(self, msg: str)->list[str]:
         rows = []
         msg = msg.replace("\t", " " * 4)
 
@@ -235,7 +235,7 @@ class BorderedRowStyle(RowStyle):
         bodyWidth = rowWidth - (len(border) + len(padding)) * 2
         self.contentStyler = RowContentStyle(bodyWidth)
 
-    def format(self, msg: str)->"list<str>":
+    def format(self, msg: str)->list[str]:
         innerStyling = self.contentStyler.format(msg)
         return [f'{self.border}{self.padding}{row}{self.padding}{self.border}' for row in innerStyling]
 
@@ -245,7 +245,7 @@ class SplitRowStyle(RowStyle):
         self.leftStyle = BorderedRowStyle(math.floor(rowWidth / 2), border, padding)
         self.rightStyle = BorderedRowStyle(math.ceil(rowWidth / 2), border, padding)
 
-    def format(self, left, right)->"list<str>":
+    def format(self, left, right)->list[str]:
         rows = []
 
         leftRows = self.leftStyle.format(left)

@@ -57,7 +57,7 @@ class User(AbstractJsonSerialable):
         if managing is not "Exit":
             manageCharacter(managing)
 
-    def getDisplayData(self)->"List<str>":
+    def getDisplayData(self) -> list[str]:
         return [
             f'User {self.name}',
             f'Team:',

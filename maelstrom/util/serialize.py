@@ -70,7 +70,7 @@ class AbstractJsonLoader(object):
         """
         self.dirPath = os.path.abspath(os.path.join(*dirPath.split(".")))
 
-    def getOptions(self)->"List<str>":
+    def getOptions(self)->list[str]:
         """
         returns a list of all the possible objects this can retrieve
         """
@@ -105,7 +105,7 @@ def unFormatFileName(fileName: str)->str:
     """
     return fileName.replace(".json", "").replace("_", " ")
 
-def getJsonFileList(dirPath: str)->"list<str>":
+def getJsonFileList(dirPath: str)->list[str]:
     """
     Returns a list of all filenames of JSON files
     in the given dir, with the unFormatFileName applied
