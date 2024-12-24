@@ -42,12 +42,11 @@ class User(AbstractJsonSerialable):
         Displays the team management menu
         """
 
-        screen = Screen()
-        screen.setTitle(f'Manage {self.name}')
-        options = ["Exit"]
-        for member in self.team.members:
-            screen.addBodyRow(member.getDisplayData())
-            options.insert(0, member)
+        screen = Screen(f'Manage {self.name}')
+        screen.add_body_rows([member.getDisplayData()] for member in self.team.members)
+        options = []
+        options.extend(self.team.members)
+        options.append("Exit")
         managing = screen.display_and_choose("Who do you wish to manage?", options)
 
         if managing is not "Exit":

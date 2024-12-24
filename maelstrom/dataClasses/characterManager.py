@@ -5,15 +5,13 @@ from maelstrom.inputOutput.screens import Screen
 
 def manageCharacter(character: Character):
     options = ["Quit", character]
-    screen = Screen()
-    screen.setTitle(f'Manage {character.name}')
+    screen = Screen(f'Manage {character.name}')
 
     if True: # needs to check it items available
         options.append("Equipped items")
 
-    for item in character.equippedItems:
-        screen.addBodyRow(str(item))
-        options.append(item)
+    screen.add_body_rows([str(item) for item in character.equippedItems])
+    options.extend(character.equippedItems)
 
     # todo: add option to change passives
     # todo: add option to change actives

@@ -38,13 +38,12 @@ def playLevel(level: "Level", user: User, enemyLoader: EnemyLoader):
     weather = random.choice(WEATHERS)
 
 
-    screen = Screen()
-    screen.setTitle(f'{playerTeam.name} VS. {enemyTeam.name}')
+    screen = Screen(f'{playerTeam.name} VS. {enemyTeam.name}')
     playerTeamData = getTeamDisplayData(playerTeam)
     enemyTeamData = getTeamDisplayData(enemyTeam)
-    screen.addSplitRow(playerTeamData, enemyTeamData)
-    screen.addBodyRow(level.prescript)
-    screen.addBodyRow(weather.getMsg())
+    screen.add_split_row(playerTeamData, enemyTeamData)
+    screen.add_body_row(level.prescript)
+    screen.add_body_row(weather.getMsg())
     screen.display()
 
 
@@ -65,9 +64,8 @@ def playLevel(level: "Level", user: User, enemyLoader: EnemyLoader):
     for member in playerTeam.members:
         msgs.extend(member.gainXp(xp))
 
-    screen = Screen()
-    screen.setTitle(f'{playerTeam.name} VS. {enemyTeam.name}')
-    screen.addBodyRows(msgs)
+    screen = Screen(f'{playerTeam.name} VS. {enemyTeam.name}')
+    screen.add_body_rows(msgs)
     screen.display()
 
 
@@ -126,28 +124,20 @@ class Encounter:
                 self.characterChoose(attacker, member, defender, chooseAction, msgs)
 
     def characterChoose(self, attackerTeam, character, defenderTeam, chooseAction, msgs):
-        screen = Screen()
-        screen.setTitle(f'{character}\'s turn')
-        screen.addSplitRow(
+        screen = Screen(f'{character}\'s turn')
+        screen.add_split_row(
             getTeamDisplayData(attackerTeam),
             getTeamDisplayData(defenderTeam)
         )
-        screen.addBodyRows(msgs)
+        screen.add_body_rows(msgs)
 
         options = character.getActiveChoices()
         if len(options) == 0:
-            screen.addBodyRow(f'{character.name} has no valid targets!')
+            screen.add_body_row(f'{character.name} has no valid targets!')
         else: # let them choose their active and target
             choice = chooseAction(screen, character)
-
-            screen.clearBody()
-            msgs.append(choice.use())
-            msgs.extend(defenderTeam.updateMembersRemaining())
-            screen.addSplitRow(
-                getTeamDisplayData(attackerTeam),
-                getTeamDisplayData(defenderTeam)
-            )
-            screen.addBodyRows(msgs)
+            screen.add_body_row(choice.use())
+            screen.add_body_rows(defenderTeam.updateMembersRemaining())
         screen.display()
 
     def userChoose(self, screen, character):

@@ -61,10 +61,9 @@ class AbstractCustomizable(AbstractJsonSerialable):
     """
     def customizeMenu(self):
         done = False
-        screen = Screen()
-        screen.setTitle(f'Cusomizing {self.name}')
         while not done and self.customizationPoints > 0:
-            screen.addBodyRows(self.getStatDisplayList())
+            screen = Screen(f'Cusomizing {self.name}')
+            screen.add_body_rows(self.getStatDisplayList())
 
             exit = "Save changes and exit"
             options = [exit]
@@ -96,7 +95,6 @@ class AbstractCustomizable(AbstractJsonSerialable):
                     self.setStatBase(decreaseMe, self.stats[decreaseMe].get_base() - 1)
                     self.calcStats()
                     self.customizationPoints -= 1
-                    screen.clearBody()
 
     """
     Subclasses should override this method to return a textual description of

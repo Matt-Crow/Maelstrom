@@ -7,9 +7,8 @@ from maelstrom.util.user import User
 
 
 def chooseUserAreaAction(user: User, area: "Area", enemy_loader: EnemyLoader):
-    screen = Screen()
-    screen.setTitle(area.name)
-    screen.addBodyRow(area.getDisplayData())
+    screen = Screen(area.name)
+    screen.add_body_row(area.getDisplayData())
 
     options = []
     for level in area.levels:

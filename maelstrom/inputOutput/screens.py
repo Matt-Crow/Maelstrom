@@ -4,10 +4,9 @@ This module provides the basic structure of the screens the program displays
 Primary export:
 
 * Class Screen
-    - setTitle(str)
-    - addBodyRows(List<str>)
-    - addBodyRow(str) # automatically splits newlines into new rows
-    - addSplitRow(left: str, right: str)
+    - add_body_rows(list[str])
+    - add_body_row(str)
+    - add_split_row(str, str)
     - display(list[any])
     - display_and_choose(str, list[any])
 """
@@ -26,28 +25,30 @@ OPTION_ROWS = 5
 NUM_BODY_ROWS = 10
 
 class Screen:
-    def __init__(self):
-        self.title = "Maelstrom"
-        self.body = [] # List of str
+    def __init__(self, title: str = "Maelstrom"):
+        """
+        Creates a screen with the given title.
+        """
+        self._title = title
+        self._body = [] # list[str]
 
-    def setTitle(self, title: str):
-        self.title = title[:(SCREEN_COLS - 4)] # ensures title fits
-
-    def addBodyRows(self, rows: list[str]):
+    def add_body_rows(self, rows: list[str]):
+        """
+        Adds the given rows to the body of the screen.
+        """
         for row in rows:
-            self.addBodyRow(row)
+            self.add_body_row(row)
 
-    def addBodyRow(self, row: str):
-        if type(row) == type("Hello world!"):
-            self.body.extend(_format_bordered_row(row))
-        else: # check if iterable AFTER checking if string
-            try: # https://stackoverflow.com/questions/1952464/in-python-how-do-i-determine-if-an-object-is-iterable
-                for item in iter(row):
-                    self.body.extend(_format_bordered_row(item))
-            except TypeError: # neither str nor iterable
-                self.body.extend(_format_bordered_row(str(row)))
+    def add_body_row(self, row: str):
+        """
+        Adds the given row to the body of the screen.
+        """
+        self._body.extend(_format_bordered_row(str(row)))
 
-    def addSplitRow(self, left: str, right: str):
+    def add_split_row(self, left: str, right: str):
+        """
+        Adds a row to the screen where the left half is the first parameter and the right half is the second parameter.
+        """
         def style_left(content: str):
             return _format_bordered_row(content, math.floor(SCREEN_COLS / 2))
         def style_right(content: str):
@@ -64,13 +65,13 @@ class Screen:
                 l = left_rows[i]
             if len(right_rows) > i:
                 r = right_rows[i]
-            self.body.append(f'{l}{r}')
-
-    def clearBody(self):
-        self.body.clear()
+            self._body.append(f'{l}{r}')
 
     def display(self, options=[]):
-        num_pages = int(len(self.body) / NUM_BODY_ROWS)
+        """
+        Displays the screen and optionally some options.
+        """
+        num_pages = int(len(self._body) / NUM_BODY_ROWS)
         if num_pages == 0:
             num_pages = 1 # show at least 1 page
         for page in range(num_pages):
@@ -83,6 +84,15 @@ class Screen:
         self._write_options(options)
         if len(options) == 0:
             input("press enter or return to continue")
+    
+    def display_and_choose(self, prompt: str, options: list[any]) -> any:
+        """
+        Displays the screen and asks the user to choose one of the given options.
+        Returns the user's choice.
+        """
+        self.display(options)
+        user_choice = Chooser().choose(prompt, options, False)
+        return user_choice
 
     def _write_body_page(self, page: int):
         if not get_global_config().keep_output:
@@ -96,7 +106,7 @@ class Screen:
         # write the title
         self._write_horizontal_line()
         centered_title_width = SCREEN_COLS - len(BORDER + " ") * 2
-        centered_title = self.title.center(centered_title_width)
+        centered_title = self._title.center(centered_title_width)
         centered_title_row = f'{BORDER} {centered_title} {BORDER}'
         output(centered_title_row)
         self._write_horizontal_line()    
@@ -104,9 +114,9 @@ class Screen:
         # write this page of the body
         curr_line_num = page * NUM_BODY_ROWS
         self._write_horizontal_line()
-        for i in range(NUM_BODY_ROWS):
-            if curr_line_num < len(self.body):
-                row = self.body[curr_line_num]
+        for _ in range(NUM_BODY_ROWS):
+            if curr_line_num < len(self._body):
+                row = self._body[curr_line_num]
             else:
                 row = f'{BORDER} {" " * (SCREEN_COLS - 4)} {BORDER}'
             output(row)
@@ -149,15 +159,6 @@ class Screen:
             output(f'{BORDER} {msg} {BORDER}')
 
         self._write_horizontal_line()
-
-    def display_and_choose(self, prompt: str, options: list[any]) -> any:
-        """
-        Displays the screen and asks the user to choose one of the given options.
-        Returns the user's choice.
-        """
-        self.display(options)
-        user_choice = Chooser().choose(prompt, options, False)
-        return user_choice
 
 def _format_bordered_row(content: str, width: int = SCREEN_COLS) -> list[str]:
     rows = []

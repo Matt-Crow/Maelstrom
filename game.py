@@ -36,21 +36,18 @@ class Game:
         if choice == "explore":
             chooseUserAreaAction(self.user, self.currentArea, self.enemy_loader)
         elif choice == "view character info":
-            screen = Screen()
-            screen.setTitle(self.user.name)
-            screen.addBodyRows(self.user.getDisplayData())
+            screen = Screen(self.user.name)
+            screen.add_body_rows(self.user.getDisplayData())
             screen.display()
         elif choice == "customize character":
             self.user.manage()
         elif choice == "list passives":
             screen = Screen()
-            for passive in getPassiveAbilityList():
-                screen.addBodyRow(passive.description)
+            screen.add_body_rows([passive.description for passive in getPassiveAbilityList()])
             screen.display()
         elif choice == "list items":
             screen = Screen()
-            for item in getItemList():
-                screen.addBodyRow(str(item))
+            screen.add_body_rows([item for item in getItemList()])
             screen.display()
         elif choice == "exit":
             self.exit = True
@@ -76,7 +73,6 @@ class Game:
     """
     def mainMenu(self):
         screen = Screen()
-        screen.setTitle("MAELSTROM")
         action = screen.display_and_choose("Choose an option: ", ["Play", "About", "Quit"])
         if action == "Play":
             self.loginMenu()
@@ -89,8 +85,7 @@ class Game:
     Asks the user to log in
     """
     def loginMenu(self):
-        screen = Screen()
-        screen.setTitle("Login")
+        screen = Screen("Login")
         users = self.userLoader.getOptions()
         userName = None
         options = ["Create game"]
@@ -122,9 +117,8 @@ class Game:
     """
     def newUserMenu(self):
         name = input("What do you want your character\'s name to be? ")
-        screen = Screen()
-        screen.setTitle("New User")
-        screen.addBodyRow("Each character has elemental powers, what element do you want yours to control?")
+        screen = Screen("New User")
+        screen.add_body_row("Each character has elemental powers, what element do you want yours to control?")
         element = screen.display_and_choose("Choose an element: ", ELEMENTS)
         result = self.createUser(name, element)
         if result == 'User added successfully!':
