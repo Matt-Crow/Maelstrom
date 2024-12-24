@@ -8,13 +8,11 @@ Primary export:
     - addBodyRows(List<str>)
     - addBodyRow(str) # automatically splits newlines into new rows
     - addSplitRow(left: str, right: str)
-    - addOption()
-    - display()
-    - displayAndChoose(prompt)
+    - display(list[any])
+    - display_and_choose(str, list[any])
 """
 
 import math
-import sys
 import re
 import subprocess
 from maelstrom.inputOutput.output import output, error
@@ -26,16 +24,11 @@ SCREEN_COLS = 80
 BORDER = "#"
 OPTION_ROWS = 5
 NUM_BODY_ROWS = 10
-CHOOSER = Chooser()
-
-def choose(prompt: str, options: list[any], displayOptions=True)->"any":
-    return CHOOSER.choose(prompt, options, displayOptions)
 
 class Screen:
     def __init__(self):
         self.title = "Maelstrom"
         self.body = [] # List of str
-        self.options = []
 
     def setTitle(self, title: str):
         self.title = title[:(SCREEN_COLS - 4)] # ensures title fits
@@ -73,98 +66,58 @@ class Screen:
                 r = right_rows[i]
             self.body.append(f'{l}{r}')
 
-    """
-    There may need to be some limit on the number of options this can be given
-    """
-    def addOption(self, option: "any"):
-        self.options.append(option)
-
-    def clear(self):
-        self.title = "Maelstrom"
-        self.clearBody()
-        self.clearOptions()
-
     def clearBody(self):
         self.body.clear()
 
-    def clearOptions(self):
-        self.options.clear()
-
-    def display(self):
-        self.write(sys.stdout)
-
-    def write(self, out): # can use a file as out
-        bodyLines = len(self.body)
-        currLine = 0
-
-        """
-        Displays NUM_BODY_ROWS rows of the body at a time
-        """
-        if bodyLines == 0:
-            if not get_global_config().keep_output:
-                try:
-                    works = subprocess.call("cls", shell=True)
-                    if works != 0: #is false, didn't run
-                        works = subprocess.call("clear", shell=True)
-                except:
-                    error("couldn't clear screen in Screen::display")
-            self.writeTitle(out)
-            self.writeBody(out, 0) # print blank body
-
-        while currLine < bodyLines:
-            if not get_global_config().keep_output:
-                try:
-                    works = subprocess.call("cls", shell=True)
-                    if works != 0: #is false, didn't run
-                        works = subprocess.call("clear", shell=True)
-                except:
-                    error("couldn't clear screen in Screen::display")
-            self.writeTitle(out)
-            self.writeBody(out, currLine)
-            currLine += NUM_BODY_ROWS
-            if currLine < bodyLines: # more lines
-                self.writeOptions(out, []) # just print empty options box
+    def display(self, options=[]):
+        num_pages = int(len(self.body) / NUM_BODY_ROWS)
+        if num_pages == 0:
+            num_pages = 1 # show at least 1 page
+        for page in range(num_pages):
+            self._write_body_page(page)
+            if page != num_pages - 1: # more pages
+                self._write_options([]) # just print empty options box
                 input("press enter or return to continue")
 
-        self.writeOptions(out, self.options)
-        if len(self.options) > 0:
-            pass
-            #input("Choose an option:")
-        else:
+        # allow player to choose once we're done displaying the body
+        self._write_options(options)
+        if len(options) == 0:
             input("press enter or return to continue")
 
-    def writeTitle(self, out):
-        output(BORDER * SCREEN_COLS, file=out)
+    def _write_body_page(self, page: int):
+        if not get_global_config().keep_output:
+            try:
+                works = subprocess.call("cls", shell=True)
+                if works != 0: # is false, didn't run
+                    works = subprocess.call("clear", shell=True)
+            except:
+                error("couldn't clear screen")
         
-        # center-align the title
+        # write the title
+        self._write_horizontal_line()
         centered_title_width = SCREEN_COLS - len(BORDER + " ") * 2
         centered_title = self.title.center(centered_title_width)
         centered_title_row = f'{BORDER} {centered_title} {BORDER}'
-        output(centered_title_row, file=out)
-        
-        output(BORDER * SCREEN_COLS, file=out)
+        output(centered_title_row)
+        self._write_horizontal_line()    
 
-    """
-    Writes the body lines within [firstLineNum, firstLineNum + NUM_BODY_ROWS)
-    """
-    def writeBody(self, out, firstLineNum=0):
-        output(BORDER * SCREEN_COLS, file=out)
-        self.writeOneCol(out, firstLineNum)
-        output(BORDER * SCREEN_COLS, file=out)
-
-    def writeOneCol(self, out, firstLineNum=0):
-        rowNum = 0
-        row = None
-        while rowNum < NUM_BODY_ROWS:
-            if rowNum + firstLineNum < len(self.body):
-                row = self.body[rowNum + firstLineNum]
-                output(row, file=out)
+        # write this page of the body
+        curr_line_num = page * NUM_BODY_ROWS
+        self._write_horizontal_line()
+        for i in range(NUM_BODY_ROWS):
+            if curr_line_num < len(self.body):
+                row = self.body[curr_line_num]
             else:
-                output(f'{BORDER} {" " * (SCREEN_COLS - 4)} {BORDER}', file=out)
-            rowNum = rowNum + 1
+                row = f'{BORDER} {" " * (SCREEN_COLS - 4)} {BORDER}'
+            output(row)
+            curr_line_num += 1
+        self._write_horizontal_line()
 
-    def writeOptions(self, out, options):
-        output(BORDER * SCREEN_COLS, file=out)
+    def _write_horizontal_line(self):
+        output(BORDER * SCREEN_COLS)
+
+    def _write_options(self, options):
+        self._write_horizontal_line()
 
         options = [str(option) for option in options]
 
@@ -193,13 +146,18 @@ class Screen:
                         msg += f'{BORDER} ' # separate columns with border
                     msg += f'{(i + 1):2}: {options[i].ljust(colWidths[colNum])}'
             msg = msg.ljust(SCREEN_COLS - 4)[:(SCREEN_COLS - 4)] # justify and trim it to fit exactly
-            output(f'{BORDER} {msg} {BORDER}', file=out)
+            output(f'{BORDER} {msg} {BORDER}')
 
-        output(BORDER * SCREEN_COLS, file=out)
+        self._write_horizontal_line()
 
-    def displayAndChoose(self, prompt: str)->"any":
-        self.display()
-        return choose(prompt, self.options, False)
+    def display_and_choose(self, prompt: str, options: list[any]) -> any:
+        """
+        Displays the screen and asks the user to choose one of the given options.
+        Returns the user's choice.
+        """
+        self.display(options)
+        user_choice = Chooser().choose(prompt, options, False)
+        return user_choice
 
 def _format_bordered_row(content: str, width: int = SCREEN_COLS) -> list[str]:
     rows = []

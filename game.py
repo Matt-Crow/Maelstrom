@@ -32,10 +32,7 @@ class Game:
     def chooseAction(self):
         screen = Screen()
         options = ["explore", "view character info", "customize character", "list passives", "list items", "exit"]
-        for option in options:
-            screen.addOption(option)
-
-        choice = screen.displayAndChoose("What do you wish to do?")
+        choice = screen.display_and_choose("What do you wish to do?", options)
         if choice == "explore":
             chooseUserAreaAction(self.user, self.currentArea, self.enemy_loader)
         elif choice == "view character info":
@@ -80,9 +77,7 @@ class Game:
     def mainMenu(self):
         screen = Screen()
         screen.setTitle("MAELSTROM")
-        for option in ["Play", "About", "Quit"]:
-            screen.addOption(option)
-        action = screen.displayAndChoose("Choose an option: ")
+        action = screen.display_and_choose("Choose an option: ", ["Play", "About", "Quit"])
         if action == "Play":
             self.loginMenu()
         elif action == "About":
@@ -102,15 +97,10 @@ class Game:
         if len(users) > 0:
             options.append("Load game")
         options.reverse()
-        for option in options:
-            screen.addOption(option)
-        action = screen.displayAndChoose("Do you wish to load a game or start a new one?")
+        action = screen.display_and_choose("Do you wish to load a game or start a new one?", options)
         if action == "Load game":
-            screen.clearOptions()
             users.append("None of these")
-            for user in users:
-                screen.addOption(user)
-            userName = screen.displayAndChoose("Which user are you?")
+            userName = screen.display_and_choose("Which user are you?", users)
             if userName == "None of these":
                 self.newUserMenu()
                 self.loginMenu()
@@ -135,9 +125,7 @@ class Game:
         screen = Screen()
         screen.setTitle("New User")
         screen.addBodyRow("Each character has elemental powers, what element do you want yours to control?")
-        for element in ELEMENTS:
-            screen.addOption(element)
-        element = screen.displayAndChoose("Choose an element: ")
+        element = screen.display_and_choose("Choose an element: ", ELEMENTS)
         result = self.createUser(name, element)
         if result == 'User added successfully!':
             self.loginUser(name)

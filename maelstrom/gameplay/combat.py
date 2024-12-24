@@ -141,7 +141,6 @@ class Encounter:
             choice = chooseAction(screen, character)
 
             screen.clearBody()
-            screen.clearOptions() # prevents a bug where the screen wouldn't display
             msgs.append(choice.use())
             msgs.extend(defenderTeam.updateMembersRemaining())
             screen.addSplitRow(
@@ -152,9 +151,7 @@ class Encounter:
         screen.display()
 
     def userChoose(self, screen, character):
-        for option in character.getActiveChoices():
-            screen.addOption(option)
-        return screen.displayAndChoose("What active do you wish to use?")
+        return screen.display_and_choose("What active do you wish to use?", character.getActiveChoices())
 
     def aiChoose(self, screen, character):
         choices = character.getActiveChoices()

@@ -78,23 +78,16 @@ class AbstractCustomizable(AbstractJsonSerialable):
             options.extend(canIncrease) # choose stat to increase first
             options.reverse()
 
-            for option in options:
-                screen.addOption(option)
-            increaseMe = screen.displayAndChoose("Which stat do you want to increase?")
+            increaseMe = screen.display_and_choose("Which stat do you want to increase?", options)
             if increaseMe == exit:
                 done = True
             else:
-                screen.clearOptions()
                 options = [exit]
                 for statName in canDecrease:
                     if statName != increaseMe:
                         options.append(statName)
                 options.reverse()
-
-                for option in options:
-                    screen.addOption(option)
-
-                decreaseMe = screen.displayAndChoose("Which stat do you want to decrease?")
+                decreaseMe = screen.display_and_choose("Which stat do you want to decrease?", options)
 
                 if decreaseMe == exit:
                     done = True

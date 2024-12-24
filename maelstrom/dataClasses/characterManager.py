@@ -19,11 +19,7 @@ def manageCharacter(character: Character):
     # todo: add option to change actives
 
     options.reverse()
-
-    for option in options:
-        screen.addOption(option)
-
-    customize = screen.displayAndChoose("What do you want to customize?")
+    customize = screen.display_and_choose("What do you want to customize?", options)
     if customize != "Quit":
         if customize == "Equipped items":
             raise Exception("todo move item choosing to user instead of character")

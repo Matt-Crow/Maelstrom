@@ -48,11 +48,7 @@ class User(AbstractJsonSerialable):
         for member in self.team.members:
             screen.addBodyRow(member.getDisplayData())
             options.insert(0, member)
-
-        for option in options:
-            screen.addOption(option)
-
-        managing = screen.displayAndChoose("Who do you wish to manage?")
+        managing = screen.display_and_choose("Who do you wish to manage?", options)
 
         if managing is not "Exit":
             manageCharacter(managing)

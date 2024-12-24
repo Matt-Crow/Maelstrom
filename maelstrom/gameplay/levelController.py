@@ -15,11 +15,7 @@ def chooseUserAreaAction(user: User, area: "Area", enemy_loader: EnemyLoader):
     for level in area.levels:
         options.append(level)
     options.append("quit")
-
-    for option in options:
-        screen.addOption(option)
-
-    choice = screen.displayAndChoose("Choose a level to play:")
+    choice = screen.display_and_choose("Choose a level to play:", options)
 
     if choice is not "quit":
         playLevel(choice, user, enemy_loader)
