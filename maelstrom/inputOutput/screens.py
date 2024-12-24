@@ -46,16 +46,32 @@ class Screen:
 
     def addBodyRow(self, row: str):
         if type(row) == type("Hello world!"):
-            self.body.extend(BorderedRowStyle().format(row))
+            self.body.extend(_format_bordered_row(row))
         else: # check if iterable AFTER checking if string
             try: # https://stackoverflow.com/questions/1952464/in-python-how-do-i-determine-if-an-object-is-iterable
                 for item in iter(row):
-                    self.body.extend(BorderedRowStyle().format(item))
-            except TypeError as neitherIterNorStr:
-                self.body.extend(BorderedRowStyle().format(str(row)))
+                    self.body.extend(_format_bordered_row(item))
+            except TypeError: # neither str nor iterable
+                self.body.extend(_format_bordered_row(str(row)))
 
     def addSplitRow(self, left: str, right: str):
-        self.body.extend(SplitRowStyle().format(left, right))
+        def style_left(content: str):
+            return _format_bordered_row(content, math.floor(SCREEN_COLS / 2))
+        def style_right(content: str):
+            return _format_bordered_row(content, math.ceil(SCREEN_COLS / 2))
+        left_rows = style_left(left)
+        right_rows = style_right(right)
+
+        # Pair up left and right rows. Rows with no match get paired with spaces
+        num_rows = max(len(left_rows), len(right_rows))
+        for i in range(num_rows):
+            l = style_left(" ")[0] # empty row
+            r = style_right(" ")[0]
+            if len(left_rows) > i:
+                l = left_rows[i]
+            if len(right_rows) > i:
+                r = right_rows[i]
+            self.body.append(f'{l}{r}')
 
     """
     There may need to be some limit on the number of options this can be given
@@ -119,7 +135,13 @@ class Screen:
 
     def writeTitle(self, out):
         output(BORDER * SCREEN_COLS, file=out)
-        output(CenterAlignedRow(self.title), file=out)
+        
+        # center-align the title
+        centered_title_width = SCREEN_COLS - len(BORDER + " ") * 2
+        centered_title = self.title.center(centered_title_width)
+        centered_title_row = f'{BORDER} {centered_title} {BORDER}'
+        output(centered_title_row, file=out)
+        
         output(BORDER * SCREEN_COLS, file=out)
 
     """
@@ -167,7 +189,7 @@ class Screen:
             for colNum in range(numCols):
                 i = rowNum + colNum * OPTION_ROWS
                 if i < len(options):
-                    if colNum is not 0:
+                    if colNum != 0:
                         msg += f'{BORDER} ' # separate columns with border
                     msg += f'{(i + 1):2}: {options[i].ljust(colWidths[colNum])}'
             msg = msg.ljust(SCREEN_COLS - 4)[:(SCREEN_COLS - 4)] # justify and trim it to fit exactly
@@ -179,105 +201,31 @@ class Screen:
         self.display()
         return choose(prompt, self.options, False)
 
+def _format_bordered_row(content: str, width: int = SCREEN_COLS) -> list[str]:
+    rows = []
+    content = content.replace("\t", " " * 4)
+    for line in content.split("\n"):
+        rows.extend(_wrap(line, width))
+    return [f'{BORDER} {row.ljust(width - 4)} {BORDER}' for row in rows]
 
-"""
-Psuedo-abstract class
-"""
-class RowStyle:
-    def format(self, msg: str)->list[str]:
-        pass
+def _wrap(msg: str, width: int) -> list[str]:
+    lines = []
+    line = msg.replace("\t", " " * 4)
+    if len(line.strip()) == 0: # catch purposely empty lines
+        lines.append(line)
 
-"""
-RowContentStyle(n).format(s) will return an array of string each exactly n
-characters long
-"""
-class RowContentStyle(RowStyle):
-    def __init__(self, rowWidth):
-        super().__init__()
-        self.rowWidth = rowWidth
+    while len(line.strip()) != 0:
+        wordBreak = line.rfind(" ", 0, width)
+        firstNonSpace = re.search("[^ ]", line)
+        indent = 0 if not firstNonSpace else firstNonSpace.start()
+        take = -1
+        if len(line) < width: # fits
+            take = width
+        elif wordBreak < indent: # no suitable break point
+            take = width
+        else:
+            take = wordBreak + 1
+        lines.append(line[:take])
+        line = line[take:].rjust(indent)
 
-    def wrap(self, msg: str)->list[str]:
-        lines = []
-        line = msg.replace("\t", " " * 4)
-        if len(line.strip()) is 0: # catch purposely empty lines
-            lines.append(line)
-
-        while len(line.strip()) is not 0:
-            wordBreak = line.rfind(" ", 0, self.rowWidth)
-            firstNonSpace = re.search("[^ ]", line)
-            indentation = 0 if not firstNonSpace else firstNonSpace.start()
-            if len(line) < self.rowWidth: # fits
-                lines.append(line)
-                line = indentation * " " + line[self.rowWidth:]
-            elif wordBreak < indentation: # no suitable break point
-                lines.append(line[:self.rowWidth])
-                line = indentation * " " + line[self.rowWidth:]
-            else:
-                lines.append(line[:wordBreak])
-                line = indentation * " " + line[(wordBreak + 1):]
-
-        return lines
-
-    def format(self, msg: str)->list[str]:
-        rows = []
-        msg = msg.replace("\t", " " * 4)
-
-        for line in msg.split("\n"):
-            rows.extend(self.wrap(line))
-
-        return [row.ljust(self.rowWidth) for row in rows]
-
-class BorderedRowStyle(RowStyle):
-    def __init__(self, rowWidth=SCREEN_COLS, border="#", padding=" "):
-        super().__init__()
-        self.border = border
-        self.padding = padding
-        bodyWidth = rowWidth - (len(border) + len(padding)) * 2
-        self.contentStyler = RowContentStyle(bodyWidth)
-
-    def format(self, msg: str)->list[str]:
-        innerStyling = self.contentStyler.format(msg)
-        return [f'{self.border}{self.padding}{row}{self.padding}{self.border}' for row in innerStyling]
-
-class SplitRowStyle(RowStyle):
-    def __init__(self, rowWidth=SCREEN_COLS, border="#", padding=" "):
-        super().__init__()
-        self.leftStyle = BorderedRowStyle(math.floor(rowWidth / 2), border, padding)
-        self.rightStyle = BorderedRowStyle(math.ceil(rowWidth / 2), border, padding)
-
-    def format(self, left, right)->list[str]:
-        rows = []
-
-        leftRows = self.leftStyle.format(left)
-        rightRows = self.rightStyle.format(right)
-
-        # Pair up left and right rows. Rows with no match get paired with spaces
-        numRows = max(len(leftRows), len(rightRows))
-        for i in range(numRows):
-            l = self.leftStyle.format(" ")[0] # empty row
-            r = self.rightStyle.format(" ")[0]
-            if len(leftRows) > i:
-                l = leftRows[i]
-            if len(rightRows) > i:
-                r = rightRows[i]
-            rows.append(f'{l}{r}')
-
-        return rows
-
-class BodyRow:
-    def __init__(self, content: str):
-        self.content = content
-
-class CenterAlignedRow(BodyRow):
-    def __init__(self, content: str):
-        super().__init__(content)
-        maxWidth = SCREEN_COLS - 4
-        """
-        when maxWidth == len(content), cannot offset
-        when len(content) == 1, offset is halfway across the screen
-        """
-        offset = int((maxWidth - len(content)) / 2)
-        self.spacing = " " * offset
-
-    def __str__(self)->str:
-        return f'{BORDER} {(self.spacing + self.content).ljust(SCREEN_COLS - 4)} {BORDER}'
+    return lines
