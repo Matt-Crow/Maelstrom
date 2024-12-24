@@ -1,9 +1,11 @@
 from abc import ABC, abstractmethod
+import json
+from genericpath import isfile
 from maelstrom.campaign.area import Area
 from maelstrom.campaign.campaign import Campaign
 from maelstrom.campaign.level import Level
-from maelstrom.io.files import read_json_file
-from maelstrom.io.folders import all_files_in
+from os import listdir
+from os.path import join
 
 class AbstractCampaignLoader(ABC):
     """Loads campaigns from an external resource."""
@@ -77,3 +79,16 @@ class JsonFolderCampaignLoader(AbstractCampaignLoader):
 def make_default_campaign_loader() -> AbstractCampaignLoader:
     """Creates the default campaign loader used by the program."""
     return JsonFolderCampaignLoader()
+
+def all_files_in(folder: str) -> 'list[str]':
+    """gets a path to all files in the given folder - not recursive"""
+    all_files_and_folders = [join(folder, f) for f in listdir(folder)]
+    all_files = [f for f in all_files_and_folders if isfile(f)]
+    return all_files
+
+def read_json_file(path: str) -> dict:
+    """reads the given JSON file and returns its contents"""
+    with open(path, mode='r') as file:
+        contents = file.read()
+    as_json = json.loads(contents)
+    return as_json

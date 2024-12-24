@@ -18,7 +18,7 @@ import sys
 import re
 import subprocess
 from maelstrom.inputOutput.output import output, error
-from maelstrom.io.chooser import Chooser
+from maelstrom.io import Chooser
 from maelstrom.util.stringUtil import lengthOfLongest
 from maelstrom.util.config import get_global_config
 

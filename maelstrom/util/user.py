@@ -5,7 +5,7 @@ This module replaces the old distinction between player and AI teams
 
 
 from maelstrom.dataClasses.characterManager import manageCharacter
-from maelstrom.inputOutput.teamDisplay import getDetailedTeamData
+from maelstrom.dataClasses.team import Team
 from maelstrom.inputOutput.screens import Screen
 from maelstrom.util.serialize import AbstractJsonSerialable
 
@@ -64,3 +64,18 @@ class User(AbstractJsonSerialable):
             "\n".join(getDetailedTeamData(self.team)),
             f'Items: {", ".join([str(item) for item in self.inventory])}'
         ]
+
+def getDetailedTeamData(team: Team)->list[str]:
+    """
+    This provides a more descriptive overview of the team, detailing all of its
+    members. It feels a little info-dump-y, so it feels tedious to scroll
+    through. Do I want some other way of providing players with team data?
+    """
+
+    lines = [
+        f'{team.name}:'
+    ]
+    for member in team.members:
+        lines.append(member.getDisplayData())
+
+    return lines

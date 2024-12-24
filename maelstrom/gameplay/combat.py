@@ -5,6 +5,7 @@ functions that act on their data, preventing classes from become cumbersome
 
 
 
+from typing import Callable
 from maelstrom.campaign.level import Level
 from maelstrom.dataClasses import character
 from maelstrom.dataClasses.team import Team
@@ -12,11 +13,11 @@ from maelstrom.dataClasses.weather import WEATHERS, Weather
 from maelstrom.loaders.characterLoader import EnemyLoader
 from maelstrom.inputOutput.output import debug
 from maelstrom.inputOutput.screens import Screen
-from maelstrom.inputOutput.teamDisplay import getTeamDisplayData
+from maelstrom.util.stringUtil import lengthOfLongest
+from maelstrom.util.user import User
 
 import random
 
-from maelstrom.util.user import User
 
 
 
@@ -107,7 +108,7 @@ class Encounter:
     def team2Turn(self):
         self.teamTurn(self.team2, self.team1, self.aiChoose)
 
-    def teamTurn(self, attacker, defender, chooseAction: "function(Screen, character.Character)"):
+    def teamTurn(self, attacker, defender, chooseAction: Callable[[Screen, character.Character], any]):
         if attacker.isDefeated():
             return
 
@@ -171,3 +172,18 @@ class Encounter:
         debug("-" * 10)
 
         return best
+
+def getTeamDisplayData(team: Team)->str:
+    """
+    Used in the in-battle HUD
+    """
+    lines = [
+        f'{team.name}'
+    ]
+    longestName = lengthOfLongest((member.name for member in team.membersRemaining))
+    longestHpEnergy = lengthOfLongest((f'{str(member.remHp)} HP / {str(member.energy)} energy' for member in team.membersRemaining))
+    for member in team.membersRemaining:
+        uiPart = f'{str(member.remHp)} HP / {str(member.energy)} EN'
+        lines.append(f'* {member.name.ljust(longestName)}: {uiPart.rjust(longestHpEnergy)}')
+
+    return "\n".join(lines)

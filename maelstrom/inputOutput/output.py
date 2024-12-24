@@ -11,7 +11,7 @@ These functions forward their paramters to the official Python print function,
 so anything that works for print will work for these
 """
 
-from maelstrom.io.output import StandardOutputChannel
+from maelstrom.io import StandardOutputChannel
 from maelstrom.util.config import get_global_config
 import sys
 

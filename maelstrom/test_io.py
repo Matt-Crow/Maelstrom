@@ -1,7 +1,5 @@
 from unittest import TestCase
-from maelstrom.io.chooser import Chooser
-from maelstrom.io.input import ListInputChannel
-from maelstrom.io.output import ListOutputChannel
+from maelstrom.io import Chooser, ListInputChannel, ListOutputChannel
 
 class TestIO(TestCase):
     def test_read_int(self):
