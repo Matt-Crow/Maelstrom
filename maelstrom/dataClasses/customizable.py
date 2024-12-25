@@ -1,7 +1,5 @@
 from maelstrom.util.serialize import AbstractJsonSerialable
-from maelstrom.dataClasses.stat_classes import Stat
 from abc import abstractmethod
-from maelstrom.inputOutput.screens import Screen
 
 class AbstractCustomizable(AbstractJsonSerialable):
     nextId = 0
@@ -55,46 +53,6 @@ class AbstractCustomizable(AbstractJsonSerialable):
         for k, v in self.stats.items():
             ret.append("\t{0}: {1}".format(k, str(v.get())))
         return ret
-
-    """
-    Provides a menu, so the player can customize this
-    """
-    def customizeMenu(self):
-        done = False
-        while not done and self.customizationPoints > 0:
-            screen = Screen(f'Cusomizing {self.name}')
-            screen.add_body_rows(self.getStatDisplayList())
-
-            exit = "Save changes and exit"
-            options = [exit]
-            canIncrease = []
-            canDecrease = []
-            for statName, stat in self.stats.items():
-                if not stat.is_max():
-                    canIncrease.append(statName)
-                if not stat.is_min():
-                    canDecrease.append(statName)
-            options.extend(canIncrease) # choose stat to increase first
-            options.reverse()
-
-            increaseMe = screen.display_and_choose("Which stat do you want to increase?", options)
-            if increaseMe == exit:
-                done = True
-            else:
-                options = [exit]
-                for statName in canDecrease:
-                    if statName != increaseMe:
-                        options.append(statName)
-                options.reverse()
-                decreaseMe = screen.display_and_choose("Which stat do you want to decrease?", options)
-
-                if decreaseMe == exit:
-                    done = True
-                else:
-                    self.setStatBase(increaseMe, self.stats[increaseMe].get_base() + 1)
-                    self.setStatBase(decreaseMe, self.stats[decreaseMe].get_base() - 1)
-                    self.calcStats()
-                    self.customizationPoints -= 1
 
     """
     Subclasses should override this method to return a textual description of

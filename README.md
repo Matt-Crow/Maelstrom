@@ -14,7 +14,7 @@ Use `python maelstrom.py -h` to view command line options.
 
 TODO:
 * use my application directory system from ARCDHWebAutomator
-* controller system a la maelstrom/gameplay/levelController.py
+* controller system for pages
 * make the game fun
 * I might want to replace the current method of serializing in-class with the
   Visitor design pattern using Python's JSONEncoder. The current method may

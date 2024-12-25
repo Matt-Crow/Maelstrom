@@ -1,17 +1,11 @@
 from maelstrom.dataClasses.createDefaults import createDefaultPlayer
-from maelstrom.dataClasses.item import getItemList
-from maelstrom.dataClasses.passiveAbilities import getPassiveAbilityList
 from maelstrom.dataClasses.team import Team
-from maelstrom.gameplay.levelController import chooseUserAreaAction
-from maelstrom.inputOutput.screens import Screen
+from maelstrom.gameplay.combat import playLevel
 from maelstrom.loaders.campaignloader import make_default_campaign_loader
 from maelstrom.loaders.characterLoader import EnemyLoader
+from maelstrom.pages import Pages
 from maelstrom.util.user import User
 from maelstrom.util.userLoader import UserLoader
-
-from maelstrom.dataClasses.elements import ELEMENTS
-
-
 
 """
 The Game class is used to store data on the game the user is currently playing,
@@ -25,30 +19,33 @@ class Game:
         self.userLoader = UserLoader()
         self.enemy_loader = EnemyLoader()
         self.campaign_loader = make_default_campaign_loader()
+        self._pages = Pages()
 
     def test(self):
         print("nothing to test")
 
     def chooseAction(self):
-        screen = Screen()
         options = ["explore", "view character info", "customize character", "list passives", "list items", "exit"]
-        choice = screen.display_and_choose("What do you wish to do?", options)
+        choice = self._pages.display_and_choose_action(options)
         if choice == "explore":
-            chooseUserAreaAction(self.user, self.currentArea, self.enemy_loader)
+            level_choice = self._pages.display_and_choose_level(self.currentArea)
+            if level_choice is not "quit":
+                playLevel(level_choice, self.user, self.enemy_loader)
         elif choice == "view character info":
-            screen = Screen(self.user.name)
-            screen.add_body_rows(self.user.getDisplayData())
-            screen.display()
+            self._pages.display_user(self.user)
         elif choice == "customize character":
-            self.user.manage()
+            managing = self._pages.display_and_choose_manage(self.user.name, self.user.team.members)
+            if managing != "Exit":
+                customize = self._pages.display_and_choose_manage_character(managing)
+                if customize != "Quit":
+                    if customize == "Equipped items":
+                        raise Exception("todo move item choosing to user instead of character")
+                    else:
+                        self._pages.display_and_customize(customize)
         elif choice == "list passives":
-            screen = Screen()
-            screen.add_body_rows([passive.description for passive in getPassiveAbilityList()])
-            screen.display()
+            self._pages.display_all_passives()
         elif choice == "list items":
-            screen = Screen()
-            screen.add_body_rows([item for item in getItemList()])
-            screen.display()
+            self._pages.display_all_items()
         elif choice == "exit":
             self.exit = True
         else:
@@ -72,8 +69,7 @@ class Game:
     Displayes the main menu
     """
     def mainMenu(self):
-        screen = Screen()
-        action = screen.display_and_choose("Choose an option: ", ["Play", "About", "Quit"])
+        action = self._pages.main_menu(["Play", "About", "Quit"])
         if action == "Play":
             self.loginMenu()
         elif action == "About":
@@ -85,25 +81,11 @@ class Game:
     Asks the user to log in
     """
     def loginMenu(self):
-        screen = Screen("Login")
-        users = self.userLoader.getOptions()
-        userName = None
-        options = ["Create game"]
-        if len(users) > 0:
-            options.append("Load game")
-        options.reverse()
-        action = screen.display_and_choose("Do you wish to load a game or start a new one?", options)
-        if action == "Load game":
-            users.append("None of these")
-            userName = screen.display_and_choose("Which user are you?", users)
-            if userName == "None of these":
-                self.newUserMenu()
-                self.loginMenu()
-            else:
-                self.loginUser(userName)
+        action = self._pages.login_menu(self.userLoader.getOptions())
+        if action == "New user": # hard coded string... yuck
+            self.newUserMenu() # logs in if successful
         else:
-            self.newUserMenu() #logs in if successful
-
+            self.loginUser(action)
 
     """
     Play a game as the given user
@@ -116,10 +98,7 @@ class Game:
     Creates the menu for creating a new user
     """
     def newUserMenu(self):
-        name = input("What do you want your character\'s name to be? ")
-        screen = Screen("New User")
-        screen.add_body_row("Each character has elemental powers, what element do you want yours to control?")
-        element = screen.display_and_choose("Choose an element: ", ELEMENTS)
+        [name, element] = self._pages.new_user_menu()
         result = self.createUser(name, element)
         if result == 'User added successfully!':
             self.loginUser(name)

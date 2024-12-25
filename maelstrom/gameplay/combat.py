@@ -3,23 +3,19 @@ This module handles combat gameplay. This separates the data classes from the
 functions that act on their data, preventing classes from become cumbersome
 """
 
-
-
+from functools import reduce
 from typing import Callable
 from maelstrom.campaign.level import Level
 from maelstrom.dataClasses import character
+from maelstrom.dataClasses.activeAbilities import TargetOption
 from maelstrom.dataClasses.team import Team
 from maelstrom.dataClasses.weather import WEATHERS, Weather
 from maelstrom.loaders.characterLoader import EnemyLoader
-from maelstrom.inputOutput.output import debug
 from maelstrom.inputOutput.screens import Screen
-from maelstrom.util.stringUtil import lengthOfLongest
+from maelstrom.pages import Pages
 from maelstrom.util.user import User
 
 import random
-
-
-
 
 def playLevel(level: "Level", user: User, enemyLoader: EnemyLoader):
     """
@@ -36,16 +32,8 @@ def playLevel(level: "Level", user: User, enemyLoader: EnemyLoader):
     playerTeam.initForBattle()
 
     weather = random.choice(WEATHERS)
-
-
-    screen = Screen(f'{playerTeam.name} VS. {enemyTeam.name}')
-    playerTeamData = getTeamDisplayData(playerTeam)
-    enemyTeamData = getTeamDisplayData(enemyTeam)
-    screen.add_split_row(playerTeamData, enemyTeamData)
-    screen.add_body_row(level.prescript)
-    screen.add_body_row(weather.getMsg())
-    screen.display()
-
+    
+    Pages().display_encounter_start(playerTeam, enemyTeam, [level.prescript, weather.getMsg()])
 
     msgs = []
 
@@ -64,11 +52,7 @@ def playLevel(level: "Level", user: User, enemyLoader: EnemyLoader):
     for member in playerTeam.members:
         msgs.extend(member.gainXp(xp))
 
-    screen = Screen(f'{playerTeam.name} VS. {enemyTeam.name}')
-    screen.add_body_rows(msgs)
-    screen.display()
-
-
+    Pages().display_encounter_end(f'{playerTeam.name} VS. {enemyTeam.name}', msgs)
 
 class Encounter:
     """
@@ -79,7 +63,7 @@ class Encounter:
         self.team2 = team2
         self.weather = weather
 
-    def resolve(self)->bool:
+    def resolve(self) -> bool:
         """
         runs the encounter. Returns True if team1 wins
         """
@@ -88,25 +72,20 @@ class Encounter:
         self.team1.initForBattle()
         self.team2.initForBattle()
 
-        while not self.isOver():
-            self.team2Turn()
-            self.team1Turn()
+        while not self._is_over():
+            self.teamTurn(self.team2, self.team1, self.aiChoose)
+            self.teamTurn(self.team1, self.team2, self.userChoose)
 
         self.team1.enemyTeam = None
         self.team2.enemyTeam = None
 
         return self.team2.isDefeated()
 
-    def isOver(self)->bool:
+    def _is_over(self) -> bool:
         return self.team1.isDefeated() or self.team2.isDefeated()
 
-    def team1Turn(self):
-        self.teamTurn(self.team1, self.team2, self.userChoose)
-
-    def team2Turn(self):
-        self.teamTurn(self.team2, self.team1, self.aiChoose)
-
-    def teamTurn(self, attacker, defender, chooseAction: Callable[[Screen, character.Character], any]):
+    def teamTurn(self, attacker, defender, chooseAction: Callable[[character.Character, Screen], TargetOption]):
+        pages = Pages()
         if attacker.isDefeated():
             return
 
@@ -121,56 +100,10 @@ class Encounter:
             if len(options) == 0:
                 msgs.append(f'{member.name} has no valid targets!')
             else:
-                self.characterChoose(attacker, member, defender, chooseAction, msgs)
+                pages.display_and_choose_combat_action(member, attacker, defender, msgs, chooseAction)
 
-    def characterChoose(self, attackerTeam, character, defenderTeam, chooseAction, msgs):
-        screen = Screen(f'{character}\'s turn')
-        screen.add_split_row(
-            getTeamDisplayData(attackerTeam),
-            getTeamDisplayData(defenderTeam)
-        )
-        screen.add_body_rows(msgs)
-
-        options = character.getActiveChoices()
-        if len(options) == 0:
-            screen.add_body_row(f'{character.name} has no valid targets!')
-        else: # let them choose their active and target
-            choice = chooseAction(screen, character)
-            screen.add_body_row(choice.use())
-            screen.add_body_rows(defenderTeam.updateMembersRemaining())
-        screen.display()
-
-    def userChoose(self, screen, character):
+    def userChoose(self, character, screen):
         return screen.display_and_choose("What active do you wish to use?", character.getActiveChoices())
 
-    def aiChoose(self, screen, character):
-        choices = character.getActiveChoices()
-        if len(choices) == 0:
-            return None
-
-        best = choices[0]
-        bestDmg = 0
-        debug("-" * 10)
-        for choice in choices:
-            if choice.totalDamage > bestDmg:
-                best = choice
-                bestDmg = choice.totalDamage
-            debug(f'Damage with {choice}: {choice.totalDamage}')
-        debug("-" * 10)
-
-        return best
-
-def getTeamDisplayData(team: Team)->str:
-    """
-    Used in the in-battle HUD
-    """
-    lines = [
-        f'{team.name}'
-    ]
-    longestName = lengthOfLongest((member.name for member in team.membersRemaining))
-    longestHpEnergy = lengthOfLongest((f'{str(member.remHp)} HP / {str(member.energy)} energy' for member in team.membersRemaining))
-    for member in team.membersRemaining:
-        uiPart = f'{str(member.remHp)} HP / {str(member.energy)} EN'
-        lines.append(f'* {member.name.ljust(longestName)}: {uiPart.rjust(longestHpEnergy)}')
-
-    return "\n".join(lines)
+    def aiChoose(self, character, screen):
+        return reduce(lambda i, j: i if i.totalDamage > j.totalDamage else j, character.getActiveChoices())

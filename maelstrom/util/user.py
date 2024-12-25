@@ -4,9 +4,7 @@ This module replaces the old distinction between player and AI teams
 
 
 
-from maelstrom.dataClasses.characterManager import manageCharacter
 from maelstrom.dataClasses.team import Team
-from maelstrom.inputOutput.screens import Screen
 from maelstrom.util.serialize import AbstractJsonSerialable
 
 
@@ -36,21 +34,6 @@ class User(AbstractJsonSerialable):
 
     def getAvailableItems(self):
         return [item for item in self.inventory if not item.equipped]
-
-    def manage(self):
-        """
-        Displays the team management menu
-        """
-
-        screen = Screen(f'Manage {self.name}')
-        screen.add_body_rows([member.getDisplayData()] for member in self.team.members)
-        options = []
-        options.extend(self.team.members)
-        options.append("Exit")
-        managing = screen.display_and_choose("Who do you wish to manage?", options)
-
-        if managing is not "Exit":
-            manageCharacter(managing)
 
     def getDisplayData(self) -> list[str]:
         return [
