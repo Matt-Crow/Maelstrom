@@ -103,7 +103,7 @@ class Encounter:
                 pages.display_and_choose_combat_action(member, attacker, defender, msgs, chooseAction)
 
     def userChoose(self, character, screen):
-        return screen.display_and_choose("What active do you wish to use?", character.getActiveChoices())
+        return screen.display_and_choose_OLD("What active do you wish to use?", character.getActiveChoices())
 
     def aiChoose(self, character, screen):
         return reduce(lambda i, j: i if i.totalDamage > j.totalDamage else j, character.getActiveChoices())

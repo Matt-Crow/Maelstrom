@@ -1,4 +1,7 @@
+from maelstrom.choices import ActionMapping, ChooseAction, ChooseOneOf, ChooseOneOrNone
+from maelstrom.dataClasses.character import Character
 from maelstrom.dataClasses.createDefaults import createDefaultPlayer
+from maelstrom.dataClasses.elements import ELEMENTS
 from maelstrom.dataClasses.team import Team
 from maelstrom.gameplay.combat import playLevel
 from maelstrom.loaders.campaignloader import make_default_campaign_loader
@@ -25,32 +28,45 @@ class Game:
         print("nothing to test")
 
     def chooseAction(self):
-        options = ["explore", "view character info", "customize character", "list passives", "list items", "exit"]
-        choice = self._pages.display_and_choose_action(options)
-        if choice == "explore":
-            level_choice = self._pages.display_and_choose_level(self.currentArea)
-            if level_choice is not "quit":
-                playLevel(level_choice, self.user, self.enemy_loader)
-        elif choice == "view character info":
-            self._pages.display_user(self.user)
-        elif choice == "customize character":
-            managing = self._pages.display_and_choose_manage(self.user.name, self.user.team.members)
-            if managing != "Exit":
-                customize = self._pages.display_and_choose_manage_character(managing)
-                if customize != "Quit":
-                    if customize == "Equipped items":
-                        raise Exception("todo move item choosing to user instead of character")
-                    else:
-                        self._pages.display_and_customize(customize)
-        elif choice == "list passives":
-            self._pages.display_all_passives()
-        elif choice == "list items":
-            self._pages.display_all_items()
-        elif choice == "exit":
-            self.exit = True
-        else:
-            raise Exception("Unsupported choice in game.py Game.chooseAction: '{0}''".format(choice))
+        choose_action = ChooseAction([
+            ActionMapping("Explore", lambda: self._explore()),
+            ActionMapping("View Party Info", lambda: self._pages.display_user(self.user)),
+            ActionMapping("Customize Character", lambda: self._choose_who_to_customize()),
+            ActionMapping("List Passives", lambda: self._pages.display_all_passives()),
+            ActionMapping("List Items", lambda: self._pages.display_all_items()),
+            ActionMapping("Exit", lambda: self._exit_action())
+        ])
+        self._pages.display_and_choose_action(choose_action)
 
+    def _explore(self):
+        choose_level = ChooseOneOrNone(
+            options=self.currentArea.levels,
+            none_of_these="Quit",
+            handle_choice=lambda level: playLevel(level, self.user, self.enemy_loader),
+            handle_none=lambda: None
+        )
+        self._pages.display_and_choose_level(self.currentArea, choose_level)
+
+    def _choose_who_to_customize(self):
+        choose_who_to_customize = ChooseOneOrNone(
+            options=self.user.team.members,
+            none_of_these="Exit",
+            handle_choice=lambda c: self._customize_character(c),
+            handle_none=lambda: None # do nothing on none
+        )
+        self._pages.display_and_choose_manage(self.user.name, self.user.team.members, choose_who_to_customize)
+
+    def _customize_character(self, character: Character):
+        customizables = character.equippedItems.copy()
+        customizables.append(character)
+        choose_what_to_manage = ChooseOneOrNone(
+            options=customizables,
+            none_of_these="Quit",
+            handle_choice=lambda c: self._pages.display_and_customize(c),
+            handle_none=lambda: None
+        )
+        self._pages.display_and_choose_manage_character(character, choose_what_to_manage)
+    
     """
     Begins the program
     """
@@ -65,27 +81,28 @@ class Game:
         if self.user is not None:
             self.userLoader.save(self.user)
 
-    """
-    Displayes the main menu
-    """
     def mainMenu(self):
-        action = self._pages.main_menu(["Play", "About", "Quit"])
-        if action == "Play":
-            self.loginMenu()
-        elif action == "About":
-            pass
-        else:
-            self.exit = True
+        """
+        Displayes the main menu
+        """
+        choose_menu_item = ChooseAction([
+            ActionMapping("Play", lambda: self._choose_login_action()),
+            ActionMapping("About", lambda: None),
+            ActionMapping("Quit", lambda: self._exit_action())
+        ])
+        self._pages.main_menu(choose_menu_item)
 
-    """
-    Asks the user to log in
-    """
-    def loginMenu(self):
-        action = self._pages.login_menu(self.userLoader.getOptions())
-        if action == "New user": # hard coded string... yuck
-            self.newUserMenu() # logs in if successful
-        else:
-            self.loginUser(action)
+    def _choose_login_action(self):
+        login_choice = ChooseOneOrNone(
+            options = [str(user) for user in self.userLoader.getOptions()],
+            none_of_these = "New user",
+            handle_choice = lambda user_name: self.loginUser(user_name),
+            handle_none = lambda: self.newUserMenu()
+        )
+        self._pages.login_menu(login_choice)
+
+    def _exit_action(self):
+        self.exit = True
 
     """
     Play a game as the given user
@@ -98,8 +115,12 @@ class Game:
     Creates the menu for creating a new user
     """
     def newUserMenu(self):
-        [name, element] = self._pages.new_user_menu()
-        result = self.createUser(name, element)
+        def handle_element_choice(choice):
+            self._element = choice # yuck
+            
+        element_choice = ChooseOneOf(ELEMENTS, handle_element_choice)
+        name = self._pages.new_user_menu(element_choice)
+        result = self.createUser(name, self._element)
         if result == 'User added successfully!':
             self.loginUser(name)
         else:
