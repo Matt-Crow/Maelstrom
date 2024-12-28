@@ -10,11 +10,6 @@ class Config:
     Configuration options that determine how Maelstrom will run
     """
 
-    debug: bool = False
-    """
-    whether to print debug output
-    """
-
     keep_output: bool = False
     """
     whether to clear the screen before outputting a new menu

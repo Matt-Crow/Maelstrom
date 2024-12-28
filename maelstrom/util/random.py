@@ -1,10 +1,4 @@
-
-
-
-from maelstrom.inputOutput.output import debug
 import random
-
-
 
 def rollPercentage(base = 0):
     """
@@ -20,7 +14,5 @@ def rollPercentage(base = 0):
         raise ValueError(f'base must be between 0 and 100, so {base} is not allowed')
     else:
         ret = random.randint(base, 100)
-        debug(f'Rolling between {base} and 100')
-        debug(f'Rolled {ret}')
 
     return ret

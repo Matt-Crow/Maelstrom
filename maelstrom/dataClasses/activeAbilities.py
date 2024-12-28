@@ -14,7 +14,6 @@ active they wish to use.
 
 from maelstrom.dataClasses.character import Character
 from maelstrom.gameplay.events import OnHitEvent, HIT_GIVEN_EVENT, HIT_TAKEN_EVENT
-from maelstrom.inputOutput.output import debug
 from maelstrom.util.serialize import AbstractJsonSerialable
 from maelstrom.util.random import rollPercentage
 from maelstrom.dataClasses.elements import ELEMENTS
@@ -161,10 +160,6 @@ class AbstractDamagingActive(AbstractActive):
         """
         hit = HitType(1.0, "") # don't put a space at the end of the message
         rng = rollPercentage(user.getStatValue("luck")) / 100
-
-        debug(f'rolled {rng}')
-        debug(f'miss requires {self.missChance}')
-        debug(f'crit requires {1.0 - self.critChance}')
 
         if rng <= self.missChance:
             hit = HitType(self.missMult, "A glancing blow! ") # need space on end

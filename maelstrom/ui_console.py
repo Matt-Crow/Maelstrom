@@ -5,9 +5,9 @@ TODO: refactor
 import math
 import re
 import subprocess
+import sys
 from maelstrom.choices import AbstractChoice
-from maelstrom.inputOutput.output import output, error
-from maelstrom.io import Chooser
+from maelstrom.io import Chooser, StandardOutputChannel
 from maelstrom.ui import AbstractUserInterface
 from maelstrom.util.stringUtil import lengthOfLongest
 from maelstrom.util.config import get_global_config
@@ -16,6 +16,7 @@ SCREEN_COLS = 80
 BORDER = "#"
 OPTION_ROWS = 5
 NUM_BODY_ROWS = 10
+OUTPUT = StandardOutputChannel()
 
 class ConsoleUI(AbstractUserInterface):
     def __init__(self, title: str = "Maelstrom"):
@@ -97,19 +98,17 @@ class ConsoleUI(AbstractUserInterface):
 
     def _write_body_page(self, page: int):
         if not get_global_config().keep_output:
-            try:
-                works = subprocess.call("cls", shell=True)
-                if works != 0: # is false, didn't run
-                    works = subprocess.call("clear", shell=True)
-            except:
-                error("couldn't clear screen")
+            works = subprocess.call("cls", shell=True)
+            if works != 0: # is false, didn't run
+                works = subprocess.call("clear", shell=True)
+            print("Failed to clear the console: neither cls nor clear worked", file=sys.stderr)
         
         # write the title
         self._write_horizontal_line()
         centered_title_width = SCREEN_COLS - len(BORDER + " ") * 2
         centered_title = self._title.center(centered_title_width)
         centered_title_row = f'{BORDER} {centered_title} {BORDER}'
-        output(centered_title_row)
+        OUTPUT.write(centered_title_row)
         self._write_horizontal_line()    
 
         # write this page of the body
@@ -120,12 +119,12 @@ class ConsoleUI(AbstractUserInterface):
                 row = self._body[curr_line_num]
             else:
                 row = f'{BORDER} {" " * (SCREEN_COLS - 4)} {BORDER}'
-            output(row)
+            OUTPUT.write(row)
             curr_line_num += 1
         self._write_horizontal_line()
 
     def _write_horizontal_line(self):
-        output(BORDER * SCREEN_COLS)
+        OUTPUT.write(BORDER * SCREEN_COLS)
 
     def _write_options(self, options):
         self._write_horizontal_line()
@@ -157,7 +156,7 @@ class ConsoleUI(AbstractUserInterface):
                         msg += f'{BORDER} ' # separate columns with border
                     msg += f'{(i + 1):2}: {options[i].ljust(colWidths[colNum])}'
             msg = msg.ljust(SCREEN_COLS - 4)[:(SCREEN_COLS - 4)] # justify and trim it to fit exactly
-            output(f'{BORDER} {msg} {BORDER}')
+            OUTPUT.write(f'{BORDER} {msg} {BORDER}')
 
         self._write_horizontal_line()
 
