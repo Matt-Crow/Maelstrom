@@ -12,7 +12,7 @@ from maelstrom.dataClasses.activeAbilities import TargetOption
 from maelstrom.dataClasses.team import Team
 from maelstrom.dataClasses.weather import WEATHERS, Weather
 from maelstrom.loaders.characterLoader import EnemyLoader
-from maelstrom.inputOutput.screens import Screen
+from maelstrom.screens import Screen
 from maelstrom.pages import Pages
 from maelstrom.util.user import User
 
