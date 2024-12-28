@@ -1,14 +1,5 @@
 """
-This module provides the basic structure of the screens the program displays
-
-Primary export:
-
-* Class Screen
-    - add_body_rows(list[str])
-    - add_body_row(str)
-    - add_split_row(str, str)
-    - display(list[any])
-    - display_and_choose(str, AbstractChoice)
+TODO: move this file to the project root, then refactor
 """
 
 import math
@@ -17,6 +8,7 @@ import subprocess
 from maelstrom.choices import AbstractChoice
 from maelstrom.inputOutput.output import output, error
 from maelstrom.io import Chooser
+from maelstrom.ui import AbstractUserInterface
 from maelstrom.util.stringUtil import lengthOfLongest
 from maelstrom.util.config import get_global_config
 
@@ -25,13 +17,21 @@ BORDER = "#"
 OPTION_ROWS = 5
 NUM_BODY_ROWS = 10
 
-class Screen:
+class Screen(AbstractUserInterface):
     def __init__(self, title: str = "Maelstrom"):
         """
         Creates a screen with the given title.
         """
         self._title = title
         self._body = [] # list[str]
+
+    @property
+    def title(self) -> str:
+        return self._title
+    
+    @title.setter
+    def title(self, value):
+        self._title = value
 
     def add_body_rows(self, rows: list[str]):
         """
@@ -46,10 +46,7 @@ class Screen:
         """
         self._body.extend(_format_bordered_row(str(row)))
 
-    def add_split_row(self, left: str, right: str):
-        """
-        Adds a row to the screen where the left half is the first parameter and the right half is the second parameter.
-        """
+    def add_scoreboard_row(self, left: str, right: str):
         def style_left(content: str):
             return _format_bordered_row(content, math.floor(SCREEN_COLS / 2))
         def style_right(content: str):
@@ -67,6 +64,10 @@ class Screen:
             if len(right_rows) > i:
                 r = right_rows[i]
             self._body.append(f'{l}{r}')
+
+    def clear(self):
+        self._title = "Maelstrom"
+        self._body.clear()
 
     def display(self, options=[]):
         """
@@ -86,7 +87,7 @@ class Screen:
         if len(options) == 0:
             input("press enter or return to continue")
     
-    def display_and_choose(self, prompt: str, choice: AbstractChoice):
+    def display_choice(self, prompt: str, choice: AbstractChoice):
         """
         Asks the user to make the given choice.
         """

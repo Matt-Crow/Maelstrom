@@ -119,7 +119,7 @@ class Encounter:
         screen.display()
 
     def _user_choose(self, character: character.Character, screen: Screen, handle_choice: Callable[[TargetOption], None]):
-        screen.display_and_choose("What active do you wish to use?", ChooseOneOf(character.getActiveChoices(), handle_choice))
+        screen.display_choice("What active do you wish to use?", ChooseOneOf(character.getActiveChoices(), handle_choice))
 
     def _ai_choose(self, character: character.Character, screen: Screen, handle_choice: Callable[[TargetOption], None]):
         choice = reduce(lambda i, j: i if i.totalDamage > j.totalDamage else j, character.getActiveChoices())
