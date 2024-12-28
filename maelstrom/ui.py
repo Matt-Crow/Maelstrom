@@ -1,6 +1,23 @@
 """
 This module contains code related to the user interface.
 This code is abstract so it can be implemented by both a command-line interface and graphical user interfaces.
+
+TODO Might be better with just a single data class such as
+
+ScreenDataInfo:
+    title: str
+    left_scoreboard: list[str]
+    right_scoreboard: list[str]
+    body: list[str]
+    prompt: str
+    choice: AbstractChoice
+
+And an abstract class such as
+
+class AbstractUserInterface(ABC):
+    @abstractmethod
+    def display(self, screen: ScreenDataInfo):
+        pass
 """
 
 from abc import ABC, abstractmethod
