@@ -6,6 +6,7 @@ functions that act on their data, preventing classes from become cumbersome
 from functools import reduce
 from typing import Callable
 from maelstrom.campaign.level import Level
+from maelstrom.choices import ChooseOneOf
 from maelstrom.dataClasses import character
 from maelstrom.dataClasses.activeAbilities import TargetOption
 from maelstrom.dataClasses.team import Team
@@ -17,7 +18,7 @@ from maelstrom.util.user import User
 
 import random
 
-def playLevel(level: "Level", user: User, enemyLoader: EnemyLoader):
+def playLevel(level: Level, user: User, enemyLoader: EnemyLoader):
     """
     used to start and run a Level
     """
@@ -35,75 +36,91 @@ def playLevel(level: "Level", user: User, enemyLoader: EnemyLoader):
     
     Pages().display_encounter_start(playerTeam, enemyTeam, [level.prescript, weather.getMsg()])
 
-    msgs = []
+    Encounter(playerTeam, enemyTeam, weather, lambda winner: handle_team_win(level, playerTeam, enemyTeam, winner)).run()
 
-    if Encounter(
-        playerTeam,
-        enemyTeam,
-        weather
-    ).resolve():
-        msgs.append(f'{playerTeam.name} won!')
+def handle_team_win(level: Level, player_team: Team, enemy_team: Team, winner: Team):
+    msgs = []
+    if player_team is winner:
+        msgs.append(f'{player_team.name} won!')
         msgs.append(level.postscript)
-        # add rewards later
     else:
         msgs.append("Regretably, you have not won this day. Though someday, you will grow strong enough to overcome this challenge...")
-
-    xp = enemyTeam.getXpGiven()
-    for member in playerTeam.members:
+    xp = enemy_team.getXpGiven()
+    for member in player_team.members:
         msgs.extend(member.gainXp(xp))
 
-    Pages().display_encounter_end(f'{playerTeam.name} VS. {enemyTeam.name}', msgs)
+    Pages().display_encounter_end(f'{player_team.name} VS. {enemy_team.name}', msgs)
 
 class Encounter:
     """
     An encounter handles team versus team conflict.
     """
-    def __init__(self, team1: "Team", team2: "Team", weather: Weather):
+
+    def __init__(self, team1: Team, team2: Team, weather: Weather, handle_team_win: Callable[[Team], None]):
         self.team1 = team1
         self.team2 = team2
         self.weather = weather
+        self._pages = Pages()
+        self._handle_team_win = handle_team_win
 
-    def resolve(self) -> bool:
+    def run(self):
         """
-        runs the encounter. Returns True if team1 wins
+        Runs the encounter until one team wins
         """
         self.team1.enemyTeam = self.team2
         self.team2.enemyTeam = self.team1
         self.team1.initForBattle()
         self.team2.initForBattle()
-
+        
         while not self._is_over():
-            self.teamTurn(self.team2, self.team1, self.aiChoose)
-            self.teamTurn(self.team1, self.team2, self.userChoose)
+            self._player_team_turn() # recursively calls enemy team turn
 
         self.team1.enemyTeam = None
         self.team2.enemyTeam = None
 
-        return self.team2.isDefeated()
-
     def _is_over(self) -> bool:
         return self.team1.isDefeated() or self.team2.isDefeated()
 
-    def teamTurn(self, attacker, defender, chooseAction: Callable[[character.Character, Screen], TargetOption]):
-        pages = Pages()
-        if attacker.isDefeated():
+    def _player_team_turn(self):
+        self._team_turn(self.team1, self.team2, self._user_choose)
+
+        if self.team2.isDefeated():
+            self._handle_team_win(self.team1)
+            return
+        
+        self._ai_team_turn()
+        if self.team1.isDefeated():
+            self._handle_team_win(self.team2)
+
+    def _ai_team_turn(self):
+        self._team_turn(self.team2, self.team1, self._ai_choose)
+
+    def _team_turn(self, attacking_team: Team, defending_team: Team, choose_action: Callable[[character.Character, Screen, Callable[[TargetOption], None]], None]):
+        if attacking_team.isDefeated():
             return
 
-        msgs = []
+        messages = []
+        messages.extend(attacking_team.updateMembersRemaining())
+        self.weather.applyEffect(attacking_team.membersRemaining, messages)
+        messages.extend(attacking_team.updateMembersRemaining())
 
-        msgs.extend(attacker.updateMembersRemaining())
-        self.weather.applyEffect(attacker.membersRemaining, msgs)
-        msgs.extend(attacker.updateMembersRemaining())
-
-        for member in attacker.membersRemaining:
+        for member in attacking_team.membersRemaining:
             options = member.getActiveChoices()
             if len(options) == 0:
-                msgs.append(f'{member.name} has no valid targets!')
+                messages.append(f'{member.name} has no valid targets!')
             else:
-                pages.display_and_choose_combat_action(member, attacker, defender, msgs, chooseAction)
+                self._pages.display_start_of_character_turn(member, attacking_team, defending_team, messages)
+                screen = self._pages.set_up_screen_for_turn(member, attacking_team, defending_team, messages)
+                choose_action(member, screen, lambda to: self._handle_choice(screen, defending_team, to)) # need to await this
 
-    def userChoose(self, character, screen):
-        return screen.display_and_choose_OLD("What active do you wish to use?", character.getActiveChoices())
+    def _handle_choice(self, screen: Screen, defending_team: Team, choice: TargetOption):
+        screen.add_body_row(choice.use())
+        screen.add_body_rows(defending_team.updateMembersRemaining())
+        screen.display()
 
-    def aiChoose(self, character, screen):
-        return reduce(lambda i, j: i if i.totalDamage > j.totalDamage else j, character.getActiveChoices())
+    def _user_choose(self, character: character.Character, screen: Screen, handle_choice: Callable[[TargetOption], None]):
+        screen.display_and_choose("What active do you wish to use?", ChooseOneOf(character.getActiveChoices(), handle_choice))
+
+    def _ai_choose(self, character: character.Character, screen: Screen, handle_choice: Callable[[TargetOption], None]):
+        choice = reduce(lambda i, j: i if i.totalDamage > j.totalDamage else j, character.getActiveChoices())
+        handle_choice(choice)

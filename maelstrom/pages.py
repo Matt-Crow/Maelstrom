@@ -4,10 +4,8 @@ In the future, this may be refactored to be more polymorphic,
 as users will be able to view pages as either console or GUI.
 """
 
-from typing import Callable
 from maelstrom.campaign.area import Area
 from maelstrom.choices import ChooseAction, ChooseOneOf, ChooseOneOrNone
-from maelstrom.dataClasses.activeAbilities import TargetOption
 from maelstrom.dataClasses.character import Character
 from maelstrom.dataClasses.customizable import AbstractCustomizable
 from maelstrom.dataClasses.item import getItemList
@@ -130,22 +128,23 @@ class Pages:
         screen.add_body_rows(body_rows)
         screen.display()
 
-    def display_and_choose_combat_action(self, character: Character, attackerTeam: Team, defenderTeam: Team, msgs: list[str], chooseAction: Callable[[Character, Screen], TargetOption]):
-        screen = Screen(f'{character}\'s turn')
-        screen.add_split_row(
-            getTeamDisplayData(attackerTeam),
-            getTeamDisplayData(defenderTeam)
-        )
-        screen.add_body_rows(msgs)
-        choice = chooseAction(character, screen)
-        screen.add_body_row(choice.use())
-        screen.add_body_rows(defenderTeam.updateMembersRemaining())
+    def display_start_of_character_turn(self, whos_turn_it_is: Character, attacking_team: Team, defending_team: Team, messages: list[str]):
+        screen = self.set_up_screen_for_turn(whos_turn_it_is, attacking_team, defending_team, messages)
         screen.display()
 
     def display_encounter_end(self, title: str, body_rows: list[str]):
         screen = Screen(title)
         screen.add_body_rows(body_rows)
         screen.display()
+
+    def set_up_screen_for_turn(self, whos_turn_it_is: Character, attacking_team: Team, defending_team: Team, messages: list[str]) -> Screen:
+        screen = Screen(f'{whos_turn_it_is}\'s turn')
+        screen.add_split_row(
+            getTeamDisplayData(attacking_team),
+            getTeamDisplayData(defending_team)
+        )
+        screen.add_body_rows(messages)
+        return screen
 
     def _display_simple(self, rows: list[str]):
         screen = Screen()

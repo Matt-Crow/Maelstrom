@@ -8,7 +8,7 @@ Primary export:
     - add_body_row(str)
     - add_split_row(str, str)
     - display(list[any])
-    - display_and_choose_OLD(str, list[any])
+    - display_and_choose(str, AbstractChoice)
 """
 
 import math
@@ -86,16 +86,6 @@ class Screen:
         if len(options) == 0:
             input("press enter or return to continue")
     
-    # todo rm
-    def display_and_choose_OLD(self, prompt: str, options: list[any]) -> any:
-        """
-        Displays the screen and asks the user to choose one of the given options.
-        Returns the user's choice.
-        """
-        self.display(options)
-        user_choice = Chooser().choose(prompt, options, False)
-        return user_choice
-
     def display_and_choose(self, prompt: str, choice: AbstractChoice):
         """
         Asks the user to make the given choice.
