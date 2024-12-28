@@ -13,7 +13,7 @@ from maelstrom.dataClasses.customizable import AbstractCustomizable
 from maelstrom.dataClasses.item import getItemList
 from maelstrom.dataClasses.passiveAbilities import getPassiveAbilityList
 from maelstrom.dataClasses.team import Team
-from maelstrom.screens import Screen
+from maelstrom.ui_console import Screen
 from maelstrom.util.stringUtil import lengthOfLongest
 from maelstrom.util.user import User
 

@@ -1,5 +1,5 @@
 """
-TODO: move this file to the project root, then refactor
+TODO: refactor
 """
 
 import math
