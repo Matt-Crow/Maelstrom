@@ -13,14 +13,15 @@ from maelstrom.dataClasses.customizable import AbstractCustomizable
 from maelstrom.dataClasses.item import getItemList
 from maelstrom.dataClasses.passiveAbilities import getPassiveAbilityList
 from maelstrom.dataClasses.team import Team
-from maelstrom.ui_console import Screen
+from maelstrom.ui import AbstractUserInterface
+from maelstrom.ui_console import ConsoleUI
 from maelstrom.util.stringUtil import lengthOfLongest
 from maelstrom.util.user import User
 
 class Pages:
 
     def __init__(self):
-        self._ui = Screen()
+        self._ui = ConsoleUI()
 
     def main_menu(self, choose_action: ChooseAction):
         """
@@ -110,7 +111,7 @@ class Pages:
         )
         self._ui.display_choice("Which stat do you want to increase?", choose_stat_to_increase)
     
-    def _display_and_customize_part_2(self, customizable: AbstractCustomizable, screen: Screen, increaseMe: str):
+    def _display_and_customize_part_2(self, customizable: AbstractCustomizable, screen: AbstractUserInterface, increaseMe: str):
         # choose different stat to decrease
         choose_stat_to_decrease = ChooseOneOrNone(
             options=[stat.name for stat in customizable.stats.values() if not stat.is_min() and stat.name != increaseMe],
@@ -155,7 +156,7 @@ class Pages:
         self._ui.add_body_rows(body_rows)
         self._ui.display()
 
-    def set_up_screen_for_turn(self, whos_turn_it_is: Character, attacking_team: Team, defending_team: Team, messages: list[str]) -> Screen:
+    def set_up_screen_for_turn(self, whos_turn_it_is: Character, attacking_team: Team, defending_team: Team, messages: list[str]) -> ConsoleUI:
         self._ui.clear()
         self._ui.title = f'{whos_turn_it_is}\'s turn'
         self._ui.add_scoreboard_row(

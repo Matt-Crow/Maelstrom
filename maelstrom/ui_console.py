@@ -17,7 +17,7 @@ BORDER = "#"
 OPTION_ROWS = 5
 NUM_BODY_ROWS = 10
 
-class Screen(AbstractUserInterface):
+class ConsoleUI(AbstractUserInterface):
     def __init__(self, title: str = "Maelstrom"):
         """
         Creates a screen with the given title.

@@ -12,8 +12,8 @@ from maelstrom.dataClasses.activeAbilities import TargetOption
 from maelstrom.dataClasses.team import Team
 from maelstrom.dataClasses.weather import WEATHERS, Weather
 from maelstrom.loaders.characterLoader import EnemyLoader
-from maelstrom.ui_console import Screen
 from maelstrom.pages import Pages
+from maelstrom.ui import AbstractUserInterface
 from maelstrom.util.user import User
 
 import random
@@ -95,7 +95,7 @@ class Encounter:
     def _ai_team_turn(self):
         self._team_turn(self.team2, self.team1, self._ai_choose)
 
-    def _team_turn(self, attacking_team: Team, defending_team: Team, choose_action: Callable[[character.Character, Screen, Callable[[TargetOption], None]], None]):
+    def _team_turn(self, attacking_team: Team, defending_team: Team, choose_action: Callable[[character.Character, AbstractUserInterface, Callable[[TargetOption], None]], None]):
         if attacking_team.isDefeated():
             return
 
@@ -113,14 +113,14 @@ class Encounter:
                 screen = self._pages.set_up_screen_for_turn(member, attacking_team, defending_team, messages)
                 choose_action(member, screen, lambda to: self._handle_choice(screen, defending_team, to)) # need to await this
 
-    def _handle_choice(self, screen: Screen, defending_team: Team, choice: TargetOption):
+    def _handle_choice(self, screen: AbstractUserInterface, defending_team: Team, choice: TargetOption):
         screen.add_body_row(choice.use())
         screen.add_body_rows(defending_team.updateMembersRemaining())
         screen.display()
 
-    def _user_choose(self, character: character.Character, screen: Screen, handle_choice: Callable[[TargetOption], None]):
+    def _user_choose(self, character: character.Character, screen: AbstractUserInterface, handle_choice: Callable[[TargetOption], None]):
         screen.display_choice("What active do you wish to use?", ChooseOneOf(character.getActiveChoices(), handle_choice))
 
-    def _ai_choose(self, character: character.Character, screen: Screen, handle_choice: Callable[[TargetOption], None]):
+    def _ai_choose(self, character: character.Character, screen: AbstractUserInterface, handle_choice: Callable[[TargetOption], None]):
         choice = reduce(lambda i, j: i if i.totalDamage > j.totalDamage else j, character.getActiveChoices())
         handle_choice(choice)
