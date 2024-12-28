@@ -1,1 +1,0 @@
-{"type": "User", "name": "Test", "team": {"type": "Team", "name": "Test", "members": [{"type": "Character", "name": "Test", "customizationPoints": 0, "stats": {"control": 4, "resistance": 0, "potency": 0, "luck": -5, "energy": 1}, "element": "rain", "xp": 40, "level": 6, "actives": ["slash", "jab", "slam", "rain bolt"], "passives": [], "equippedItems": []}]}, "inventory": []}
