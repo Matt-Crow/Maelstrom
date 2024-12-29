@@ -4,21 +4,20 @@ functions that act on their data, preventing classes from become cumbersome
 """
 
 from functools import reduce
-from typing import Callable
 from maelstrom.campaign.level import Level
 from maelstrom.choices import ChooseOneOf
-from maelstrom.dataClasses import character
+from maelstrom.dataClasses.character import Character
 from maelstrom.dataClasses.activeAbilities import TargetOption
 from maelstrom.dataClasses.team import Team
 from maelstrom.dataClasses.weather import WEATHERS, Weather
 from maelstrom.loaders.characterLoader import EnemyLoader
-from maelstrom.pages import Pages, getTeamDisplayData
 from maelstrom.ui import AbstractUserInterface, Screen
+from maelstrom.util.stringUtil import lengthOfLongest
 from maelstrom.util.user import User
 
 import random
 
-def playLevel(level: Level, user: User, enemyLoader: EnemyLoader):
+def play_level(ui: AbstractUserInterface, level: Level, user: User, enemyLoader: EnemyLoader):
     """
     used to start and run a Level
     """
@@ -26,76 +25,76 @@ def playLevel(level: Level, user: User, enemyLoader: EnemyLoader):
     enemies = [enemyLoader.load(enemyName) for enemyName in level.enemy_names]
     for enemy in enemies:
         enemy.level = level.enemy_level
-    enemyTeam = Team(name="Enemy Team", members=enemies)
-    enemyTeam.initForBattle()
+    enemy_team = Team(name="Enemy Team", members=enemies)
+    enemy_team.initForBattle()
 
-    playerTeam = user.team
-    playerTeam.initForBattle()
+    player_team = user.team
+    player_team.initForBattle()
 
     weather = random.choice(WEATHERS)
     
-    Pages().display_encounter_start(playerTeam, enemyTeam, [level.prescript, weather.getMsg()])
+    # display start of encounter
+    body_messages = []
+    if len(level.prescript) > 0:
+        body_messages.append(level.prescript)
+    if len(weather.getMsg()) > 0:
+        body_messages.append(weather.getMsg())
+    
+    screen = Screen(
+        f'{player_team.name} vs {enemy_team.name}',
+        _get_scoreboard_for_team(player_team),
+        _get_scoreboard_for_team(enemy_team),
+        body_messages
+    )
+    ui.display(screen)
 
-    Encounter(playerTeam, enemyTeam, weather, lambda winner: handle_team_win(level, playerTeam, enemyTeam, winner)).run()
-
-def handle_team_win(level: Level, player_team: Team, enemy_team: Team, winner: Team):
-    msgs = []
-    if player_team is winner:
-        msgs.append(f'{player_team.name} won!')
-        msgs.append(level.postscript)
-    else:
-        msgs.append("Regretably, you have not won this day. Though someday, you will grow strong enough to overcome this challenge...")
-    xp = enemy_team.getXpGiven()
-    for member in player_team.members:
-        msgs.extend(member.gainXp(xp))
-
-    Pages().display_encounter_end(f'{player_team.name} VS. {enemy_team.name}', msgs)
+    Encounter(ui, level, player_team, enemy_team, weather).run()
 
 class Encounter:
     """
     An encounter handles team versus team conflict.
     """
 
-    def __init__(self, team1: Team, team2: Team, weather: Weather, handle_team_win: Callable[[Team], None]):
-        self.team1 = team1
-        self.team2 = team2
+    def __init__(self, ui: AbstractUserInterface, level: Level, player_team: Team, enemy_team: Team, weather: Weather):
+        self._ui = ui
+        self.level = level
+        self.player_team = player_team
+        self.enemy_team = enemy_team
         self.weather = weather
-        self._pages = Pages()
-        self._handle_team_win = handle_team_win
 
     def run(self):
         """
         Runs the encounter until one team wins
         """
-        self.team1.enemyTeam = self.team2
-        self.team2.enemyTeam = self.team1
-        self.team1.initForBattle()
-        self.team2.initForBattle()
+        self.player_team.enemyTeam = self.enemy_team
+        self.enemy_team.enemyTeam = self.player_team
+        self.player_team.initForBattle()
+        self.enemy_team.initForBattle()
         
         while not self._is_over():
             self._player_team_turn() # recursively calls enemy team turn
 
-        self.team1.enemyTeam = None
-        self.team2.enemyTeam = None
+        self.player_team.enemyTeam = None
+        self.enemy_team.enemyTeam = None
 
     def _is_over(self) -> bool:
-        return self.team1.isDefeated() or self.team2.isDefeated()
+        return self.player_team.isDefeated() or self.enemy_team.isDefeated()
 
     def _player_team_turn(self):
-        self._team_turn(self.team1, self.team2, self._user_choose)
+        self._team_turn(self.player_team, self.enemy_team)
 
-        if self.team2.isDefeated():
-            self._handle_team_win(self.team1)
+        if self.enemy_team.isDefeated():
+            self._handle_team_win(self.player_team)
             return
         
         self._ai_team_turn()
-        if self.team1.isDefeated():
-            self._handle_team_win(self.team2)
+        if self.player_team.isDefeated():
+            self._handle_team_win(self.enemy_team)
 
     def _ai_team_turn(self):
-        self._team_turn(self.team2, self.team1, self._ai_choose)
+        self._team_turn(self.enemy_team, self.player_team)
 
-    def _team_turn(self, attacking_team: Team, defending_team: Team, choose_action: Callable[[character.Character, AbstractUserInterface, Callable[[TargetOption], None]], None]):
+    def _team_turn(self, attacking_team: Team, defending_team: Team):
         if attacking_team.isDefeated():
             return
 
@@ -108,30 +107,66 @@ class Encounter:
             options = member.getActiveChoices()
             if len(options) == 0:
                 messages.append(f'{member.name} has no valid targets!')
-            else:
-                self._pages.display_start_of_character_turn(member, attacking_team, defending_team, messages)
-                # todo also need to show details from previous screen
-                screen = self._pages.set_up_screen_for_turn(attacking_team, defending_team, messages)
-                choose_action(member, screen, lambda to: self._handle_choice(screen, member, attacking_team, defending_team, to)) # need to await this
+            
+            screen = Screen(
+                f'{member}\'s turn',
+                _get_scoreboard_for_team(attacking_team),
+                _get_scoreboard_for_team(defending_team),
+                body_rows=messages
+            )
+            self._ui.display(screen)
 
-    def _handle_choice(self, screen: AbstractUserInterface, whos_turn_it_is: character.Character, attacking_team: Team, defending_team: Team, choice: TargetOption):
-        body_rows = []
+            if len(options) != 0:
+                if attacking_team is self.player_team:
+                    self._ui.display_choice(
+                        "What active do you wish to use?", 
+                        ChooseOneOf(options, lambda to: self._handle_choice(screen, attacking_team, defending_team, to)), 
+                        screen
+                    )
+                else:
+                    choice = reduce(lambda i, j: i if i.totalDamage > j.totalDamage else j, options)
+                    self._handle_choice(screen, attacking_team, defending_team, choice)
+
+    def _handle_choice(self, screen: Screen, attacking_team: Team, defending_team: Team, choice: TargetOption):
         choice_message = choice.use()
-        body_rows.append(choice_message)
+        screen.body_rows.append(choice_message)
         member_messages = defending_team.updateMembersRemaining()
-        body_rows.extend(member_messages)
-        screen_NEW = Screen(
-            f'{whos_turn_it_is}\'s turn',
-            [getTeamDisplayData(attacking_team)],
-            [getTeamDisplayData(defending_team)],
-            body_rows
+        screen.body_rows.extend(member_messages)
+
+        # replace old scoreboards
+        screen.left_scoreboard = _get_scoreboard_for_team(attacking_team)
+        screen.right_scoreboard = _get_scoreboard_for_team(defending_team)
+
+        self._ui.display(screen)
+
+    def _handle_team_win(self, winner: Team):
+        messages = []
+        if self.player_team is winner:
+            messages.append(f'{self.player_team.name} won!')
+            messages.append(self.level.postscript)
+        else:
+            messages.append("Regretably, you have not won this day. Though someday, you will grow strong enough to overcome this challenge...")
+        xp = self.enemy_team.getXpGiven()
+        for member in self.player_team.members:
+            messages.extend(member.gainXp(xp))
+
+        screen = Screen(
+            title=f'{self.player_team.name} vs {self.enemy_team.name}',
+            body_rows=messages
         )
-        screen.display(screen_NEW)
+        self._ui.display(screen)
 
-    def _user_choose(self, character: character.Character, screen: AbstractUserInterface, handle_choice: Callable[[TargetOption], None]):
-        screen_NEW = Screen(f'{character}\'s turn')
-        screen.display_choice("What active do you wish to use?", ChooseOneOf(character.getActiveChoices(), handle_choice), screen_NEW)
-
-    def _ai_choose(self, character: character.Character, screen: AbstractUserInterface, handle_choice: Callable[[TargetOption], None]):
-        choice = reduce(lambda i, j: i if i.totalDamage > j.totalDamage else j, character.getActiveChoices())
-        handle_choice(choice)
+def _get_scoreboard_for_team(team: Team) -> list[str]:
+    rows = [
+        team.name
+    ]
+    longest_name = lengthOfLongest((m.name for m in team.membersRemaining))
+    longest_status = lengthOfLongest((_get_scoreboard_status(m) for m in team.membersRemaining))
+    for m in team.membersRemaining:
+        status = _get_scoreboard_status(m)
+        row = f'* {m.name.ljust(longest_name)}: {status.rjust(longest_status)}'
+        rows.append(row)
+    return rows
+    
+def _get_scoreboard_status(character: Character) -> str:
+    return f'{str(character.remHp)} HP / {str(character.energy)} energy'

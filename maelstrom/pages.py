@@ -12,16 +12,21 @@ from maelstrom.dataClasses.character import Character
 from maelstrom.dataClasses.customizable import AbstractCustomizable
 from maelstrom.dataClasses.item import getItemList
 from maelstrom.dataClasses.passiveAbilities import getPassiveAbilityList
-from maelstrom.dataClasses.team import Team
 from maelstrom.ui import AbstractUserInterface, Screen
 from maelstrom.ui_console import ConsoleUI
-from maelstrom.util.stringUtil import lengthOfLongest
 from maelstrom.util.user import User
 
 class Pages:
 
     def __init__(self):
         self._ui = ConsoleUI()
+
+    @property
+    def ui(self) -> AbstractUserInterface:
+        """
+        Temporary method until I inline all this class' methods
+        """
+        return self._ui
 
     def main_menu(self, choose_action: ChooseAction):
         """
@@ -142,53 +147,6 @@ class Pages:
         )
         self._ui.display_choice("Choose a level to play:", choose_level, screen)
     
-    def display_encounter_start(self, playerTeam: Team, enemyTeam: Team, body_rows: list[str]):
-        playerTeamData = getTeamDisplayData(playerTeam)
-        enemyTeamData = getTeamDisplayData(enemyTeam)
-        screen = Screen(
-            left_scoreboard=[playerTeamData], 
-            right_scoreboard=[enemyTeamData],
-            body_rows=body_rows
-        )
-        self._ui.display(screen)
-
-    def display_start_of_character_turn(self, whos_turn_it_is: Character, attacking_team: Team, defending_team: Team, messages: list[str]):
-        screen_NEW = Screen(
-            f'{whos_turn_it_is}\'s turn',
-            [getTeamDisplayData(attacking_team)],
-            [getTeamDisplayData(defending_team)],
-            body_rows=messages
-        )
-        screen = self.set_up_screen_for_turn(attacking_team, defending_team, messages)
-        screen.display(screen_NEW)
-
-    def display_encounter_end(self, title: str, body_rows: list[str]):
-        screen = Screen(
-            title=title,
-            body_rows=body_rows
-        )
-        self._ui.display(screen)
-
-    # todo cleanup
-    def set_up_screen_for_turn(self, attacking_team: Team, defending_team: Team, messages: list[str]) -> ConsoleUI:
-        return self._ui
-
     def _display_simple(self, rows: list[str]):
         screen = Screen(body_rows=rows)
         self._ui.display(screen)
-
-
-def getTeamDisplayData(team: Team)->str:
-    """
-    Used in the in-battle HUD
-    """
-    lines = [
-        f'{team.name}'
-    ]
-    longestName = lengthOfLongest((member.name for member in team.membersRemaining))
-    longestHpEnergy = lengthOfLongest((f'{str(member.remHp)} HP / {str(member.energy)} energy' for member in team.membersRemaining))
-    for member in team.membersRemaining:
-        uiPart = f'{str(member.remHp)} HP / {str(member.energy)} EN'
-        lines.append(f'* {member.name.ljust(longestName)}: {uiPart.rjust(longestHpEnergy)}')
-
-    return "\n".join(lines)

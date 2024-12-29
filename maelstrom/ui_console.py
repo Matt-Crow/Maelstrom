@@ -79,7 +79,8 @@ class ConsoleUI(AbstractUserInterface):
             works = subprocess.call("cls", shell=True)
             if works != 0: # is false, didn't run
                 works = subprocess.call("clear", shell=True)
-            print("Failed to clear the console: neither cls nor clear worked", file=sys.stderr)
+            if works != 0:
+                print("Failed to clear the console: neither cls nor clear worked", file=sys.stderr)
         
         # write the title
         self._write_horizontal_line()

@@ -3,7 +3,7 @@ from maelstrom.dataClasses.character import Character
 from maelstrom.dataClasses.createDefaults import createDefaultPlayer
 from maelstrom.dataClasses.elements import ELEMENTS
 from maelstrom.dataClasses.team import Team
-from maelstrom.gameplay.combat import playLevel
+from maelstrom.gameplay.combat import play_level
 from maelstrom.loaders.campaignloader import make_default_campaign_loader
 from maelstrom.loaders.characterLoader import EnemyLoader
 from maelstrom.pages import Pages
@@ -42,7 +42,7 @@ class Game:
         choose_level = ChooseOneOrNone(
             options=self.currentArea.levels,
             none_of_these="Quit",
-            handle_choice=lambda level: playLevel(level, self.user, self.enemy_loader),
+            handle_choice=lambda level: play_level(self._pages.ui, level, self.user, self.enemy_loader),
             handle_none=lambda: None
         )
         self._pages.display_and_choose_level(self.currentArea, choose_level)
