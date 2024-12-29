@@ -2,13 +2,14 @@
 TODO: refactor
 """
 
+from itertools import zip_longest
 import math
 import re
 import subprocess
 import sys
 from maelstrom.choices import AbstractChoice
 from maelstrom.io import Chooser, StandardOutputChannel
-from maelstrom.ui import AbstractUserInterface
+from maelstrom.ui import AbstractUserInterface, Screen
 from maelstrom.util.stringUtil import lengthOfLongest
 from maelstrom.util.config import get_global_config
 
@@ -19,39 +20,12 @@ NUM_BODY_ROWS = 10
 OUTPUT = StandardOutputChannel()
 
 class ConsoleUI(AbstractUserInterface):
-    def __init__(self, title: str = "Maelstrom"):
-        """
-        Creates a screen with the given title.
-        """
-        self._title = title
-        self._body = [] # list[str]
-
-    @property
-    def title(self) -> str:
-        return self._title
-    
-    @title.setter
-    def title(self, value):
-        self._title = value
-
-    def add_body_rows(self, rows: list[str]):
-        """
-        Adds the given rows to the body of the screen.
-        """
-        for row in rows:
-            self.add_body_row(row)
-
-    def add_body_row(self, row: str):
-        """
-        Adds the given row to the body of the screen.
-        """
-        self._body.extend(_format_bordered_row(str(row)))
-
-    def add_scoreboard_row(self, left: str, right: str):
+    def _format_scoreboard_rows(self, left: str, right: str) -> list[str]:
         def style_left(content: str):
             return _format_bordered_row(content, math.floor(SCREEN_COLS / 2))
         def style_right(content: str):
             return _format_bordered_row(content, math.ceil(SCREEN_COLS / 2))
+        result = []
         left_rows = style_left(left)
         right_rows = style_right(right)
 
@@ -64,21 +38,25 @@ class ConsoleUI(AbstractUserInterface):
                 l = left_rows[i]
             if len(right_rows) > i:
                 r = right_rows[i]
-            self._body.append(f'{l}{r}')
-
-    def clear(self):
-        self._title = "Maelstrom"
-        self._body.clear()
-
-    def display(self, options=[]):
+            result.append(f'{l}{r}')
+        return result
+    
+    def display(self, screen: Screen, options=[]):
         """
         Displays the screen and optionally some options.
         """
-        num_pages = int(len(self._body) / NUM_BODY_ROWS)
+
+        body = []
+        for scoreboard_row in zip_longest(screen.left_scoreboard, screen.right_scoreboard, fillvalue=''):
+            body.extend(self._format_scoreboard_rows(scoreboard_row[0], scoreboard_row[1]))
+        for row in screen.body_rows:
+            for formatted_row in _format_bordered_row(row):
+                body.append(formatted_row)
+        num_pages = int(len(body) / NUM_BODY_ROWS)
         if num_pages == 0:
             num_pages = 1 # show at least 1 page
         for page in range(num_pages):
-            self._write_body_page(page)
+            self._write_body_page(screen, body, page)
             if page != num_pages - 1: # more pages
                 self._write_options([]) # just print empty options box
                 input("press enter or return to continue")
@@ -88,15 +66,15 @@ class ConsoleUI(AbstractUserInterface):
         if len(options) == 0:
             input("press enter or return to continue")
     
-    def display_choice(self, prompt: str, choice: AbstractChoice):
+    def display_choice(self, prompt: str, choice: AbstractChoice, screen: Screen):
         """
         Asks the user to make the given choice.
         """
-        self.display(choice.options)
+        self.display(screen, choice.options)
         user_choice = Chooser().choose(prompt, choice.options, False)
         choice.handle_chosen(user_choice)
 
-    def _write_body_page(self, page: int):
+    def _write_body_page(self, screen: Screen, body: list[str], page: int):
         if not get_global_config().keep_output:
             works = subprocess.call("cls", shell=True)
             if works != 0: # is false, didn't run
@@ -106,7 +84,7 @@ class ConsoleUI(AbstractUserInterface):
         # write the title
         self._write_horizontal_line()
         centered_title_width = SCREEN_COLS - len(BORDER + " ") * 2
-        centered_title = self._title.center(centered_title_width)
+        centered_title = screen.title.center(centered_title_width)
         centered_title_row = f'{BORDER} {centered_title} {BORDER}'
         OUTPUT.write(centered_title_row)
         self._write_horizontal_line()    
@@ -115,8 +93,8 @@ class ConsoleUI(AbstractUserInterface):
         curr_line_num = page * NUM_BODY_ROWS
         self._write_horizontal_line()
         for _ in range(NUM_BODY_ROWS):
-            if curr_line_num < len(self._body):
-                row = self._body[curr_line_num]
+            if curr_line_num < len(body):
+                row = body[curr_line_num]
             else:
                 row = f'{BORDER} {" " * (SCREEN_COLS - 4)} {BORDER}'
             OUTPUT.write(row)

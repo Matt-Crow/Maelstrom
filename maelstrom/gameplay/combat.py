@@ -12,8 +12,8 @@ from maelstrom.dataClasses.activeAbilities import TargetOption
 from maelstrom.dataClasses.team import Team
 from maelstrom.dataClasses.weather import WEATHERS, Weather
 from maelstrom.loaders.characterLoader import EnemyLoader
-from maelstrom.pages import Pages
-from maelstrom.ui import AbstractUserInterface
+from maelstrom.pages import Pages, getTeamDisplayData
+from maelstrom.ui import AbstractUserInterface, Screen
 from maelstrom.util.user import User
 
 import random
@@ -110,16 +110,27 @@ class Encounter:
                 messages.append(f'{member.name} has no valid targets!')
             else:
                 self._pages.display_start_of_character_turn(member, attacking_team, defending_team, messages)
-                screen = self._pages.set_up_screen_for_turn(member, attacking_team, defending_team, messages)
-                choose_action(member, screen, lambda to: self._handle_choice(screen, defending_team, to)) # need to await this
+                # todo also need to show details from previous screen
+                screen = self._pages.set_up_screen_for_turn(attacking_team, defending_team, messages)
+                choose_action(member, screen, lambda to: self._handle_choice(screen, member, attacking_team, defending_team, to)) # need to await this
 
-    def _handle_choice(self, screen: AbstractUserInterface, defending_team: Team, choice: TargetOption):
-        screen.add_body_row(choice.use())
-        screen.add_body_rows(defending_team.updateMembersRemaining())
-        screen.display()
+    def _handle_choice(self, screen: AbstractUserInterface, whos_turn_it_is: character.Character, attacking_team: Team, defending_team: Team, choice: TargetOption):
+        body_rows = []
+        choice_message = choice.use()
+        body_rows.append(choice_message)
+        member_messages = defending_team.updateMembersRemaining()
+        body_rows.extend(member_messages)
+        screen_NEW = Screen(
+            f'{whos_turn_it_is}\'s turn',
+            [getTeamDisplayData(attacking_team)],
+            [getTeamDisplayData(defending_team)],
+            body_rows
+        )
+        screen.display(screen_NEW)
 
     def _user_choose(self, character: character.Character, screen: AbstractUserInterface, handle_choice: Callable[[TargetOption], None]):
-        screen.display_choice("What active do you wish to use?", ChooseOneOf(character.getActiveChoices(), handle_choice))
+        screen_NEW = Screen(f'{character}\'s turn')
+        screen.display_choice("What active do you wish to use?", ChooseOneOf(character.getActiveChoices(), handle_choice), screen_NEW)
 
     def _ai_choose(self, character: character.Character, screen: AbstractUserInterface, handle_choice: Callable[[TargetOption], None]):
         choice = reduce(lambda i, j: i if i.totalDamage > j.totalDamage else j, character.getActiveChoices())
