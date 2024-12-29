@@ -52,7 +52,7 @@ class ConsoleUI(AbstractUserInterface):
         for row in screen.body_rows:
             for formatted_row in _format_bordered_row(row):
                 body.append(formatted_row)
-        num_pages = int(len(body) / NUM_BODY_ROWS)
+        num_pages = math.ceil(len(body) / NUM_BODY_ROWS)
         if num_pages == 0:
             num_pages = 1 # show at least 1 page
         for page in range(num_pages):
