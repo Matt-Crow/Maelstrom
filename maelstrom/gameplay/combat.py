@@ -119,12 +119,14 @@ class Encounter:
             if len(options) != 0:
                 if attacking_team is self.player_team:
                     screen.choice = ChooseOneOf("Choose an active and target:", options, lambda to: self._handle_choice(screen, attacking_team, defending_team, to))
-                    self._ui.display_choice(screen)
+                    self._ui.display(screen)
                 else:
                     choice = reduce(lambda i, j: i if i.totalDamage > j.totalDamage else j, options)
                     self._handle_choice(screen, attacking_team, defending_team, choice)
 
     def _handle_choice(self, screen: Screen, attacking_team: Team, defending_team: Team, choice: TargetOption):
+        screen.choice = None
+        
         choice_message = choice.use()
         screen.body_rows.append(choice_message)
         member_messages = defending_team.updateMembersRemaining()

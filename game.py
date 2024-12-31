@@ -53,7 +53,7 @@ class Game:
                 handle_none = lambda: self._handle_new_user()
             )
         )
-        self._ui.display_choice(screen)
+        self._ui.display(screen)
 
     def _handle_login(self, user_name):
         self.user = self.userLoader.load(user_name)
@@ -78,7 +78,7 @@ class Game:
                 lambda e: self._handle_element_choice(user_name, e)
             )
         )
-        self._ui.display_choice(screen)
+        self._ui.display(screen)
 
     def _handle_element_choice(self, user_name: str, element: str):
         character = createDefaultPlayer(user_name, element)
@@ -99,7 +99,7 @@ class Game:
                 ActionMapping("Exit", lambda: self._exit_action())
             ])
         )
-        self._ui.display_choice(screen)
+        self._ui.display(screen)
 
     def _explore(self):
         screen = Screen(
@@ -113,7 +113,7 @@ class Game:
                 handle_none=lambda: None
             )
         )
-        self._ui.display_choice(screen)
+        self._ui.display(screen)
     
     def _display_party(self):
         screen = Screen(
@@ -134,7 +134,7 @@ class Game:
                 handle_none=lambda: None # do nothing on none
             )
         )
-        self._ui.display_choice(screen)
+        self._ui.display(screen)
     
     def _customize_character_part1(self, character: Character):
         if character.customizationPoints <= 0:
@@ -151,7 +151,7 @@ class Game:
                 handle_none=lambda: None
             )
         )
-        self._ui.display_choice(screen)
+        self._ui.display(screen)
 
     def _customize_character_part2(self, character: Character, increase_me: str):
         # choose different stat to decrease
@@ -165,7 +165,7 @@ class Game:
                 handle_none=lambda: None
             )
         )
-        self._ui.display_choice(screen)
+        self._ui.display(screen)
 
     def _display_and_customize_part_3(self, character: Character, increase_me: str, decrease_me: str):
         character.setStatBase(increase_me, character.stats[increase_me].get_base() + 1)

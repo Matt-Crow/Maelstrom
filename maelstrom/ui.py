@@ -1,10 +1,6 @@
 """
 This module contains code related to the user interface.
 This code is abstract so it can be implemented by both a command-line interface and graphical user interfaces.
-
-TODO Might be better with just a single data class such as
-    prompt: str
-    choice: AbstractChoice
 """
 
 from abc import ABC, abstractmethod
@@ -53,13 +49,6 @@ class AbstractUserInterface(ABC):
     def display(self, screen: Screen):
         """
         Displays the given screen and waits for user input.
-        TODO add callback
-        """
-        pass
-
-    @abstractmethod
-    def display_choice(self, screen: Screen):
-        """
-        Displays the UI to the user.
+        TODO add callback for screens with no choice or make this async
         """
         pass

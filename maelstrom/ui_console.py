@@ -1,13 +1,8 @@
-"""
-TODO: refactor
-"""
-
 from itertools import zip_longest
 import math
 import re
 import subprocess
 import sys
-from maelstrom.choices import AbstractChoice
 from maelstrom.io import Chooser, StandardOutputChannel
 from maelstrom.ui import AbstractUserInterface, Screen
 from maelstrom.util.stringUtil import lengthOfLongest
@@ -20,6 +15,31 @@ NUM_BODY_ROWS = 10
 OUTPUT = StandardOutputChannel()
 
 class ConsoleUI(AbstractUserInterface):
+    def display(self, screen: Screen):
+        body = []
+        for scoreboard_row in zip_longest(screen.left_scoreboard, screen.right_scoreboard, fillvalue=''):
+            body.extend(self._format_scoreboard_rows(scoreboard_row[0], scoreboard_row[1]))
+        for row in screen.body_rows:
+            for formatted_row in _format_bordered_row(row):
+                body.append(formatted_row)
+        num_pages = math.ceil(len(body) / NUM_BODY_ROWS)
+        if num_pages == 0:
+            num_pages = 1 # show at least 1 page
+        for page in range(num_pages):
+            self._write_body_page(screen, body, page)
+            if page != num_pages - 1: # more pages
+                self._write_options([]) # just print empty options box
+                input("press enter or return to continue")
+
+        # allow player to choose once we're done displaying the body
+        options = [] if screen.choice is None else screen.choice.options
+        self._write_options(options)
+        if len(options) == 0:
+            input("press enter or return to continue")
+        else:
+            user_choice = Chooser().choose(screen.choice.prompt, screen.choice.options, False)
+            screen.choice.handle_chosen(user_choice)
+    
     def _format_scoreboard_rows(self, left: str, right: str) -> list[str]:
         def style_left(content: str):
             return _format_bordered_row(content, math.floor(SCREEN_COLS / 2))
@@ -41,42 +61,6 @@ class ConsoleUI(AbstractUserInterface):
             result.append(f'{l}{r}')
         return result
     
-    def display(self, screen: Screen, options=[]):
-        """
-        Displays the screen and optionally some options.
-        """
-
-        body = []
-        for scoreboard_row in zip_longest(screen.left_scoreboard, screen.right_scoreboard, fillvalue=''):
-            body.extend(self._format_scoreboard_rows(scoreboard_row[0], scoreboard_row[1]))
-        for row in screen.body_rows:
-            for formatted_row in _format_bordered_row(row):
-                body.append(formatted_row)
-        num_pages = math.ceil(len(body) / NUM_BODY_ROWS)
-        if num_pages == 0:
-            num_pages = 1 # show at least 1 page
-        for page in range(num_pages):
-            self._write_body_page(screen, body, page)
-            if page != num_pages - 1: # more pages
-                self._write_options([]) # just print empty options box
-                input("press enter or return to continue")
-
-        # allow player to choose once we're done displaying the body
-        self._write_options(options)
-        if len(options) == 0:
-            input("press enter or return to continue")
-    
-    def display_choice(self, screen: Screen):
-        """
-        Asks the user to make the given choice.
-        """
-        if screen.choice is None:
-            self.display(screen)
-        else:
-            self.display(screen, screen.choice.options)
-            user_choice = Chooser().choose(screen.choice.prompt, screen.choice.options, False)
-            screen.choice.handle_chosen(user_choice)
-
     def _write_body_page(self, screen: Screen, body: list[str], page: int):
         if not get_global_config().keep_output:
             works = subprocess.call("cls", shell=True)
