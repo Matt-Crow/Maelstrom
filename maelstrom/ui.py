@@ -9,6 +9,7 @@ TODO Might be better with just a single data class such as
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
+from typing import Optional
 
 from maelstrom.choices import AbstractChoice
 
@@ -38,6 +39,11 @@ class Screen:
     Text shown below the scoreboards
     """
 
+    choice: Optional[AbstractChoice] = None
+    """
+    The choice the user has to make on this screen, if any.
+    """
+
 class AbstractUserInterface(ABC):
     """
     A user interface is something which can display output to a user and receive input from them.
@@ -52,8 +58,8 @@ class AbstractUserInterface(ABC):
         pass
 
     @abstractmethod
-    def display_choice(self, prompt: str, choice: AbstractChoice, screen: Screen):
+    def display_choice(self, screen: Screen):
         """
-        Displays the UI and presents a choice to the user.
+        Displays the UI to the user.
         """
         pass

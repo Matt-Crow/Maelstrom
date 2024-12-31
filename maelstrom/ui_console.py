@@ -66,13 +66,16 @@ class ConsoleUI(AbstractUserInterface):
         if len(options) == 0:
             input("press enter or return to continue")
     
-    def display_choice(self, prompt: str, choice: AbstractChoice, screen: Screen):
+    def display_choice(self, screen: Screen):
         """
         Asks the user to make the given choice.
         """
-        self.display(screen, choice.options)
-        user_choice = Chooser().choose(prompt, choice.options, False)
-        choice.handle_chosen(user_choice)
+        if screen.choice is None:
+            self.display(screen)
+        else:
+            self.display(screen, screen.choice.options)
+            user_choice = Chooser().choose(screen.choice.prompt, screen.choice.options, False)
+            screen.choice.handle_chosen(user_choice)
 
     def _write_body_page(self, screen: Screen, body: list[str], page: int):
         if not get_global_config().keep_output:

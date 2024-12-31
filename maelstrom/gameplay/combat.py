@@ -118,11 +118,8 @@ class Encounter:
 
             if len(options) != 0:
                 if attacking_team is self.player_team:
-                    self._ui.display_choice(
-                        "What active do you wish to use?", 
-                        ChooseOneOf(options, lambda to: self._handle_choice(screen, attacking_team, defending_team, to)), 
-                        screen
-                    )
+                    screen.choice = ChooseOneOf("Choose an active and target:", options, lambda to: self._handle_choice(screen, attacking_team, defending_team, to))
+                    self._ui.display_choice(screen)
                 else:
                     choice = reduce(lambda i, j: i if i.totalDamage > j.totalDamage else j, options)
                     self._handle_choice(screen, attacking_team, defending_team, choice)
