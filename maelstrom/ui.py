@@ -7,7 +7,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import Optional
 
-from maelstrom.choices import AbstractChoice
+from maelstrom.choices import Choice
 
 @dataclass
 class Screen:
@@ -35,7 +35,7 @@ class Screen:
     Text shown below the scoreboards
     """
 
-    choice: Optional[AbstractChoice] = None
+    choice: Optional[Choice] = None
     """
     The choice the user has to make on this screen, if any.
     """

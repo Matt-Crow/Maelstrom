@@ -1,4 +1,4 @@
-from maelstrom.choices import ChooseOneOf, ChooseOneOrNone
+from maelstrom.choices import Choice
 from maelstrom.dataClasses.character import Character
 from maelstrom.dataClasses.createDefaults import createDefaultPlayer
 from maelstrom.dataClasses.elements import ELEMENTS
@@ -8,6 +8,7 @@ from maelstrom.loaders.campaignloader import make_default_campaign_loader
 from maelstrom.loaders.characterLoader import EnemyLoader
 from maelstrom.ui import Screen
 from maelstrom.ui_console import ConsoleUI
+from maelstrom.util.collections import list_extend
 from maelstrom.util.user import User
 from maelstrom.util.userLoader import UserLoader
 
@@ -45,10 +46,12 @@ class Game:
     async def _login_page(self):
         screen = Screen(
             title="Login",
-            choice=ChooseOneOrNone(
+            choice=Choice(
                 prompt="Which user are you?",
-                options = [str(user) for user in self.userLoader.getOptions()],
-                none_of_these = "New user"
+                options = list_extend(
+                    [str(user) for user in self.userLoader.getOptions()],
+                    "New user"
+                )
             )
         )
         choice = await self._ui.display_and_choose(screen)
@@ -71,7 +74,7 @@ class Game:
         screen = Screen(
             title="New User",
             body_rows=["Each character has elemental powers, what element do you want yours to control?"],
-            choice=ChooseOneOf("Choose an element:", ELEMENTS)
+            choice=Choice("Choose an element:", ELEMENTS)
         )
         element = await self._ui.display_and_choose(screen)
 
@@ -90,7 +93,7 @@ class Game:
 
     async def _choose_action(self):
         screen = Screen(
-            choice=ChooseOneOf("Choose an option", [
+            choice=Choice("Choose an option", [
                 "Explore",
                 "View Party Info",
                 "Customize Character",
@@ -112,10 +115,9 @@ class Game:
         screen = Screen(
             title=self.currentArea.name,
             body_rows=[self.currentArea.getDisplayData()],
-            choice=ChooseOneOrNone(
+            choice=Choice(
                 prompt="Choose a level to play:",
-                options=self.currentArea.levels,
-                none_of_these="Quit"
+                options=list_extend(self.currentArea.levels, "Quit")
             )
         )
         level = await self._ui.display_and_choose(screen)
@@ -133,10 +135,9 @@ class Game:
         screen = Screen(
             title=f'Manage {self.user.name}',
             body_rows=[member.getDisplayData() for member in self.user.team.members],
-            choice=ChooseOneOrNone(
+            choice=Choice(
                 prompt="Choose a character to customize",
-                options=self.user.team.members,
-                none_of_these="Exit"
+                options=list_extend(self.user.team.members, "Exit")
             )
         )
         character = await self._ui.display_and_choose(screen)
@@ -158,10 +159,12 @@ class Game:
         screen = Screen(
             title=f'Cusomizing {character.name}',
             body_rows=character.getStatDisplayList(),
-            choice=ChooseOneOrNone(
+            choice=Choice(
                 prompt="Choose a stat to increase",
-                options=[stat.name for stat in character.stats.values() if not stat.is_max()],
-                none_of_these="Save chanages and exit"
+                options=list_extend(
+                    [stat.name for stat in character.stats.values() if not stat.is_max()],
+                    "Save chanages and exit"
+                )
             )
         )
         increase_me = await self._ui.display_and_choose(screen)
@@ -171,10 +174,12 @@ class Game:
         # choose different stat to decrease
         screen = Screen(
             title=f'Cusomizing {character.name}',
-            choice=ChooseOneOrNone(
+            choice=Choice(
                 prompt="Choose a stat to decrease",
-                options=[stat.name for stat in character.stats.values() if not stat.is_min() and stat.name != increase_me],
-                none_of_these="Exit"
+                options=list_extend(
+                    [stat.name for stat in character.stats.values() if not stat.is_min() and stat.name != increase_me],
+                    "Exit"
+                )
             )
         )
         decrease_me = await self._ui.display_and_choose(screen)

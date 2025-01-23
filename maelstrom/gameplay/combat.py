@@ -5,7 +5,7 @@ functions that act on their data, preventing classes from become cumbersome
 
 from functools import reduce
 from maelstrom.campaign.level import Level
-from maelstrom.choices import ChooseOneOf
+from maelstrom.choices import Choice
 from maelstrom.dataClasses.character import Character
 from maelstrom.dataClasses.activeAbilities import TargetOption
 from maelstrom.dataClasses.team import Team
@@ -118,7 +118,7 @@ class Encounter:
 
             if len(options) != 0:
                 if attacking_team is self.player_team:
-                    screen.choice = ChooseOneOf("Choose an active and target:", options)
+                    screen.choice = Choice("Choose an active and target:", options)
                     to = await self._ui.display_and_choose(screen)
                     await self._handle_choice(screen, attacking_team, defending_team, to)
                 else:
