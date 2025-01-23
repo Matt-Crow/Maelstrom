@@ -1,4 +1,3 @@
-from maelstrom.choices import Choice
 from maelstrom.dataClasses.character import Character
 from maelstrom.dataClasses.createDefaults import createDefaultPlayer
 from maelstrom.dataClasses.elements import ELEMENTS
@@ -6,7 +5,7 @@ from maelstrom.dataClasses.team import Team
 from maelstrom.gameplay.combat import play_level
 from maelstrom.loaders.campaignloader import make_default_campaign_loader
 from maelstrom.loaders.characterLoader import EnemyLoader
-from maelstrom.ui import Screen
+from maelstrom.ui import Choice, Screen
 from maelstrom.ui_console import ConsoleUI
 from maelstrom.util.collections import list_extend
 from maelstrom.util.user import User

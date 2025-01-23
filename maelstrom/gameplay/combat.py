@@ -5,13 +5,12 @@ functions that act on their data, preventing classes from become cumbersome
 
 from functools import reduce
 from maelstrom.campaign.level import Level
-from maelstrom.choices import Choice
 from maelstrom.dataClasses.character import Character
 from maelstrom.dataClasses.activeAbilities import TargetOption
 from maelstrom.dataClasses.team import Team
 from maelstrom.dataClasses.weather import WEATHERS, Weather
 from maelstrom.loaders.characterLoader import EnemyLoader
-from maelstrom.ui import AbstractUserInterface, Screen
+from maelstrom.ui import AbstractUserInterface, Choice, Screen
 from maelstrom.util.stringUtil import lengthOfLongest
 from maelstrom.util.user import User
 
