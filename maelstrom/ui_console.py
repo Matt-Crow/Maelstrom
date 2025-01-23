@@ -15,14 +15,7 @@ NUM_BODY_ROWS = 10
 OUTPUT = StandardOutputChannel()
 
 class ConsoleUI(AbstractUserInterface):
-    def display(self, screen: Screen):
-        self._display_common_code(screen)
-    
     async def display_and_choose(self, screen: Screen) -> any:
-        user_choice = self._display_common_code(screen)
-        return user_choice
-    
-    def _display_common_code(self, screen: Screen) -> any:
         body = []
         for scoreboard_row in zip_longest(screen.left_scoreboard, screen.right_scoreboard, fillvalue=''):
             body.extend(self._format_scoreboard_rows(scoreboard_row[0], scoreboard_row[1]))

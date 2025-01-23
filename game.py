@@ -65,7 +65,7 @@ class Game:
                 title="Error Creating Account",
                 body_rows=[f'The username {user_name} is already taken.']
             )
-            self._ui.display(screen) # how to handle converting this one to display_and_choose?
+            await self._ui.display_and_choose(screen) 
             user_name = input("What do you want your character's name to be? ") # yuck
         
         screen = Screen(
@@ -102,7 +102,7 @@ class Game:
             case "Explore":
                 await self._explore()
             case "View Party Info":
-                self._display_party()
+                await self._display_party()
             case "Customize Character":
                 await self._customize_action()
             case "Exit":
@@ -122,12 +122,12 @@ class Game:
         if level != "Quit":
             await play_level(self._ui, level, self.user, self.enemy_loader)
 
-    def _display_party(self):
+    async def _display_party(self):
         screen = Screen(
             title=self.user.name,
             body_rows=self.user.getDisplayData()
         )
-        self._ui.display(screen) # what to do here?
+        await self._ui.display_and_choose(screen)
 
     async def _customize_action(self):
         screen = Screen(

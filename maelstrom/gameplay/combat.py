@@ -46,7 +46,7 @@ async def play_level(ui: AbstractUserInterface, level: Level, user: User, enemyL
         _get_scoreboard_for_team(enemy_team),
         body_messages
     )
-    ui.display(screen) # no callback for this one
+    await ui.display_and_choose(screen) 
 
     await Encounter(ui, level, player_team, enemy_team, weather).run()
 
@@ -84,12 +84,12 @@ class Encounter:
         await self._team_turn(self.player_team, self.enemy_team)
 
         if self.enemy_team.isDefeated():
-            self._handle_team_win(self.player_team)
+            await self._handle_team_win(self.player_team)
             return
         
         await self._ai_team_turn()
         if self.player_team.isDefeated():
-            self._handle_team_win(self.enemy_team)
+            await self._handle_team_win(self.enemy_team)
 
     async def _ai_team_turn(self):
         await self._team_turn(self.enemy_team, self.player_team)
@@ -114,18 +114,18 @@ class Encounter:
                 _get_scoreboard_for_team(defending_team),
                 body_rows=messages
             )
-            self._ui.display(screen) # no callback for this one
+            await self._ui.display_and_choose(screen) 
 
             if len(options) != 0:
                 if attacking_team is self.player_team:
                     screen.choice = ChooseOneOf("Choose an active and target:", options)
                     to = await self._ui.display_and_choose(screen)
-                    self._handle_choice(screen, attacking_team, defending_team, to)
+                    await self._handle_choice(screen, attacking_team, defending_team, to)
                 else:
                     choice = reduce(lambda i, j: i if i.totalDamage > j.totalDamage else j, options)
-                    self._handle_choice(screen, attacking_team, defending_team, choice)
+                    await self._handle_choice(screen, attacking_team, defending_team, choice)
 
-    def _handle_choice(self, screen: Screen, attacking_team: Team, defending_team: Team, choice: TargetOption):
+    async def _handle_choice(self, screen: Screen, attacking_team: Team, defending_team: Team, choice: TargetOption):
         screen.choice = None
         
         choice_message = choice.use()
@@ -137,9 +137,9 @@ class Encounter:
         screen.left_scoreboard = _get_scoreboard_for_team(attacking_team)
         screen.right_scoreboard = _get_scoreboard_for_team(defending_team)
 
-        self._ui.display(screen) # no callback for this one
+        await self._ui.display_and_choose(screen) 
 
-    def _handle_team_win(self, winner: Team):
+    async def _handle_team_win(self, winner: Team):
         messages = []
         if self.player_team is winner:
             messages.append(f'{self.player_team.name} won!')
@@ -154,7 +154,7 @@ class Encounter:
             title=f'{self.player_team.name} vs {self.enemy_team.name}',
             body_rows=messages
         )
-        self._ui.display(screen) # no callback for this one
+        await self._ui.display_and_choose(screen)
 
 def _get_scoreboard_for_team(team: Team) -> list[str]:
     rows = [
