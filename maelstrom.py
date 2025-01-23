@@ -42,15 +42,19 @@ June-July 2021: Reworked input and output
 Version 0.9
 """
 
+import asyncio
 from game import Game
 from maelstrom.util.arguments import parse_args
 from maelstrom.util.config import get_global_config
 
-if __name__ == "__main__":
+async def main():
     parse_args()
     options = get_global_config()
 
     if options.test:
         Game().test()
     else:
-        Game().run()
+        await Game().run()
+
+if __name__ == "__main__":
+    asyncio.run(main())

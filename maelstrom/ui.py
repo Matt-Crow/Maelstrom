@@ -45,10 +45,19 @@ class AbstractUserInterface(ABC):
     A user interface is something which can display output to a user and receive input from them.
     """
 
+    # todo rm
     @abstractmethod
     def display(self, screen: Screen):
         """
         Displays the given screen and waits for user input.
         TODO add callback for screens with no choice or make this async
+        """
+        pass
+
+    @abstractmethod
+    async def display_and_choose(self, screen: Screen) -> any:
+        """
+        Displays the given screen and asks the user to make a choice.
+        Returns an async thing which resolves once the user makes a choice.
         """
         pass

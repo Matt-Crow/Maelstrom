@@ -16,6 +16,13 @@ OUTPUT = StandardOutputChannel()
 
 class ConsoleUI(AbstractUserInterface):
     def display(self, screen: Screen):
+        self._display_common_code(screen)
+    
+    async def display_and_choose(self, screen: Screen) -> any:
+        user_choice = self._display_common_code(screen)
+        return user_choice
+    
+    def _display_common_code(self, screen: Screen) -> any:
         body = []
         for scoreboard_row in zip_longest(screen.left_scoreboard, screen.right_scoreboard, fillvalue=''):
             body.extend(self._format_scoreboard_rows(scoreboard_row[0], scoreboard_row[1]))
@@ -36,10 +43,11 @@ class ConsoleUI(AbstractUserInterface):
         self._write_options(options)
         if len(options) == 0:
             input("press enter or return to continue")
+            return None
         else:
             user_choice = Chooser().choose(screen.choice.prompt, screen.choice.options, False)
-            screen.choice.handle_chosen(user_choice)
-    
+            return user_choice
+
     def _format_scoreboard_rows(self, left: str, right: str) -> list[str]:
         def style_left(content: str):
             return _format_bordered_row(content, math.floor(SCREEN_COLS / 2))

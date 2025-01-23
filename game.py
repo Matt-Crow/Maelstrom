@@ -1,4 +1,4 @@
-from maelstrom.choices import ActionMapping, ChooseAction, ChooseOneOf, ChooseOneOrNone
+from maelstrom.choices import ChooseOneOf, ChooseOneOrNone
 from maelstrom.dataClasses.character import Character
 from maelstrom.dataClasses.createDefaults import createDefaultPlayer
 from maelstrom.dataClasses.elements import ELEMENTS
@@ -28,7 +28,7 @@ class Game:
     def test(self):
         print("nothing to test")
 
-    def run(self):
+    async def run(self):
         """
         Begins the program
         """
@@ -36,51 +36,45 @@ class Game:
         self.currentArea = campaign.get_area(0) # todo player chooses
         while not self._exit:
             if self.user == None:
-                self._login_page()
+                await self._login_page()
             else:
-                self._choose_action()
+                await self._choose_action()
         if self.user is not None:
             self.userLoader.save(self.user)
 
-    def _login_page(self):
+    async def _login_page(self):
         screen = Screen(
             title="Login",
             choice=ChooseOneOrNone(
                 prompt="Which user are you?",
                 options = [str(user) for user in self.userLoader.getOptions()],
-                none_of_these = "New user",
-                handle_choice = lambda user_name: self._handle_login(user_name),
-                handle_none = lambda: self._handle_new_user()
+                none_of_these = "New user"
             )
         )
-        self._ui.display(screen)
+        choice = await self._ui.display_and_choose(screen)
+        match choice:
+            case "New user": 
+                await self._handle_new_user()
+            case _:
+                self._handle_login(choice)
 
-    def _handle_login(self, user_name):
-        self.user = self.userLoader.load(user_name)
-        self.user.team.initForBattle()
-
-    def _handle_new_user(self):
+    async def _handle_new_user(self):
         user_name = input("What do you want your character's name to be? ") # yuck
-        if user_name in self.userLoader.getOptions():
+        while user_name in self.userLoader.getOptions():
             screen = Screen(
                 title="Error Creating Account",
                 body_rows=[f'The username {user_name} is already taken.']
             )
-            self._ui.display(screen)
-            return
+            self._ui.display(screen) # how to handle converting this one to display_and_choose?
+            user_name = input("What do you want your character's name to be? ") # yuck
         
         screen = Screen(
             title="New User",
             body_rows=["Each character has elemental powers, what element do you want yours to control?"],
-            choice=ChooseOneOf(
-                "Choose an element:", 
-                ELEMENTS, 
-                lambda e: self._handle_element_choice(user_name, e)
-            )
+            choice=ChooseOneOf("Choose an element:", ELEMENTS)
         )
-        self._ui.display(screen)
+        element = await self._ui.display_and_choose(screen)
 
-    def _handle_element_choice(self, user_name: str, element: str):
         character = createDefaultPlayer(user_name, element)
         team = Team(
             name=user_name,
@@ -89,56 +83,77 @@ class Game:
         user = User(name=user_name, team=team)
         self.userLoader.save(user)
         self._handle_login(user_name)
+    
+    def _handle_login(self, user_name):
+        self.user = self.userLoader.load(user_name)
+        self.user.team.initForBattle()
 
-    def _choose_action(self):
+    async def _choose_action(self):
         screen = Screen(
-            choice=ChooseAction("Choose an option", [
-                ActionMapping("Explore", lambda: self._explore()),
-                ActionMapping("View Party Info", lambda: self._display_party()),
-                ActionMapping("Customize Character", lambda: self._choose_who_to_customize()),
-                ActionMapping("Exit", lambda: self._exit_action())
+            choice=ChooseOneOf("Choose an option", [
+                "Explore",
+                "View Party Info",
+                "Customize Character",
+                "Exit"
             ])
         )
-        self._ui.display(screen)
+        action = await self._ui.display_and_choose(screen)
+        match action:
+            case "Explore":
+                await self._explore()
+            case "View Party Info":
+                self._display_party()
+            case "Customize Character":
+                await self._customize_action()
+            case "Exit":
+                self._exit_action()
 
-    def _explore(self):
+    async def _explore(self):
         screen = Screen(
             title=self.currentArea.name,
             body_rows=[self.currentArea.getDisplayData()],
             choice=ChooseOneOrNone(
                 prompt="Choose a level to play:",
                 options=self.currentArea.levels,
-                none_of_these="Quit",
-                handle_choice=lambda level: play_level(self._ui, level, self.user, self.enemy_loader),
-                handle_none=lambda: None
+                none_of_these="Quit"
             )
         )
-        self._ui.display(screen)
-    
+        level = await self._ui.display_and_choose(screen)
+        if level != "Quit":
+            await play_level(self._ui, level, self.user, self.enemy_loader)
+
     def _display_party(self):
         screen = Screen(
             title=self.user.name,
             body_rows=self.user.getDisplayData()
         )
-        self._ui.display(screen)
+        self._ui.display(screen) # what to do here?
 
-    def _choose_who_to_customize(self):
+    async def _customize_action(self):
         screen = Screen(
             title=f'Manage {self.user.name}',
             body_rows=[member.getDisplayData() for member in self.user.team.members],
             choice=ChooseOneOrNone(
                 prompt="Choose a character to customize",
                 options=self.user.team.members,
-                none_of_these="Exit",
-                handle_choice=lambda c: self._customize_character_part1(c),
-                handle_none=lambda: None # do nothing on none
+                none_of_these="Exit"
             )
         )
-        self._ui.display(screen)
-    
-    def _customize_character_part1(self, character: Character):
-        if character.customizationPoints <= 0:
+        character = await self._ui.display_and_choose(screen)
+        if character == "Exit":
             return
+        
+        done_customizing = False
+        while not done_customizing:
+            done_customizing = await self._customize_character(character)
+    
+    async def _customize_character(self, character: Character) -> bool:
+        """
+        Returns True once we're done customizing
+        """
+        
+        if character.customizationPoints <= 0:
+            return True
         
         screen = Screen(
             title=f'Cusomizing {character.name}',
@@ -146,35 +161,32 @@ class Game:
             choice=ChooseOneOrNone(
                 prompt="Choose a stat to increase",
                 options=[stat.name for stat in character.stats.values() if not stat.is_max()],
-                none_of_these="Save chanages and exit",
-                handle_choice=lambda stat_name: self._customize_character_part2(character, stat_name),
-                handle_none=lambda: None
+                none_of_these="Save chanages and exit"
             )
         )
-        self._ui.display(screen)
-
-    def _customize_character_part2(self, character: Character, increase_me: str):
+        increase_me = await self._ui.display_and_choose(screen)
+        if increase_me == "Save chanages and exit":
+            return True
+        
         # choose different stat to decrease
         screen = Screen(
             title=f'Cusomizing {character.name}',
             choice=ChooseOneOrNone(
                 prompt="Choose a stat to decrease",
                 options=[stat.name for stat in character.stats.values() if not stat.is_min() and stat.name != increase_me],
-                none_of_these="Exit",
-                handle_choice=lambda d: self._display_and_customize_part_3(character, increase_me, d),
-                handle_none=lambda: None
+                none_of_these="Exit"
             )
         )
-        self._ui.display(screen)
-
-    def _display_and_customize_part_3(self, character: Character, increase_me: str, decrease_me: str):
+        decrease_me = await self._ui.display_and_choose(screen)
+        if decrease_me == "Exit":
+            return True
+        
         character.setStatBase(increase_me, character.stats[increase_me].get_base() + 1)
         character.setStatBase(decrease_me, character.stats[decrease_me].get_base() - 1)
         character.calcStats()
         character.customizationPoints -= 1
         
-        # make recursive call
-        self._customize_character_part1(character) 
+        return character.customizationPoints > 0
 
     def _exit_action(self):
         self._exit = True

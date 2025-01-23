@@ -17,7 +17,7 @@ from maelstrom.util.user import User
 
 import random
 
-def play_level(ui: AbstractUserInterface, level: Level, user: User, enemyLoader: EnemyLoader):
+async def play_level(ui: AbstractUserInterface, level: Level, user: User, enemyLoader: EnemyLoader):
     """
     used to start and run a Level
     """
@@ -46,9 +46,9 @@ def play_level(ui: AbstractUserInterface, level: Level, user: User, enemyLoader:
         _get_scoreboard_for_team(enemy_team),
         body_messages
     )
-    ui.display(screen)
+    ui.display(screen) # no callback for this one
 
-    Encounter(ui, level, player_team, enemy_team, weather).run()
+    await Encounter(ui, level, player_team, enemy_team, weather).run()
 
 class Encounter:
     """
@@ -62,7 +62,7 @@ class Encounter:
         self.enemy_team = enemy_team
         self.weather = weather
 
-    def run(self):
+    async def run(self):
         """
         Runs the encounter until one team wins
         """
@@ -72,7 +72,7 @@ class Encounter:
         self.enemy_team.initForBattle()
         
         while not self._is_over():
-            self._player_team_turn() # recursively calls enemy team turn
+            await self._player_team_turn() # recursively calls enemy team turn
 
         self.player_team.enemyTeam = None
         self.enemy_team.enemyTeam = None
@@ -80,21 +80,21 @@ class Encounter:
     def _is_over(self) -> bool:
         return self.player_team.isDefeated() or self.enemy_team.isDefeated()
 
-    def _player_team_turn(self):
-        self._team_turn(self.player_team, self.enemy_team)
+    async def _player_team_turn(self):
+        await self._team_turn(self.player_team, self.enemy_team)
 
         if self.enemy_team.isDefeated():
             self._handle_team_win(self.player_team)
             return
         
-        self._ai_team_turn()
+        await self._ai_team_turn()
         if self.player_team.isDefeated():
             self._handle_team_win(self.enemy_team)
 
-    def _ai_team_turn(self):
-        self._team_turn(self.enemy_team, self.player_team)
+    async def _ai_team_turn(self):
+        await self._team_turn(self.enemy_team, self.player_team)
 
-    def _team_turn(self, attacking_team: Team, defending_team: Team):
+    async def _team_turn(self, attacking_team: Team, defending_team: Team):
         if attacking_team.isDefeated():
             return
 
@@ -114,12 +114,13 @@ class Encounter:
                 _get_scoreboard_for_team(defending_team),
                 body_rows=messages
             )
-            self._ui.display(screen)
+            self._ui.display(screen) # no callback for this one
 
             if len(options) != 0:
                 if attacking_team is self.player_team:
-                    screen.choice = ChooseOneOf("Choose an active and target:", options, lambda to: self._handle_choice(screen, attacking_team, defending_team, to))
-                    self._ui.display(screen)
+                    screen.choice = ChooseOneOf("Choose an active and target:", options)
+                    to = await self._ui.display_and_choose(screen)
+                    self._handle_choice(screen, attacking_team, defending_team, to)
                 else:
                     choice = reduce(lambda i, j: i if i.totalDamage > j.totalDamage else j, options)
                     self._handle_choice(screen, attacking_team, defending_team, choice)
@@ -136,7 +137,7 @@ class Encounter:
         screen.left_scoreboard = _get_scoreboard_for_team(attacking_team)
         screen.right_scoreboard = _get_scoreboard_for_team(defending_team)
 
-        self._ui.display(screen)
+        self._ui.display(screen) # no callback for this one
 
     def _handle_team_win(self, winner: Team):
         messages = []
@@ -153,7 +154,7 @@ class Encounter:
             title=f'{self.player_team.name} vs {self.enemy_team.name}',
             body_rows=messages
         )
-        self._ui.display(screen)
+        self._ui.display(screen) # no callback for this one
 
 def _get_scoreboard_for_team(team: Team) -> list[str]:
     rows = [
