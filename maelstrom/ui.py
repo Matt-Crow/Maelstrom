@@ -7,28 +7,21 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import Optional
 
+@dataclass(frozen=True)
 class Choice[T]:
     """
     A choice between one of several options.
     """
 
-    def __init__(self, prompt: str, options: list[T]):
-        self._prompt = prompt
-        self._options = options
-    
-    @property
-    def prompt(self) -> str:
-        """
-        The prompt to tell the user what they are choosing.
-        """
-        return self._prompt
+    prompt: str
+    """
+    Tells the user what they are choosing.
+    """
 
-    @property
-    def options(self) -> list[T]:
-        """
-        The different options which the user can choose from.
-        """
-        return self._options
+    options: list[T] = field(default_factory=list)
+    """
+    The different options which the user can choose from.
+    """
 
 @dataclass
 class Screen:
