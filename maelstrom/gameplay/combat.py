@@ -56,42 +56,30 @@ class Encounter:
 
     def __init__(self, ui: AbstractUserInterface, level: Level, player_team: Team, enemy_team: Team, weather: Weather):
         self._ui = ui
-        self.level = level
-        self.player_team = player_team
-        self.enemy_team = enemy_team
-        self.weather = weather
+        self._level = level
+        self._player_team = player_team
+        self._enemy_team = enemy_team
+        self._weather = weather
 
     async def run(self):
         """
         Runs the encounter until one team wins
         """
-        self.player_team.enemyTeam = self.enemy_team
-        self.enemy_team.enemyTeam = self.player_team
-        self.player_team.initForBattle()
-        self.enemy_team.initForBattle()
+
+        self._player_team.enemyTeam = self._enemy_team
+        self._enemy_team.enemyTeam = self._player_team
+        self._player_team.initForBattle()
+        self._enemy_team.initForBattle()
         
         while not self._is_over():
-            await self._player_team_turn() # recursively calls enemy team turn
+            await self._team_turn(self._enemy_team, self._player_team)
+            await self._team_turn(self._player_team, self._enemy_team)
 
-        self.player_team.enemyTeam = None
-        self.enemy_team.enemyTeam = None
+        self._player_team.enemyTeam = None
+        self._enemy_team.enemyTeam = None
 
     def _is_over(self) -> bool:
-        return self.player_team.isDefeated() or self.enemy_team.isDefeated()
-
-    async def _player_team_turn(self):
-        await self._team_turn(self.player_team, self.enemy_team)
-
-        if self.enemy_team.isDefeated():
-            await self._handle_team_win(self.player_team)
-            return
-        
-        await self._ai_team_turn()
-        if self.player_team.isDefeated():
-            await self._handle_team_win(self.enemy_team)
-
-    async def _ai_team_turn(self):
-        await self._team_turn(self.enemy_team, self.player_team)
+        return self._player_team.isDefeated() or self._enemy_team.isDefeated()
 
     async def _team_turn(self, attacking_team: Team, defending_team: Team):
         if attacking_team.isDefeated():
@@ -99,7 +87,7 @@ class Encounter:
 
         messages = []
         messages.extend(attacking_team.updateMembersRemaining())
-        self.weather.applyEffect(attacking_team.membersRemaining, messages)
+        self._weather.applyEffect(attacking_team.membersRemaining, messages)
         messages.extend(attacking_team.updateMembersRemaining())
 
         for member in attacking_team.membersRemaining:
@@ -116,13 +104,18 @@ class Encounter:
             await self._ui.display_and_choose(screen) 
 
             if len(options) != 0:
-                if attacking_team is self.player_team:
+                choice = None
+                if attacking_team is self._player_team:
                     screen.choice = Choice("Choose an active and target:", options)
-                    to = await self._ui.display_and_choose(screen)
-                    await self._handle_choice(screen, attacking_team, defending_team, to)
+                    choice = await self._ui.display_and_choose(screen)
                 else:
+                    screen.choice = None
                     choice = reduce(lambda i, j: i if i.totalDamage > j.totalDamage else j, options)
-                    await self._handle_choice(screen, attacking_team, defending_team, choice)
+                await self._handle_choice(screen, attacking_team, defending_team, choice)
+        
+            if attacking_team.enemyTeam.isDefeated():
+                await self._handle_team_win(attacking_team)
+                return # stop, stop, stop, he's already dead!
 
     async def _handle_choice(self, screen: Screen, attacking_team: Team, defending_team: Team, choice: TargetOption):
         screen.choice = None
@@ -140,17 +133,17 @@ class Encounter:
 
     async def _handle_team_win(self, winner: Team):
         messages = []
-        if self.player_team is winner:
-            messages.append(f'{self.player_team.name} won!')
-            messages.append(self.level.postscript)
+        if self._player_team is winner:
+            messages.append(f'{self._player_team.name} won!')
+            messages.append(self._level.postscript)
         else:
             messages.append("Regretably, you have not won this day. Though someday, you will grow strong enough to overcome this challenge...")
-        xp = self.enemy_team.getXpGiven()
-        for member in self.player_team.members:
+        xp = self._enemy_team.getXpGiven()
+        for member in self._player_team.members:
             messages.extend(member.gainXp(xp))
 
         screen = Screen(
-            title=f'{self.player_team.name} vs {self.enemy_team.name}',
+            title=f'{self._player_team.name} vs {self._enemy_team.name}',
             body_rows=messages
         )
         await self._ui.display_and_choose(screen)
