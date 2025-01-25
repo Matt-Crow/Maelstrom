@@ -66,7 +66,7 @@ class TargetOption:
         return self.msg
 
     def use(self)->str:
-        self.user.loseEnergy(self.active.cost) # don't call this for each target
+        self.user.lose_energy(self.active.cost) # don't call this for each target
         msgs = [self.active.resolveAgainst(self.user, target) for target in self.targets]
         return "\n".join(msgs)
 
@@ -137,10 +137,10 @@ class AbstractDamagingActive(AbstractActive):
 
         event = OnHitEvent("Attack", user, target, self, dmg)
 
-        target.takeDmg(dmg)
+        target.take_damage(dmg)
 
-        target.fireActionListeners(HIT_TAKEN_EVENT, event)
-        user.fireActionListeners(HIT_GIVEN_EVENT, event)
+        target.fire_event_listeners(HIT_TAKEN_EVENT, event)
+        user.fire_event_listeners(HIT_GIVEN_EVENT, event)
 
         return f'{hitType.message}{user.name} struck {target.name} for {dmg} damage using {self.name}!'
 

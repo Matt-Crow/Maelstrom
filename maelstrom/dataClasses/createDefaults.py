@@ -32,7 +32,6 @@ def createDefaultPlayer(name, element)->"Character":
     return Character(
         name=name,
         element=element,
-        actives=createDefaultActives(element),
-        passives=[p.copy() for p in getPassiveAbilityList()]
+        actives=createDefaultActives(element)
     )
 

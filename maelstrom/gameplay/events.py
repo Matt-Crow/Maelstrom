@@ -17,21 +17,21 @@ a paramter
 """
 class ActionRegister:
     def __init__(self):
-        self.actions = {enumType : [] for enumType in EVENT_TYPES}
+        self.actions = {enum_type : [] for enum_type in EVENT_TYPES}
 
     # no more duration nonsense
-    def addActionListener(self, enumType, action):
-        if enumType in EVENT_TYPES:
-            self.actions[enumType].append(action)
+    def add_event_listener(self, enum_type, action):
+        if enum_type in EVENT_TYPES:
+            self.actions[enum_type].append(action)
         else:
-            raise Exception("Unsupported event type: {0}. Must be one of {1}".format(enumType, EVENT_TYPES))
+            raise Exception("Unsupported event type: {0}. Must be one of {1}".format(enum_type, EVENT_TYPES))
 
-    def fire(self, enumType, event=None):
-        if enumType in EVENT_TYPES:
-            for action in self.actions[enumType]:
+    def fire(self, enum_type, event=None):
+        if enum_type in EVENT_TYPES:
+            for action in self.actions[enum_type]:
                 action(event)
         else:
-            raise Exception("Unsupported event type: {0}. Must be one of {1}".format(enumType, EVENT_TYPES))
+            raise Exception("Unsupported event type: {0}. Must be one of {1}".format(enum_type, EVENT_TYPES))
 
     def clear(self):
         for value in self.actions.values():

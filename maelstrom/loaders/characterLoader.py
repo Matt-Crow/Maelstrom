@@ -55,8 +55,7 @@ class EnemyLoader:
                 'potency': template.potency,
                 'luck': template.luck
             },
-            actives = createDefaultActives(template.element),
-            passives = getPassiveAbilityList()
+            actives = createDefaultActives(template.element)
         )
         return constructed        
 
@@ -77,8 +76,6 @@ def loadTeam(asJson: dict)->"Team":
 def loadCharacter(asJson: dict)->"Character":
     asJson = asJson.copy()
     asJson["actives"] = [loadActive(data) for data in asJson["actives"]]
-    asJson["passives"]= [loadPassive(name) for name in asJson["passives"]]
-    asJson["equippedItems"] = [loadItem(data) for data in asJson["equippedItems"]]
     return Character(**asJson)
 
 def loadActive(name: str) -> 'AbstractActive':

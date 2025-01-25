@@ -68,7 +68,7 @@ def getItemList():
         Item(
             "Durasteel Armor",
             "Probably not great at blocking lightning",
-            lambda character: character.addActionListener(HIT_TAKEN_EVENT, lambda event: event.hitee.heal(event.damage / 4))
+            lambda character: character.add_event_listener(HIT_TAKEN_EVENT, lambda event: event.hitee.heal(event.damage / 4))
         )
     ]
 

@@ -25,10 +25,10 @@ async def play_level(ui: AbstractUserInterface, level: Level, user: User, enemyL
     for enemy in enemies:
         enemy.level = level.enemy_level
     enemy_team = Team(name="Enemy Team", members=enemies)
-    enemy_team.initForBattle()
+    enemy_team.init_for_battle()
 
     player_team = user.team
-    player_team.initForBattle()
+    player_team.init_for_battle()
 
     weather = random.choice(WEATHERS)
     
@@ -68,8 +68,8 @@ class Encounter:
 
         self._player_team.enemyTeam = self._enemy_team
         self._enemy_team.enemyTeam = self._player_team
-        self._player_team.initForBattle()
-        self._enemy_team.initForBattle()
+        self._player_team.init_for_battle()
+        self._enemy_team.init_for_battle()
         
         while not self._is_over():
             await self._team_turn(self._enemy_team, self._player_team)
@@ -91,7 +91,7 @@ class Encounter:
         messages.extend(attacking_team.updateMembersRemaining())
 
         for member in attacking_team.membersRemaining:
-            options = member.getActiveChoices()
+            options = member.get_target_options()
             if len(options) == 0:
                 messages.append(f'{member.name} has no valid targets!')
             
@@ -140,7 +140,7 @@ class Encounter:
             messages.append("Regretably, you have not won this day. Though someday, you will grow strong enough to overcome this challenge...")
         xp = self._enemy_team.getXpGiven()
         for member in self._player_team.members:
-            messages.extend(member.gainXp(xp))
+            messages.extend(member.gain_xp(xp))
 
         screen = Screen(
             title=f'{self._player_team.name} vs {self._enemy_team.name}',
@@ -161,4 +161,4 @@ def _get_scoreboard_for_team(team: Team) -> list[str]:
     return rows
     
 def _get_scoreboard_status(character: Character) -> str:
-    return f'{str(character.remHp)} HP / {str(character.energy)} energy'
+    return f'{str(character.remaining_hp)} HP / {str(character.energy)} energy'

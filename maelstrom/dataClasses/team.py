@@ -68,13 +68,13 @@ class Team(AbstractJsonSerialable):
         """
         return [member for member in self.membersRemaining]
 
-    def initForBattle(self):
+    def init_for_battle(self):
         """
         this method must be called at the start of each Battle
         """
         self.membersRemaining.clear()
         for member in self.members: # can't use lambda with "each" here
-            member.initForBattle()
+            member.init_for_battle()
             self.membersRemaining.append(member)
         self.updateMembersRemaining() # updates ordinals
 
@@ -87,7 +87,7 @@ class Team(AbstractJsonSerialable):
         newList = []
         nextOrdinal = 0 # records which index of the array each member is in
         for member in self.membersRemaining:
-            if member.isKoed():
+            if member.is_koed():
                 msgs.append(f'{member.name} is out of the game!')
             else:
                 newList.append(member)

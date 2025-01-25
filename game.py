@@ -88,7 +88,7 @@ class Game:
     
     def _handle_login(self, user_name):
         self.user = self.userLoader.load(user_name)
-        self.user.team.initForBattle()
+        self.user.team.init_for_battle()
 
     async def _choose_action(self):
         screen = Screen(
@@ -133,7 +133,7 @@ class Game:
     async def _customize_action(self):
         screen = Screen(
             title=f'Manage {self.user.name}',
-            body_rows=[member.getDisplayData() for member in self.user.team.members],
+            body_rows=[member.get_display_data() for member in self.user.team.members],
             choice=Choice(
                 prompt="Choose a character to customize",
                 options=list_extend(self.user.team.members, "Exit")

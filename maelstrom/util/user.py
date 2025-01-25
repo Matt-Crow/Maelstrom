@@ -54,6 +54,6 @@ def getDetailedTeamData(team: Team)->list[str]:
         f'{team.name}:'
     ]
     for member in team.members:
-        lines.append(member.getDisplayData())
+        lines.append(member.get_display_data())
 
     return lines

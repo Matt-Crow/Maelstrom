@@ -56,10 +56,10 @@ class ThresholdPassive(AbstractPassive):
         return ThresholdPassive(self.name, self.boost, self.threshold)
 
     def registerTo(self, user):
-        user.addActionListener(UPDATE_EVENT, self.checkTrigger)
+        user.add_event_listener(UPDATE_EVENT, self.checkTrigger)
 
     def checkTrigger(self, updated):
-        if updated.getHpPerc() <= self.threshold * 100:
+        if updated.get_percent_hp_remaining() <= self.threshold * 100:
             updated.boost(self.boost.copy())
 
 class OnHitGivenPassive(AbstractPassive):
@@ -79,7 +79,7 @@ class OnHitGivenPassive(AbstractPassive):
         return OnHitGivenPassive(self.name, self.boost, self.chance, self.targetsUser)
 
     def registerTo(self, user):
-        user.addActionListener(HIT_GIVEN_EVENT, self.checkTrigger)
+        user.add_event_listener(HIT_GIVEN_EVENT, self.checkTrigger)
 
     def checkTrigger(self, onHitEvent):
         if rollPercentage(onHitEvent.hitter.getStatValue("luck")) > 100 - self.chance * 100:
@@ -105,7 +105,7 @@ class OnHitTakenPassive(AbstractPassive):
         return OnHitTakenPassive(self.name, self.boost, self.chance, self.targetsUser)
 
     def registerTo(self, user):
-        user.addActionListener(HIT_TAKEN_EVENT, self.checkTrigger)
+        user.add_event_listener(HIT_TAKEN_EVENT, self.checkTrigger)
 
     def checkTrigger(self, onHitEvent):
         if rollPercentage(onHitEvent.hitee.getStatValue("luck")) > 100 - self.chance * 100:

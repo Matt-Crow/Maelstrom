@@ -34,7 +34,7 @@ class Lightning(Weather):
         super().__init__("lightning", "The sky rains down its fire upon the field...")
 
     def doApplyEffect(self, target: "Character")->str:
-        amount = target.gainEnergy(3)
+        amount = target.gain_energy(3)
         return f'The charged atmosphere provides {target.name} with {amount} energy'
 
 class Rain(Weather):
