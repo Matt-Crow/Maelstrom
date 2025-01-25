@@ -40,7 +40,7 @@ class Game:
             else:
                 await self._choose_action()
         if self.user is not None:
-            self.userLoader.save(self.user)
+            self.userLoader.save_user(self.user)
 
     async def _login_page(self):
         screen = Screen(
@@ -48,7 +48,7 @@ class Game:
             choice=Choice(
                 prompt="Which user are you?",
                 options = list_extend(
-                    [str(user) for user in self.userLoader.get_options()],
+                    [str(user) for user in self.userLoader.get_user_names()],
                     "New user"
                 )
             )
@@ -62,7 +62,7 @@ class Game:
 
     async def _handle_new_user(self):
         user_name = input("What do you want your character's name to be? ") # yuck
-        while user_name in self.userLoader.get_options():
+        while user_name in self.userLoader.get_user_names():
             screen = Screen(
                 title="Error Creating Account",
                 body_rows=[f'The username {user_name} is already taken.']
@@ -87,11 +87,11 @@ class Game:
             members=[character]
         )
         user = User(name=user_name, team=team)
-        self.userLoader.save(user)
+        self.userLoader.save_user(user)
         self._handle_login(user_name)
     
     def _handle_login(self, user_name):
-        self.user = self.userLoader.load(user_name)
+        self.user = self.userLoader.load_user(user_name)
         self.user.team.init_for_battle()
 
     async def _choose_action(self):
