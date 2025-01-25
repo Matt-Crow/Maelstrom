@@ -82,7 +82,7 @@ class OnHitGivenPassive(AbstractPassive):
         user.add_event_listener(HIT_GIVEN_EVENT, self.checkTrigger)
 
     def checkTrigger(self, onHitEvent):
-        if rollPercentage(onHitEvent.hitter.getStatValue("luck")) > 100 - self.chance * 100:
+        if rollPercentage(onHitEvent.hitter.get_stat_value("luck")) > 100 - self.chance * 100:
             if self.targetsUser:
                 onHitEvent.hitter.boost(self.boost.copy())
             else:
@@ -108,7 +108,7 @@ class OnHitTakenPassive(AbstractPassive):
         user.add_event_listener(HIT_TAKEN_EVENT, self.checkTrigger)
 
     def checkTrigger(self, onHitEvent):
-        if rollPercentage(onHitEvent.hitee.getStatValue("luck")) > 100 - self.chance * 100:
+        if rollPercentage(onHitEvent.hitee.get_stat_value("luck")) > 100 - self.chance * 100:
             if self.targetsUser:
                 onHitEvent.hitee.boost(self.boost.copy())
             else:

@@ -5,7 +5,7 @@ def rollPercentage(base = 0):
     Chooses a random number
     between base and 100,
     use
-    rollPercentage(self.getStatValue("luck"))
+    rollPercentage(self.get_stat_value("luck"))
     """
     ret = 100
     base = int(base)

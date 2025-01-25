@@ -150,7 +150,7 @@ class AbstractDamagingActive(AbstractActive):
         """
 
         return int(
-            dmgAtLv(user.level) * self.damageMult * user.getStatValue("control") / target.getStatValue("resistance")
+            dmgAtLv(user.level) * self.damageMult * user.get_stat_value("control") / target.get_stat_value("resistance")
         )
 
     def randomHitType(self, user: "Character")->"HitType":
@@ -159,7 +159,7 @@ class AbstractDamagingActive(AbstractActive):
         chance, miss chance, and the user's luck
         """
         hit = HitType(1.0, "") # don't put a space at the end of the message
-        rng = rollPercentage(user.getStatValue("luck")) / 100
+        rng = rollPercentage(user.get_stat_value("luck")) / 100
 
         if rng <= self.missChance:
             hit = HitType(self.missMult, "A glancing blow! ") # need space on end
