@@ -7,14 +7,12 @@ class AbstractCustomizable(AbstractJsonSerialable):
     Required kwargs:
     - type : str
     - name : str
-    - customizationPoints : int (defaults to 0)
     - stats : dict{ str : int } this currently must be handled by subclasses
     """
     def __init__(self, **kwargs):
         super(AbstractCustomizable, self).__init__(**kwargs)
         self.name = kwargs["name"]
         self.type = kwargs["type"]
-        self.customizationPoints = kwargs.get("customizationPoints", 0)
         self.id = AbstractCustomizable.nextId
         # Key: attr name, value: Stat.
         # attributes which to player can customize.
@@ -25,7 +23,6 @@ class AbstractCustomizable(AbstractJsonSerialable):
         self.user = None
         self.addSerializedAttributes(
             "name",
-            "customizationPoints",
             "stats"
         )
 

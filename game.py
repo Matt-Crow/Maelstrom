@@ -1,4 +1,3 @@
-from maelstrom.dataClasses.character import Character
 from maelstrom.dataClasses.createDefaults import createDefaultPlayer
 from maelstrom.dataClasses.elements import ELEMENTS
 from maelstrom.dataClasses.team import Team
@@ -95,7 +94,6 @@ class Game:
             choice=Choice("Choose an option", [
                 "Explore",
                 "View Party Info",
-                "Customize Character",
                 "Exit"
             ])
         )
@@ -105,8 +103,6 @@ class Game:
                 await self._explore()
             case "View Party Info":
                 await self._display_party()
-            case "Customize Character":
-                await self._customize_action()
             case "Exit":
                 self._exit_action()
 
@@ -129,68 +125,6 @@ class Game:
             body_rows=self.user.getDisplayData()
         )
         await self._ui.display_and_choose(screen)
-
-    async def _customize_action(self):
-        screen = Screen(
-            title=f'Manage {self.user.name}',
-            body_rows=[member.get_display_data() for member in self.user.team.members],
-            choice=Choice(
-                prompt="Choose a character to customize",
-                options=list_extend(self.user.team.members, "Exit")
-            )
-        )
-        character = await self._ui.display_and_choose(screen)
-        if character == "Exit":
-            return
-        
-        done_customizing = False
-        while not done_customizing:
-            done_customizing = await self._customize_character(character)
-    
-    async def _customize_character(self, character: Character) -> bool:
-        """
-        Returns True once we're done customizing
-        """
-        
-        if character.customizationPoints <= 0:
-            return True
-        
-        screen = Screen(
-            title=f'Cusomizing {character.name}',
-            body_rows=character.getStatDisplayList(),
-            choice=Choice(
-                prompt="Choose a stat to increase",
-                options=list_extend(
-                    [stat.name for stat in character.stats.values() if not stat.is_max()],
-                    "Save chanages and exit"
-                )
-            )
-        )
-        increase_me = await self._ui.display_and_choose(screen)
-        if increase_me == "Save chanages and exit":
-            return True
-        
-        # choose different stat to decrease
-        screen = Screen(
-            title=f'Cusomizing {character.name}',
-            choice=Choice(
-                prompt="Choose a stat to decrease",
-                options=list_extend(
-                    [stat.name for stat in character.stats.values() if not stat.is_min() and stat.name != increase_me],
-                    "Exit"
-                )
-            )
-        )
-        decrease_me = await self._ui.display_and_choose(screen)
-        if decrease_me == "Exit":
-            return True
-        
-        character.setStatBase(increase_me, character.stats[increase_me].get_base() + 1)
-        character.setStatBase(decrease_me, character.stats[decrease_me].get_base() - 1)
-        character.calcStats()
-        character.customizationPoints -= 1
-        
-        return character.customizationPoints > 0
 
     def _exit_action(self):
         self._exit = True

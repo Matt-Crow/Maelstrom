@@ -16,7 +16,6 @@ class Character(AbstractCustomizable):
         """
         required kwargs:
         - name : str
-        - customizationPoints : int (defaults to 0)
         - element : str
         - level : int (defaults to 1)
         - xp : int (defaults to 0)
@@ -193,7 +192,6 @@ class Character(AbstractCustomizable):
             msgs.append(f'{self.name} leveled up!')
             self.xp -= self.level * 10
             self.level += 1
-            self.customizationPoints += 1
             self.calcStats()
             self.remaining_hp = self._max_hp
             msgs.append(self.get_display_data())
