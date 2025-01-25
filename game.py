@@ -1,4 +1,5 @@
-from maelstrom.dataClasses.createDefaults import createDefaultPlayer
+from maelstrom.dataClasses.activeAbilities import createDefaultActives
+from maelstrom.dataClasses.character import Character
 from maelstrom.dataClasses.elements import ELEMENTS
 from maelstrom.dataClasses.team import Team
 from maelstrom.gameplay.combat import play_level
@@ -76,7 +77,11 @@ class Game:
         )
         element = await self._ui.display_and_choose(screen)
 
-        character = createDefaultPlayer(user_name, element)
+        character = Character(
+            name=user_name, 
+            element=element,
+            actives=createDefaultActives(element)
+        )
         team = Team(
             name=user_name,
             members=[character]
