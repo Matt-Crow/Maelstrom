@@ -4,14 +4,10 @@ sessions, this module allows them to be serialized as JSON, then stored to a
 file, from whence they can later be loaded.
 """
 
-
-
 import abc
 import json
 import os.path
 from os import walk
-
-
 
 class AbstractJsonSerialable(object):
     """
@@ -48,8 +44,6 @@ class AbstractJsonSerialable(object):
         """
         return json.loads(json.dumps({attr: self.__dict__[attr] for attr in self.serializedAttributes}, cls=MaelstromJsonEncoder))
 
-
-
 class MaelstromJsonEncoder(json.JSONEncoder):
     def default(self, obj):
         ret = None
@@ -59,32 +53,35 @@ class MaelstromJsonEncoder(json.JSONEncoder):
             ret = json.JSONEncoder.default(self, obj)
         return ret
 
-
-
 class AbstractJsonLoader(object):
     def __init__(self, dirPath: str):
         """
         dirPath is relative to the project root
-            this may change if I add app data folders instead of storing in the
-            project folder
         """
-        self.dirPath = os.path.abspath(os.path.join(*dirPath.split(".")))
+        self._folder = os.path.abspath(os.path.join(*dirPath.split(".")))
 
-    def getOptions(self)->list[str]:
+    def get_options(self)->list[str]:
         """
         returns a list of all the possible objects this can retrieve
         """
-        return getJsonFileList(self.dirPath)
+        ret = []
+        ext = []
+        for (_, _, fileNames) in walk(self._folder):
+            for fileName in fileNames:
+                ext = os.path.splitext(fileName)
+                if len(ext) >= 2 and ext[1] == ".json":
+                    ret.append(fileName.replace(".json", "").replace("_", " "))
+        return ret
 
     def load(self, name: str):
-        filePath = os.path.join(self.dirPath, formatFileName(name))
+        filePath = os.path.join(self._folder, _format_file_name(name))
         obj = None
         with open(filePath) as file:
             obj = self.doLoad(json.loads(file.read()))
         return obj
 
-    def save(self, obj: "AbstractJsonSerialable"):
-        path = os.path.join(self.dirPath, formatFileName(obj.name))
+    def save(self, obj: AbstractJsonSerialable):
+        path = os.path.join(self._folder, _format_file_name(obj.name))
         with open(path, "w") as file:
             file.write(json.dumps(obj.toJson()))
 
@@ -92,30 +89,8 @@ class AbstractJsonLoader(object):
     def doLoad(self, asJson: dict):
         pass
 
-def formatFileName(serializableName: str)->str:
+def _format_file_name(serializableName: str) -> str:
     """
-    Formats an AbstractJsonSerialable's name (or any string for that matter)
-    into an appropriate file name
+    Formats an AbstractJsonSerialable's name into an appropriate file name
     """
     return serializableName.replace(" ", "_") + ".json"
-
-def unFormatFileName(fileName: str)->str:
-    """
-    Undoes the formatting from formatFileName
-    """
-    return fileName.replace(".json", "").replace("_", " ")
-
-def getJsonFileList(dirPath: str)->list[str]:
-    """
-    Returns a list of all filenames of JSON files
-    in the given dir, with the unFormatFileName applied
-    to each of them.
-    """
-    ret = []
-    ext = []
-    for (dirPath, dirNames, fileNames) in walk(dirPath):
-        for fileName in fileNames:
-            ext = os.path.splitext(fileName)
-            if len(ext) >= 2 and ext[1] == ".json":
-                ret.append(unFormatFileName(fileName))
-    return ret

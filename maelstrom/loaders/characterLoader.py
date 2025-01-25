@@ -3,31 +3,14 @@ This module handles the conversion of JSON files of characters into Character
 objects in the program
 """
 
-
-
-from maelstrom.dataClasses.activeAbilities import createDefaultActives, getActiveAbilityList
+from maelstrom.dataClasses.activeAbilities import AbstractActive, createDefaultActives, getActiveAbilityList
 from maelstrom.dataClasses.character import Character
-from maelstrom.dataClasses.item import getItemList
-from maelstrom.dataClasses.passiveAbilities import getPassiveAbilityList
 from maelstrom.dataClasses.team import Team
 from maelstrom.loaders.templateloader import MakeCharacterTemplateRepository
-
-
-
 
 NAME_TO_ACTIVE = dict()
 for active in getActiveAbilityList():
     NAME_TO_ACTIVE[active.name] = active
-
-NAME_TO_ITEM = dict()
-for item in getItemList():
-    NAME_TO_ITEM[item.name] = item
-
-NAME_TO_PASSIVE = dict()
-for passive in getPassiveAbilityList():
-    NAME_TO_PASSIVE[passive.name] = passive
-
-
 
 class EnemyLoader:
     """
@@ -59,36 +42,19 @@ class EnemyLoader:
         )
         return constructed        
 
-    def getOptions(self) -> 'list[str]':
+    def get_options(self) -> list[str]:
         return [option.name for option in self._template_repository.get_all()]
 
+def load_team(as_json: dict) -> Team:
+    as_json["members"] = [load_character(member) for member in as_json["members"]]
+    return Team(**as_json)
 
+def load_character(as_json: dict) -> Character:
+    as_json = as_json.copy()
+    as_json["actives"] = [_load_active(data) for data in as_json["actives"]]
+    return Character(**as_json)
 
-"""
-These types of objects are not stored in a directory, so don't subclass
-AbstractJsonLoader for them.
-"""
-
-def loadTeam(asJson: dict)->"Team":
-    asJson["members"] = [loadCharacter(member) for member in asJson["members"]]
-    return Team(**asJson)
-
-def loadCharacter(asJson: dict)->"Character":
-    asJson = asJson.copy()
-    asJson["actives"] = [loadActive(data) for data in asJson["actives"]]
-    return Character(**asJson)
-
-def loadActive(name: str) -> 'AbstractActive':
+def _load_active(name: str) -> AbstractActive:
     if name not in NAME_TO_ACTIVE:
         raise Exception(f'no active defined with name "{name}"')
     return NAME_TO_ACTIVE[name]
-
-def loadPassive(name: str)->"AbstractPassive":
-    if name not in NAME_TO_PASSIVE:
-        raise Exception(f'no passives defined with name "{name}"')
-    return NAME_TO_PASSIVE[name]
-
-def loadItem(name: str)->"Item":
-    if name not in NAME_TO_ITEM:
-        raise Exception(f'no item defined with name "{name}"')
-    return NAME_TO_ITEM[name]

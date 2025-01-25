@@ -48,7 +48,7 @@ class Game:
             choice=Choice(
                 prompt="Which user are you?",
                 options = list_extend(
-                    [str(user) for user in self.userLoader.getOptions()],
+                    [str(user) for user in self.userLoader.get_options()],
                     "New user"
                 )
             )
@@ -62,7 +62,7 @@ class Game:
 
     async def _handle_new_user(self):
         user_name = input("What do you want your character's name to be? ") # yuck
-        while user_name in self.userLoader.getOptions():
+        while user_name in self.userLoader.get_options():
             screen = Screen(
                 title="Error Creating Account",
                 body_rows=[f'The username {user_name} is already taken.']
