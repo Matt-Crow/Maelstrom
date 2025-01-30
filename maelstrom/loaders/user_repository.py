@@ -5,6 +5,7 @@ This module is responsible for loading and storing users.
 import json
 from os import walk
 import os
+from maelstrom.characters.specification import json_dict_to_character_specification
 from maelstrom.util.user import User
 from maelstrom.loaders.character_loader import load_team
 
@@ -12,7 +13,7 @@ class UserRepository:
     """
     Loads and stores users.
     """
-    
+
     def __init__(self):
         self._folder = os.path.abspath("users")
 
@@ -33,6 +34,10 @@ class UserRepository:
         path = self._get_path_by_user_name(name)
         with open(path) as file:
             as_json = json.loads(file.read())
+            specs = [json_dict_to_character_specification(e) for e in as_json["specificationTest"]]
+            #for spec in specs:
+            #    print(spec)
+            #    input()
             return User(
                 name = as_json["name"],
                 team = load_team(as_json["team"]),
@@ -41,8 +46,10 @@ class UserRepository:
     
     def save_user(self, user: User):
         path = self._get_path_by_user_name(user.name)
+        j = user.toJson()
+        j["specificationTest"] = [c.to_specification().to_dict() for c in user.team.members]
         with open(path, "w") as file:
-            file.write(json.dumps(user.toJson()))
+            file.write(json.dumps(j))
 
     def _get_path_by_user_name(self, user_name: str) -> str:
         file_name = user_name.replace(" ", "_") + ".json"

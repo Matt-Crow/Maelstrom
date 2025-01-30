@@ -1,5 +1,6 @@
 # TODO fix this in #12 
 # from maelstrom.dataClasses.activeAbilities import TargetOption
+from maelstrom.characters.specification import CharacterSpecification
 from maelstrom.gameplay.events import ActionRegister, UPDATE_EVENT
 from maelstrom.dataClasses.stat_classes import Stat
 from maelstrom.util.serialize import AbstractJsonSerialable
@@ -30,8 +31,12 @@ class Character(AbstractJsonSerialable):
 
         # don't prefix with underscore - breaks JSON!
         self.element = kwargs["element"]
+
+        # might run into issues with discrepencies between these two...
+        # ... unless I store the level and the xp towards the next level?
         self.level = kwargs.get("level", 1)
         self.xp = int(kwargs.get("xp", 0))
+
         self.actives = [active for active in kwargs["actives"]]
         self.stats = {}
         for stat in _STATS:
@@ -49,6 +54,18 @@ class Character(AbstractJsonSerialable):
             "actives",
             "stats"
         )
+
+    def to_specification(self) -> CharacterSpecification:
+        """
+        Returns a specification from which this Character can be reconstructed.
+        """
+        spec = CharacterSpecification(
+            name=self.name,
+            level=self.level,
+            xp=self.xp,
+            active_names=[active.name for active in self.actives]
+        )
+        return spec
 
     def _add_stat(self, stat):
         self.stats[stat.name.lower()] = stat
