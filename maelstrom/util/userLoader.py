@@ -2,7 +2,7 @@ import json
 from os import walk
 import os
 from maelstrom.util.user import User
-from maelstrom.loaders.characterLoader import load_team
+from maelstrom.loaders.character_loader import load_team
 
 class UserLoader:
     def __init__(self):

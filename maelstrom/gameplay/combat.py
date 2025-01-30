@@ -9,7 +9,7 @@ from maelstrom.dataClasses.character import Character
 from maelstrom.dataClasses.activeAbilities import TargetOption
 from maelstrom.dataClasses.team import Team
 from maelstrom.dataClasses.weather import WEATHERS, Weather
-from maelstrom.loaders.characterLoader import EnemyLoader
+from maelstrom.loaders.character_loader import EnemyLoader
 from maelstrom.ui import AbstractUserInterface, Choice, Screen
 from maelstrom.util.stringUtil import lengthOfLongest
 from maelstrom.util.user import User
