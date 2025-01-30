@@ -1,10 +1,18 @@
+"""
+This module is responsible for loading and storing users.
+"""
+
 import json
 from os import walk
 import os
 from maelstrom.util.user import User
 from maelstrom.loaders.character_loader import load_team
 
-class UserLoader:
+class UserRepository:
+    """
+    Loads and stores users.
+    """
+    
     def __init__(self):
         self._folder = os.path.abspath("users")
 
@@ -37,7 +45,5 @@ class UserLoader:
             file.write(json.dumps(user.toJson()))
 
     def _get_path_by_user_name(self, user_name: str) -> str:
-        return os.path.join(self._folder, _format_file_name(user_name))
-
-def _format_file_name(user_name: str) -> str:
-    return user_name.replace(" ", "_") + ".json"
+        file_name = user_name.replace(" ", "_") + ".json"
+        return os.path.join(self._folder, file_name)

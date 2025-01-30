@@ -5,11 +5,11 @@ from maelstrom.dataClasses.team import Team
 from maelstrom.gameplay.combat import play_level
 from maelstrom.loaders.campaignloader import make_default_campaign_loader
 from maelstrom.loaders.character_loader import EnemyLoader
+from maelstrom.loaders.user_repository import UserRepository
 from maelstrom.ui import Choice, Screen
 from maelstrom.ui_console import ConsoleUI
 from maelstrom.util.collections import list_extend
 from maelstrom.util.user import User
-from maelstrom.util.userLoader import UserLoader
 
 """
 The Game class is used to store data on the game the user is currently playing,
@@ -20,7 +20,7 @@ class Game:
         self.user = None
         self.currentArea = None
         self._exit = False
-        self.userLoader = UserLoader()
+        self._users = UserRepository()
         self.enemy_loader = EnemyLoader()
         self.campaign_loader = make_default_campaign_loader()
         self._ui = ConsoleUI()
@@ -40,7 +40,7 @@ class Game:
             else:
                 await self._choose_action()
         if self.user is not None:
-            self.userLoader.save_user(self.user)
+            self._users.save_user(self.user)
 
     async def _login_page(self):
         screen = Screen(
@@ -48,7 +48,7 @@ class Game:
             choice=Choice(
                 prompt="Which user are you?",
                 options = list_extend(
-                    [str(user) for user in self.userLoader.get_user_names()],
+                    [str(user) for user in self._users.get_user_names()],
                     "New user"
                 )
             )
@@ -62,7 +62,7 @@ class Game:
 
     async def _handle_new_user(self):
         user_name = input("What do you want your character's name to be? ") # yuck
-        while user_name in self.userLoader.get_user_names():
+        while user_name in self._users.get_user_names():
             screen = Screen(
                 title="Error Creating Account",
                 body_rows=[f'The username {user_name} is already taken.']
@@ -87,11 +87,11 @@ class Game:
             members=[character]
         )
         user = User(name=user_name, team=team)
-        self.userLoader.save_user(user)
+        self._users.save_user(user)
         self._handle_login(user_name)
     
     def _handle_login(self, user_name):
-        self.user = self.userLoader.load_user(user_name)
+        self.user = self._users.load_user(user_name)
         self.user.team.init_for_battle()
 
     async def _choose_action(self):
