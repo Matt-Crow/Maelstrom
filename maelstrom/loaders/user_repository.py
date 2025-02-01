@@ -45,20 +45,18 @@ class UserRepository:
                 [load_character(member) for member in as_json["partyDetails"]]
             )
 
-            return User(
-                name = as_json["name"],
-                team = team,
-                inventory = []
-            )
+            return User(as_json["name"], team)
     
     def save_user(self, user: User):
         path = self._get_path_by_user_name(user.name)
-        j = user.toJson()
-        j["specificationTest"] = [c.to_specification().to_dict() for c in user.team.members]
-        j["partyDetails"] = [m.toJson() for m in user.team.members]
+        as_dict = dict(
+            name=user.name,
+            specificationTest=[c.to_specification().to_dict() for c in user.team.members],
+            partyDetails=[m.toJson() for m in user.team.members]
+        )
 
         # try to convert before writing to file to avoid truncating file if json.dumps fails
-        as_str = json.dumps(j)
+        as_str = json.dumps(as_dict)
         with open(path, "w") as file:
             file.write(as_str)
 
