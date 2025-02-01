@@ -4,15 +4,10 @@ like passive abilities. However, Items are easier to swap around than passives,
 and can be acquired as rewards from Battles.
 """
 
-
-
 from maelstrom.dataClasses.stat_classes import Boost
 from maelstrom.gameplay.events import HIT_TAKEN_EVENT
-from maelstrom.util.serialize import AbstractJsonSerialable
 
-
-
-class Item(AbstractJsonSerialable):
+class Item:
 
     def __init__(self, name, description, register):
         """
@@ -20,7 +15,6 @@ class Item(AbstractJsonSerialable):
         register is a function that accepts an Character, and is called
         on this item's wielder at the start of an Encounter
         """
-        super().__init__(type="Item")
         self.name = name
         self.description = description
         self.register = register
@@ -42,9 +36,6 @@ class Item(AbstractJsonSerialable):
         This is not the same as calling setEquipped
         """
         self.register(user)
-
-    def toJson(self): # override
-        return self.name
 
     def __str__(self):
         return f'Item {self.name}: "{self.description}"'

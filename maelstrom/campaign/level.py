@@ -1,8 +1,6 @@
-from maelstrom.util.serialize import AbstractJsonSerialable
 from maelstrom.util.stringUtil import entab
 
-
-class Level(AbstractJsonSerialable):
+class Level:
     """
     A level pits two teams against each other in an Encounter
     """
@@ -17,23 +15,12 @@ class Level(AbstractJsonSerialable):
         - enemy_names: List<str>
         - enemy_level: int
         """
-        super().__init__(**dict(kwargs, type="Level"))
-
         self.name = kwargs["name"]
         self.description = kwargs["description"]
         self.prescript = kwargs["prescript"]
         self.postscript = kwargs["postscript"]
         self.enemy_names = kwargs["enemy_names"]
         self.enemy_level = kwargs["enemy_level"]
-
-        self.addSerializedAttributes(
-            "name",
-            "description",
-            "prescript",
-            "postscript",
-            "enemy_names",
-            "enemy_level"
-        )
 
     def __str__(self)->str:
         return f'Level: {self.name}'

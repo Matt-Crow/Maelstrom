@@ -10,27 +10,18 @@ Characters make a choice of which TargetOption they wish to use, not just which
 active they wish to use.
 """
 
-
-
 from maelstrom.dataClasses.character import Character
 from maelstrom.gameplay.events import OnHitEvent, HIT_GIVEN_EVENT, HIT_TAKEN_EVENT
-from maelstrom.util.serialize import AbstractJsonSerialable
 from maelstrom.util.random import rollPercentage
 from maelstrom.dataClasses.elements import ELEMENTS
 from abc import abstractmethod
 import functools
 
-
-
 """
 utility classes
 """
-
-
-
 def dmgAtLv(lv)->int:
     return int(16.67 * (1 + lv * 0.05))
-
 
 class HitType:
     """
@@ -40,7 +31,6 @@ class HitType:
     def __init__(self, multiplier, message):
         self.multiplier = multiplier
         self.message = message
-
 
 class TargetOption:
     """
@@ -70,20 +60,15 @@ class TargetOption:
         msgs = [self.active.resolveAgainst(self.user, target) for target in self.targets]
         return "\n".join(msgs)
 
-
-
 """
 data classes
 """
 
-
-
-class AbstractActive(AbstractJsonSerialable):
+class AbstractActive:
     def __init__(self, name, description, cost):
         """
         name should be a unique identifier
         """
-        super().__init__(type="Active")
         self.name = name
         self.description = f'{name}: {description}'
         self.cost = cost
@@ -116,9 +101,6 @@ class AbstractActive(AbstractJsonSerialable):
         enemies that attack would hit.
         """
         pass
-
-    def toJson(self): # override default method
-        return self.name
 
 class AbstractDamagingActive(AbstractActive):
     # not sure if I like so many paramters

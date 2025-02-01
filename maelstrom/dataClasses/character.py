@@ -4,18 +4,16 @@ from maelstrom.characters.specification import CharacterSpecification
 from maelstrom.characters.template import CharacterTemplate
 from maelstrom.gameplay.events import ActionRegister, UPDATE_EVENT
 from maelstrom.dataClasses.stat_classes import Stat
-from maelstrom.util.serialize import AbstractJsonSerialable
 from maelstrom.util.stringUtil import entab, lengthOfLongest
 
 _STATS = ("control", "resistance", "potency", "luck", "energy")
 
-class Character(AbstractJsonSerialable):
+class Character:
     """
     A Character is an entity within the game who has various stats and attributes.
     """
 
     def __init__(self, template: CharacterTemplate, specification: CharacterSpecification, actives: 'list[AbstractActive]'):
-        super().__init__(**dict(type="Character"))
         self.name = template.name
         self.element = template.element
 

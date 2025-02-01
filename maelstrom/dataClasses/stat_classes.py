@@ -1,10 +1,6 @@
 from maelstrom.dataClasses.elements import *
-from maelstrom.util.stringUtil import entab
-from maelstrom.util.serialize import AbstractJsonSerialable
 
-
-
-class Stat(AbstractJsonSerialable):
+class Stat:
     """
     A class used to store
     information about a stat,
@@ -26,7 +22,6 @@ class Stat(AbstractJsonSerialable):
 
         TODO: add min max
         """
-        super().__init__(type="Stat")
         self.name = name
         self.formula = formula
         self.boosts = []
@@ -36,9 +31,6 @@ class Stat(AbstractJsonSerialable):
 
         self.set_base(base)
         self.value = None
-
-    def toJson(self): # override default method
-        return self.base
 
     def calc(self):
         """

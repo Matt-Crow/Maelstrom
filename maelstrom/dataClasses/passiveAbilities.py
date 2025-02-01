@@ -4,23 +4,17 @@ condition is met, such as when a character is hit or reaches a certain threshold
 of health
 """
 
-
-
 from maelstrom.dataClasses.stat_classes import Boost
 from maelstrom.util.random import rollPercentage
-from maelstrom.util.serialize import AbstractJsonSerialable
 from maelstrom.dataClasses.elements import ELEMENTS
 from maelstrom.gameplay.events import HIT_GIVEN_EVENT, HIT_TAKEN_EVENT, UPDATE_EVENT
 from abc import abstractmethod
 
-
-
-class AbstractPassive(AbstractJsonSerialable):
+class AbstractPassive:
     def __init__(self, name, description):
         """
         name should be a unique identifier
         """
-        super().__init__(type="Passive")
         self.name = name
         self.description = description
 
@@ -35,10 +29,6 @@ class AbstractPassive(AbstractJsonSerialable):
         object's internal state
         """
         pass
-
-    def toJson(self): # override default method
-        return self.name
-
 
 class ThresholdPassive(AbstractPassive):
     def __init__(self, name, boost, threshold):

@@ -1,33 +1,26 @@
 {
-    "type": "Area",
     "name": "Test Area",
     "description": "No description",
     "levels": [
         {
-            "type": "Battle",
             "name": "Random encounter",
             "description": "Random battle",
             "prescript": [],
             "postscript": [],
             "forecast": [
                 {
-                    "type": "Weather",
                     "name": "lightning"
                 },
                 {
-                    "type": "Weather",
                     "name": "rain"
                 },
                 {
-                    "type": "Weather",
                     "name": "hail"
                 },
                 {
-                    "type": "Weather",
                     "name": "wind"
                 },
                 {
-                    "type": "Weather",
                     "name": "no weather"
                 }
             ],

@@ -1,8 +1,6 @@
-from maelstrom.util.serialize import AbstractJsonSerialable
 from maelstrom.util.stringUtil import entab
 
-
-class Area(AbstractJsonSerialable):
+class Area:
     """
     a collection of Levels
     """
@@ -14,7 +12,6 @@ class Area(AbstractJsonSerialable):
         - description: str
         - levels: List[Level]. Defaults to []
         """
-        super().__init__(**dict(kwargs, type="Area"))
         self.name = kwargs["name"]
         self.description = kwargs["description"]
         self.levels = kwargs.get("levels", [])
