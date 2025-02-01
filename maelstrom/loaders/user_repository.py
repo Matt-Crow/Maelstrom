@@ -6,9 +6,11 @@ import json
 from os import walk
 import os
 from maelstrom.characters.specification import json_dict_to_character_specification
+from maelstrom.dataClasses.character import Character
 from maelstrom.dataClasses.team import Team
+from maelstrom.loaders.character_template_loader import CharacterTemplateLoader
 from maelstrom.util.user import User
-from maelstrom.loaders.character_loader import load_character
+from maelstrom.loaders.character_loader import load_active
 
 class UserRepository:
     """
@@ -17,6 +19,8 @@ class UserRepository:
 
     def __init__(self):
         self._folder = os.path.abspath("users")
+        self._character_templates = CharacterTemplateLoader()
+        self._character_templates.load_character_template_file("data/character-templates/starters.csv")
 
     def get_user_names(self) -> list[str]:
         """
@@ -35,15 +39,27 @@ class UserRepository:
         path = self._get_path_by_user_name(name)
         with open(path) as file:
             as_json = json.loads(file.read())
-            specs = [json_dict_to_character_specification(e) for e in as_json["specificationTest"]]
-            #for spec in specs:
-            #    print(spec)
-            #    input()
+            specs = [json_dict_to_character_specification(e) for e in as_json["party"]]
+            party = []
+            for spec in specs:
+                template = self._character_templates.get_character_template_by_name(spec.name)
+                character = Character(
+                    name=template.name,
+                    element=template.element,
+                    level=spec.level,
+                    xp=spec.xp,
+                    stats={
+                        'control': template.control,
+                        'resistance': template.resistance,
+                        'energy': template.energy,
+                        'potency': template.potency,
+                        'luck': template.luck
+                    },
+                    actives = [load_active(active_name) for active_name in spec.active_names]
+                )
+                party.append(character)
 
-            team = Team(
-                as_json["name"], 
-                [load_character(member) for member in as_json["partyDetails"]]
-            )
+            team = Team(as_json["name"], party)
 
             return User(as_json["name"], team)
     
@@ -51,8 +67,7 @@ class UserRepository:
         path = self._get_path_by_user_name(user.name)
         as_dict = dict(
             name=user.name,
-            specificationTest=[c.to_specification().to_dict() for c in user.team.members],
-            partyDetails=[m.toJson() for m in user.team.members]
+            party=[c.to_specification().to_dict() for c in user.team.members]
         )
 
         # try to convert before writing to file to avoid truncating file if json.dumps fails

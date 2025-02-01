@@ -14,7 +14,7 @@ class TestLoaders(unittest.TestCase):
     def test_loading(self):
         sut = CharacterTemplateLoader()
 
-        sut.load_character_template_file("data/character-templates.csv")
+        sut.load_character_template_file("data/character-templates/enemies.csv")
         actual = sut.get_all_character_templates()
 
         self.assertNotEqual(0, len(actual))

@@ -1,10 +1,10 @@
 from maelstrom.dataClasses.activeAbilities import createDefaultActives
 from maelstrom.dataClasses.character import Character
-from maelstrom.dataClasses.elements import ELEMENTS
 from maelstrom.dataClasses.team import Team
 from maelstrom.gameplay.combat import play_level
 from maelstrom.loaders.campaignloader import make_default_campaign_loader
 from maelstrom.loaders.character_loader import EnemyLoader
+from maelstrom.loaders.character_template_loader import CharacterTemplateLoader
 from maelstrom.loaders.user_repository import UserRepository
 from maelstrom.ui import Choice, Screen
 from maelstrom.ui_console import ConsoleUI
@@ -21,6 +21,8 @@ class Game:
         self.currentArea = None
         self._exit = False
         self._users = UserRepository()
+        self._starters = CharacterTemplateLoader()
+        self._starters.load_character_template_file("data/character-templates/starters.csv")
         self.enemy_loader = EnemyLoader()
         self.campaign_loader = make_default_campaign_loader()
         self._ui = ConsoleUI()
@@ -61,28 +63,39 @@ class Game:
                 self._handle_login(choice)
 
     async def _handle_new_user(self):
-        user_name = input("What do you want your character's name to be? ") # yuck
+        user_name = input("What is your name? ") # yuck, input()
         while user_name in self._users.get_user_names():
             screen = Screen(
                 title="Error Creating Account",
                 body_rows=[f'The username {user_name} is already taken.']
             )
             await self._ui.display_and_choose(screen) 
-            user_name = input("What do you want your character's name to be? ") # yuck
+            user_name = input("What is your name? ") # yuck, input()
         
         screen = Screen(
             title="New User",
-            body_rows=["Each character has elemental powers, what element do you want yours to control?"],
-            choice=Choice("Choose an element:", ELEMENTS)
+            body_rows=["Four rookie warriors stand before you, ready to aid you."],
+            choice=Choice(
+                "Who will be your first party member?", 
+                [starter.name for starter in self._starters.get_all_character_templates()]
+            )
         )
-        element = await self._ui.display_and_choose(screen)
+        starter_name = await self._ui.display_and_choose(screen)
+        starter_template = self._starters.get_character_template_by_name(starter_name)
 
-        character = Character(
-            name=user_name, 
-            element=element,
-            actives=createDefaultActives(element)
+        starter = Character(
+            name=starter_name, 
+            element=starter_template.element,
+            stats={
+                'control': starter_template.control,
+                'resistance': starter_template.resistance,
+                'energy': starter_template.energy,
+                'potency': starter_template.potency,
+                'luck': starter_template.luck
+            },
+            actives=createDefaultActives(starter_template.element)
         )
-        team = Team(user_name, [character])
+        team = Team(user_name, [starter])
         user = User(user_name, team)
         self._users.save_user(user)
         self._handle_login(user_name)

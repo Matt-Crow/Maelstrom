@@ -18,7 +18,7 @@ class EnemyLoader:
     
     def __init__(self):
         self._templates = CharacterTemplateLoader()
-        self._templates.load_character_template_file("data/character-templates.csv")
+        self._templates.load_character_template_file("data/character-templates/enemies.csv")
 
     def load(self, name: str) -> Character:
         """
@@ -45,12 +45,7 @@ class EnemyLoader:
     def get_options(self) -> list[str]:
         return [option.name for option in self._templates.get_all_character_templates()]
 
-def load_character(as_json: dict) -> Character:
-    as_json = as_json.copy()
-    as_json["actives"] = [_load_active(data) for data in as_json["actives"]]
-    return Character(**as_json)
-
-def _load_active(name: str) -> AbstractActive:
+def load_active(name: str) -> AbstractActive:
     if name not in NAME_TO_ACTIVE:
         raise Exception(f'no active defined with name "{name}"')
     return NAME_TO_ACTIVE[name]
