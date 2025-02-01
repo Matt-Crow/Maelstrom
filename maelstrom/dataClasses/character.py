@@ -1,6 +1,7 @@
 # TODO fix this in #12 
-# from maelstrom.dataClasses.activeAbilities import TargetOption
+# from maelstrom.dataClasses.activeAbilities import AbstractActive, TargetOption
 from maelstrom.characters.specification import CharacterSpecification
+from maelstrom.characters.template import CharacterTemplate
 from maelstrom.gameplay.events import ActionRegister, UPDATE_EVENT
 from maelstrom.dataClasses.stat_classes import Stat
 from maelstrom.util.serialize import AbstractJsonSerialable
@@ -13,47 +14,33 @@ class Character(AbstractJsonSerialable):
     A Character is an entity within the game who has various stats and attributes.
     """
 
-    def __init__(self, **kwargs):
-        """
-        required kwargs:
-        - name : str
-        - element : str
-        - level : int (defaults to 1)
-        - xp : int (defaults to 0)
-        - actives : list of AbstractActives. Throws an error if not set
-        - stats: object{ str : int } (defaults to 0 for each stat in STATS not given in the object)
-        """
-
-        super().__init__(**dict(kwargs, type="Character"))
-        self.name = kwargs["name"]
+    def __init__(self, template: CharacterTemplate, specification: CharacterSpecification, actives: 'list[AbstractActive]'):
+        super().__init__(**dict(type="Character"))
+        self.name = template.name
+        self.element = template.element
 
         self._max_hp = 100
 
-        # don't prefix with underscore - breaks JSON!
-        self.element = kwargs["element"]
-
         # might run into issues with discrepencies between these two...
         # ... unless I store the level and the xp towards the next level?
-        self.level = kwargs.get("level", 1)
-        self.xp = int(kwargs.get("xp", 0))
+        self.level = specification.level
+        self.xp = specification.xp
 
-        self.actives = [active for active in kwargs["actives"]]
+        self.actives = actives
+        
         self.stats = {}
-        for stat in _STATS:
-            self._add_stat(Stat(stat, lambda base: 20.0 + float(base), kwargs.get("stats", {}).get(stat, 0)))
+        def _set_stat(name, base):
+            self.stats[name.lower()] = Stat(name, lambda base: 20.0 + float(base), base)
+        _set_stat("control", template.control)
+        _set_stat("resistance", template.resistance)
+        _set_stat("energy", template.energy)
+        _set_stat("potency", template.potency)
+        _set_stat("luck", template.luck)
+
         self._calc_stats()
         self.remaining_hp = self._max_hp
 
         self._event_listeners = ActionRegister()
-
-        self.addSerializedAttributes(
-            "name",
-            "element", # todo rm once I use templates for #6
-            "xp",
-            "level",
-            "actives",
-            "stats"
-        )
 
     def to_specification(self) -> CharacterSpecification:
         """
@@ -66,9 +53,6 @@ class Character(AbstractJsonSerialable):
             active_names=[active.name for active in self.actives]
         )
         return spec
-
-    def _add_stat(self, stat):
-        self.stats[stat.name.lower()] = stat
 
     def init_for_battle(self):
         """

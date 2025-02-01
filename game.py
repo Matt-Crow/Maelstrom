@@ -1,3 +1,4 @@
+from maelstrom.characters.specification import CharacterSpecification
 from maelstrom.dataClasses.activeAbilities import createDefaultActives
 from maelstrom.dataClasses.character import Character
 from maelstrom.dataClasses.team import Team
@@ -82,19 +83,12 @@ class Game:
         )
         starter_name = await self._ui.display_and_choose(screen)
         starter_template = self._starters.get_character_template_by_name(starter_name)
-
         starter = Character(
-            name=starter_name, 
-            element=starter_template.element,
-            stats={
-                'control': starter_template.control,
-                'resistance': starter_template.resistance,
-                'energy': starter_template.energy,
-                'potency': starter_template.potency,
-                'luck': starter_template.luck
-            },
+            template=starter_template,
+            specification=CharacterSpecification(name=starter_name),
             actives=createDefaultActives(starter_template.element)
         )
+
         team = Team(user_name, [starter])
         user = User(user_name, team)
         self._users.save_user(user)

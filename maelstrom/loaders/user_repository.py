@@ -44,17 +44,8 @@ class UserRepository:
             for spec in specs:
                 template = self._character_templates.get_character_template_by_name(spec.name)
                 character = Character(
-                    name=template.name,
-                    element=template.element,
-                    level=spec.level,
-                    xp=spec.xp,
-                    stats={
-                        'control': template.control,
-                        'resistance': template.resistance,
-                        'energy': template.energy,
-                        'potency': template.potency,
-                        'luck': template.luck
-                    },
+                    template=template,
+                    specification=spec,
                     actives = [load_active(active_name) for active_name in spec.active_names]
                 )
                 party.append(character)

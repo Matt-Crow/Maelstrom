@@ -3,6 +3,7 @@ This module handles the conversion of JSON files of characters into Character
 objects in the program
 """
 
+from maelstrom.characters.specification import CharacterSpecification
 from maelstrom.dataClasses.activeAbilities import AbstractActive, createDefaultActives, getActiveAbilityList
 from maelstrom.dataClasses.character import Character
 from maelstrom.loaders.character_template_loader import CharacterTemplateLoader
@@ -29,16 +30,9 @@ class EnemyLoader:
         if template is None:
             raise ValueError(f'invalid character name: {name}')
         constructed = Character(
-            name = template.name,
-            element = template.element,
-            stats = {
-                'control': template.control,
-                'resistance': template.resistance,
-                'energy': template.energy,
-                'potency': template.potency,
-                'luck': template.luck
-            },
-            actives = createDefaultActives(template.element)
+            template=template,
+            specification=CharacterSpecification(name=name),
+            actives=createDefaultActives(template.element)
         )
         return constructed        
 

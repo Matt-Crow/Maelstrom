@@ -19,15 +19,9 @@ class CharacterSpecification:
     The name of the template to use
     """
 
-    level: int|None = None
-    """
-    Optional if xp is provided
-    """
+    level: int = 1
 
-    xp: int|None = None
-    """
-    Optional if level is provided
-    """
+    xp: int = 0
 
     active_names: list[str] = field(default_factory=list)
     """
