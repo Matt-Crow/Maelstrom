@@ -1,127 +1,108 @@
-"""
-A Character is an entity within the game who has various stats and attributes.
-"""
-
-
-
-# TODO fix this in #12 from maelstrom.dataClasses.activeAbilities import TargetOption
-from maelstrom.dataClasses.item import Item
+# TODO fix this in #12 
+# from maelstrom.dataClasses.activeAbilities import AbstractActive, TargetOption
+from maelstrom.characters.specification import CharacterSpecification
+from maelstrom.characters.template import CharacterTemplate
 from maelstrom.gameplay.events import ActionRegister, UPDATE_EVENT
-from maelstrom.dataClasses.customizable import AbstractCustomizable
 from maelstrom.dataClasses.stat_classes import Stat
 from maelstrom.util.stringUtil import entab, lengthOfLongest
 
+_STATS = ("control", "resistance", "potency", "luck", "energy")
 
+class Character:
+    """
+    A Character is an entity within the game who has various stats and attributes.
+    """
 
-STATS = ("control", "resistance", "potency", "luck", "energy")
+    def __init__(self, template: CharacterTemplate, specification: CharacterSpecification, actives: 'list[AbstractActive]'):
+        self.name = template.name
+        self.element = template.element
 
+        self._max_hp = 100
 
+        # might run into issues with discrepencies between these two...
+        # ... unless I store the level and the xp towards the next level?
+        self.level = specification.level
+        self.xp = specification.xp
 
-class Character(AbstractCustomizable):
+        self.actives = actives
+        
+        self.stats = {}
+        def _set_stat(name, base):
+            self.stats[name.lower()] = Stat(name, lambda base: 20.0 + float(base), base)
+        _set_stat("control", template.control)
+        _set_stat("resistance", template.resistance)
+        _set_stat("energy", template.energy)
+        _set_stat("potency", template.potency)
+        _set_stat("luck", template.luck)
 
-    def __init__(self, **kwargs):
+        self._calc_stats()
+        self.remaining_hp = self._max_hp
+
+        self._event_listeners = ActionRegister()
+
+    def to_specification(self) -> CharacterSpecification:
         """
-        required kwargs:
-        - name : str
-        - customizationPoints : int (defaults to 0)
-        - element : str
-        - level : int (defaults to 1)
-        - xp : int (defaults to 0)
-        - actives : list of AbstractActives. Throws an error if not set
-        - passives : list of AbstractPassives. Defaults to empty list
-        - equippedItems : list of Items. Defaults to an empty list
-        - stats: object{ str : int } (defaults to 0 for each stat in STATS not given in the object)
+        Returns a specification from which this Character can be reconstructed.
         """
-
-        super().__init__(**dict(kwargs, type="Character"))
-        self.maxHp = 100
-
-        self.element = kwargs["element"]
-        self.level = kwargs.get("level", 1)
-        self.xp = int(kwargs.get("xp", 0))
-
-        self.actives = []
-        self.passives = []
-        self.equippedItems = []
-        for active in kwargs["actives"]:
-            self.actives.append(active)
-        for passive in kwargs.get("passives", []):
-            self.passives.append
-            (passive)
-        for item in kwargs.get("equippedItems", []):
-            self.equipItem(item)
-
-        for stat in STATS:
-            self.addStat(Stat(stat, lambda base: 20.0 + float(base), kwargs.get("stats", {}).get(stat, 0)))
-        self.calcStats()
-        self.remHp = self.maxHp
-
-        self.actionRegister = ActionRegister()
-
-        self.addSerializedAttributes(
-            "element",
-            "xp",
-            "level",
-            "actives",
-            "passives",
-            "equippedItems"
+        spec = CharacterSpecification(
+            name=self.name,
+            level=self.level,
+            xp=self.xp,
+            active_names=[active.name for active in self.actives]
         )
+        return spec
 
-    def equipItem(self, item: Item):
-        self.equippedItems.append(item)
-        item.setEquipped(True)
+    def init_for_battle(self):
+        """
+        Resets everything for the upcoming battle
+        """
 
-    # HP defined here
-    def initForBattle(self):
-        self.actionRegister.clear()
-        self.calcStats()
+        self._event_listeners.clear()
+        self._calc_stats()
 
         # don't need to do anything with actives
 
-        for passive in self.passives:
-            passive.registerTo(self)
+        self.remaining_hp = self._max_hp
+        self.energy = int(self.get_stat_value("energy") / 2.0)
 
-        for item in self.equippedItems:
-            item.registerTo(self)
+    def _calc_stats(self):
+        """
+        Calculates all this' stats
+        """
+        for stat in self.stats.values():
+            stat.reset_boosts()
+            stat.calc()
 
-        self.remHp = self.maxHp
-        self.energy = int(self.getStatValue("energy") / 2.0)
+    def get_stat_value(self, statName: str) -> float:
+        return self.stats[statName.lower()].get()
 
-    def addActionListener(self, enumType, action):
-        self.actionRegister.addActionListener(enumType, action)
+    def add_event_listener(self, enum_type, action):
+        self._event_listeners.add_event_listener(enum_type, action)
 
-    def fireActionListeners(self, enumType, event=None):
-        self.actionRegister.fire(enumType, event)
+    def fire_event_listeners(self, enum_type, event=None):
+        self._event_listeners.fire(enum_type, event)
 
-    def getHpPerc(self):
+    def get_percent_hp_remaining(self):
         """
         Returns as a value between 0 and 100
         """
-        return int((float(self.remHp) / float(self.maxHp) * 100.0))
+        return int((float(self.remaining_hp) / float(self._max_hp) * 100.0))
 
-    def getDisplayData(self)->str:
-        self.calcStats()
+    def get_display_data(self) -> str:
+        self._calc_stats()
         ret = [
             f'{self.name} Lv. {self.level} {self.element}',
             entab(f'{self.xp} / {self.level * 10} XP')
         ]
 
         ret.append("STATS:")
-        width = lengthOfLongest(STATS)
-        for stat in STATS:
-            ret.append(entab(f'{stat.ljust(width)}: {int(self.getStatValue(stat))}'))
+        width = lengthOfLongest(_STATS)
+        for stat in _STATS:
+            ret.append(entab(f'{stat.ljust(width)}: {int(self.get_stat_value(stat))}'))
 
         ret.append("ACTIVES:")
         for active in self.actives:
             ret.append(f'* {active.description}')
-
-        ret.append("PASSIVES:")
-        for passive in self.passives:
-            ret.append(f'* {passive.description}')
-
-        ret.append("ITEMS:")
-        for item in self.equippedItems:
-            ret.append(f'* {str(item)}')
 
         return "\n".join(ret)
 
@@ -130,14 +111,14 @@ class Character(AbstractCustomizable):
     Used during battle
     """
 
-    def getActiveChoices(self)->'list[TargetOption]':
+    def get_target_options(self)->'list[TargetOption]':
         """
         use this to find out which enemies this Character can target and with
         which abilities
         """
-        useableActives = [active for active in self.actives if active.canUse(self)]
+        useable_actives = [active for active in self.actives if active.canUse(self)]
         choices = []
-        for active in useableActives:
+        for active in useable_actives:
             choices.extend(active.getTargetOptions(self))
         return choices
 
@@ -147,7 +128,7 @@ class Character(AbstractCustomizable):
         Increase or lower stats in battle. Returns the boost this receives with its
         potency stat factored in
         """
-        mult = 1 + self.getStatValue("potency") / 100
+        mult = 1 + self.get_stat_value("potency") / 100
         boost = boost.copy()
         boost.amount *= mult
         self.stats[boost.stat_name].boost(boost)
@@ -158,12 +139,12 @@ class Character(AbstractCustomizable):
         Restores HP. Converts an INTEGER to a percentage. Returns the amount of HP
         healed.
         """
-        mult = 1 + self.getStatValue("potency") / 100
-        healing = self.maxHp * (float(percent) / 100)
-        self.remHp = self.remHp + healing * mult
+        mult = 1 + self.get_stat_value("potency") / 100
+        healing = self._max_hp * (float(percent) / 100) * mult
+        self.remaining_hp = int(self.remaining_hp + healing)
 
-        if self.remHp > self.maxHp:
-            self.remHp = self.maxHp
+        if self.remaining_hp > self._max_hp:
+            self.remaining_hp = self._max_hp
 
         return int(healing)
 
@@ -171,52 +152,52 @@ class Character(AbstractCustomizable):
         """
         returns the actual amount of damage inflicted
         """
-        mult = 1 - self.getStatValue("potency") / 100
-        harming = self.maxHp * (float(percent) / 100)
+        mult = 1 - self.get_stat_value("potency") / 100
+        harming = self._max_hp * (float(percent) / 100)
         amount = int(harming * mult)
-        self.takeDmg(amount)
+        self.take_damage(amount)
         return amount
 
-    def takeDmg(self, dmg):
-        self.remHp -= dmg
-        self.remHp = int(self.remHp)
+    def take_damage(self, dmg):
+        self.remaining_hp -= dmg
+        self.remaining_hp = int(self.remaining_hp)
         return dmg
 
-    def gainEnergy(self, amount):
+    def gain_energy(self, amount):
         """
         Returns the amount of energy gained
         """
-        mult = 1 + self.getStatValue("potency") / 100
+        mult = 1 + self.get_stat_value("potency") / 100
         amount = int(amount * mult)
         self.energy += amount
 
-        if self.energy > self.getStatValue("energy"):
-            self.energy = self.getStatValue("energy")
+        if self.energy > self.get_stat_value("energy"):
+            self.energy = self.get_stat_value("energy")
 
         self.energy = int(self.energy)
 
         return amount
 
-    def loseEnergy(self, amount):
+    def lose_energy(self, amount):
         self.energy -= amount
         if self.energy < 0:
             self.energy = 0
 
     def update(self):
-        self.fireActionListeners(UPDATE_EVENT, self)
-        self.gainEnergy(self.getStatValue("energy") * 0.15)
+        self.fire_event_listeners(UPDATE_EVENT, self)
+        self.gain_energy(self.get_stat_value("energy") * 0.15)
         for stat in self.stats.values():
             stat.update()
 
-    def isKoed(self):
-        return self.remHp <= 0
+    def is_koed(self):
+        return self.remaining_hp <= 0
 
     """
     Post-battle actions:
     Occur after battle
     """
 
-    def gainXp(self, amount)->list[str]:
+    def gain_xp(self, amount)->list[str]:
         """
         Give experience, possibly leveling up this character.
 
@@ -227,14 +208,12 @@ class Character(AbstractCustomizable):
         while self.xp >= self.level * 10:
             msgs.append(f'{self.name} leveled up!')
             self.xp -= self.level * 10
-            self.levelUp()
-            msgs.append(self.getDisplayData())
+            self.level += 1
+            self._calc_stats()
+            self.remaining_hp = self._max_hp
+            msgs.append(self.get_display_data())
         self.xp = int(self.xp)
         return msgs
 
-    def levelUp(self):
-        self.level += 1
-        self.customizationPoints += 1
-
-        self.calcStats()
-        self.remHp = self.maxHp
+    def __str__(self):
+        return self.name

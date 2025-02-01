@@ -1,15 +1,16 @@
+from maelstrom.characters.specification import CharacterSpecification
+from maelstrom.dataClasses.activeAbilities import createDefaultActives
 from maelstrom.dataClasses.character import Character
-from maelstrom.dataClasses.createDefaults import createDefaultPlayer
-from maelstrom.dataClasses.elements import ELEMENTS
 from maelstrom.dataClasses.team import Team
 from maelstrom.gameplay.combat import play_level
 from maelstrom.loaders.campaignloader import make_default_campaign_loader
-from maelstrom.loaders.characterLoader import EnemyLoader
+from maelstrom.loaders.character_loader import EnemyLoader
+from maelstrom.loaders.character_template_loader import CharacterTemplateLoader
+from maelstrom.loaders.user_repository import UserRepository
 from maelstrom.ui import Choice, Screen
 from maelstrom.ui_console import ConsoleUI
 from maelstrom.util.collections import list_extend
 from maelstrom.util.user import User
-from maelstrom.util.userLoader import UserLoader
 
 """
 The Game class is used to store data on the game the user is currently playing,
@@ -20,7 +21,9 @@ class Game:
         self.user = None
         self.currentArea = None
         self._exit = False
-        self.userLoader = UserLoader()
+        self._users = UserRepository()
+        self._starters = CharacterTemplateLoader()
+        self._starters.load_character_template_file("data/character-templates/starters.csv")
         self.enemy_loader = EnemyLoader()
         self.campaign_loader = make_default_campaign_loader()
         self._ui = ConsoleUI()
@@ -40,7 +43,7 @@ class Game:
             else:
                 await self._choose_action()
         if self.user is not None:
-            self.userLoader.save(self.user)
+            self._users.save_user(self.user)
 
     async def _login_page(self):
         screen = Screen(
@@ -48,7 +51,7 @@ class Game:
             choice=Choice(
                 prompt="Which user are you?",
                 options = list_extend(
-                    [str(user) for user in self.userLoader.getOptions()],
+                    [str(user) for user in self._users.get_user_names()],
                     "New user"
                 )
             )
@@ -61,41 +64,45 @@ class Game:
                 self._handle_login(choice)
 
     async def _handle_new_user(self):
-        user_name = input("What do you want your character's name to be? ") # yuck
-        while user_name in self.userLoader.getOptions():
+        user_name = input("What is your name? ") # yuck, input()
+        while user_name in self._users.get_user_names():
             screen = Screen(
                 title="Error Creating Account",
                 body_rows=[f'The username {user_name} is already taken.']
             )
             await self._ui.display_and_choose(screen) 
-            user_name = input("What do you want your character's name to be? ") # yuck
+            user_name = input("What is your name? ") # yuck, input()
         
         screen = Screen(
             title="New User",
-            body_rows=["Each character has elemental powers, what element do you want yours to control?"],
-            choice=Choice("Choose an element:", ELEMENTS)
+            body_rows=["Four rookie warriors stand before you, ready to aid you."],
+            choice=Choice(
+                "Who will be your first party member?", 
+                [starter.name for starter in self._starters.get_all_character_templates()]
+            )
         )
-        element = await self._ui.display_and_choose(screen)
+        starter_name = await self._ui.display_and_choose(screen)
+        starter_template = self._starters.get_character_template_by_name(starter_name)
+        starter = Character(
+            template=starter_template,
+            specification=CharacterSpecification(name=starter_name),
+            actives=createDefaultActives(starter_template.element)
+        )
 
-        character = createDefaultPlayer(user_name, element)
-        team = Team(
-            name=user_name,
-            members=[character]
-        )
-        user = User(name=user_name, team=team)
-        self.userLoader.save(user)
+        team = Team(user_name, [starter])
+        user = User(user_name, team)
+        self._users.save_user(user)
         self._handle_login(user_name)
     
     def _handle_login(self, user_name):
-        self.user = self.userLoader.load(user_name)
-        self.user.team.initForBattle()
+        self.user = self._users.load_user(user_name)
+        self.user.team.init_for_battle()
 
     async def _choose_action(self):
         screen = Screen(
             choice=Choice("Choose an option", [
                 "Explore",
                 "View Party Info",
-                "Customize Character",
                 "Exit"
             ])
         )
@@ -105,8 +112,6 @@ class Game:
                 await self._explore()
             case "View Party Info":
                 await self._display_party()
-            case "Customize Character":
-                await self._customize_action()
             case "Exit":
                 self._exit_action()
 
@@ -129,68 +134,6 @@ class Game:
             body_rows=self.user.getDisplayData()
         )
         await self._ui.display_and_choose(screen)
-
-    async def _customize_action(self):
-        screen = Screen(
-            title=f'Manage {self.user.name}',
-            body_rows=[member.getDisplayData() for member in self.user.team.members],
-            choice=Choice(
-                prompt="Choose a character to customize",
-                options=list_extend(self.user.team.members, "Exit")
-            )
-        )
-        character = await self._ui.display_and_choose(screen)
-        if character == "Exit":
-            return
-        
-        done_customizing = False
-        while not done_customizing:
-            done_customizing = await self._customize_character(character)
-    
-    async def _customize_character(self, character: Character) -> bool:
-        """
-        Returns True once we're done customizing
-        """
-        
-        if character.customizationPoints <= 0:
-            return True
-        
-        screen = Screen(
-            title=f'Cusomizing {character.name}',
-            body_rows=character.getStatDisplayList(),
-            choice=Choice(
-                prompt="Choose a stat to increase",
-                options=list_extend(
-                    [stat.name for stat in character.stats.values() if not stat.is_max()],
-                    "Save chanages and exit"
-                )
-            )
-        )
-        increase_me = await self._ui.display_and_choose(screen)
-        if increase_me == "Save chanages and exit":
-            return True
-        
-        # choose different stat to decrease
-        screen = Screen(
-            title=f'Cusomizing {character.name}',
-            choice=Choice(
-                prompt="Choose a stat to decrease",
-                options=list_extend(
-                    [stat.name for stat in character.stats.values() if not stat.is_min() and stat.name != increase_me],
-                    "Exit"
-                )
-            )
-        )
-        decrease_me = await self._ui.display_and_choose(screen)
-        if decrease_me == "Exit":
-            return True
-        
-        character.setStatBase(increase_me, character.stats[increase_me].get_base() + 1)
-        character.setStatBase(decrease_me, character.stats[decrease_me].get_base() - 1)
-        character.calcStats()
-        character.customizationPoints -= 1
-        
-        return character.customizationPoints > 0
 
     def _exit_action(self):
         self._exit = True

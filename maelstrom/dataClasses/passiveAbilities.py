@@ -4,23 +4,17 @@ condition is met, such as when a character is hit or reaches a certain threshold
 of health
 """
 
-
-
 from maelstrom.dataClasses.stat_classes import Boost
 from maelstrom.util.random import rollPercentage
-from maelstrom.util.serialize import AbstractJsonSerialable
 from maelstrom.dataClasses.elements import ELEMENTS
 from maelstrom.gameplay.events import HIT_GIVEN_EVENT, HIT_TAKEN_EVENT, UPDATE_EVENT
 from abc import abstractmethod
 
-
-
-class AbstractPassive(AbstractJsonSerialable):
+class AbstractPassive:
     def __init__(self, name, description):
         """
         name should be a unique identifier
         """
-        super().__init__(type="Passive")
         self.name = name
         self.description = description
 
@@ -35,10 +29,6 @@ class AbstractPassive(AbstractJsonSerialable):
         object's internal state
         """
         pass
-
-    def toJson(self): # override default method
-        return self.name
-
 
 class ThresholdPassive(AbstractPassive):
     def __init__(self, name, boost, threshold):
@@ -56,10 +46,10 @@ class ThresholdPassive(AbstractPassive):
         return ThresholdPassive(self.name, self.boost, self.threshold)
 
     def registerTo(self, user):
-        user.addActionListener(UPDATE_EVENT, self.checkTrigger)
+        user.add_event_listener(UPDATE_EVENT, self.checkTrigger)
 
     def checkTrigger(self, updated):
-        if updated.getHpPerc() <= self.threshold * 100:
+        if updated.get_percent_hp_remaining() <= self.threshold * 100:
             updated.boost(self.boost.copy())
 
 class OnHitGivenPassive(AbstractPassive):
@@ -79,10 +69,10 @@ class OnHitGivenPassive(AbstractPassive):
         return OnHitGivenPassive(self.name, self.boost, self.chance, self.targetsUser)
 
     def registerTo(self, user):
-        user.addActionListener(HIT_GIVEN_EVENT, self.checkTrigger)
+        user.add_event_listener(HIT_GIVEN_EVENT, self.checkTrigger)
 
     def checkTrigger(self, onHitEvent):
-        if rollPercentage(onHitEvent.hitter.getStatValue("luck")) > 100 - self.chance * 100:
+        if rollPercentage(onHitEvent.hitter.get_stat_value("luck")) > 100 - self.chance * 100:
             if self.targetsUser:
                 onHitEvent.hitter.boost(self.boost.copy())
             else:
@@ -105,10 +95,10 @@ class OnHitTakenPassive(AbstractPassive):
         return OnHitTakenPassive(self.name, self.boost, self.chance, self.targetsUser)
 
     def registerTo(self, user):
-        user.addActionListener(HIT_TAKEN_EVENT, self.checkTrigger)
+        user.add_event_listener(HIT_TAKEN_EVENT, self.checkTrigger)
 
     def checkTrigger(self, onHitEvent):
-        if rollPercentage(onHitEvent.hitee.getStatValue("luck")) > 100 - self.chance * 100:
+        if rollPercentage(onHitEvent.hitee.get_stat_value("luck")) > 100 - self.chance * 100:
             if self.targetsUser:
                 onHitEvent.hitee.boost(self.boost.copy())
             else:

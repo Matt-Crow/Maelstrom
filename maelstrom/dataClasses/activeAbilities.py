@@ -10,27 +10,18 @@ Characters make a choice of which TargetOption they wish to use, not just which
 active they wish to use.
 """
 
-
-
 from maelstrom.dataClasses.character import Character
 from maelstrom.gameplay.events import OnHitEvent, HIT_GIVEN_EVENT, HIT_TAKEN_EVENT
-from maelstrom.util.serialize import AbstractJsonSerialable
 from maelstrom.util.random import rollPercentage
 from maelstrom.dataClasses.elements import ELEMENTS
 from abc import abstractmethod
 import functools
 
-
-
 """
 utility classes
 """
-
-
-
 def dmgAtLv(lv)->int:
     return int(16.67 * (1 + lv * 0.05))
-
 
 class HitType:
     """
@@ -40,7 +31,6 @@ class HitType:
     def __init__(self, multiplier, message):
         self.multiplier = multiplier
         self.message = message
-
 
 class TargetOption:
     """
@@ -66,24 +56,19 @@ class TargetOption:
         return self.msg
 
     def use(self)->str:
-        self.user.loseEnergy(self.active.cost) # don't call this for each target
+        self.user.lose_energy(self.active.cost) # don't call this for each target
         msgs = [self.active.resolveAgainst(self.user, target) for target in self.targets]
         return "\n".join(msgs)
-
-
 
 """
 data classes
 """
 
-
-
-class AbstractActive(AbstractJsonSerialable):
+class AbstractActive:
     def __init__(self, name, description, cost):
         """
         name should be a unique identifier
         """
-        super().__init__(type="Active")
         self.name = name
         self.description = f'{name}: {description}'
         self.cost = cost
@@ -117,9 +102,6 @@ class AbstractActive(AbstractJsonSerialable):
         """
         pass
 
-    def toJson(self): # override default method
-        return self.name
-
 class AbstractDamagingActive(AbstractActive):
     # not sure if I like so many paramters
     def __init__(self, name, description, cost, damageMult, missChance, missMult, critChance, critMult):
@@ -137,10 +119,10 @@ class AbstractDamagingActive(AbstractActive):
 
         event = OnHitEvent("Attack", user, target, self, dmg)
 
-        target.takeDmg(dmg)
+        target.take_damage(dmg)
 
-        target.fireActionListeners(HIT_TAKEN_EVENT, event)
-        user.fireActionListeners(HIT_GIVEN_EVENT, event)
+        target.fire_event_listeners(HIT_TAKEN_EVENT, event)
+        user.fire_event_listeners(HIT_GIVEN_EVENT, event)
 
         return f'{hitType.message}{user.name} struck {target.name} for {dmg} damage using {self.name}!'
 
@@ -150,7 +132,7 @@ class AbstractDamagingActive(AbstractActive):
         """
 
         return int(
-            dmgAtLv(user.level) * self.damageMult * user.getStatValue("control") / target.getStatValue("resistance")
+            dmgAtLv(user.level) * self.damageMult * user.get_stat_value("control") / target.get_stat_value("resistance")
         )
 
     def randomHitType(self, user: "Character")->"HitType":
@@ -159,7 +141,7 @@ class AbstractDamagingActive(AbstractActive):
         chance, miss chance, and the user's luck
         """
         hit = HitType(1.0, "") # don't put a space at the end of the message
-        rng = rollPercentage(user.getStatValue("luck")) / 100
+        rng = rollPercentage(user.get_stat_value("luck")) / 100
 
         if rng <= self.missChance:
             hit = HitType(self.missMult, "A glancing blow! ") # need space on end
