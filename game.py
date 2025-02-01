@@ -82,10 +82,7 @@ class Game:
             element=element,
             actives=createDefaultActives(element)
         )
-        team = Team(
-            name=user_name,
-            members=[character]
-        )
+        team = Team(user_name, [character])
         user = User(name=user_name, team=team)
         self._users.save_user(user)
         self._handle_login(user_name)

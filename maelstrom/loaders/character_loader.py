@@ -5,7 +5,6 @@ objects in the program
 
 from maelstrom.dataClasses.activeAbilities import AbstractActive, createDefaultActives, getActiveAbilityList
 from maelstrom.dataClasses.character import Character
-from maelstrom.dataClasses.team import Team
 from maelstrom.loaders.templateloader import MakeCharacterTemplateRepository
 
 NAME_TO_ACTIVE = dict()
@@ -44,10 +43,6 @@ class EnemyLoader:
 
     def get_options(self) -> list[str]:
         return [option.name for option in self._template_repository.get_all()]
-
-def load_team(as_json: dict) -> Team:
-    as_json["members"] = [load_character(member) for member in as_json["members"]]
-    return Team(**as_json)
 
 def load_character(as_json: dict) -> Character:
     as_json = as_json.copy()

@@ -27,7 +27,7 @@ class User(AbstractJsonSerialable):
         self.team = kwargs["team"]
         self.inventory = kwargs.get("inventory", [])
 
-        self.addSerializedAttributes("name", "team", "inventory")
+        self.addSerializedAttributes("name", "inventory")
 
     def acquire(self, item):
         self.inventory.append(item)

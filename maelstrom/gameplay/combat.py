@@ -24,7 +24,7 @@ async def play_level(ui: AbstractUserInterface, level: Level, user: User, enemyL
     enemies = [enemyLoader.load(enemyName) for enemyName in level.enemy_names]
     for enemy in enemies:
         enemy.level = level.enemy_level
-    enemy_team = Team(name="Enemy Team", members=enemies)
+    enemy_team = Team("Enemy Team", enemies)
     enemy_team.init_for_battle()
 
     player_team = user.team

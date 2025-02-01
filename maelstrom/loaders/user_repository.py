@@ -6,8 +6,9 @@ import json
 from os import walk
 import os
 from maelstrom.characters.specification import json_dict_to_character_specification
+from maelstrom.dataClasses.team import Team
 from maelstrom.util.user import User
-from maelstrom.loaders.character_loader import load_team
+from maelstrom.loaders.character_loader import load_character
 
 class UserRepository:
     """
@@ -38,9 +39,15 @@ class UserRepository:
             #for spec in specs:
             #    print(spec)
             #    input()
+
+            team = Team(
+                as_json["name"], 
+                [load_character(member) for member in as_json["partyDetails"]]
+            )
+
             return User(
                 name = as_json["name"],
-                team = load_team(as_json["team"]),
+                team = team,
                 inventory = []
             )
     
@@ -48,8 +55,12 @@ class UserRepository:
         path = self._get_path_by_user_name(user.name)
         j = user.toJson()
         j["specificationTest"] = [c.to_specification().to_dict() for c in user.team.members]
+        j["partyDetails"] = [m.toJson() for m in user.team.members]
+
+        # try to convert before writing to file to avoid truncating file if json.dumps fails
+        as_str = json.dumps(j)
         with open(path, "w") as file:
-            file.write(json.dumps(j))
+            file.write(as_str)
 
     def _get_path_by_user_name(self, user_name: str) -> str:
         file_name = user_name.replace(" ", "_") + ".json"

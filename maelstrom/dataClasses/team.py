@@ -2,33 +2,21 @@
 This module handles teams - collections of Characters
 """
 
-
-
 from typing import Callable
 from maelstrom.dataClasses.character import Character
-from maelstrom.util.serialize import AbstractJsonSerialable
 import functools
 
-
-
-class Team(AbstractJsonSerialable):
+class Team:
     """
     stores and manages Characters
     """
 
-    def __init__(self, **kwargs):
-        """
-        Required kwargs:
-        - name: str
-        - members: list of Characters. Expects at least 1 member
-        """
-        super().__init__(**dict(kwargs, type="Team"))
-        self.name = kwargs["name"]
+    def __init__(self, name: str, members: list[Character]):
+        self.name = name
         self.members = []
         self.membersRemaining = []
-        for member in kwargs["members"]:
+        for member in members:
             self.addMember(member)
-        self.addSerializedAttributes("name", "members")
 
     def __str__(self):
         return self.name
