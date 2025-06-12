@@ -1,4 +1,4 @@
-from maelstrom.dataClasses.activeAbilities import getActiveTargets, getCleaveTargets, getDistantTargets
+from maelstrom.dataClasses.activeAbilities import getActiveTargets, getCleaveTargets
 import unittest
 
 class TestTargettingSystem(unittest.TestCase): 
@@ -15,12 +15,6 @@ class TestTargettingSystem(unittest.TestCase):
         self.assertTrue(getCleaveTargets(2, targetTeam) == [1, 2, 3])
         self.assertTrue(getCleaveTargets(3, targetTeam) == [2, 3])
         self.assertTrue(getCleaveTargets(4, targetTeam) == [3])
-
-        self.assertTrue(getDistantTargets(0, targetTeam) == [2, 3])
-        self.assertTrue(getDistantTargets(1, targetTeam) == [3])
-        self.assertTrue(getDistantTargets(2, targetTeam) == [0])
-        self.assertTrue(getDistantTargets(3, targetTeam) == [0, 1])
-        self.assertTrue(getDistantTargets(4, targetTeam) == [0, 1, 2])
 
 if __name__ == "__main__":
     unittest.main()

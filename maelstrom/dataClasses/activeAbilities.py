@@ -74,7 +74,7 @@ class AbstractActive:
         self.cost = cost
 
     @abstractmethod
-    def copy(self):
+    def copy(self) -> 'AbstractActive':
         pass
 
     @abstractmethod
@@ -126,7 +126,7 @@ class AbstractDamagingActive(AbstractActive):
 
         return f'{hitType.message}{user.name} struck {target.name} for {dmg} damage using {self.name}!'
 
-    def calcDamageAgainst(self, user: "Character", target: "Character")->int:
+    def calcDamageAgainst(self, user: Character, target: Character) -> int:
         """
         MHC is not checked here so that it doesn't mess with AI
         """
@@ -208,7 +208,7 @@ attacks that can hit anyone
 """
 
 
-def getActiveTargets(attackerOrdinal: int, targetTeam: list[Character])->list[Character]:
+def getActiveTargets[T](attackerOrdinal: int, targetTeam: list[T]) -> list[T]:
     """
     'active' enemies are those across from the attacker and the enemy
     immediately below that. This gives a slight advantage to the 1 in a 1 vs 2,
@@ -224,7 +224,7 @@ def getActiveTargets(attackerOrdinal: int, targetTeam: list[Character])->list[Ch
         options.append(targetTeam[attackerOrdinal + 1])
     return options
 
-def getCleaveTargets(attackerOrdinal: int, targetTeam: list[Character])->list[Character]:
+def getCleaveTargets[T](attackerOrdinal: int, targetTeam: list[T]) -> list[T]:
     """
     enemies are 'cleaveable' (for want of a better word) if they are no more
     than 1 array slot away from the enemy across from the attacker
@@ -237,14 +237,6 @@ def getCleaveTargets(attackerOrdinal: int, targetTeam: list[Character])->list[Ch
         m = targetTeam[attackerOrdinal - 1]
         options.insert(0, m)
     return options
-
-def getDistantTargets(attackerOrdinal: int, targetTeam: list[Character])->list[Character]:
-    """
-    the union of distant targets and cleave targets is all enemies, with no
-    overlap
-    """
-    notTargets = getCleaveTargets(attackerOrdinal, targetTeam)
-    return [member for member in targetTeam if member not in notTargets]
 
 def getUniversalActives()->list[AbstractActive]:
     return [
