@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 import json
 from genericpath import isfile
+from typing import Optional
 from maelstrom.campaign.area import Area
 from maelstrom.campaign.campaign import Campaign
 from maelstrom.campaign.level import Level
@@ -23,27 +24,14 @@ class AbstractCampaignLoader(ABC):
         """returns all available Campaigns"""
         pass
 
-class InMemoryCampaignLoader(AbstractCampaignLoader):
-    """Stores Campaigns in-memeory."""
-
-    def __init__(self, campaigns: 'list[Campaign]' = []):
-        """Creates a new CampaignLoader which can provide the given Campaigns."""
-        self._campaigns = {campaign.name: campaign for campaign in campaigns}
-    
-    def get(self, name: str) -> Campaign:
-        return self._campaigns.get(name)
-    
-    def get_all(self) -> 'list[Campaign]':
-        return list(self._campaigns.values())
-    
 class JsonFolderCampaignLoader(AbstractCampaignLoader):
     """Loads campaigns from a folder containing JSON files"""
 
     def __init__(self):
-        self._campaigns = dict()
+        self._campaigns: dict[str,Campaign] = dict()
         self._all_loaded = False
     
-    def get(self, name: str) -> Campaign:
+    def get(self, name: str) -> Optional[Campaign]:
         if not name in self._campaigns:
             self._load_file(name)
         return self._campaigns.get(name)
@@ -57,13 +45,13 @@ class JsonFolderCampaignLoader(AbstractCampaignLoader):
         self._add_campaign_from_path(f'data/campaigns/{name}.json')
     
     def _load_all_files(self):
-        all_files = all_files_in('data/campaigns')
+        all_files = _all_files_in('data/campaigns')
         for file in all_files:
             self._add_campaign_from_path(file)
         self._all_loaded = True
         
     def _add_campaign_from_path(self, path: str):
-        as_json = read_json_file(path)
+        as_json = _read_json_file(path)
         as_json["areas"] = [self._load_area(area) for area in as_json["areas"]]
         campaign = Campaign(**as_json)
         self._campaigns[campaign.name] = campaign
@@ -80,13 +68,13 @@ def make_default_campaign_loader() -> AbstractCampaignLoader:
     """Creates the default campaign loader used by the program."""
     return JsonFolderCampaignLoader()
 
-def all_files_in(folder: str) -> 'list[str]':
+def _all_files_in(folder: str) -> 'list[str]':
     """gets a path to all files in the given folder - not recursive"""
     all_files_and_folders = [join(folder, f) for f in listdir(folder)]
     all_files = [f for f in all_files_and_folders if isfile(f)]
     return all_files
 
-def read_json_file(path: str) -> dict:
+def _read_json_file(path: str) -> dict:
     """reads the given JSON file and returns its contents"""
     with open(path, mode='r') as file:
         contents = file.read()
