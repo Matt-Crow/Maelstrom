@@ -43,6 +43,8 @@ class UserRepository:
             party = []
             for spec in specs:
                 template = self._character_templates.get_character_template_by_name(spec.name)
+                if template is None:
+                    raise KeyError(f'Invalid character name: "{spec.name}"')
                 character = Character(
                     template=template,
                     specification=spec,

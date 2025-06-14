@@ -2,7 +2,6 @@
 This module is responsible for loading character templates from a file.
 """
 
-from collections import OrderedDict
 import csv
 from maelstrom.characters.template import CharacterTemplate
 
@@ -33,7 +32,7 @@ class CharacterTemplateLoader:
             for row in reader:
                 self.add_character_template(self._row_to_character(row))
     
-    def _row_to_character(self, row: OrderedDict[str, str]) -> CharacterTemplate:
+    def _row_to_character(self, row: dict[str, str]) -> CharacterTemplate:
         return CharacterTemplate(
             name=row['name'].strip(),
             element=row['element'].lower(),

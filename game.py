@@ -83,6 +83,8 @@ class Game:
         )
         starter_name = await self._ui.display_and_choose(screen)
         starter_template = self._starters.get_character_template_by_name(starter_name)
+        if starter_template is None:
+            raise KeyError(f'Invalid character name: "{starter_name}"')
         starter = Character(
             template=starter_template,
             specification=CharacterSpecification(name=starter_name),
@@ -116,6 +118,9 @@ class Game:
                 self._exit_action()
 
     async def _explore(self):
+        if self.currentArea is None or self.user is None:
+            return
+        
         screen = Screen(
             title=self.currentArea.name,
             body_rows=[self.currentArea.getDisplayData()],
@@ -129,6 +134,9 @@ class Game:
             await play_level(self._ui, level, self.user, self.enemy_loader)
 
     async def _display_party(self):
+        if self.user is None:
+            return
+        
         screen = Screen(
             title=self.user.name,
             body_rows=self.user.getDisplayData()
