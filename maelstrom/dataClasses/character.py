@@ -126,7 +126,7 @@ class Character:
         useable_actives = [active for active in self.actives if active.canUse(self)]
         choices = []
         for active in useable_actives:
-            choices.extend(active.getTargetOptions(self))
+            choices.extend(active.get_target_options(self))
         return choices
 
     # TODO add ID checking to prevent doubling up

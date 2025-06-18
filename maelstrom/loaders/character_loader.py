@@ -4,12 +4,12 @@ objects in the program
 """
 
 from maelstrom.characters.specification import CharacterSpecification
-from maelstrom.dataClasses.activeAbilities import AbstractActive, createDefaultActives, getActiveAbilityList
+from maelstrom.dataClasses.activeAbilities import AbstractActive, createDefaultActives, get_all_actives
 from maelstrom.dataClasses.character import Character
 from maelstrom.loaders.character_template_loader import CharacterTemplateLoader
 
 NAME_TO_ACTIVE = dict()
-for active in getActiveAbilityList():
+for active in get_all_actives():
     NAME_TO_ACTIVE[active.name] = active
 
 class EnemyLoader:

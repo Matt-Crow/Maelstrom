@@ -47,7 +47,7 @@ class TargetOption:
         self.targets = targets
         self._as_str = f'{active.name} -> {", ".join([target.name for target in targets])}'
 
-        damages = [active.calcDamageAgainst(user, target) for target in targets]
+        damages = [active.get_damage_against(user, target) for target in targets]
         self._total_damage = functools.reduce(lambda total, next: total + next, damages)
 
     @property
@@ -61,7 +61,7 @@ class TargetOption:
     def use(self) -> list[str]:
         """Uses this TargetOption and returns messages to display."""
         self.user.lose_energy(self.active.cost) # don't call this for each target
-        return [self.active.resolveAgainst(self.user, target) for target in self.targets]
+        return [self.active.resolve_against(self.user, target) for target in self.targets]
 
 
 _ADJACENT = [
@@ -104,19 +104,19 @@ class AbstractActive:
         return self._cost
 
     @abstractmethod
-    def calcDamageAgainst(self, user: Character, target: Character) -> int:
+    def get_damage_against(self, user: Character, target: Character) -> int:
         """Calculates damage this would inflict, assuming no miss or crit"""
         pass
 
     @abstractmethod
-    def resolveAgainst(self, user: Character, target: Character) -> str:
+    def resolve_against(self, user: Character, target: Character) -> str:
         """Resolves this attack, then returns the message to display in the UI"""
         pass
 
     def canUse(self, user: "Character")->bool:
-        return self.cost <= user.energy and len(self.getTargetOptions(user)) > 0
+        return self.cost <= user.energy and len(self.get_target_options(user)) > 0
 
-    def getTargetOptions(self, user: "Character")->list[TargetOption]:
+    def get_target_options(self, user: "Character")->list[TargetOption]:
         
         # TODO #21 will allow targetting your own team
         possible_targets = user.team.enemyTeam.getMembersRemaining()
@@ -136,8 +136,8 @@ class DamagingActive(AbstractActive):
         super().__init__(name, description, cost, target_offsets)
         self._damage_multiplier = damage_multiplier
 
-    def resolveAgainst(self, user: Character, target: Character) -> str:
-        base_dmg = self.calcDamageAgainst(user, target)
+    def resolve_against(self, user: Character, target: Character) -> str:
+        base_dmg = self.get_damage_against(user, target)
 
         # check for miss, hit, or crit (mhc)
         rng = rollPercentage(int(user.get_stat_value("luck"))) / 100
@@ -158,25 +158,26 @@ class DamagingActive(AbstractActive):
 
         return f'{hit_message}{user.name} struck {target.name} for {dmg} damage using {self.name}!'
 
-    def calcDamageAgainst(self, user: Character, target: Character) -> int:
+    def get_damage_against(self, user: Character, target: Character) -> int:
         return int(_damage_at_level(user.level) * self._damage_multiplier * user.get_stat_value("control") / target.get_stat_value("resistance"))
 
-def getUniversalActives()->list[AbstractActive]:
-    return [
-        DamagingActive("slash", "strike a nearby enemy", 0, _ADJACENT, 1.0)
-    ]
+_DEFAULT_ACTIVES = [
+    DamagingActive("slash", "strike a nearby enemy", 0, _ADJACENT, 1.0)
+]
 
-def getActivesForElement(element)->list[AbstractActive]:
-    return [DamagingActive(f'{element} bolt', "strike an enemy for 1.75X damage", 10, _CLEAVE, 1.75)]
+def _make_elemental_bolt(element) -> DamagingActive:
+    return DamagingActive(f'{element} bolt', "strike an enemy for 1.75X damage", 10, _CLEAVE, 1.75)
 
-def getActiveAbilityList()->list[AbstractActive]:
-    options = getUniversalActives()
+def get_all_actives() -> list[AbstractActive]:
+    options = []
+    options.extend(_DEFAULT_ACTIVES)
     for element in ELEMENTS:
-        options.extend(getActivesForElement(element))
-    options.extend(getActivesForElement("stone"))
+        options.append(_make_elemental_bolt(element))
+    options.append(_make_elemental_bolt("stone"))
     return options
 
 def createDefaultActives(element)->list[AbstractActive]:
-    options = getUniversalActives()
-    options.extend(getActivesForElement(element))
+    options = []
+    options.extend(_DEFAULT_ACTIVES)
+    options.append(_make_elemental_bolt(element))
     return options
