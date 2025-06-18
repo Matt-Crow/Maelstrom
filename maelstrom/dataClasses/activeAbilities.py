@@ -62,16 +62,37 @@ class TargetOption:
         """Uses this TargetOption and returns messages to display."""
         self.user.lose_energy(self.active.cost) # don't call this for each target
         return [self.active.resolveAgainst(self.user, target) for target in self.targets]
-    
+
+
+_ADJACENT = [
+    0, # across
+    1, # below
+]
+
+_CLEAVE = [
+    -1, # above
+    0, # across
+    1 # below
+]
+
+def in_bounds(enemy_ordinals: list[int], enemy_team_size: int) -> list[int]:
+    return [number for number in enemy_ordinals if number >= 0 and number < enemy_team_size]
+
+def _get_targets[T](attacker_ordinal: int, target_team: list[T], offsets: list[int]) -> list[T]:
+    possible_target_ordinals = [attacker_ordinal + offset for offset in offsets]
+    actual_target_ordinals = in_bounds(possible_target_ordinals, len(target_team))
+    return [target_team[ordinal] for ordinal in actual_target_ordinals]
+
 
 class AbstractActive:
-    def __init__(self, name, description, cost):
+    def __init__(self, name: str, description: str, cost: int, target_offsets: list[int]):
         """
         name should be a unique identifier
         """
         self.name = name
         self.description = f'{name}: {description}'
         self.cost = cost
+        self._target_offsets = target_offsets
 
     @abstractmethod
     def copy(self) -> 'AbstractActive':
@@ -91,27 +112,24 @@ class AbstractActive:
         return self.cost <= user.energy and len(self.getTargetOptions(user)) > 0
 
     def getTargetOptions(self, user: "Character")->list[TargetOption]:
-        """
-        don't override this one
-        """
-        if len(user.team.enemyTeam.getMembersRemaining()) == 0:
-            return []
-        return [TargetOption(self, user, targets) for targets in self.doGetTargetOptions(user)]
+        
+        # TODO #21 will allow targetting your own team
+        possible_targets = user.team.enemyTeam.getMembersRemaining()
 
-    @abstractmethod
-    def doGetTargetOptions(self, user: "Character")->list[list[Character]]:
-        """
-        subclasses must override this option to return the enemies this could
-        potentially hit. Each element of the returned list represents a choice
-        the user or AI can make, with each of those elements containing the
-        enemies that attack would hit.
-        """
-        pass
+        possible_target_ordinals = [user.ordinal + offset for offset in self._target_offsets]
+        actual_target_ordinals = in_bounds(possible_target_ordinals, len(possible_targets))
+        actual_targets = [possible_targets[ordinal] for ordinal in actual_target_ordinals]
+
+        # [option] to show only hitting one target per list of targets        
+        lists_of_targets = [[target] for target in actual_targets]
+
+        return [TargetOption(self, user, targets) for targets in lists_of_targets]
+
 
 class AbstractDamagingActive(AbstractActive):
     # not sure if I like so many paramters
-    def __init__(self, name, description, cost, damageMult):
-        super().__init__(name, description, cost)
+    def __init__(self, name, description, cost, damageMult, target_offsets: list[int]):
+        super().__init__(name, description, cost, target_offsets)
         self.damageMult = damageMult
 
     def resolveAgainst(self, user: Character, target: Character) -> str:
@@ -141,7 +159,7 @@ class AbstractDamagingActive(AbstractActive):
 
 class MeleeActive(AbstractDamagingActive):
     def __init__(self, name, description, damageMult):
-        super().__init__(name, description, 0, damageMult)
+        super().__init__(name, description, 0, damageMult, _ADJACENT)
         self.damageMult = damageMult
 
     def copy(self):
@@ -151,67 +169,19 @@ class MeleeActive(AbstractDamagingActive):
             self.damageMult
         )
 
-    def doGetTargetOptions(self, user: "Character")->list[list[Character]]:
-        """
-        MeleeActives can hit a single active target
-        """
-        return [[option] for option in getActiveTargets(user.ordinal, user.team.enemyTeam.getMembersRemaining())]
-
 class ElementalActive(AbstractDamagingActive):
     def __init__(self, name):
         super().__init__(
             name,
             'strike an enemy for 1.75X damage',
             10,
-            1.75
+            1.75,
+            _CLEAVE
         )
 
     def copy(self):
         return ElementalActive(self.name)
 
-    def doGetTargetOptions(self, user: "Character")->list[list[Character]]:
-        """
-        ElementalActives can hit a single cleave target
-        """
-        return [[option] for option in getCleaveTargets(user.ordinal, user.team.enemyTeam.getMembersRemaining())]
-
-
-
-"""
-Use these to decide which enemies to target. Should only allow user to choose
-attacks that can hit anyone
-"""
-
-
-def getActiveTargets[T](attackerOrdinal: int, targetTeam: list[T]) -> list[T]:
-    """
-    'active' enemies are those across from the attacker and the enemy
-    immediately below that. This gives a slight advantage to the 1 in a 1 vs 2,
-    as both enemies cannot attack them at the same time
-
-    O X
-      X
-    """
-    options = []
-    if attackerOrdinal < len(targetTeam):
-        options.append(targetTeam[attackerOrdinal])
-    if attackerOrdinal + 1 < len(targetTeam):
-        options.append(targetTeam[attackerOrdinal + 1])
-    return options
-
-def getCleaveTargets[T](attackerOrdinal: int, targetTeam: list[T]) -> list[T]:
-    """
-    enemies are 'cleaveable' (for want of a better word) if they are no more
-    than 1 array slot away from the enemy across from the attacker
-      X
-    O X
-      X
-    """
-    options = getActiveTargets(attackerOrdinal, targetTeam)
-    if attackerOrdinal - 1 >= 0 and attackerOrdinal - 1 < len(targetTeam):
-        m = targetTeam[attackerOrdinal - 1]
-        options.insert(0, m)
-    return options
 
 def getUniversalActives()->list[AbstractActive]:
     return [
