@@ -78,25 +78,30 @@ _CLEAVE = [
 def in_bounds(enemy_ordinals: list[int], enemy_team_size: int) -> list[int]:
     return [number for number in enemy_ordinals if number >= 0 and number < enemy_team_size]
 
-def _get_targets[T](attacker_ordinal: int, target_team: list[T], offsets: list[int]) -> list[T]:
-    possible_target_ordinals = [attacker_ordinal + offset for offset in offsets]
-    actual_target_ordinals = in_bounds(possible_target_ordinals, len(target_team))
-    return [target_team[ordinal] for ordinal in actual_target_ordinals]
-
 
 class AbstractActive:
+    """Subclasses should be immutable."""
+
     def __init__(self, name: str, description: str, cost: int, target_offsets: list[int]):
         """
         name should be a unique identifier
         """
-        self.name = name
-        self.description = f'{name}: {description}'
-        self.cost = cost
+        self._name = name
+        self._description = f'{name}: {description}'
+        self._cost = cost
         self._target_offsets = target_offsets
 
-    @abstractmethod
-    def copy(self) -> 'AbstractActive':
-        pass
+    @property
+    def name(self) -> str:
+        return self._name
+    
+    @property
+    def description(self) -> str:
+        return self._description
+    
+    @property
+    def cost(self) -> int:
+        return self._cost
 
     @abstractmethod
     def calcDamageAgainst(self, user: Character, target: Character) -> int:
@@ -126,11 +131,10 @@ class AbstractActive:
         return [TargetOption(self, user, targets) for targets in lists_of_targets]
 
 
-class AbstractDamagingActive(AbstractActive):
-    # not sure if I like so many paramters
-    def __init__(self, name, description, cost, damageMult, target_offsets: list[int]):
+class DamagingActive(AbstractActive):
+    def __init__(self, name: str, description: str, cost: int, target_offsets: list[int], damage_multiplier: float):
         super().__init__(name, description, cost, target_offsets)
-        self.damageMult = damageMult
+        self._damage_multiplier = damage_multiplier
 
     def resolveAgainst(self, user: Character, target: Character) -> str:
         base_dmg = self.calcDamageAgainst(user, target)
@@ -155,41 +159,15 @@ class AbstractDamagingActive(AbstractActive):
         return f'{hit_message}{user.name} struck {target.name} for {dmg} damage using {self.name}!'
 
     def calcDamageAgainst(self, user: Character, target: Character) -> int:
-        return int(_damage_at_level(user.level) * self.damageMult * user.get_stat_value("control") / target.get_stat_value("resistance"))
-
-class MeleeActive(AbstractDamagingActive):
-    def __init__(self, name, description, damageMult):
-        super().__init__(name, description, 0, damageMult, _ADJACENT)
-        self.damageMult = damageMult
-
-    def copy(self):
-        return MeleeActive(
-            self.name,
-            self.description,
-            self.damageMult
-        )
-
-class ElementalActive(AbstractDamagingActive):
-    def __init__(self, name):
-        super().__init__(
-            name,
-            'strike an enemy for 1.75X damage',
-            10,
-            1.75,
-            _CLEAVE
-        )
-
-    def copy(self):
-        return ElementalActive(self.name)
-
+        return int(_damage_at_level(user.level) * self._damage_multiplier * user.get_stat_value("control") / target.get_stat_value("resistance"))
 
 def getUniversalActives()->list[AbstractActive]:
     return [
-        MeleeActive("slash", "strike a nearby enemy", 1.0)
+        DamagingActive("slash", "strike a nearby enemy", 0, _ADJACENT, 1.0)
     ]
 
 def getActivesForElement(element)->list[AbstractActive]:
-    return [ElementalActive(f'{element} bolt')]
+    return [DamagingActive(f'{element} bolt', "strike an enemy for 1.75X damage", 10, _CLEAVE, 1.75)]
 
 def getActiveAbilityList()->list[AbstractActive]:
     options = getUniversalActives()
@@ -201,4 +179,4 @@ def getActiveAbilityList()->list[AbstractActive]:
 def createDefaultActives(element)->list[AbstractActive]:
     options = getUniversalActives()
     options.extend(getActivesForElement(element))
-    return [option.copy() for option in options]
+    return options
