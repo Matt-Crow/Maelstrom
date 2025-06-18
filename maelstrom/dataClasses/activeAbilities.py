@@ -78,7 +78,13 @@ class AbstractActive:
         pass
 
     @abstractmethod
-    def resolveAgainst(self, target: "Character")->str:
+    def calcDamageAgainst(self, user: Character, target: Character) -> int:
+        """Calculates damage this would inflict, assuming no miss or crit"""
+        pass
+
+    @abstractmethod
+    def resolveAgainst(self, user: Character, target: Character) -> str:
+        """Resolves this attack, then returns the message to display in the UI"""
         pass
 
     def canUse(self, user: "Character")->bool:
@@ -127,13 +133,7 @@ class AbstractDamagingActive(AbstractActive):
         return f'{hitType.message}{user.name} struck {target.name} for {dmg} damage using {self.name}!'
 
     def calcDamageAgainst(self, user: Character, target: Character) -> int:
-        """
-        MHC is not checked here so that it doesn't mess with AI
-        """
-
-        return int(
-            dmgAtLv(user.level) * self.damageMult * user.get_stat_value("control") / target.get_stat_value("resistance")
-        )
+        return int(dmgAtLv(user.level) * self.damageMult * user.get_stat_value("control") / target.get_stat_value("resistance"))
 
     def randomHitType(self, user: "Character")->"HitType":
         """
@@ -141,7 +141,7 @@ class AbstractDamagingActive(AbstractActive):
         chance, miss chance, and the user's luck
         """
         hit = HitType(1.0, "") # don't put a space at the end of the message
-        rng = rollPercentage(user.get_stat_value("luck")) / 100
+        rng = rollPercentage(int(user.get_stat_value("luck"))) / 100
 
         if rng <= self.missChance:
             hit = HitType(self.missMult, "A glancing blow! ") # need space on end

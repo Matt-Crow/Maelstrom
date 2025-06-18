@@ -1,5 +1,7 @@
-# TODO fix this in #12 
+# TODO fix these in #12 
 # from maelstrom.dataClasses.activeAbilities import AbstractActive, TargetOption
+# from maelstrom.dataClasses.team import Team
+
 from maelstrom.characters.specification import CharacterSpecification
 from maelstrom.characters.template import CharacterTemplate
 from maelstrom.gameplay.events import ActionRegister, UPDATE_EVENT
@@ -12,6 +14,11 @@ class Character:
     """
     A Character is an entity within the game who has various stats and attributes.
     """
+
+    team: "Team"
+    
+    ordinal: int
+    """This Character's position on the Team. For example, 0 means they are in the first slot."""
 
     def __init__(self, template: CharacterTemplate, specification: CharacterSpecification, actives: 'list[AbstractActive]'):
         self.name = template.name
