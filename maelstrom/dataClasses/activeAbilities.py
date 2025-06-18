@@ -17,6 +17,11 @@ from maelstrom.dataClasses.elements import ELEMENTS
 from abc import abstractmethod
 import functools
 
+_MISS_CHANCE = 0.2
+_MISS_MULTIPLIER = 0.75
+_CRITICAL_HIT_CHANCE = 0.2
+_CRITICAL_HIT_MULTIPLIER = 1.5
+
 def _damage_at_level(level) -> int:
     """
     Returns base damage for a given level.
@@ -105,13 +110,9 @@ class AbstractActive:
 
 class AbstractDamagingActive(AbstractActive):
     # not sure if I like so many paramters
-    def __init__(self, name, description, cost, damageMult, missChance, missMult, critChance, critMult):
+    def __init__(self, name, description, cost, damageMult):
         super().__init__(name, description, cost)
         self.damageMult = damageMult
-        self.missChance = missChance
-        self.missMult = missMult
-        self.critChance = critChance
-        self.critMult = critMult
 
     def resolveAgainst(self, user: Character, target: Character) -> str:
         base_dmg = self.calcDamageAgainst(user, target)
@@ -120,11 +121,11 @@ class AbstractDamagingActive(AbstractActive):
         rng = rollPercentage(int(user.get_stat_value("luck"))) / 100
         hit_multiplier = 1.0
         hit_message = "" # don't put a space at the end here
-        if rng <= self.missChance:
-            hit_multiplier = self.missMult
+        if rng <= _MISS_CHANCE:
+            hit_multiplier = _MISS_MULTIPLIER
             hit_message = "A glancing blow! " # need space at the end here
-        elif rng >= 1.0 - self.critChance:
-            hit_multiplier = self.critMult
+        elif rng >= 1.0 - _CRITICAL_HIT_CHANCE:
+            hit_multiplier = _CRITICAL_HIT_MULTIPLIER
             hit_message = "A critical hit! " # need space at the end here
         
         dmg = int(base_dmg * hit_multiplier)
@@ -139,24 +140,15 @@ class AbstractDamagingActive(AbstractActive):
         return int(_damage_at_level(user.level) * self.damageMult * user.get_stat_value("control") / target.get_stat_value("resistance"))
 
 class MeleeActive(AbstractDamagingActive):
-    # not sure if I like so many paramters
-    def __init__(self, name, description, damageMult, missChance, missMult, critChance, critMult):
-        super().__init__(name, description, 0, damageMult, missChance, missMult, critChance, critMult)
+    def __init__(self, name, description, damageMult):
+        super().__init__(name, description, 0, damageMult)
         self.damageMult = damageMult
-        self.missChance = missChance
-        self.missMult = missMult
-        self.critChance = critChance
-        self.critMult = critMult
 
     def copy(self):
         return MeleeActive(
             self.name,
             self.description,
-            self.damageMult,
-            self.missChance,
-            self.missMult,
-            self.critChance,
-            self.critMult
+            self.damageMult
         )
 
     def doGetTargetOptions(self, user: "Character")->list[list[Character]]:
@@ -171,11 +163,7 @@ class ElementalActive(AbstractDamagingActive):
             name,
             'strike an enemy for 1.75X damage',
             10,
-            1.75,
-            0,
-            1.0,
-            0,
-            1.0
+            1.75
         )
 
     def copy(self):
@@ -227,9 +215,7 @@ def getCleaveTargets[T](attackerOrdinal: int, targetTeam: list[T]) -> list[T]:
 
 def getUniversalActives()->list[AbstractActive]:
     return [
-        MeleeActive("slash", "strike a nearby enemy", 1.0, 0.2, 0.75, 0.2, 1.5),
-        MeleeActive("jab", "strike a nearby enemy, with a high chance for a critical hit", 0.8, 0.1, 0.5, 0.5, 3.0),
-        MeleeActive("slam", "strike recklessly at a nearby enemy", 1.5, 0.4, 0.5, 0.15, 2.0)
+        MeleeActive("slash", "strike a nearby enemy", 1.0)
     ]
 
 def getActivesForElement(element)->list[AbstractActive]:
