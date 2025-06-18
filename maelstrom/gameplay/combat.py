@@ -110,7 +110,7 @@ class Encounter:
                     choice = await self._ui.display_and_choose(screen)
                 else:
                     screen.choice = None
-                    choice = reduce(lambda i, j: i if i.totalDamage > j.totalDamage else j, options)
+                    choice = reduce(lambda i, j: i if i.total_damage > j.total_damage else j, options)
                 await self._handle_choice(screen, attacking_team, defending_team, choice)
         
             if attacking_team.enemyTeam.isDefeated():
@@ -120,8 +120,8 @@ class Encounter:
     async def _handle_choice(self, screen: Screen, attacking_team: Team, defending_team: Team, choice: TargetOption):
         screen.choice = None
         
-        choice_message = choice.use()
-        screen.body_rows.append(choice_message)
+        choice_messages = choice.use()
+        screen.body_rows.extend(choice_messages)
         member_messages = defending_team.updateMembersRemaining()
         screen.body_rows.extend(member_messages)
 

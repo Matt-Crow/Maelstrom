@@ -17,20 +17,15 @@ from maelstrom.dataClasses.elements import ELEMENTS
 from abc import abstractmethod
 import functools
 
-"""
-utility classes
-"""
-def dmgAtLv(lv)->int:
-    return int(16.67 * (1 + lv * 0.05))
-
-class HitType:
+def _damage_at_level(level) -> int:
     """
-    a HitType represents either a regular hit, a miss, or a critical hit (MHC)
+    Returns base damage for a given level.
+    For example, a level 1 character will deal about 17% damage,
+    while a level 20 character will deal about 33% damage.
+    This makes damage scale up over time.
     """
+    return int(16.67 * (1 + float(level) * 0.05))
 
-    def __init__(self, multiplier, message):
-        self.multiplier = multiplier
-        self.message = message
 
 class TargetOption:
     """
@@ -41,28 +36,28 @@ class TargetOption:
     Command design pattern
     """
 
-    def __init__(self, active: "AbstractActive", user: "Character", targets: list[Character]):
+    def __init__(self, active: "AbstractActive", user: Character, targets: list[Character]):
         self.active = active
         self.user = user
         self.targets = targets
-        self.msg = f'{active.name}->{", ".join([target.name for target in targets])}'
+        self._as_str = f'{active.name} -> {", ".join([target.name for target in targets])}'
 
-        # this will change when non-damaging actives are introduced
-        self.totalDamage = functools.reduce(lambda total, next: total + next, [
-            active.calcDamageAgainst(user, target) for target in targets
-        ])
+        damages = [active.calcDamageAgainst(user, target) for target in targets]
+        self._total_damage = functools.reduce(lambda total, next: total + next, damages)
 
-    def __str__(self)->str:
-        return self.msg
+    @property
+    def total_damage(self) -> int:
+        """Total damage this is expected to inflict."""
+        return self._total_damage
 
-    def use(self)->str:
+    def __str__(self) -> str:
+        return self._as_str
+
+    def use(self) -> list[str]:
+        """Uses this TargetOption and returns messages to display."""
         self.user.lose_energy(self.active.cost) # don't call this for each target
-        msgs = [self.active.resolveAgainst(self.user, target) for target in self.targets]
-        return "\n".join(msgs)
-
-"""
-data classes
-"""
+        return [self.active.resolveAgainst(self.user, target) for target in self.targets]
+    
 
 class AbstractActive:
     def __init__(self, name, description, cost):
@@ -118,38 +113,30 @@ class AbstractDamagingActive(AbstractActive):
         self.critChance = critChance
         self.critMult = critMult
 
-    def resolveAgainst(self, user: "Character", target: "Character")->str:
-        dmg = self.calcDamageAgainst(user, target)
-        hitType = self.randomHitType(user)
-        dmg = int(dmg * hitType.multiplier)
+    def resolveAgainst(self, user: Character, target: Character) -> str:
+        base_dmg = self.calcDamageAgainst(user, target)
 
+        # check for miss, hit, or crit (mhc)
+        rng = rollPercentage(int(user.get_stat_value("luck"))) / 100
+        hit_multiplier = 1.0
+        hit_message = "" # don't put a space at the end here
+        if rng <= self.missChance:
+            hit_multiplier = self.missMult
+            hit_message = "A glancing blow! " # need space at the end here
+        elif rng >= 1.0 - self.critChance:
+            hit_multiplier = self.critMult
+            hit_message = "A critical hit! " # need space at the end here
+        
+        dmg = int(base_dmg * hit_multiplier)
         event = OnHitEvent("Attack", user, target, self, dmg)
-
         target.take_damage(dmg)
-
         target.fire_event_listeners(HIT_TAKEN_EVENT, event)
         user.fire_event_listeners(HIT_GIVEN_EVENT, event)
 
-        return f'{hitType.message}{user.name} struck {target.name} for {dmg} damage using {self.name}!'
+        return f'{hit_message}{user.name} struck {target.name} for {dmg} damage using {self.name}!'
 
     def calcDamageAgainst(self, user: Character, target: Character) -> int:
-        return int(dmgAtLv(user.level) * self.damageMult * user.get_stat_value("control") / target.get_stat_value("resistance"))
-
-    def randomHitType(self, user: "Character")->"HitType":
-        """
-        randomly chooses a HitType based on this AbstractDamagingActive's crit
-        chance, miss chance, and the user's luck
-        """
-        hit = HitType(1.0, "") # don't put a space at the end of the message
-        rng = rollPercentage(int(user.get_stat_value("luck"))) / 100
-
-        if rng <= self.missChance:
-            hit = HitType(self.missMult, "A glancing blow! ") # need space on end
-        elif rng >= 1.0 - self.critChance:
-            hit = HitType(self.critMult, "A critical hit! ") # need space on end
-
-        return hit
-
+        return int(_damage_at_level(user.level) * self.damageMult * user.get_stat_value("control") / target.get_stat_value("resistance"))
 
 class MeleeActive(AbstractDamagingActive):
     # not sure if I like so many paramters
