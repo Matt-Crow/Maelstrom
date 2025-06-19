@@ -11,6 +11,7 @@ active they wish to use.
 """
 
 from maelstrom.dataClasses.character import Character
+from maelstrom.dataClasses.stat_classes import Boost
 from maelstrom.gameplay.events import OnHitEvent, HIT_GIVEN_EVENT, HIT_TAKEN_EVENT
 from maelstrom.util.random import rollPercentage
 from maelstrom.dataClasses.elements import ELEMENTS
@@ -164,6 +165,25 @@ class DamagingActive(AbstractActive):
     def get_damage_against(self, user: Character, target: Character) -> int:
         return int(_damage_at_level(user.level) * self._damage_multiplier * user.get_stat_value("control") / target.get_stat_value("resistance"))
 
+class BlockActive(AbstractActive):
+    def __init__(self):
+        super().__init__(
+            "Block",
+            "reduce damage taken and empower next hit",
+            5,
+            False,
+            _SELF
+        )
+    
+    def get_damage_against(self, user: Character, target: Character) -> int:
+        return 0
+
+    def resolve_against(self, user: Character, target: Character) -> str:
+        # control for 2 turns because it ticks down by 1 after the turn they use this
+        target.boost(Boost("control", 0.5, 2))
+        target.boost(Boost("resistance", 0.5, 1))
+        return f"{target.name} is blocking and ready to strike back!"
+
 class RestActive(AbstractActive):
     def __init__(self):
         super().__init__(
@@ -188,6 +208,7 @@ class RestActive(AbstractActive):
 
 _DEFAULT_ACTIVES = [
     DamagingActive("slash", "strike a nearby enemy", 0, _ADJACENT, 1.0),
+    BlockActive(),
     RestActive()
 ]
 
