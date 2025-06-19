@@ -5,7 +5,6 @@ and can be acquired as rewards from Battles.
 """
 
 from maelstrom.dataClasses.stat_classes import Boost
-from maelstrom.gameplay.events import HIT_TAKEN_EVENT
 
 class Item:
 
@@ -59,7 +58,7 @@ def getItemList():
         Item(
             "Durasteel Armor",
             "Probably not great at blocking lightning",
-            lambda character: character.add_event_listener(HIT_TAKEN_EVENT, lambda event: event.hitee.heal(event.damage / 4))
+            lambda character: character.event_hit_taken.add_subscriber(lambda event: event.hitee.heal(event.damage / 4))
         )
     ]
 

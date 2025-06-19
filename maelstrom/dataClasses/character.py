@@ -4,7 +4,7 @@
 
 from maelstrom.characters.specification import CharacterSpecification
 from maelstrom.characters.template import CharacterTemplate
-from maelstrom.gameplay.events import ActionRegister, UPDATE_EVENT
+from maelstrom.gameplay.events import EventPublisher, OnHitEvent
 from maelstrom.dataClasses.stat_classes import Stat
 from maelstrom.util.stringUtil import entab, lengthOfLongest
 
@@ -45,7 +45,9 @@ class Character:
         self._health_pool = Pool(100, 100)
         self._energy_pool = Pool(int(max_energy / 2), max_energy)
         
-        self._event_listeners = ActionRegister()
+        self._event_update = EventPublisher()
+        self._event_hit_taken = EventPublisher()
+        self._event_hit_given = EventPublisher()
 
     @property
     def remaining_hp(self) -> int:
@@ -54,6 +56,18 @@ class Character:
     @property
     def energy(self) -> int:
         return self._energy_pool.value
+    
+    @property
+    def event_update(self) -> "EventPublisher[Character]":
+        return self._event_update
+    
+    @property
+    def event_hit_taken(self) -> EventPublisher[OnHitEvent]:
+        return self._event_hit_taken
+    
+    @property
+    def event_hit_given(self) -> EventPublisher[OnHitEvent]:
+        return self._event_hit_given
 
     def to_specification(self) -> CharacterSpecification:
         """
@@ -72,7 +86,9 @@ class Character:
         Resets everything for the upcoming battle
         """
 
-        self._event_listeners.clear()
+        self._event_update.clear_subscribers()
+        self._event_hit_taken.clear_subscribers()
+        self._event_hit_given.clear_subscribers()
         self._calc_stats()
 
         # don't need to do anything with actives
@@ -89,12 +105,6 @@ class Character:
 
     def get_stat_value(self, statName: str) -> float:
         return self.stats[statName.lower()].get()
-
-    def add_event_listener(self, enum_type, action):
-        self._event_listeners.add_event_listener(enum_type, action)
-
-    def fire_event_listeners(self, enum_type, event=None):
-        self._event_listeners.fire(enum_type, event)
 
     def get_percent_hp_remaining(self):
         """
@@ -187,7 +197,7 @@ class Character:
         self._energy_pool.subtract(int(amount))
 
     def update(self):
-        self.fire_event_listeners(UPDATE_EVENT, self)
+        self._event_update.publish_event(self)
         self.gain_energy(self.get_stat_value("energy") * 0.15)
         for stat in self.stats.values():
             stat.update()

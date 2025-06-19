@@ -6,8 +6,6 @@ of health
 
 from maelstrom.dataClasses.stat_classes import Boost
 from maelstrom.util.random import rollPercentage
-from maelstrom.dataClasses.elements import ELEMENTS
-from maelstrom.gameplay.events import HIT_GIVEN_EVENT, HIT_TAKEN_EVENT, UPDATE_EVENT
 from abc import abstractmethod
 
 class AbstractPassive:
@@ -46,7 +44,7 @@ class ThresholdPassive(AbstractPassive):
         return ThresholdPassive(self.name, self.boost, self.threshold)
 
     def registerTo(self, user):
-        user.add_event_listener(UPDATE_EVENT, self.checkTrigger)
+        user.event_update.add_subscriber(self.checkTrigger)
 
     def checkTrigger(self, updated):
         if updated.get_percent_hp_remaining() <= self.threshold * 100:
@@ -69,7 +67,7 @@ class OnHitGivenPassive(AbstractPassive):
         return OnHitGivenPassive(self.name, self.boost, self.chance, self.targetsUser)
 
     def registerTo(self, user):
-        user.add_event_listener(HIT_GIVEN_EVENT, self.checkTrigger)
+        user.event_hit_given.add_subscriber(self.checkTrigger)
 
     def checkTrigger(self, onHitEvent):
         if rollPercentage(onHitEvent.hitter.get_stat_value("luck")) > 100 - self.chance * 100:
@@ -95,7 +93,7 @@ class OnHitTakenPassive(AbstractPassive):
         return OnHitTakenPassive(self.name, self.boost, self.chance, self.targetsUser)
 
     def registerTo(self, user):
-        user.add_event_listener(HIT_TAKEN_EVENT, self.checkTrigger)
+        user.event_hit_taken.add_subscriber(self.checkTrigger)
 
     def checkTrigger(self, onHitEvent):
         if rollPercentage(onHitEvent.hitee.get_stat_value("luck")) > 100 - self.chance * 100:

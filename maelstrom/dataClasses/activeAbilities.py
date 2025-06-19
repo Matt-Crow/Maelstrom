@@ -12,7 +12,7 @@ active they wish to use.
 
 from maelstrom.dataClasses.character import Character
 from maelstrom.dataClasses.stat_classes import Boost
-from maelstrom.gameplay.events import OnHitEvent, HIT_GIVEN_EVENT, HIT_TAKEN_EVENT
+from maelstrom.gameplay.events import OnHitEvent
 from maelstrom.util.random import rollPercentage
 from maelstrom.dataClasses.elements import ELEMENTS
 from abc import abstractmethod
@@ -157,8 +157,8 @@ class DamagingActive(AbstractActive):
         dmg = int(base_dmg * hit_multiplier)
         event = OnHitEvent("Attack", user, target, self, dmg)
         target.take_damage(dmg)
-        target.fire_event_listeners(HIT_TAKEN_EVENT, event)
-        user.fire_event_listeners(HIT_GIVEN_EVENT, event)
+        target.event_hit_taken.publish_event(event)
+        user.event_hit_given.publish_event(event)
 
         return f'{hit_message}{user.name} struck {target.name} for {dmg} damage using {self.name}!'
 
