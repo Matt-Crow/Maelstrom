@@ -58,9 +58,9 @@ class Wind(Weather):
         super().__init__("wind", "The strong winds blow mightily...")
 
     def doApplyEffect(self, target: "Character")->str:
-        boost = Boost("control", 15, 1, "Weather")
+        boost = Boost("control", 0.15, 1)
         withPotencyApplied = target.boost(boost)
-        return f'The driving wind inflicts {target.name} with {withPotencyApplied.getDisplayData()}'
+        return f'The driving wind inflicts {target.name} with {withPotencyApplied.get_boost_text()}'
 
 class Clear(Weather):
     def __init__(self):

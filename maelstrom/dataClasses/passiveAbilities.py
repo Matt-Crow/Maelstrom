@@ -37,7 +37,7 @@ class ThresholdPassive(AbstractPassive):
         """
         super().__init__(
             name,
-            f'{name}: Inflicts user with {boost.getDisplayData()} when at or below {int(threshold * 100)}% HP'
+            f'{name}: Inflicts user with {boost.get_boost_text()} when at or below {int(threshold * 100)}% HP'
         )
         self.boost = boost.copy()
         self.threshold = threshold
@@ -59,7 +59,7 @@ class OnHitGivenPassive(AbstractPassive):
         """
         super().__init__(
             name,
-            f'{name}: your hits have a {int(chance * 100)}% chance to inflict {"you" if targetsUser else "the target"} with {boost.getDisplayData()}'
+            f'{name}: your hits have a {int(chance * 100)}% chance to inflict {"you" if targetsUser else "the target"} with {boost.get_boost_text()}'
         )
         self.boost = boost.copy()
         self.chance = chance
@@ -85,7 +85,7 @@ class OnHitTakenPassive(AbstractPassive):
         """
         super().__init__(
             name,
-            f'{name}: hits against you have a {int(chance * 100)}% chance to inflict {"you" if targetsUser else "the attacker"} with {boost.getDisplayData()}'
+            f'{name}: hits against you have a {int(chance * 100)}% chance to inflict {"you" if targetsUser else "the attacker"} with {boost.get_boost_text()}'
         )
         self.boost = boost.copy()
         self.chance = chance
@@ -108,7 +108,7 @@ class OnHitTakenPassive(AbstractPassive):
 
 def getPassiveAbilityList():
     return [
-        ThresholdPassive("Threshhold test", Boost("resistance", 0.5, 1, "Threshhold test"), 0.25),
-        OnHitGivenPassive("On Hit Given Test", Boost("luck", 0.25, 3, "On Hit Given Test"), 0.25, True),
-        OnHitTakenPassive("On Hit Taken Test", Boost("control", -0.25, 3, "On Hit Taken Test"), 0.25, False)
+        ThresholdPassive("Threshhold test", Boost("resistance", 0.5, 1), 0.25),
+        OnHitGivenPassive("On Hit Given Test", Boost("luck", 0.25, 3), 0.25, True),
+        OnHitTakenPassive("On Hit Taken Test", Boost("control", -0.25, 3), 0.25, False)
     ]

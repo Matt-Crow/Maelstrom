@@ -32,8 +32,8 @@ class Character:
         self.actives = actives
         
         self.stats = {}
-        def _set_stat(name, base):
-            self.stats[name.lower()] = Stat(name, lambda base: 20.0 + float(base), base)
+        def _set_stat(name, offset):
+            self.stats[name.lower()] = Stat(name, 20 + offset)
         _set_stat("control", template.control)
         _set_stat("resistance", template.resistance)
         _set_stat("energy", template.energy)
@@ -86,7 +86,6 @@ class Character:
         """
         for stat in self.stats.values():
             stat.reset_boosts()
-            stat.calc()
 
     def get_stat_value(self, statName: str) -> float:
         return self.stats[statName.lower()].get()
@@ -137,7 +136,6 @@ class Character:
             choices.extend(active.get_target_options(self))
         return choices
 
-    # TODO add ID checking to prevent doubling up
     def boost(self, boost):
         """
         Increase or lower stats in battle. Returns the boost this receives with its
@@ -146,7 +144,7 @@ class Character:
         mult = 1 + self.get_stat_value("potency") / 100
         boost = boost.copy()
         boost.amount *= mult
-        self.stats[boost.stat_name].boost(boost)
+        self.stats[boost.stat_name].add_boost(boost)
         return boost
 
     def heal_percent(self, percent):
