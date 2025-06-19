@@ -42,7 +42,7 @@ class Rain(Weather):
         super().__init__("rain", "A deluge of water pours forth from the sky...")
 
     def doApplyEffect(self, target: "Character")->str:
-        amount = target.heal(9)
+        amount = target.heal_percent(9)
         return f'The restorative rain heals {target.name} by {amount} HP'
 
 class Hail(Weather):

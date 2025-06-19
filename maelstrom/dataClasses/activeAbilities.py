@@ -63,7 +63,9 @@ class TargetOption:
         self.user.lose_energy(self.active.cost) # don't call this for each target
         return [self.active.resolve_against(self.user, target) for target in self.targets]
 
-
+_SELF = [
+    0
+]
 _ADJACENT = [
     0, # across
     1, # below
@@ -82,13 +84,14 @@ def in_bounds(enemy_ordinals: list[int], enemy_team_size: int) -> list[int]:
 class AbstractActive:
     """Subclasses should be immutable."""
 
-    def __init__(self, name: str, description: str, cost: int, target_offsets: list[int]):
+    def __init__(self, name: str, description: str, cost: int, targets_enemy_team: bool, target_offsets: list[int]):
         """
         name should be a unique identifier
         """
         self._name = name
         self._description = f'{name}: {description}'
         self._cost = cost
+        self._targets_enemy_team = targets_enemy_team
         self._target_offsets = target_offsets
 
     @property
@@ -118,8 +121,8 @@ class AbstractActive:
 
     def get_target_options(self, user: "Character")->list[TargetOption]:
         
-        # TODO #21 will allow targetting your own team
-        possible_targets = user.team.enemyTeam.getMembersRemaining()
+        target_team = user.team.enemyTeam if self._targets_enemy_team else user.team
+        possible_targets = target_team.getMembersRemaining()
 
         possible_target_ordinals = [user.ordinal + offset for offset in self._target_offsets]
         actual_target_ordinals = in_bounds(possible_target_ordinals, len(possible_targets))
@@ -133,7 +136,7 @@ class AbstractActive:
 
 class DamagingActive(AbstractActive):
     def __init__(self, name: str, description: str, cost: int, target_offsets: list[int], damage_multiplier: float):
-        super().__init__(name, description, cost, target_offsets)
+        super().__init__(name, description, cost, True, target_offsets)
         self._damage_multiplier = damage_multiplier
 
     def resolve_against(self, user: Character, target: Character) -> str:
@@ -161,8 +164,31 @@ class DamagingActive(AbstractActive):
     def get_damage_against(self, user: Character, target: Character) -> int:
         return int(_damage_at_level(user.level) * self._damage_multiplier * user.get_stat_value("control") / target.get_stat_value("resistance"))
 
+class RestActive(AbstractActive):
+    def __init__(self):
+        super().__init__(
+            "Rest", 
+            "heal and restore energy", 
+            0, 
+            False,
+            _SELF
+        )
+    
+    def get_damage_against(self, user: Character, target: Character) -> int:
+        return 0
+
+    def resolve_against(self, user: Character, target: Character) -> str:
+        amount_to_heal = int(0.8 * _damage_at_level(user.level))
+        amount_to_restore = 8
+
+        actual_heal = target.heal_amount(amount_to_heal)
+        actual_restore = target.gain_energy(amount_to_restore)
+
+        return f"{target.name} healed {actual_heal} and restored {actual_restore}!"
+
 _DEFAULT_ACTIVES = [
-    DamagingActive("slash", "strike a nearby enemy", 0, _ADJACENT, 1.0)
+    DamagingActive("slash", "strike a nearby enemy", 0, _ADJACENT, 1.0),
+    RestActive()
 ]
 
 def _make_elemental_bolt(element) -> DamagingActive:

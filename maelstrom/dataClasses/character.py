@@ -8,7 +8,7 @@ from maelstrom.gameplay.events import ActionRegister, UPDATE_EVENT
 from maelstrom.dataClasses.stat_classes import Stat
 from maelstrom.util.stringUtil import entab, lengthOfLongest
 
-_STATS = ("control", "resistance", "potency", "luck", "energy")
+_STATS = ["control", "resistance", "potency", "luck", "energy"]
 
 class Character:
     """
@@ -23,8 +23,6 @@ class Character:
     def __init__(self, template: CharacterTemplate, specification: CharacterSpecification, actives: 'list[AbstractActive]'):
         self.name = template.name
         self.element = template.element
-
-        self._max_hp = 100
 
         # might run into issues with discrepencies between these two...
         # ... unless I store the level and the xp towards the next level?
@@ -41,11 +39,21 @@ class Character:
         _set_stat("energy", template.energy)
         _set_stat("potency", template.potency)
         _set_stat("luck", template.luck)
-
         self._calc_stats()
-        self.remaining_hp = self._max_hp
 
+        max_energy = int(self.get_stat_value("energy"))
+        self._health_pool = Pool(100, 100)
+        self._energy_pool = Pool(int(max_energy / 2), max_energy)
+        
         self._event_listeners = ActionRegister()
+
+    @property
+    def remaining_hp(self) -> int:
+        return self._health_pool.value
+
+    @property
+    def energy(self) -> int:
+        return self._energy_pool.value
 
     def to_specification(self) -> CharacterSpecification:
         """
@@ -69,8 +77,8 @@ class Character:
 
         # don't need to do anything with actives
 
-        self.remaining_hp = self._max_hp
-        self.energy = int(self.get_stat_value("energy") / 2.0)
+        self._health_pool.reset()
+        self._energy_pool.reset()
 
     def _calc_stats(self):
         """
@@ -93,7 +101,7 @@ class Character:
         """
         Returns as a value between 0 and 100
         """
-        return int((float(self.remaining_hp) / float(self._max_hp) * 100.0))
+        return int((float(self._health_pool.value) / float(self._health_pool.max) * 100.0))
 
     def get_display_data(self) -> str:
         self._calc_stats()
@@ -141,54 +149,44 @@ class Character:
         self.stats[boost.stat_name].boost(boost)
         return boost
 
-    def heal(self, percent):
+    def heal_percent(self, percent):
         """
         Restores HP. Converts an INTEGER to a percentage. Returns the amount of HP
         healed.
         """
+        return self.heal_amount(int(self._health_pool.max * (float(percent) / 100))) 
+    
+    def heal_amount(self, amount: int) -> int:
+        """Returns actual amount of HP healed."""
         mult = 1 + self.get_stat_value("potency") / 100
-        healing = self._max_hp * (float(percent) / 100) * mult
-        self.remaining_hp = int(self.remaining_hp + healing)
-
-        if self.remaining_hp > self._max_hp:
-            self.remaining_hp = self._max_hp
-
-        return int(healing)
+        healing = int(mult * amount)
+        self._health_pool.add(int(healing))
+        return healing
 
     def harm(self, percent):
         """
         returns the actual amount of damage inflicted
         """
         mult = 1 - self.get_stat_value("potency") / 100
-        harming = self._max_hp * (float(percent) / 100)
+        harming = self._health_pool.max * (float(percent) / 100)
         amount = int(harming * mult)
         self.take_damage(amount)
         return amount
 
     def take_damage(self, dmg):
-        self.remaining_hp -= dmg
-        self.remaining_hp = int(self.remaining_hp)
-        return dmg
+        self._health_pool.subtract(int(dmg))
 
-    def gain_energy(self, amount):
+    def gain_energy(self, amount) -> int:
         """
         Returns the amount of energy gained
         """
         mult = 1 + self.get_stat_value("potency") / 100
         amount = int(amount * mult)
-        self.energy += amount
-
-        if self.energy > self.get_stat_value("energy"):
-            self.energy = self.get_stat_value("energy")
-
-        self.energy = int(self.energy)
-
+        self._energy_pool.add(amount)
         return amount
 
     def lose_energy(self, amount):
-        self.energy -= amount
-        if self.energy < 0:
-            self.energy = 0
+        self._energy_pool.subtract(int(amount))
 
     def update(self):
         self.fire_event_listeners(UPDATE_EVENT, self)
@@ -197,12 +195,7 @@ class Character:
             stat.update()
 
     def is_koed(self):
-        return self.remaining_hp <= 0
-
-    """
-    Post-battle actions:
-    Occur after battle
-    """
+        return self._health_pool.value <= 0
 
     def gain_xp(self, amount)->list[str]:
         """
@@ -217,10 +210,39 @@ class Character:
             self.xp -= self.level * 10
             self.level += 1
             self._calc_stats()
-            self.remaining_hp = self._max_hp
+            self._health_pool.reset()
             msgs.append(self.get_display_data())
         self.xp = int(self.xp)
         return msgs
 
     def __str__(self):
         return self.name
+
+class Pool:
+    """A pool of either hit points or energy"""
+
+    def __init__(self, value: int, max: int) -> None:
+        self._start = value
+        self._value = value
+        self._max = max
+    
+    @property
+    def value(self) -> int:
+        return self._value
+    
+    @property
+    def max(self) -> int:
+        return self._max
+    
+    def add(self, amount: int):
+        self._value += amount
+        if self._value > self._max:
+            self._value = self._max
+
+    def subtract(self, amount: int):
+        self._value -= amount
+        if self._value < 0:
+            self._value = 0
+    
+    def reset(self):
+        self._value = self._start
