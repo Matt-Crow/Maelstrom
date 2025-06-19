@@ -123,7 +123,7 @@ class AbstractActive:
     def get_target_options(self, user: "Character")->list[TargetOption]:
         
         target_team = user.team.enemyTeam if self._targets_enemy_team else user.team
-        possible_targets = target_team.getMembersRemaining()
+        possible_targets = target_team.members_remaining
 
         possible_target_ordinals = [user.ordinal + offset for offset in self._target_offsets]
         actual_target_ordinals = in_bounds(possible_target_ordinals, len(possible_targets))

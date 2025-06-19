@@ -1,10 +1,4 @@
-"""
-This module handles teams - collections of Characters
-"""
-
-from typing import Callable
 from maelstrom.dataClasses.character import Character
-import functools
 
 class Team:
     """
@@ -12,76 +6,62 @@ class Team:
     """
 
     def __init__(self, name: str, members: list[Character]):
-        self.name = name
-        self.members = []
-        self.membersRemaining = []
+        self._name = name
+        self._members = []
+        self._members_remaining = []
         for member in members:
-            self.addMember(member)
+            member.team = self
+            self._members.append(member)
+            self._members_remaining.append(member)
+
+    @property
+    def name(self) -> str:
+        return self._name
+    
+    @property
+    def members(self) -> list[Character]:
+        """All members in the party, KOed or otherwise."""
+        return self._members
+    
+    @property
+    def members_remaining(self) -> list[Character]:
+        """Members of the party who have not been KOed."""
+        return self._members_remaining
 
     def __str__(self):
-        return self.name
+        return self._name
 
-    def addMember(self, member: Character):
-        if member in self.members:
-            raise Exception(f'cannot add duplicate member {str(member)}')
-        member.team = self
-        self.members.append(member)
-        self.membersRemaining.append(member)
-
-    def getXpGiven(self)->int:
-        """
-        provides how much XP this Team provides when encountered
-        """
-        totalLevel = functools.reduce(lambda xp, member: member.level + xp, self.members, 0)
-        return int(10 * totalLevel / len(self.members))
-
-    def eachMember(self, consumer: Callable[[Character], None]):
-        """
-        calls the given consumer on each member of this Team
-        """
-        for member in self.members:
-            consumer(member)
-
-    def eachMemberRemaining(self, consumer: Callable[[Character], None]):
-        """
-        calls the given consumer on each member of this Team who isn't out of
-        the game
-        """
-        for member in self.membersRemaining:
-            consumer(member)
-
-    def getMembersRemaining(self)->list[Character]:
-        """
-        returns a shallow copy of this Team's remaining members
-        """
-        return [member for member in self.membersRemaining]
+    def get_xp_given(self) -> int:
+        """provides how much XP this Team provides when encountered"""
+        total_level = sum([m.level for m in self._members]) 
+        return int(10 * total_level / len(self._members))
 
     def init_for_battle(self):
         """
         this method must be called at the start of each Battle
         """
-        self.membersRemaining.clear()
-        for member in self.members: # can't use lambda with "each" here
+        self._members_remaining.clear()
+        for member in self._members: # can't use lambda with "each" here
             member.init_for_battle()
-            self.membersRemaining.append(member)
-        self.updateMembersRemaining() # updates ordinals
+            self._members_remaining.append(member)
+        self.update_members_remaining() # updates ordinals
 
-    def isDefeated(self)->bool:
-        return len(self.membersRemaining) == 0
+    def is_defeated(self) -> bool:
+        return len(self._members_remaining) == 0
 
-    def updateMembersRemaining(self)->list[str]:
-        msgs = []
+    def update_members_remaining(self) -> list[str]:
+        messages = []
 
-        newList = []
-        nextOrdinal = 0 # records which index of the array each member is in
-        for member in self.membersRemaining:
+        new_members_remaining = []
+        next_ordinal = 0 # records which index of the array each member is in
+        for member in self._members_remaining:
             if member.is_koed():
-                msgs.append(f'{member.name} is out of the game!')
+                messages.append(f'{member.name} is out of the game!')
             else:
-                newList.append(member)
-                member.ordinal = nextOrdinal
-                nextOrdinal += 1
+                new_members_remaining.append(member)
+                member.ordinal = next_ordinal
+                next_ordinal += 1
                 member.update()
-        self.membersRemaining = newList
+        self._members_remaining = new_members_remaining
 
-        return msgs
+        return messages

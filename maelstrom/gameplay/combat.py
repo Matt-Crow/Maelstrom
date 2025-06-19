@@ -79,18 +79,18 @@ class Encounter:
         self._enemy_team.enemyTeam = None
 
     def _is_over(self) -> bool:
-        return self._player_team.isDefeated() or self._enemy_team.isDefeated()
+        return self._player_team.is_defeated() or self._enemy_team.is_defeated()
 
     async def _team_turn(self, attacking_team: Team, defending_team: Team):
-        if attacking_team.isDefeated():
+        if attacking_team.is_defeated():
             return
 
         messages = []
-        messages.extend(attacking_team.updateMembersRemaining())
-        self._weather.applyEffect(attacking_team.membersRemaining, messages)
-        messages.extend(attacking_team.updateMembersRemaining())
+        messages.extend(attacking_team.update_members_remaining())
+        self._weather.applyEffect(attacking_team.members_remaining, messages)
+        messages.extend(attacking_team.update_members_remaining())
 
-        for member in attacking_team.membersRemaining:
+        for member in attacking_team.members_remaining:
             options = member.get_target_options()
             if len(options) == 0:
                 messages.append(f'{member.name} has no valid targets!')
@@ -113,7 +113,7 @@ class Encounter:
                     choice = reduce(lambda i, j: i if i.total_damage > j.total_damage else j, options)
                 await self._handle_choice(screen, attacking_team, defending_team, choice)
         
-            if attacking_team.enemyTeam.isDefeated():
+            if attacking_team.enemyTeam.is_defeated():
                 await self._handle_team_win(attacking_team)
                 return # stop, stop, stop, he's already dead!
 
@@ -122,7 +122,7 @@ class Encounter:
         
         choice_messages = choice.use()
         screen.body_rows.extend(choice_messages)
-        member_messages = defending_team.updateMembersRemaining()
+        member_messages = defending_team.update_members_remaining()
         screen.body_rows.extend(member_messages)
 
         # replace old scoreboards
@@ -138,7 +138,7 @@ class Encounter:
             messages.append(self._level.postscript)
         else:
             messages.append("Regretably, you have not won this day. Though someday, you will grow strong enough to overcome this challenge...")
-        xp = self._enemy_team.getXpGiven()
+        xp = self._enemy_team.get_xp_given()
         for member in self._player_team.members:
             messages.extend(member.gain_xp(xp))
 
@@ -152,9 +152,9 @@ def _get_scoreboard_for_team(team: Team) -> list[str]:
     rows = [
         team.name
     ]
-    longest_name = lengthOfLongest((m.name for m in team.membersRemaining))
-    longest_status = lengthOfLongest((_get_scoreboard_status(m) for m in team.membersRemaining))
-    for m in team.membersRemaining:
+    longest_name = lengthOfLongest((m.name for m in team.members_remaining))
+    longest_status = lengthOfLongest((_get_scoreboard_status(m) for m in team.members_remaining))
+    for m in team.members_remaining:
         status = _get_scoreboard_status(m)
         row = f'* {m.name.ljust(longest_name)}: {status.rjust(longest_status)}'
         rows.append(row)
