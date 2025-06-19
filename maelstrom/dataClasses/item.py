@@ -47,7 +47,7 @@ def getItemList():
         Item(
             "Rock",
             "I got a rock...",
-            lambda character: character.boost(Boost("resistance", 0.1, -1, "Rock"))
+            lambda character: character.boost(Boost("resistance", 0.1, -1))
         ),
 
         Item(
@@ -64,5 +64,5 @@ def getItemList():
     ]
 
 def boostBothOffense(character):
-    character.boost(Boost("control", 0.2, -1, "Copper Sword 1"))
-    character.boost(Boost("energy", 0.2, -1, "Copper Sword 2"))
+    character.boost(Boost("control", 0.2, -1))
+    character.boost(Boost("energy", 0.2, -1))

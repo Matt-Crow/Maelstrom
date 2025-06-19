@@ -11,26 +11,27 @@ active they wish to use.
 """
 
 from maelstrom.dataClasses.character import Character
+from maelstrom.dataClasses.stat_classes import Boost
 from maelstrom.gameplay.events import OnHitEvent, HIT_GIVEN_EVENT, HIT_TAKEN_EVENT
 from maelstrom.util.random import rollPercentage
 from maelstrom.dataClasses.elements import ELEMENTS
 from abc import abstractmethod
 import functools
 
-"""
-utility classes
-"""
-def dmgAtLv(lv)->int:
-    return int(16.67 * (1 + lv * 0.05))
+_MISS_CHANCE = 0.2
+_MISS_MULTIPLIER = 0.75
+_CRITICAL_HIT_CHANCE = 0.2
+_CRITICAL_HIT_MULTIPLIER = 1.5
 
-class HitType:
+def _damage_at_level(level) -> int:
     """
-    a HitType represents either a regular hit, a miss, or a critical hit (MHC)
+    Returns base damage for a given level.
+    For example, a level 1 character will deal about 17% damage,
+    while a level 20 character will deal about 33% damage.
+    This makes damage scale up over time.
     """
+    return int(16.67 * (1 + float(level) * 0.05))
 
-    def __init__(self, multiplier, message):
-        self.multiplier = multiplier
-        self.message = message
 
 class TargetOption:
     """
@@ -41,221 +42,189 @@ class TargetOption:
     Command design pattern
     """
 
-    def __init__(self, active: "AbstractActive", user: "Character", targets: list[Character]):
+    def __init__(self, active: "AbstractActive", user: Character, targets: list[Character]):
         self.active = active
         self.user = user
         self.targets = targets
-        self.msg = f'{active.name}->{", ".join([target.name for target in targets])}'
+        self._as_str = f'{active.name} -> {", ".join([target.name for target in targets])}'
 
-        # this will change when non-damaging actives are introduced
-        self.totalDamage = functools.reduce(lambda total, next: total + next, [
-            active.calcDamageAgainst(user, target) for target in targets
-        ])
+        damages = [active.get_damage_against(user, target) for target in targets]
+        self._total_damage = functools.reduce(lambda total, next: total + next, damages)
 
-    def __str__(self)->str:
-        return self.msg
+    @property
+    def total_damage(self) -> int:
+        """Total damage this is expected to inflict."""
+        return self._total_damage
 
-    def use(self)->str:
+    def __str__(self) -> str:
+        return self._as_str
+
+    def use(self) -> list[str]:
+        """Uses this TargetOption and returns messages to display."""
         self.user.lose_energy(self.active.cost) # don't call this for each target
-        msgs = [self.active.resolveAgainst(self.user, target) for target in self.targets]
-        return "\n".join(msgs)
+        return [self.active.resolve_against(self.user, target) for target in self.targets]
 
-"""
-data classes
-"""
+_SELF = [
+    0
+]
+_ADJACENT = [
+    0, # across
+    1, # below
+]
+
+_CLEAVE = [
+    -1, # above
+    0, # across
+    1 # below
+]
+
+def in_bounds(enemy_ordinals: list[int], enemy_team_size: int) -> list[int]:
+    return [number for number in enemy_ordinals if number >= 0 and number < enemy_team_size]
+
 
 class AbstractActive:
-    def __init__(self, name, description, cost):
+    """Subclasses should be immutable."""
+
+    def __init__(self, name: str, description: str, cost: int, targets_enemy_team: bool, target_offsets: list[int]):
         """
         name should be a unique identifier
         """
-        self.name = name
-        self.description = f'{name}: {description}'
-        self.cost = cost
+        self._name = name
+        self._description = f'{name}: {description}'
+        self._cost = cost
+        self._targets_enemy_team = targets_enemy_team
+        self._target_offsets = target_offsets
+
+    @property
+    def name(self) -> str:
+        return self._name
+    
+    @property
+    def description(self) -> str:
+        return self._description
+    
+    @property
+    def cost(self) -> int:
+        return self._cost
 
     @abstractmethod
-    def copy(self) -> 'AbstractActive':
+    def get_damage_against(self, user: Character, target: Character) -> int:
+        """Calculates damage this would inflict, assuming no miss or crit"""
         pass
 
     @abstractmethod
-    def resolveAgainst(self, target: "Character")->str:
+    def resolve_against(self, user: Character, target: Character) -> str:
+        """Resolves this attack, then returns the message to display in the UI"""
         pass
 
     def canUse(self, user: "Character")->bool:
-        return self.cost <= user.energy and len(self.getTargetOptions(user)) > 0
+        return self.cost <= user.energy and len(self.get_target_options(user)) > 0
 
-    def getTargetOptions(self, user: "Character")->list[TargetOption]:
-        """
-        don't override this one
-        """
-        if len(user.team.enemyTeam.getMembersRemaining()) == 0:
-            return []
-        return [TargetOption(self, user, targets) for targets in self.doGetTargetOptions(user)]
+    def get_target_options(self, user: "Character")->list[TargetOption]:
+        
+        target_team = user.team.enemyTeam if self._targets_enemy_team else user.team
+        possible_targets = target_team.getMembersRemaining()
 
-    @abstractmethod
-    def doGetTargetOptions(self, user: "Character")->list[list[Character]]:
-        """
-        subclasses must override this option to return the enemies this could
-        potentially hit. Each element of the returned list represents a choice
-        the user or AI can make, with each of those elements containing the
-        enemies that attack would hit.
-        """
-        pass
+        possible_target_ordinals = [user.ordinal + offset for offset in self._target_offsets]
+        actual_target_ordinals = in_bounds(possible_target_ordinals, len(possible_targets))
+        actual_targets = [possible_targets[ordinal] for ordinal in actual_target_ordinals]
 
-class AbstractDamagingActive(AbstractActive):
-    # not sure if I like so many paramters
-    def __init__(self, name, description, cost, damageMult, missChance, missMult, critChance, critMult):
-        super().__init__(name, description, cost)
-        self.damageMult = damageMult
-        self.missChance = missChance
-        self.missMult = missMult
-        self.critChance = critChance
-        self.critMult = critMult
+        # [option] to show only hitting one target per list of targets        
+        lists_of_targets = [[target] for target in actual_targets]
 
-    def resolveAgainst(self, user: "Character", target: "Character")->str:
-        dmg = self.calcDamageAgainst(user, target)
-        hitType = self.randomHitType(user)
-        dmg = int(dmg * hitType.multiplier)
+        return [TargetOption(self, user, targets) for targets in lists_of_targets]
 
+
+class DamagingActive(AbstractActive):
+    def __init__(self, name: str, description: str, cost: int, target_offsets: list[int], damage_multiplier: float):
+        super().__init__(name, description, cost, True, target_offsets)
+        self._damage_multiplier = damage_multiplier
+
+    def resolve_against(self, user: Character, target: Character) -> str:
+        base_dmg = self.get_damage_against(user, target)
+
+        # check for miss, hit, or crit (mhc)
+        rng = rollPercentage(int(user.get_stat_value("luck"))) / 100
+        hit_multiplier = 1.0
+        hit_message = "" # don't put a space at the end here
+        if rng <= _MISS_CHANCE:
+            hit_multiplier = _MISS_MULTIPLIER
+            hit_message = "A glancing blow! " # need space at the end here
+        elif rng >= 1.0 - _CRITICAL_HIT_CHANCE:
+            hit_multiplier = _CRITICAL_HIT_MULTIPLIER
+            hit_message = "A critical hit! " # need space at the end here
+        
+        dmg = int(base_dmg * hit_multiplier)
         event = OnHitEvent("Attack", user, target, self, dmg)
-
         target.take_damage(dmg)
-
         target.fire_event_listeners(HIT_TAKEN_EVENT, event)
         user.fire_event_listeners(HIT_GIVEN_EVENT, event)
 
-        return f'{hitType.message}{user.name} struck {target.name} for {dmg} damage using {self.name}!'
+        return f'{hit_message}{user.name} struck {target.name} for {dmg} damage using {self.name}!'
 
-    def calcDamageAgainst(self, user: Character, target: Character) -> int:
-        """
-        MHC is not checked here so that it doesn't mess with AI
-        """
+    def get_damage_against(self, user: Character, target: Character) -> int:
+        return int(_damage_at_level(user.level) * self._damage_multiplier * user.get_stat_value("control") / target.get_stat_value("resistance"))
 
-        return int(
-            dmgAtLv(user.level) * self.damageMult * user.get_stat_value("control") / target.get_stat_value("resistance")
-        )
-
-    def randomHitType(self, user: "Character")->"HitType":
-        """
-        randomly chooses a HitType based on this AbstractDamagingActive's crit
-        chance, miss chance, and the user's luck
-        """
-        hit = HitType(1.0, "") # don't put a space at the end of the message
-        rng = rollPercentage(user.get_stat_value("luck")) / 100
-
-        if rng <= self.missChance:
-            hit = HitType(self.missMult, "A glancing blow! ") # need space on end
-        elif rng >= 1.0 - self.critChance:
-            hit = HitType(self.critMult, "A critical hit! ") # need space on end
-
-        return hit
-
-
-class MeleeActive(AbstractDamagingActive):
-    # not sure if I like so many paramters
-    def __init__(self, name, description, damageMult, missChance, missMult, critChance, critMult):
-        super().__init__(name, description, 0, damageMult, missChance, missMult, critChance, critMult)
-        self.damageMult = damageMult
-        self.missChance = missChance
-        self.missMult = missMult
-        self.critChance = critChance
-        self.critMult = critMult
-
-    def copy(self):
-        return MeleeActive(
-            self.name,
-            self.description,
-            self.damageMult,
-            self.missChance,
-            self.missMult,
-            self.critChance,
-            self.critMult
-        )
-
-    def doGetTargetOptions(self, user: "Character")->list[list[Character]]:
-        """
-        MeleeActives can hit a single active target
-        """
-        return [[option] for option in getActiveTargets(user.ordinal, user.team.enemyTeam.getMembersRemaining())]
-
-class ElementalActive(AbstractDamagingActive):
-    def __init__(self, name):
+class BlockActive(AbstractActive):
+    def __init__(self):
         super().__init__(
-            name,
-            'strike an enemy for 1.75X damage',
-            10,
-            1.75,
-            0,
-            1.0,
-            0,
-            1.0
+            "Block",
+            "reduce damage taken and empower next hit",
+            5,
+            False,
+            _SELF
         )
+    
+    def get_damage_against(self, user: Character, target: Character) -> int:
+        return 0
 
-    def copy(self):
-        return ElementalActive(self.name)
+    def resolve_against(self, user: Character, target: Character) -> str:
+        # control for 2 turns because it ticks down by 1 after the turn they use this
+        target.boost(Boost("control", 0.5, 2))
+        target.boost(Boost("resistance", 0.5, 1))
+        return f"{target.name} is blocking and ready to strike back!"
 
-    def doGetTargetOptions(self, user: "Character")->list[list[Character]]:
-        """
-        ElementalActives can hit a single cleave target
-        """
-        return [[option] for option in getCleaveTargets(user.ordinal, user.team.enemyTeam.getMembersRemaining())]
+class RestActive(AbstractActive):
+    def __init__(self):
+        super().__init__(
+            "Rest", 
+            "heal and restore energy", 
+            0, 
+            False,
+            _SELF
+        )
+    
+    def get_damage_against(self, user: Character, target: Character) -> int:
+        return 0
 
+    def resolve_against(self, user: Character, target: Character) -> str:
+        amount_to_heal = int(0.8 * _damage_at_level(user.level))
+        amount_to_restore = 8
 
+        actual_heal = target.heal_amount(amount_to_heal)
+        actual_restore = target.gain_energy(amount_to_restore)
 
-"""
-Use these to decide which enemies to target. Should only allow user to choose
-attacks that can hit anyone
-"""
+        return f"{target.name} healed {actual_heal} and restored {actual_restore}!"
 
+_DEFAULT_ACTIVES = [
+    DamagingActive("slash", "strike a nearby enemy", 0, _ADJACENT, 1.0),
+    BlockActive(),
+    RestActive()
+]
 
-def getActiveTargets[T](attackerOrdinal: int, targetTeam: list[T]) -> list[T]:
-    """
-    'active' enemies are those across from the attacker and the enemy
-    immediately below that. This gives a slight advantage to the 1 in a 1 vs 2,
-    as both enemies cannot attack them at the same time
+def _make_elemental_bolt(element) -> DamagingActive:
+    return DamagingActive(f'{element} bolt', "strike an enemy for 1.75X damage", 10, _CLEAVE, 1.75)
 
-    O X
-      X
-    """
+def get_all_actives() -> list[AbstractActive]:
     options = []
-    if attackerOrdinal < len(targetTeam):
-        options.append(targetTeam[attackerOrdinal])
-    if attackerOrdinal + 1 < len(targetTeam):
-        options.append(targetTeam[attackerOrdinal + 1])
-    return options
-
-def getCleaveTargets[T](attackerOrdinal: int, targetTeam: list[T]) -> list[T]:
-    """
-    enemies are 'cleaveable' (for want of a better word) if they are no more
-    than 1 array slot away from the enemy across from the attacker
-      X
-    O X
-      X
-    """
-    options = getActiveTargets(attackerOrdinal, targetTeam)
-    if attackerOrdinal - 1 >= 0 and attackerOrdinal - 1 < len(targetTeam):
-        m = targetTeam[attackerOrdinal - 1]
-        options.insert(0, m)
-    return options
-
-def getUniversalActives()->list[AbstractActive]:
-    return [
-        MeleeActive("slash", "strike a nearby enemy", 1.0, 0.2, 0.75, 0.2, 1.5),
-        MeleeActive("jab", "strike a nearby enemy, with a high chance for a critical hit", 0.8, 0.1, 0.5, 0.5, 3.0),
-        MeleeActive("slam", "strike recklessly at a nearby enemy", 1.5, 0.4, 0.5, 0.15, 2.0)
-    ]
-
-def getActivesForElement(element)->list[AbstractActive]:
-    return [ElementalActive(f'{element} bolt')]
-
-def getActiveAbilityList()->list[AbstractActive]:
-    options = getUniversalActives()
+    options.extend(_DEFAULT_ACTIVES)
     for element in ELEMENTS:
-        options.extend(getActivesForElement(element))
-    options.extend(getActivesForElement("stone"))
+        options.append(_make_elemental_bolt(element))
+    options.append(_make_elemental_bolt("stone"))
     return options
 
 def createDefaultActives(element)->list[AbstractActive]:
-    options = getUniversalActives()
-    options.extend(getActivesForElement(element))
-    return [option.copy() for option in options]
+    options = []
+    options.extend(_DEFAULT_ACTIVES)
+    options.append(_make_elemental_bolt(element))
+    return options

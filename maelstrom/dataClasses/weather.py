@@ -42,7 +42,7 @@ class Rain(Weather):
         super().__init__("rain", "A deluge of water pours forth from the sky...")
 
     def doApplyEffect(self, target: "Character")->str:
-        amount = target.heal(9)
+        amount = target.heal_percent(9)
         return f'The restorative rain heals {target.name} by {amount} HP'
 
 class Hail(Weather):
@@ -58,9 +58,9 @@ class Wind(Weather):
         super().__init__("wind", "The strong winds blow mightily...")
 
     def doApplyEffect(self, target: "Character")->str:
-        boost = Boost("control", 15, 1, "Weather")
+        boost = Boost("control", 0.15, 1)
         withPotencyApplied = target.boost(boost)
-        return f'The driving wind inflicts {target.name} with {withPotencyApplied.getDisplayData()}'
+        return f'The driving wind inflicts {target.name} with {withPotencyApplied.get_boost_text()}'
 
 class Clear(Weather):
     def __init__(self):
