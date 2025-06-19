@@ -116,6 +116,9 @@ class Encounter:
             if attacking_team.enemyTeam.is_defeated():
                 await self._handle_team_win(attacking_team)
                 return # stop, stop, stop, he's already dead!
+        
+        # once we're done with each member remaining, raise the end of turn event
+        attacking_team.turn_end()
 
     async def _handle_choice(self, screen: Screen, attacking_team: Team, defending_team: Team, choice: TargetOption):
         screen.choice = None

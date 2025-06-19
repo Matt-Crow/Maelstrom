@@ -61,7 +61,10 @@ class Team:
                 new_members_remaining.append(member)
                 member.ordinal = next_ordinal
                 next_ordinal += 1
-                member.update()
         self._members_remaining = new_members_remaining
 
         return messages
+    
+    def turn_end(self):
+        for member in self._members_remaining:
+            member.update()

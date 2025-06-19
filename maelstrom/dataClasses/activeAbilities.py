@@ -179,8 +179,7 @@ class BlockActive(AbstractActive):
         return 0
 
     def resolve_against(self, user: Character, target: Character) -> str:
-        # control for 2 turns because it ticks down by 1 after the turn they use this
-        target.boost(Boost("control", 0.5, 2))
+        target.boost(Boost("control", 0.5, 1))
         target.boost(Boost("resistance", 0.5, 1))
         return f"{target.name} is blocking and ready to strike back!"
 
