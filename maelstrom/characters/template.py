@@ -16,6 +16,11 @@ class CharacterTemplate:
     case insensitive - might make enum later
     """
 
+    type: str = ""
+    """
+    discriminator column to distinguish between starters and enemies
+    """
+
     control: int = 0
     """
     base control stat

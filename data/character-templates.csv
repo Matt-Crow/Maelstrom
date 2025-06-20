@@ -1,0 +1,10 @@
+     name,   element,type, control, resistance, potency, luck, energy
+Alexandre, lightning,starter,1,-2,-1,0,2
+      Ren,      rain,starter,-2,1,2,-1,0
+   Ulfric,      hail,starter,1,2,0,-2,-1
+   Ardrik,      wind,starter,2,-1,-2,1,0
+Lightning Entity, lightning,enemy,0,-10,0,0,10
+     Rain Entity,      rain,enemy,-10,0,10,0,0
+     Hail Entity,      hail,enemy,0,10,0,-10,0
+     Wind Entity,      wind,enemy,0,0,-10,10,0
+   Stone Soldier,     stone,enemy,5,10,-5,-5,-5

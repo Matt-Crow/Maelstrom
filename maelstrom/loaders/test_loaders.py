@@ -1,6 +1,6 @@
 import unittest
 from maelstrom.characters.template import CharacterTemplate
-from maelstrom.loaders.character_template_loader import CharacterTemplateLoader
+from maelstrom.loaders.character_template_loader import CharacterTemplateLoader, make_enemy_template_loader
 
 class TestLoaders(unittest.TestCase):
     def test_CharacterTemplateLoader(self):
@@ -12,9 +12,6 @@ class TestLoaders(unittest.TestCase):
         self.assertFalse(exists is None)
 
     def test_loading(self):
-        sut = CharacterTemplateLoader()
-
-        sut.load_character_template_file("data/character-templates/enemies.csv")
+        sut = make_enemy_template_loader()
         actual = sut.get_all_character_templates()
-
         self.assertNotEqual(0, len(actual))

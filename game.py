@@ -5,7 +5,7 @@ from maelstrom.dataClasses.team import Team
 from maelstrom.gameplay.combat import play_level
 from maelstrom.loaders.campaignloader import make_default_campaign_loader
 from maelstrom.loaders.character_loader import EnemyLoader
-from maelstrom.loaders.character_template_loader import CharacterTemplateLoader
+from maelstrom.loaders.character_template_loader import make_starter_template_loader
 from maelstrom.loaders.user_repository import UserRepository
 from maelstrom.ui import Choice, Screen
 from maelstrom.ui_console import ConsoleUI
@@ -22,8 +22,7 @@ class Game:
         self.currentArea = None
         self._exit = False
         self._users = UserRepository()
-        self._starters = CharacterTemplateLoader()
-        self._starters.load_character_template_file("data/character-templates/starters.csv")
+        self._starters = make_starter_template_loader()
         self.enemy_loader = EnemyLoader()
         self.campaign_loader = make_default_campaign_loader()
         self._ui = ConsoleUI()

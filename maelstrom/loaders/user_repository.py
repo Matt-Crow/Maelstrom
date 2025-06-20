@@ -8,7 +8,7 @@ import os
 from maelstrom.characters.specification import json_dict_to_character_specification
 from maelstrom.dataClasses.character import Character
 from maelstrom.dataClasses.team import Team
-from maelstrom.loaders.character_template_loader import CharacterTemplateLoader
+from maelstrom.loaders.character_template_loader import make_starter_template_loader
 from maelstrom.util.user import User
 from maelstrom.loaders.character_loader import load_active
 
@@ -19,8 +19,7 @@ class UserRepository:
 
     def __init__(self):
         self._folder = os.path.abspath("users")
-        self._character_templates = CharacterTemplateLoader()
-        self._character_templates.load_character_template_file("data/character-templates/starters.csv")
+        self._character_templates = make_starter_template_loader()
 
     def get_user_names(self) -> list[str]:
         """
