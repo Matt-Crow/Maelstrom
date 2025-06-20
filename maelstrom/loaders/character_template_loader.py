@@ -64,3 +64,9 @@ def make_enemy_template_loader() -> CharacterTemplateLoader:
     enemy_loader = CharacterTemplateLoader()
     enemy_loader.load_character_template_file("enemy")
     return enemy_loader
+
+def make_recruit_template_loader() -> CharacterTemplateLoader:
+    """Returns a loader which provides recruit templates"""
+    recruit_loader = CharacterTemplateLoader()
+    recruit_loader.load_character_template_file("recruit")
+    return recruit_loader

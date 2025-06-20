@@ -5,7 +5,7 @@ from maelstrom.loaders.character_template_loader import CharacterTemplateLoader,
 class TestLoaders(unittest.TestCase):
     def test_CharacterTemplateLoader(self):
         sut = CharacterTemplateLoader()
-        sut.add_character_template(CharacterTemplate('bar', 'wind'))
+        sut.add_character_template(CharacterTemplate('bar', 'wind', 'dummy'))
         no_exist = sut.get_character_template_by_name('foo')
         exists = sut.get_character_template_by_name('bar')
         self.assertTrue(no_exist is None)

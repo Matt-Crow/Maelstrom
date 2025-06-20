@@ -17,9 +17,9 @@ class CharacterTemplate:
     case insensitive - might make enum later
     """
 
-    type: str = ""
+    type: str
     """
-    discriminator column to distinguish between starters and enemies
+    discriminator column to distinguish between starters, enemies, and recruits
     """
 
     control: int = 3
