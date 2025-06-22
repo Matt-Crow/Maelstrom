@@ -24,10 +24,21 @@ async def play_level(ui: AbstractUserInterface, level: Level, user: User, enemyL
     for enemy in enemies:
         enemy.level = level.enemy_level
     enemy_team = Team("Enemy Team", enemies)
-    enemy_team.init_for_battle()
 
-    player_team = user.team
-    player_team.init_for_battle()
+    # allow user to choose members from their party
+    use_these = []
+    remaining_options = user.party.copy()
+    slot_number = 1
+    while len(use_these) < len(enemies) and len(remaining_options) > 0:
+        team_screen = Screen(
+            f"Choose member for slot #{slot_number}",
+            choice=Choice(f"Choose member for slot #{slot_number}", remaining_options)
+        )
+        member = await ui.display_and_choose(team_screen)
+        use_these.append(member)
+        remaining_options.remove(member)
+        slot_number += 1
+    player_team = Team(user.name, use_these)
 
     weather = random.choice(WEATHERS)
     
@@ -67,8 +78,6 @@ class Encounter:
 
         self._player_team.enemyTeam = self._enemy_team
         self._enemy_team.enemyTeam = self._player_team
-        self._player_team.init_for_battle()
-        self._enemy_team.init_for_battle()
         
         while not self._is_over():
             await self._team_turn(self._enemy_team, self._player_team)

@@ -11,8 +11,10 @@ class Team:
         self._members_remaining = []
         for member in members:
             member.team = self
+            member.init_for_battle()
             self._members.append(member)
             self._members_remaining.append(member)
+        self.update_members_remaining() # updates ordinals
 
     @property
     def name(self) -> str:
@@ -35,16 +37,6 @@ class Team:
         """provides how much XP this Team provides when encountered"""
         total_level = sum([m.level for m in self._members]) 
         return int(10 * total_level / len(self._members))
-
-    def init_for_battle(self):
-        """
-        this method must be called at the start of each Battle
-        """
-        self._members_remaining.clear()
-        for member in self._members: # can't use lambda with "each" here
-            member.init_for_battle()
-            self._members_remaining.append(member)
-        self.update_members_remaining() # updates ordinals
 
     def is_defeated(self) -> bool:
         return len(self._members_remaining) == 0
@@ -71,43 +63,24 @@ class Team:
 
 
 class User:
-    """
-    A User simply contains a name and team.
-    Future versions will also store campaign info and other choices in this
-    """
+    """Future versions will also store campaign info and other choices in this"""
 
-    def __init__(self, name: str, team: Team):
+    def __init__(self, name: str, party: list[Character]):
         self._name = name
-        self._team = team
+        self._party = party
 
     @property
     def name(self) -> str:
         return self._name
 
     @property
-    def team(self) -> Team:
-        return self._team
+    def party(self) -> list[Character]:
+        return self._party
 
     def get_display_data(self) -> list[str]:
         lines = [
             f"User {self._name}",
             "Party:"
         ]
-        lines.extend(_get_detailed_team_data(self._team))
+        lines.extend([m.get_display_data() for m in self._party])
         return lines
-
-
-def _get_detailed_team_data(team: Team) -> list[str]:
-    """
-    This provides a more descriptive overview of the team, detailing all of its
-    members. It feels a little info-dump-y, so it feels tedious to scroll
-    through. Do I want some other way of providing players with team data?
-    """
-
-    lines = [
-        f'{team.name}:'
-    ]
-    for member in team.members:
-        lines.append(member.get_display_data())
-
-    return lines

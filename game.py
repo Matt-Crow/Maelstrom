@@ -1,7 +1,7 @@
 from maelstrom.characters.specification import CharacterSpecification
 from maelstrom.dataClasses.activeAbilities import createDefaultActives
 from maelstrom.dataClasses.character import Character
-from maelstrom.dataClasses.team import Team, User
+from maelstrom.dataClasses.team import User
 from maelstrom.gameplay.combat import play_level
 from maelstrom.loaders.campaignloader import make_default_campaign_loader
 from maelstrom.loaders.character_loader import EnemyLoader
@@ -89,14 +89,14 @@ class Game:
             actives=createDefaultActives(starter_template.element)
         )
 
-        team = Team(user_name, [starter])
-        user = User(user_name, team)
+        user = User(user_name, [starter])
         self._users.save_user(user)
         self._handle_login(user_name)
     
     def _handle_login(self, user_name):
         self.user = self._users.load_user(user_name)
-        self.user.team.init_for_battle()
+        for member in self.user.party:
+            member.init_for_battle()
 
     async def _choose_action(self):
         screen = Screen(

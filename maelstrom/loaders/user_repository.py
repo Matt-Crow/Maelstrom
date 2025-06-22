@@ -7,7 +7,7 @@ from os import walk
 import os
 from maelstrom.characters.specification import json_dict_to_character_specification
 from maelstrom.dataClasses.character import Character
-from maelstrom.dataClasses.team import Team, User
+from maelstrom.dataClasses.team import User
 from maelstrom.loaders.character_template_loader import make_starter_template_loader
 from maelstrom.loaders.character_loader import load_active
 
@@ -50,15 +50,13 @@ class UserRepository:
                 )
                 party.append(character)
 
-            team = Team(as_json["name"], party)
-
-            return User(as_json["name"], team)
+            return User(as_json["name"], party)
     
     def save_user(self, user: User):
         path = self._get_path_by_user_name(user.name)
         as_dict = dict(
             name=user.name,
-            party=[c.to_specification().to_dict() for c in user.team.members]
+            party=[c.to_specification().to_dict() for c in user.party]
         )
 
         # try to convert before writing to file to avoid truncating file if json.dumps fails
