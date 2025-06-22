@@ -138,7 +138,7 @@ class Game:
         
         screen = Screen(
             title=self.user.name,
-            body_rows=self.user.getDisplayData()
+            body_rows=self.user.get_display_data()
         )
         await self._ui.display_and_choose(screen)
 

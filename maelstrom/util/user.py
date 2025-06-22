@@ -1,7 +1,3 @@
-"""
-This module replaces the old distinction between player and AI teams
-"""
-
 from maelstrom.dataClasses.team import Team
 
 class User:
@@ -11,17 +7,27 @@ class User:
     """
 
     def __init__(self, name: str, team: Team):
-        self.name = name
-        self.team = team
+        self._name = name
+        self._team = team
 
-    def getDisplayData(self) -> list[str]:
-        return [
-            f'User {self.name}',
-            f'Team:',
-            "\n".join(_get_detailed_team_data(self.team))
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def team(self) -> Team:
+        return self._team
+
+    def get_display_data(self) -> list[str]:
+        lines = [
+            f"User {self._name}",
+            "Party:"
         ]
+        lines.extend(_get_detailed_team_data(self._team))
+        return lines
 
-def _get_detailed_team_data(team: Team)->list[str]:
+
+def _get_detailed_team_data(team: Team) -> list[str]:
     """
     This provides a more descriptive overview of the team, detailing all of its
     members. It feels a little info-dump-y, so it feels tedious to scroll
