@@ -1,7 +1,7 @@
 from maelstrom.characters.specification import CharacterSpecification
 from maelstrom.dataClasses.activeAbilities import createDefaultActives
 from maelstrom.dataClasses.character import Character
-from maelstrom.dataClasses.team import Team
+from maelstrom.dataClasses.team import Team, User
 from maelstrom.gameplay.combat import play_level
 from maelstrom.loaders.campaignloader import make_default_campaign_loader
 from maelstrom.loaders.character_loader import EnemyLoader
@@ -10,7 +10,6 @@ from maelstrom.loaders.user_repository import UserRepository
 from maelstrom.ui import Choice, Screen
 from maelstrom.ui_console import ConsoleUI
 from maelstrom.util.collections import list_extend
-from maelstrom.util.user import User
 
 """
 The Game class is used to store data on the game the user is currently playing,

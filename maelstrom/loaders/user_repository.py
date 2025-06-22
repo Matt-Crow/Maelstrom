@@ -7,9 +7,8 @@ from os import walk
 import os
 from maelstrom.characters.specification import json_dict_to_character_specification
 from maelstrom.dataClasses.character import Character
-from maelstrom.dataClasses.team import Team
+from maelstrom.dataClasses.team import Team, User
 from maelstrom.loaders.character_template_loader import make_starter_template_loader
-from maelstrom.util.user import User
 from maelstrom.loaders.character_loader import load_active
 
 class UserRepository:
