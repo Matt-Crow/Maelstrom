@@ -7,9 +7,8 @@ from os import walk
 import os
 from maelstrom.characters.specification import json_dict_to_character_specification
 from maelstrom.dataClasses.character import Character
-from maelstrom.dataClasses.team import Team
-from maelstrom.loaders.character_template_loader import CharacterTemplateLoader
-from maelstrom.util.user import User
+from maelstrom.dataClasses.team import User
+from maelstrom.loaders.character_template_loader import make_starter_template_loader
 from maelstrom.loaders.character_loader import load_active
 
 class UserRepository:
@@ -19,8 +18,7 @@ class UserRepository:
 
     def __init__(self):
         self._folder = os.path.abspath("users")
-        self._character_templates = CharacterTemplateLoader()
-        self._character_templates.load_character_template_file("data/character-templates/starters.csv")
+        self._character_templates = make_starter_template_loader()
 
     def get_user_names(self) -> list[str]:
         """
@@ -43,8 +41,6 @@ class UserRepository:
             party = []
             for spec in specs:
                 template = self._character_templates.get_character_template_by_name(spec.name)
-                if template is None:
-                    raise KeyError(f'Invalid character name: "{spec.name}"')
                 character = Character(
                     template=template,
                     specification=spec,
@@ -52,15 +48,13 @@ class UserRepository:
                 )
                 party.append(character)
 
-            team = Team(as_json["name"], party)
-
-            return User(as_json["name"], team)
+            return User(as_json["name"], party)
     
     def save_user(self, user: User):
         path = self._get_path_by_user_name(user.name)
         as_dict = dict(
             name=user.name,
-            party=[c.to_specification().to_dict() for c in user.team.members]
+            party=[c.to_specification().to_dict() for c in user.party]
         )
 
         # try to convert before writing to file to avoid truncating file if json.dumps fails

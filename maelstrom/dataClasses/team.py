@@ -11,8 +11,10 @@ class Team:
         self._members_remaining = []
         for member in members:
             member.team = self
+            member.init_for_battle()
             self._members.append(member)
             self._members_remaining.append(member)
+        self.update_members_remaining() # updates ordinals
 
     @property
     def name(self) -> str:
@@ -36,16 +38,6 @@ class Team:
         total_level = sum([m.level for m in self._members]) 
         return int(10 * total_level / len(self._members))
 
-    def init_for_battle(self):
-        """
-        this method must be called at the start of each Battle
-        """
-        self._members_remaining.clear()
-        for member in self._members: # can't use lambda with "each" here
-            member.init_for_battle()
-            self._members_remaining.append(member)
-        self.update_members_remaining() # updates ordinals
-
     def is_defeated(self) -> bool:
         return len(self._members_remaining) == 0
 
@@ -68,3 +60,27 @@ class Team:
     def turn_end(self):
         for member in self._members_remaining:
             member.update()
+
+
+class User:
+    """Future versions will also store campaign info and other choices in this"""
+
+    def __init__(self, name: str, party: list[Character]):
+        self._name = name
+        self._party = party
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def party(self) -> list[Character]:
+        return self._party
+
+    def get_display_data(self) -> list[str]:
+        lines = [
+            f"User {self._name}",
+            "Party:"
+        ]
+        lines.extend([m.get_display_data() for m in self._party])
+        return lines

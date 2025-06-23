@@ -6,7 +6,7 @@ objects in the program
 from maelstrom.characters.specification import CharacterSpecification
 from maelstrom.dataClasses.activeAbilities import AbstractActive, createDefaultActives, get_all_actives
 from maelstrom.dataClasses.character import Character
-from maelstrom.loaders.character_template_loader import CharacterTemplateLoader
+from maelstrom.loaders.character_template_loader import make_enemy_template_loader
 
 NAME_TO_ACTIVE = dict()
 for active in get_all_actives():
@@ -18,8 +18,7 @@ class EnemyLoader:
     """
     
     def __init__(self):
-        self._templates = CharacterTemplateLoader()
-        self._templates.load_character_template_file("data/character-templates/enemies.csv")
+        self._templates = make_enemy_template_loader()
 
     def load(self, name: str) -> Character:
         """
@@ -27,8 +26,6 @@ class EnemyLoader:
         character exists in the repository
         """
         template = self._templates.get_character_template_by_name(name)
-        if template is None:
-            raise ValueError(f'invalid character name: {name}')
         constructed = Character(
             template=template,
             specification=CharacterSpecification(name=name),

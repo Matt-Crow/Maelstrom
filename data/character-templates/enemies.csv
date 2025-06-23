@@ -1,6 +1,0 @@
-            name,   element, control, resistance, potency, luck, energy
-Lightning Entity, lightning,       0,        -10,       0,    0,     10
-     Rain Entity,      rain,     -10,          0,      10,    0,      0
-     Hail Entity,      hail,       0,         10,       0,  -10,      0
-     Wind Entity,      wind,       0,          0,     -10,   10,      0
-   Stone Soldier,     stone,       5,         10,      -5,   -5,     -5

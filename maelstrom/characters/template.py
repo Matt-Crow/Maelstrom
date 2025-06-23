@@ -3,7 +3,8 @@ from dataclasses import dataclass
 @dataclass(frozen=True)
 class CharacterTemplate:
     """
-    A CharacterTemplate provides the data a Character is based on
+    A CharacterTemplate provides the data a Character is based on.
+    Each stat should be between 1 and 5 stars
     """
 
     name: str
@@ -16,28 +17,33 @@ class CharacterTemplate:
     case insensitive - might make enum later
     """
 
-    control: int = 0
+    type: str
+    """
+    discriminator column to distinguish between starters, enemies, and recruits
+    """
+
+    control: int = 3
     """
     base control stat
     might make these percentages later
     """
     
-    resistance: int = 0
+    resistance: int = 3
     """
     base resistance stat
     """
 
-    potency: int = 0
+    potency: int = 3
     """
     base potency stat
     """
     
-    luck: int = 0
+    luck: int = 3
     """
     base luck stat
     """
 
-    energy: int = 0
+    energy: int = 3
     """
     base energy stat
     """

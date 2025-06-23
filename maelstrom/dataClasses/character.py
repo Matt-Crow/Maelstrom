@@ -32,8 +32,10 @@ class Character:
         self.actives = actives
         
         self.stats = {}
-        def _set_stat(name, offset):
-            self.stats[name.lower()] = Stat(name, 20 + offset)
+        def _set_stat(stat_name, stars):
+            if stars < 1 or stars > 5:
+                raise ValueError(f"{template.name} {stat_name} = {stars}, which is outside the allowed range of 1-5")
+            self.stats[stat_name.lower()] = Stat(stat_name, 5 + 5 * stars)
         _set_stat("control", template.control)
         _set_stat("resistance", template.resistance)
         _set_stat("energy", template.energy)
