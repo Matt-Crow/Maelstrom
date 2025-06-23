@@ -10,8 +10,7 @@ Characters make a choice of which TargetOption they wish to use, not just which
 active they wish to use.
 """
 
-from maelstrom.dataClasses.character import Character
-from maelstrom.dataClasses.stat_classes import Boost
+from maelstrom.dataClasses.character import Boost, Character
 from maelstrom.gameplay.events import OnHitEvent
 from maelstrom.util.random import rollPercentage
 from abc import abstractmethod

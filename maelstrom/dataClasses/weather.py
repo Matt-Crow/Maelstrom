@@ -1,5 +1,4 @@
-from maelstrom.dataClasses.character import Character
-from maelstrom.dataClasses.stat_classes import Boost
+from maelstrom.dataClasses.character import Boost, Character
 import abc
 
 
