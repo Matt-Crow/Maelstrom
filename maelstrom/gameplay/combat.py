@@ -11,7 +11,7 @@ from maelstrom.dataClasses.team import Team, User
 from maelstrom.dataClasses.weather import WEATHERS, Weather
 from maelstrom.loaders.character_loader import EnemyLoader
 from maelstrom.ui import AbstractUserInterface, Choice, Screen
-from maelstrom.util.stringUtil import lengthOfLongest
+from maelstrom.string_utils import length_of_longest
 
 import random
 
@@ -163,8 +163,8 @@ def _get_scoreboard_for_team(team: Team) -> list[str]:
     rows = [
         team.name
     ]
-    longest_name = lengthOfLongest((m.name for m in team.members_remaining))
-    longest_status = lengthOfLongest((_get_scoreboard_status(m) for m in team.members_remaining))
+    longest_name = length_of_longest((m.name for m in team.members_remaining))
+    longest_status = length_of_longest((_get_scoreboard_status(m) for m in team.members_remaining))
     for m in team.members_remaining:
         status = _get_scoreboard_status(m)
         row = f'* {m.name.ljust(longest_name)}: {status.rjust(longest_status)}'

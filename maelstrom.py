@@ -42,19 +42,26 @@ June-July 2021: Reworked input and output
 Version 0.9
 """
 
+import argparse
 import asyncio
 from game import Game
-from maelstrom.util.arguments import parse_args
-from maelstrom.util.config import get_global_config
+from maelstrom.config import Config
 
 async def main():
-    parse_args()
-    options = get_global_config()
+    # parse command-line arguments
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-n", "--no-cls", help="turn off clearing the terminal each screen", action="store_true")
+    parser.add_argument("-t", "--test", help="run Game::test instead of Game::run", action="store_true")
+    user_input = parser.parse_args()
+    config = Config(
+        keep_output = user_input.no_cls,
+        test = user_input.test
+    )
 
-    if options.test:
-        Game().test()
+    if config.test:
+        Game(config).test()
     else:
-        await Game().run()
+        await Game(config).run()
 
 if __name__ == "__main__":
     asyncio.run(main())

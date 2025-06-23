@@ -5,7 +5,7 @@
 from maelstrom.characters.specification import CharacterSpecification
 from maelstrom.characters.template import CharacterTemplate
 from maelstrom.gameplay.events import EventPublisher, OnHitEvent
-from maelstrom.util.stringUtil import entab, lengthOfLongest
+from maelstrom.string_utils import entab, length_of_longest
 
 _STATS = ["control", "resistance", "potency", "luck", "energy"]
 
@@ -121,7 +121,7 @@ class Character:
         ]
 
         ret.append("STATS:")
-        width = lengthOfLongest(_STATS)
+        width = length_of_longest(_STATS)
         for stat in _STATS:
             ret.append(entab(f'{stat.ljust(width)}: {int(self.get_stat_value(stat))}'))
 

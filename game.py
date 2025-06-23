@@ -9,14 +9,14 @@ from maelstrom.loaders.character_template_loader import make_recruit_template_lo
 from maelstrom.loaders.user_repository import UserRepository
 from maelstrom.ui import Choice, Screen
 from maelstrom.ui_console import ConsoleUI
-from maelstrom.util.collections import list_extend
+from maelstrom.config import Config
 
 """
 The Game class is used to store data on the game the user is currently playing,
 so this way, there don't have to be any globals.
 """
 class Game:
-    def __init__(self):
+    def __init__(self, config: Config):
         self.user = None
         self.currentArea = None
         self._exit = False
@@ -24,7 +24,7 @@ class Game:
         self._starters = make_starter_template_loader()
         self.enemy_loader = EnemyLoader()
         self.campaign_loader = make_default_campaign_loader()
-        self._ui = ConsoleUI()
+        self._ui = ConsoleUI(config)
 
     def test(self):
         print("nothing to test")
@@ -48,7 +48,7 @@ class Game:
             title="Login",
             choice=Choice(
                 prompt="Which user are you?",
-                options = list_extend(
+                options = _list_extend(
                     [str(user) for user in self._users.get_user_names()],
                     "New user"
                 )
@@ -125,7 +125,7 @@ class Game:
             body_rows=[self.currentArea.getDisplayData()],
             choice=Choice(
                 prompt="Choose a level to play:",
-                options=list_extend(self.currentArea.levels, "Quit")
+                options=_list_extend(self.currentArea.levels, "Quit")
             )
         )
         level = await self._ui.display_and_choose(screen)
@@ -162,7 +162,7 @@ class Game:
             body_rows=[m.get_display_data() for m in recruit_options],
             choice=Choice(
                 prompt="Who do you want to recruit?",
-                options=list_extend(recruit_options, "none of these")
+                options=_list_extend(recruit_options, "none of these")
             )
         )
         choice = await self._ui.display_and_choose(screen)
@@ -172,3 +172,11 @@ class Game:
 
     def _exit_action(self):
         self._exit = True
+
+
+
+def _list_extend(my_list: list, *args) -> list:
+    """Returns a shallow copy of the first list with shallow copies of args at the end."""
+    result = list(my_list)
+    result.extend(args)
+    return result

@@ -5,8 +5,8 @@ import subprocess
 import sys
 from maelstrom.io import Chooser, StandardOutputChannel
 from maelstrom.ui import AbstractUserInterface, Screen
-from maelstrom.util.stringUtil import lengthOfLongest
-from maelstrom.util.config import get_global_config
+from maelstrom.string_utils import length_of_longest
+from maelstrom.config import Config
 
 SCREEN_COLS = 80
 BORDER = "#"
@@ -15,6 +15,10 @@ NUM_BODY_ROWS = 10
 OUTPUT = StandardOutputChannel()
 
 class ConsoleUI(AbstractUserInterface):
+    def __init__(self, config: Config) -> None:
+        super().__init__()
+        self._config = config
+
     async def display_and_choose(self, screen: Screen) -> any:
         body = []
         for scoreboard_row in zip_longest(screen.left_scoreboard, screen.right_scoreboard, fillvalue=''):
@@ -63,7 +67,7 @@ class ConsoleUI(AbstractUserInterface):
         return result
     
     def _write_body_page(self, screen: Screen, body: list[str], page: int):
-        if not get_global_config().keep_output:
+        if not self._config.keep_output:
             works = subprocess.call("cls", shell=True)
             if works != 0: # is false, didn't run
                 works = subprocess.call("clear", shell=True)
@@ -102,7 +106,7 @@ class ConsoleUI(AbstractUserInterface):
         colWidths = []
         colStart = 0
         while colStart < len(options): #                                                 + 1 so there's a space between columns
-            colWidths.append(lengthOfLongest(options[colStart:(colStart + OPTION_ROWS)]) + 1)
+            colWidths.append(length_of_longest(options[colStart:(colStart + OPTION_ROWS)]) + 1)
             colStart += OPTION_ROWS # next column
         """
         colWidths[0] contains the width of the first OPTION_ROWS options,

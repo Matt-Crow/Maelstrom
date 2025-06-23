@@ -10,9 +10,9 @@ Characters make a choice of which TargetOption they wish to use, not just which
 active they wish to use.
 """
 
+import random
 from maelstrom.dataClasses.character import Boost, Character
 from maelstrom.gameplay.events import OnHitEvent
-from maelstrom.util.random import rollPercentage
 from abc import abstractmethod
 import functools
 
@@ -133,6 +133,19 @@ class AbstractActive:
         return [TargetOption(self, user, targets) for targets in lists_of_targets]
 
 
+def _roll_percentage(base = 0):
+    """Chooses a random number between base and 100"""
+    ret = 100
+    base = int(base)
+    # don't roll if base is more than 100
+    if base > 100 or 0 > base:
+        raise ValueError(f'base must be between 0 and 100, so {base} is not allowed')
+    else:
+        ret = random.randint(base, 100)
+
+    return ret
+
+
 class DamagingActive(AbstractActive):
     def __init__(self, name: str, description: str, cost: int, target_offsets: list[int], damage_multiplier: float):
         super().__init__(name, description, cost, True, target_offsets)
@@ -142,7 +155,7 @@ class DamagingActive(AbstractActive):
         base_dmg = self.get_damage_against(user, target)
 
         # check for miss, hit, or crit (mhc)
-        rng = rollPercentage(int(user.get_stat_value("luck"))) / 100
+        rng = _roll_percentage(int(user.get_stat_value("luck"))) / 100
         hit_multiplier = 1.0
         hit_message = "" # don't put a space at the end here
         if rng <= _MISS_CHANCE:

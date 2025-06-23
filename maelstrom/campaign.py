@@ -6,7 +6,7 @@ Each player will keep track of the campaign they are playing and their various
 statistics within that campaign, such as which levels they have won or lost.
 """
 
-from maelstrom.util.stringUtil import entab
+from maelstrom.string_utils import entab
 
 class Level:
     """
