@@ -4,7 +4,7 @@ functions that act on their data, preventing classes from become cumbersome
 """
 
 from functools import reduce
-from maelstrom.campaign.level import Level
+from maelstrom.campaign.campaign import Level
 from maelstrom.dataClasses.character import Character
 from maelstrom.dataClasses.activeAbilities import TargetOption
 from maelstrom.dataClasses.team import Team, User
