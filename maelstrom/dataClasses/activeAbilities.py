@@ -14,7 +14,6 @@ from maelstrom.dataClasses.character import Character
 from maelstrom.dataClasses.stat_classes import Boost
 from maelstrom.gameplay.events import OnHitEvent
 from maelstrom.util.random import rollPercentage
-from maelstrom.dataClasses.elements import ELEMENTS
 from abc import abstractmethod
 import functools
 
@@ -213,6 +212,8 @@ _DEFAULT_ACTIVES = [
 
 def _make_elemental_bolt(element) -> DamagingActive:
     return DamagingActive(f'{element} bolt', "strike an enemy for 1.75X damage", 10, _CLEAVE, 1.75)
+
+ELEMENTS = ("lightning", "rain", "hail", "wind")
 
 def get_all_actives() -> list[AbstractActive]:
     options = []
