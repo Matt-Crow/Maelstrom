@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 import json
 from genericpath import isfile
 from typing import Optional
-from maelstrom.campaign.campaign import Area, Campaign, Level
+from maelstrom.campaign import Area, Campaign, Level
 from os import listdir
 from os.path import join
 
