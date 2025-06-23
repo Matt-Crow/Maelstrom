@@ -5,7 +5,7 @@ from maelstrom.dataClasses.team import User
 from maelstrom.gameplay.combat import play_level
 from maelstrom.loaders.campaignloader import make_default_campaign_loader
 from maelstrom.loaders.character_loader import EnemyLoader
-from maelstrom.loaders.character_template_loader import make_starter_template_loader
+from maelstrom.loaders.character_template_loader import make_recruit_template_loader, make_starter_template_loader
 from maelstrom.loaders.user_repository import UserRepository
 from maelstrom.ui import Choice, Screen
 from maelstrom.ui_console import ConsoleUI
@@ -81,8 +81,6 @@ class Game:
         )
         starter_name = await self._ui.display_and_choose(screen)
         starter_template = self._starters.get_character_template_by_name(starter_name)
-        if starter_template is None:
-            raise KeyError(f'Invalid character name: "{starter_name}"')
         starter = Character(
             template=starter_template,
             specification=CharacterSpecification(name=starter_name),
@@ -103,6 +101,7 @@ class Game:
             choice=Choice("Choose an option", [
                 "Explore",
                 "View Party Info",
+                "Recruit",
                 "Exit"
             ])
         )
@@ -112,6 +111,8 @@ class Game:
                 await self._explore()
             case "View Party Info":
                 await self._display_party()
+            case "Recruit":
+                await self._recruit()
             case "Exit":
                 self._exit_action()
 
@@ -140,6 +141,34 @@ class Game:
             body_rows=self.user.get_display_data()
         )
         await self._ui.display_and_choose(screen)
+
+    async def _recruit(self):
+        if self.user is None:
+            return
+        
+        recruit_loader = make_recruit_template_loader()
+        recruit_names = [t.name for t in recruit_loader.get_all_character_templates()]
+        party_names = [m.name for m in self.user.party]
+        option_names = list(set(recruit_names).difference(set(party_names)))
+        option_templates = [recruit_loader.get_character_template_by_name(n) for n in option_names]
+        recruit_options = [Character(
+            template=t,
+            specification=CharacterSpecification(t.name),
+            actives=createDefaultActives(t.element)
+        ) for t in option_templates]
+        
+        screen = Screen(
+            title="Recruits",
+            body_rows=[m.get_display_data() for m in recruit_options],
+            choice=Choice(
+                prompt="Who do you want to recruit?",
+                options=list_extend(recruit_options, "none of these")
+            )
+        )
+        choice = await self._ui.display_and_choose(screen)
+
+        if choice != "none of these":
+            self.user.party.append(choice)
 
     def _exit_action(self):
         self._exit = True

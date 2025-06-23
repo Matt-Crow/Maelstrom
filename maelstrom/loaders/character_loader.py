@@ -26,8 +26,6 @@ class EnemyLoader:
         character exists in the repository
         """
         template = self._templates.get_character_template_by_name(name)
-        if template is None:
-            raise ValueError(f'invalid character name: {name}')
         constructed = Character(
             template=template,
             specification=CharacterSpecification(name=name),

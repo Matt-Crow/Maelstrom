@@ -46,8 +46,11 @@ class CharacterTemplateLoader:
             energy=int(row['energy'])
         )
 
-    def get_character_template_by_name(self, name: str) -> CharacterTemplate|None:
-        return self._cache.get(name.lower())
+    def get_character_template_by_name(self, name: str) -> CharacterTemplate:
+        character_template = self._cache.get(name.lower())
+        if character_template is None:
+            raise KeyError(f'Invalid character name: "{name}"')
+        return character_template
     
     def get_all_character_templates(self) -> list[CharacterTemplate]:
         return list(self._cache.values())

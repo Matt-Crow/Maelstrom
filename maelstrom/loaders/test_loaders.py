@@ -6,9 +6,9 @@ class TestLoaders(unittest.TestCase):
     def test_CharacterTemplateLoader(self):
         sut = CharacterTemplateLoader()
         sut.add_character_template(CharacterTemplate('bar', 'wind', 'dummy'))
-        no_exist = sut.get_character_template_by_name('foo')
+        with self.assertRaises(Exception):
+            sut.get_character_template_by_name('foo')
         exists = sut.get_character_template_by_name('bar')
-        self.assertTrue(no_exist is None)
         self.assertFalse(exists is None)
 
     def test_loading(self):
