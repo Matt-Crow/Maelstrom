@@ -6,10 +6,11 @@ import json
 from os import walk
 import os
 from maelstrom.characters.specification import json_dict_to_character_specification
+from maelstrom.dataClasses.activeAbilities import AbstractActive, get_all_actives
 from maelstrom.dataClasses.character import Character
 from maelstrom.dataClasses.team import User
 from maelstrom.loaders.character_template_loader import make_player_character_template_loader
-from maelstrom.loaders.character_loader import load_active
+
 
 class UserRepository:
     """
@@ -65,3 +66,13 @@ class UserRepository:
     def _get_path_by_user_name(self, user_name: str) -> str:
         file_name = user_name.replace(" ", "_") + ".json"
         return os.path.join(self._folder, file_name)
+
+
+NAME_TO_ACTIVE = dict()
+for active in get_all_actives():
+    NAME_TO_ACTIVE[active.name] = active
+
+def load_active(name: str) -> AbstractActive:
+    if name not in NAME_TO_ACTIVE:
+        raise Exception(f'no active defined with name "{name}"')
+    return NAME_TO_ACTIVE[name]

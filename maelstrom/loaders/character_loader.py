@@ -1,16 +1,8 @@
-"""
-This module handles the conversion of JSON files of characters into Character
-objects in the program
-"""
-
 from maelstrom.characters.specification import CharacterSpecification
-from maelstrom.dataClasses.activeAbilities import AbstractActive, createDefaultActives, get_all_actives
+from maelstrom.dataClasses.activeAbilities import createDefaultActives
 from maelstrom.dataClasses.character import Character
 from maelstrom.loaders.character_template_loader import make_enemy_template_loader
 
-NAME_TO_ACTIVE = dict()
-for active in get_all_actives():
-    NAME_TO_ACTIVE[active.name] = active
 
 class EnemyLoader:
     """
@@ -33,8 +25,3 @@ class EnemyLoader:
         )
         return constructed        
 
-
-def load_active(name: str) -> AbstractActive:
-    if name not in NAME_TO_ACTIVE:
-        raise Exception(f'no active defined with name "{name}"')
-    return NAME_TO_ACTIVE[name]
