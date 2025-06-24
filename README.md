@@ -5,9 +5,9 @@ poured countless hours of work into. I learned so much while making this game,
 both about programming and game design in general.
 
 ## Running the Program
-run using `python maelstrom.py`.
+run using `python main.py`.
 
-Use `python maelstrom.py -h` to view command line options.
+Use `python main.py -h` to view command line options.
 
 ## Testing
 `python -m unittest`

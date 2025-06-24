@@ -1,1 +1,1 @@
-python maelstrom.py
+python main.py

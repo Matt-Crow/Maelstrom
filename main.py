@@ -44,7 +44,7 @@ Version 0.9
 
 import argparse
 import asyncio
-from game import Game
+from maelstrom.game import Game
 from maelstrom.config import Config
 
 async def main():
