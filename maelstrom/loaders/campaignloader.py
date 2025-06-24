@@ -1,38 +1,15 @@
-from abc import ABC, abstractmethod
 import json
 from genericpath import isfile
-from typing import Optional
 from maelstrom.campaign import Area, Campaign, Level
 from os import listdir
 from os.path import join
 
-class AbstractCampaignLoader(ABC):
-    """Loads campaigns from an external resource."""
-
-    @abstractmethod
-    def get(self, name: str) -> Campaign:
-        """
-        returns the Campaign with the given name, or None if no such Campaign 
-        exists
-        """
-        pass
-
-    @abstractmethod
-    def get_all(self) -> 'list[Campaign]':
-        """returns all available Campaigns"""
-        pass
-
-class JsonFolderCampaignLoader(AbstractCampaignLoader):
+class JsonFolderCampaignLoader:
     """Loads campaigns from a folder containing JSON files"""
 
     def __init__(self):
         self._campaigns: dict[str,Campaign] = dict()
         self._all_loaded = False
-    
-    def get(self, name: str) -> Optional[Campaign]:
-        if not name in self._campaigns:
-            self._load_file(name)
-        return self._campaigns.get(name)
     
     def get_all(self) -> 'list[Campaign]':
         if not self._all_loaded:
@@ -62,7 +39,7 @@ class JsonFolderCampaignLoader(AbstractCampaignLoader):
         return Level(**as_json)
 
 
-def make_default_campaign_loader() -> AbstractCampaignLoader:
+def make_default_campaign_loader() -> JsonFolderCampaignLoader:
     """Creates the default campaign loader used by the program."""
     return JsonFolderCampaignLoader()
 

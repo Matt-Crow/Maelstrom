@@ -33,8 +33,6 @@ class EnemyLoader:
         )
         return constructed        
 
-    def get_options(self) -> list[str]:
-        return [option.name for option in self._templates.get_all_character_templates()]
 
 def load_active(name: str) -> AbstractActive:
     if name not in NAME_TO_ACTIVE:
