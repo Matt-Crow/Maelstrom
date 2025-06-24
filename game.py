@@ -2,7 +2,7 @@ from maelstrom.characters.specification import CharacterSpecification
 from maelstrom.dataClasses.activeAbilities import createDefaultActives
 from maelstrom.dataClasses.character import Character
 from maelstrom.dataClasses.team import User
-from maelstrom.gameplay.combat import play_level
+from maelstrom.combat import play_level
 from maelstrom.loaders.campaignloader import make_default_campaign_loader
 from maelstrom.loaders.character_loader import EnemyLoader
 from maelstrom.loaders.character_template_loader import make_recruit_template_loader, make_starter_template_loader

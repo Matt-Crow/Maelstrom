@@ -49,7 +49,8 @@ class CharacterTemplateLoader:
     def get_character_template_by_name(self, name: str) -> CharacterTemplate:
         character_template = self._cache.get(name.lower())
         if character_template is None:
-            raise KeyError(f'Invalid character name: "{name}"')
+            valid_options = ",".join(self._cache.keys())
+            raise KeyError(f'Invalid character name: "{name}". Valid options are {valid_options}')
         return character_template
     
     def get_all_character_templates(self) -> list[CharacterTemplate]:
@@ -73,3 +74,10 @@ def make_recruit_template_loader() -> CharacterTemplateLoader:
     recruit_loader = CharacterTemplateLoader()
     recruit_loader.load_character_template_file("recruit")
     return recruit_loader
+
+def make_player_character_template_loader() -> CharacterTemplateLoader:
+    """Returns a loader which provides both starter and recruit templates"""
+    loader = CharacterTemplateLoader()
+    loader.load_character_template_file("starter")
+    loader.load_character_template_file("recruit")
+    return loader

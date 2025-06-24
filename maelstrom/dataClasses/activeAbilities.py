@@ -12,7 +12,7 @@ active they wish to use.
 
 import random
 from maelstrom.dataClasses.character import Boost, Character
-from maelstrom.gameplay.events import OnHitEvent
+from maelstrom.events import OnHitEvent
 from abc import abstractmethod
 import functools
 

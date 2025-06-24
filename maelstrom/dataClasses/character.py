@@ -4,7 +4,7 @@
 
 from maelstrom.characters.specification import CharacterSpecification
 from maelstrom.characters.template import CharacterTemplate
-from maelstrom.gameplay.events import EventPublisher, OnHitEvent
+from maelstrom.events import EventPublisher, OnHitEvent
 from maelstrom.string_utils import entab, length_of_longest
 
 _STATS = ["control", "resistance", "potency", "luck", "energy"]

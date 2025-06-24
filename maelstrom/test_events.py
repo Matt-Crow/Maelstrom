@@ -1,6 +1,6 @@
 import unittest
 
-from maelstrom.gameplay.events import EventPublisher
+from maelstrom.events import EventPublisher
 
 class TestEvents(unittest.TestCase):
     def test(self):
